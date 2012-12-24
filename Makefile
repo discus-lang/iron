@@ -5,9 +5,13 @@ COQDEP		= coqdep
 COQC		= coqc
 THREADS		= 4
 
+
 # -- Roots ----------------------------------------------------------
 root_done \
- =	done/Iron/Language/Simple.vo
+ =	done/Iron/Language/Simple.vo \
+ 	done/Iron/Language/SimplePCF.vo \
+ 	done/Iron/Language/SimpleRef.vo \
+ 	done/Iron/Language/SimpleData.vo
 
 
 # -------------------------------------------------------------------
