@@ -1,6 +1,6 @@
 
-Require Import DDC.Language.SimplePCFa.Exp.
-Require Import DDC.Language.SimplePCFa.ExpLift.
+Require Import Iron.Language.SimplePCFa.Exp.
+Require Import Iron.Language.SimplePCFa.ExpLift.
 
 
 (* Substitute for the outer-most binder in an expression *)

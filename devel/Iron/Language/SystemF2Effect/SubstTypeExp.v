@@ -1,8 +1,8 @@
 
-Require Import DDC.Language.SystemF2Effect.SubstTypeType.
-Require Import DDC.Language.SystemF2Effect.VaExpSubst.
-Require Import DDC.Language.SystemF2Effect.TyEnv.
-Require Import DDC.Language.SystemF2Effect.TyJudge.
+Require Import Iron.Language.SystemF2Effect.SubstTypeType.
+Require Import Iron.Language.SystemF2Effect.VaExpSubst.
+Require Import Iron.Language.SystemF2Effect.TyEnv.
+Require Import Iron.Language.SystemF2Effect.TyJudge.
 Require Import Coq.Logic.FunctionalExtensionality.
 
 

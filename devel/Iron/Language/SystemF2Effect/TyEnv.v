@@ -1,8 +1,8 @@
 
-Require Import DDC.Language.SystemF2Effect.TySubst.
-Require Import DDC.Language.SystemF2Effect.TyLift.
-Require Import DDC.Language.SystemF2Effect.TyWfT.
-Require Import DDC.Language.SystemF2Effect.TyExp.
+Require Import Iron.Language.SystemF2Effect.TySubst.
+Require Import Iron.Language.SystemF2Effect.TyLift.
+Require Import Iron.Language.SystemF2Effect.TyWfT.
+Require Import Iron.Language.SystemF2Effect.TyExp.
 
 
 (* Type Enviroments *)

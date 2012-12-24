@@ -1,6 +1,6 @@
 
-Require Export DDC.Language.SystemF2Effect.VaExpBase.
-Require Export DDC.Language.SystemF2Effect.TyWfT.
+Require Export Iron.Language.SystemF2Effect.VaExpBase.
+Require Export Iron.Language.SystemF2Effect.TyWfT.
 
 (* Well formed expressions are closed under the given environment. *)
 Inductive wfV (kn tn sn: nat) : val -> Prop :=

@@ -1,6 +1,6 @@
 
-Require Export DDC.Base.
-Require Export DDC.Language.SimpleResource.Ty.
+Require Export Iron.Base.
+Require Export Iron.Language.SimpleResource.Ty.
 Require Export Coq.Strings.String.
 
 

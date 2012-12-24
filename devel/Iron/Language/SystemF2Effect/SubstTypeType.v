@@ -1,6 +1,6 @@
 
-Require Export DDC.Language.SystemF2Effect.TySubst.
-Require Export DDC.Language.SystemF2Effect.KiJudge.
+Require Export Iron.Language.SystemF2Effect.TySubst.
+Require Export Iron.Language.SystemF2Effect.KiJudge.
 
 
 (* Substitution of types in types preserves kinding.

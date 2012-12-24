@@ -1,8 +1,8 @@
 
-Require Import DDC.Language.SimplePCFa.StepTerm.
-Require Import DDC.Language.SimplePCFa.StepBase.
-Require Import DDC.Language.SimplePCFa.Exp.
-Require Import DDC.Language.SimplePCFa.ExpSubst.
+Require Import Iron.Language.SimplePCFa.StepTerm.
+Require Import Iron.Language.SimplePCFa.StepBase.
+Require Import Iron.Language.SimplePCFa.Exp.
+Require Import Iron.Language.SimplePCFa.ExpSubst.
 
 
 (********************************************************************)

@@ -1,6 +1,8 @@
 
-Require Import DDC.Language.SimpleResource.Ty.
-Require Import DDC.Language.SimpleResource.Exp.
+
+Require Import Iron.Language.SimpleResource.Ty.
+Require Import Iron.Language.SimpleResource.Exp.
+
 
 Fixpoint substTT (d: nat) (t1: ty) (t2: ty)
  := t2.

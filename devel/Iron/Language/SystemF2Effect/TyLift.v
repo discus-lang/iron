@@ -1,6 +1,6 @@
 
-Require Import DDC.Language.SystemF2Effect.TyExp.
-Require Import DDC.Language.SystemF2Effect.TyWfT.
+Require Import Iron.Language.SystemF2Effect.TyExp.
+Require Import Iron.Language.SystemF2Effect.TyWfT.
 
 
 (*******************************************************************)

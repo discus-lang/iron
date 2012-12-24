@@ -1,9 +1,9 @@
 
-Require Import DDC.Language.SystemF2Effect.SubstTypeType.
-Require Import DDC.Language.SystemF2Effect.SubstTypeExp.
-Require Import DDC.Language.SystemF2Effect.TyJudge.
-Require Import DDC.Language.SystemF2Effect.TyEnv.
-Require Import DDC.Language.SystemF2Effect.VaExpSubst.
+Require Import Iron.Language.SystemF2Effect.SubstTypeType.
+Require Import Iron.Language.SystemF2Effect.SubstTypeExp.
+Require Import Iron.Language.SystemF2Effect.TyJudge.
+Require Import Iron.Language.SystemF2Effect.TyEnv.
+Require Import Iron.Language.SystemF2Effect.VaExpSubst.
 
 
 (* Substitution of values in exps preserves typing *)

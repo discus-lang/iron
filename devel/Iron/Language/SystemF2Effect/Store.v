@@ -1,6 +1,6 @@
 
-Require Import DDC.Language.SystemF2Effect.TyJudge.
-Require Import DDC.Language.SystemF2Effect.VaExpBase.
+Require Import Iron.Language.SystemF2Effect.TyJudge.
+Require Import Iron.Language.SystemF2Effect.VaExpBase.
 
 
 (********************************************************************)

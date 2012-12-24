@@ -1,5 +1,5 @@
 
-Require Export DDC.Base.
+Require Export Iron.Base.
 
 (* Kinds *)
 Inductive ki : Type :=

@@ -1,7 +1,7 @@
 
-Require Import DDC.Language.DiscipleKernel.KiJudge.
-Require Import DDC.Language.DiscipleKernel.TySubst.
-Require Import DDC.Language.DiscipleKernel.VaExp.
+Require Import Iron.Language.DiscipleKernel.KiJudge.
+Require Import Iron.Language.DiscipleKernel.TySubst.
+Require Import Iron.Language.DiscipleKernel.VaExp.
 
 
 Inductive TYPEW : kienv -> tyenv -> wit -> ty -> Prop :=

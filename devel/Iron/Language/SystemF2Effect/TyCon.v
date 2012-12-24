@@ -1,5 +1,5 @@
 
-Require Export DDC.Language.SystemF2Effect.Ki.
+Require Export Iron.Language.SystemF2Effect.Ki.
 
 
 (* Type Constructors. *)

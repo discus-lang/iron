@@ -17,6 +17,9 @@ root_done \
  	done/Iron/Language/SystemF2Data.vo \
  	done/Iron/Language/SystemF2Store.vo 
 
+root_devel \
+ =	devel/Iron/Language/SystemF2Effect.vo
+
 
 # -------------------------------------------------------------------
 .PHONY : all
@@ -27,7 +30,13 @@ all:
 
 # Build the Coq proofs.
 .PHONY: proof
+proof: $(root_done) $(root_devel)
+
+.PHONY: done
 proof: $(root_done)
+
+.PHONY: devel
+proof: $(root_devel)
 
 
 # Build dependencies for Coq proof scripts.
@@ -35,14 +44,16 @@ proof: $(root_done)
 deps: make/proof.deps
 
 # Find Coq proof scripts
-src_coq_v 	= $(shell find done -name "*.v" -follow)
+src_coq_v \
+ = 	$(shell find done  -name "*.v" -follow) \
+ 	$(shell find devel -name "*.v" -follow)
 
 # Coqc makes a .vo and a .glob from each .v file.
 src_coq_vo	= $(patsubst %.v,%.vo,$(src_coq_v))
 	
 make/proof.deps : $(src_coq_v)
 	@echo "* Building proof dependencies"
-	@$(COQDEP) -R done/Iron Iron $(src_coq_v) > make/proof.deps
+	@$(COQDEP) -R done/Iron Iron -R devel/Iron Iron $(src_coq_v) > make/proof.deps
 	@cp make/proof.deps make/proof.deps.inc
 
 

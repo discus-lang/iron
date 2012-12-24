@@ -1,15 +1,15 @@
 
-Require Export DDC.Language.SimplePCFa.Eval.
-Require Export DDC.Language.SimplePCFa.StepTerm.
-Require Export DDC.Language.SimplePCFa.StepFrame.
-Require Export DDC.Language.SimplePCFa.StepBase.
-Require Export DDC.Language.SimplePCFa.TyJudge.
-Require Export DDC.Language.SimplePCFa.ExpLower.
-Require Export DDC.Language.SimplePCFa.ExpLift.
-Require Export DDC.Language.SimplePCFa.ExpSwap.
-Require Export DDC.Language.SimplePCFa.ExpRefs.
-Require Export DDC.Language.SimplePCFa.ExpSubsts.
-Require DDC.Base.
+Require Export Iron.Language.SimplePCFa.Eval.
+Require Export Iron.Language.SimplePCFa.StepTerm.
+Require Export Iron.Language.SimplePCFa.StepFrame.
+Require Export Iron.Language.SimplePCFa.StepBase.
+Require Export Iron.Language.SimplePCFa.TyJudge.
+Require Export Iron.Language.SimplePCFa.ExpLower.
+Require Export Iron.Language.SimplePCFa.ExpLift.
+Require Export Iron.Language.SimplePCFa.ExpSwap.
+Require Export Iron.Language.SimplePCFa.ExpRefs.
+Require Export Iron.Language.SimplePCFa.ExpSubsts.
+Require Iron.Base.
 
 
 (* Expressions are ciu-equivalent at the given type
@@ -90,45 +90,4 @@ Proof.
  eapply type_tyenv_delete with (ix := 1) in H5. 
   simpl in H5. auto. auto.
 Qed.
-
-
-Lemma eciu_if_let_let_nest
-v v v v v v v
- :  forall te z1 z2 t x1 t1 x2 t2 x3
- ,  z1 = XLet t1 x1 (XLet t2 x2 x3)
- -> z2 = XLet t2 (XLet t1 (liftXX 1 x1) (swapXX 0 x2)) (lowerXX 1 x3)
- -> ~ (refsXX 1 x3)
- -> TYPEX te z1 t
- -> EQCIU te z1 z2 t.
-*************
- :  forall te z1 z2 t1 x1 t2 x2 t3 x3
- ,  z1 = XLet t1 x1 (XLet t2 x2  x3)
- -> z2 = XLet t2 (XLet t1 x1 (liftXX 0 x2)) (lowerXX 1 x3)
- -> TYPEX te z1 t3
- -> not (refsXX 1 x3)
- -> EQCIU te z1 z2 t3.
-^ ^ ^ ^ ^ ^ ^
-Proof.
- intros. subst. red. intros.
- unfold csubstVXs in H4.
- unfold csubstVXs in H5. rip.
- split; intros.
-
- simpl in H4.
-
- simpl in *.
- inverts H4.
-
-  admit. (* Finish me! *)
-Qed.
-
-
-
-
-
-
-
-
-
-
 

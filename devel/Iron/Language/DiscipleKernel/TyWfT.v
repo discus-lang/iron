@@ -1,5 +1,5 @@
 
-Require Export DDC.Language.DiscipleKernel.TyExp.
+Require Export Iron.Language.DiscipleKernel.TyExp.
 
 
 (********************************************************************)

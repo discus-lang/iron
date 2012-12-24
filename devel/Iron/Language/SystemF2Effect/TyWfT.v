@@ -1,6 +1,6 @@
 
-Require Export DDC.Language.SystemF2Effect.Ki.
-Require Export DDC.Language.SystemF2Effect.TyExp.
+Require Export Iron.Language.SystemF2Effect.Ki.
+Require Export Iron.Language.SystemF2Effect.TyExp.
 
 
 (********************************************************************)

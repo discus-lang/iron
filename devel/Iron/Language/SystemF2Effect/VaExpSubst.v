@@ -1,7 +1,7 @@
 
-Require Export DDC.Language.SystemF2Effect.TySubst.
-Require Export DDC.Language.SystemF2Effect.VaExpBase.
-Require Export DDC.Language.SystemF2Effect.VaExpLift.
+Require Export Iron.Language.SystemF2Effect.TySubst.
+Require Export Iron.Language.SystemF2Effect.VaExpBase.
+Require Export Iron.Language.SystemF2Effect.VaExpLift.
 
 
 (* Substitution of Types in Exps *)

@@ -1,7 +1,6 @@
 
-
-Require Export DDC.Base.
-Require Export DDC.Language.DiscipleKernel.TyExp.
+Require Export Iron.Base.
+Require Export Iron.Language.DiscipleKernel.TyExp.
 
 
 (* Capabilities *)

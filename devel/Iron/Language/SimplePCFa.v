@@ -1,40 +1,40 @@
 
 (* Types, expressions, normal forms, values, lifting and substitution *)
-Require Export DDC.Language.SimplePCFa.Exp.
-Require Export DDC.Language.SimplePCFa.ExpRefs.
-Require Export DDC.Language.SimplePCFa.ExpLift.
-Require Export DDC.Language.SimplePCFa.ExpLower.
-Require Export DDC.Language.SimplePCFa.ExpSwap.
-Require Export DDC.Language.SimplePCFa.ExpSubst.
-Require Export DDC.Language.SimplePCFa.ExpSubsts.
+Require Export Iron.Language.SimplePCFa.Exp.
+Require Export Iron.Language.SimplePCFa.ExpRefs.
+Require Export Iron.Language.SimplePCFa.ExpLift.
+Require Export Iron.Language.SimplePCFa.ExpLower.
+Require Export Iron.Language.SimplePCFa.ExpSwap.
+Require Export Iron.Language.SimplePCFa.ExpSubst.
+Require Export Iron.Language.SimplePCFa.ExpSubsts.
 
 (* Type Expressions *)
-Require Export DDC.Language.SimplePCFa.Ty.
+Require Export Iron.Language.SimplePCFa.Ty.
 
 (* Type Judgement *)
-Require Export DDC.Language.SimplePCFa.TyJudge.
+Require Export Iron.Language.SimplePCFa.TyJudge.
 
 (*
 (* Substitution of exps in exps preserves typing. *)
-Require Export DDC.Language.SimplePCF.SubstExpExp.
+Require Export Iron.Language.SimplePCF.SubstExpExp.
 *)
+
 (* Small step evaluation. *)
-Require Export DDC.Language.SimplePCFa.StepBase.
-Require Export DDC.Language.SimplePCFa.StepFrame.
-Require Export DDC.Language.SimplePCFa.StepTerm.
+Require Export Iron.Language.SimplePCFa.StepBase.
+Require Export Iron.Language.SimplePCFa.StepFrame.
+Require Export Iron.Language.SimplePCFa.StepTerm.
 
 
 (* Big step evaluation, and conversion between small step evaluation. *)
-Require Export DDC.Language.SimplePCFa.Eval.
+Require Export Iron.Language.SimplePCFa.Eval.
 
 (* CIU equivalence *)
-(* Require Export DDC.Language.SimplePCFa.EquivCIU. *)
+(* Require Export Iron.Language.SimplePCFa.EquivCIU. *)
 
 (*
 (* A well typed expression is either a value or can take a step. *)
-Require Export DDC.Language.SimplePCF.Progress.
+Require Export Iron.Language.SimplePCF.Progress.
 
 (* When an expression takes a step then the result has the same type. *)
-Require Export DDC.Language.SimplePCF.Preservation.
-
+Require Export Iron.Language.SimplePCF.Preservation.
 *)

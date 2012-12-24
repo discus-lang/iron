@@ -1,6 +1,6 @@
 
-Require Export DDC.Base.
-Require Export DDC.Language.SystemF2Effect.TyExp.
+Require Export Iron.Base.
+Require Export Iron.Language.SystemF2Effect.TyExp.
 
 
 (* Constants *)

@@ -1,6 +1,6 @@
 
-Require Export DDC.Base.
-Require Export DDC.Language.SimplePCFa.Ty.
+Require Export Iron.Base.
+Require Export Iron.Language.SimplePCFa.Ty.
 
 
 (* Constants *)

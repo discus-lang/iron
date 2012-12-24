@@ -1,7 +1,7 @@
 
+Require Import Iron.Language.SimplePCFa.Exp.
+Require Import Iron.Language.SimplePCFa.ExpLift.
 
-Require Import DDC.Language.SimplePCFa.Exp.
-Require Import DDC.Language.SimplePCFa.ExpLift.
 
 (* Substitution of values in expressions and values *)
 Definition substVVs' (ix: nat) (d: nat) (vs: list val) (vv: val)

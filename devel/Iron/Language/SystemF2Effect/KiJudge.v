@@ -1,7 +1,7 @@
 
-Require Export DDC.Language.SystemF2Effect.TyLift.
-Require Export DDC.Language.SystemF2Effect.TyWfT.
-Require Export DDC.Language.SystemF2Effect.TyExp.
+Require Export Iron.Language.SystemF2Effect.TyLift.
+Require Export Iron.Language.SystemF2Effect.TyWfT.
+Require Export Iron.Language.SystemF2Effect.TyExp.
 
 
 (* Only types of effect and closure kinds can be used in sums. *)

@@ -1,6 +1,6 @@
 
-Require Import DDC.Language.SimplePCFa.Exp.
-Require Import DDC.Language.SimplePCFa.ExpLift.
+Require Import Iron.Language.SimplePCFa.Exp.
+Require Import Iron.Language.SimplePCFa.ExpLift.
 
 
 (* Lowering of references into the environment *)

@@ -1,6 +1,6 @@
 
-Require Export DDC.Language.DiscipleKernel.Ki.
-Require Export DDC.Language.DiscipleKernel.TyCon.
+Require Export Iron.Language.DiscipleKernel.Ki.
+Require Export Iron.Language.DiscipleKernel.TyCon.
 
 
 (********************************************************************)

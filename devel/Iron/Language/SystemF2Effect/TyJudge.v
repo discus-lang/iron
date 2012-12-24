@@ -1,10 +1,10 @@
 
-Require Import DDC.Language.SystemF2Effect.KiJudge.
-Require Import DDC.Language.SystemF2Effect.TySubst.
-Require Import DDC.Language.SystemF2Effect.TyEnv.
-Require Import DDC.Language.SystemF2Effect.VaExpBase.
-Require Import DDC.Language.SystemF2Effect.VaExpWfX.
-Require Import DDC.Language.SystemF2Effect.VaExpLift.
+Require Import Iron.Language.SystemF2Effect.KiJudge.
+Require Import Iron.Language.SystemF2Effect.TySubst.
+Require Import Iron.Language.SystemF2Effect.TyEnv.
+Require Import Iron.Language.SystemF2Effect.VaExpBase.
+Require Import Iron.Language.SystemF2Effect.VaExpWfX.
+Require Import Iron.Language.SystemF2Effect.VaExpLift.
 
 
 (* Store Environment holds the types of locations. *)

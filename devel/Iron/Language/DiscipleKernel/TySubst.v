@@ -1,6 +1,6 @@
 
-Require Export DDC.Language.DiscipleKernel.TyExp.
-Require Export DDC.Language.DiscipleKernel.TyLift.
+Require Export Iron.Language.DiscipleKernel.TyExp.
+Require Export Iron.Language.DiscipleKernel.TyLift.
 Require Import Coq.Logic.FunctionalExtensionality.
 
 

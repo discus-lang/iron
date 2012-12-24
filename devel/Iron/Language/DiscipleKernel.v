@@ -1,29 +1,29 @@
 (* Disciple Kernel. *)
 
 (* Kinds and Sorts. *)
-Require Export DDC.Language.DiscipleKernel.Ki.
+Require Export Iron.Language.DiscipleKernel.Ki.
 
 (* Type Constructors. *)
-Require Export DDC.Language.DiscipleKernel.TyCon.
+Require Export Iron.Language.DiscipleKernel.TyCon.
 
 (* Type Expressions. *)
-Require Export DDC.Language.DiscipleKernel.TyExp.
+Require Export Iron.Language.DiscipleKernel.TyExp.
 
 (* Well formeness of type expressions. *)
-Require Export DDC.Language.DiscipleKernel.TyWfT.
+Require Export Iron.Language.DiscipleKernel.TyWfT.
 
 (* Kinds of types. *)
-Require Export DDC.Language.DiscipleKernel.KiJudge.
+Require Export Iron.Language.DiscipleKernel.KiJudge.
 
 (* Lifting of type indices in types. *)
-Require Export DDC.Language.DiscipleKernel.TyLift.
+Require Export Iron.Language.DiscipleKernel.TyLift.
 
 (* Substitution of types in types. *)
-Require Export DDC.Language.DiscipleKernel.TySubst.
+Require Export Iron.Language.DiscipleKernel.TySubst.
 
 (* Witness expressions *)
-Require Export DDC.Language.DiscipleKernel.WiExp.
+Require Export Iron.Language.DiscipleKernel.WiExp.
 
 (* Value expressions *)
-Require Export DDC.Language.DiscipleKernel.VaExp.
+Require Export Iron.Language.DiscipleKernel.VaExp.
 

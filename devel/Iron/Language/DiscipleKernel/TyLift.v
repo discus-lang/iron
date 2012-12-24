@@ -1,6 +1,6 @@
 
-Require Export DDC.Language.DiscipleKernel.TyExp.
-Require Export DDC.Language.DiscipleKernel.TyWfT.
+Require Export Iron.Language.DiscipleKernel.TyExp.
+Require Export Iron.Language.DiscipleKernel.TyWfT.
 
 
 (*******************************************************************)

@@ -1,6 +1,6 @@
 
-Require Import DDC.Language.SimplePCFa.StepBase.
-Require Import DDC.Language.SimplePCFa.StepFrame.
+Require Import Iron.Language.SimplePCFa.StepBase.
+Require Import Iron.Language.SimplePCFa.StepFrame.
 
 
 (******************************************************************************)

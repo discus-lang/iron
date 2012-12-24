@@ -1,7 +1,8 @@
 
-Require Import DDC.Language.SimplePCFa.StepBase.
-Require Import DDC.Language.SimplePCFa.ExpSubst.
-Require Import DDC.Language.SimplePCFa.Exp.
+Require Import Iron.Language.SimplePCFa.StepBase.
+Require Import Iron.Language.SimplePCFa.ExpSubst.
+Require Import Iron.Language.SimplePCFa.Exp.
+
 
 (* Frame stacks *)
 (* Holds the continuation while a 'let' expression reduces the bound term. *)
