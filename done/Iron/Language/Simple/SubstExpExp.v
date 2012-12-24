@@ -1,6 +1,6 @@
 
-Require Import Iron.Language.Simple.Ty.
 Require Export Iron.Language.Simple.Exp.
+Require Import Iron.Language.Simple.Ty.
 Require Import Coq.Logic.FunctionalExtensionality.
 
 

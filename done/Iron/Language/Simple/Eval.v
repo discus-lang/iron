@@ -10,8 +10,7 @@ Require Export Iron.Language.Simple.Exp.
 (** Big Step Evaluation *)
 (*  This is also called 'Natural Semantics'.
     It provides a relation between the expression to be reduced 
-    and its final value. 
- *)
+    and its final value. *)
 Inductive EVAL : exp -> exp -> Prop :=
  | EVDone
    :  forall v2
@@ -35,8 +34,7 @@ Ltac inverts_eval :=
 
 (* A terminating big-step evaluation always produces a whnf.
    The fact that the evaluation terminated is implied by the fact
-   that we have a finite proof of EVAL to pass to this lemma. 
- *)
+   that we have a finite proof of EVAL to pass to this lemma. *)
 Lemma eval_produces_whnfX
  :  forall x1 v1
  ,  EVAL   x1 v1
@@ -50,8 +48,7 @@ Hint Resolve eval_produces_whnfX.
 (********************************************************************)
 (** * Big to Small steps *)
 (* Convert a big-step evaluation into a list of individual
-   machine steps.
- *)
+   machine steps. *)
 Lemma steps_of_eval
  :  forall x1 t1 x2
  ,  TYPE nil x1 t1
@@ -134,8 +131,7 @@ Qed.
 (* Convert a multi-step evaluation to a big-step evaluation.
    We use stepsl_of_steps to flatten out the append constructors
    in the multi-step evaluation, leaving a list of individual
-   small-steps.
- *)
+   small-steps. *)
 Lemma eval_of_steps
  :  forall x1 t1 v2
  ,  TYPE nil x1 t1

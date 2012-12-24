@@ -15,19 +15,15 @@ Require Export Iron.Data.List.Delete.
 Require Export Iron.Data.List.Update.
 Require Export Iron.Data.List.Extends.
 Require Export Iron.Data.List.Program.
-
 Require Import Iron.Data.Nat.
 Require Import Iron.Base.Tactics.
 Require Import Coq.Program.Basics.
 
 
-
-(******************************************************************************)
 (* Intution tactic for lists 
    Does some stuff to lists that we usually want *)
 
-
-(* Infer upper bound on index used in get *)
+(* Discharge upper bound on index used in get *)
 Ltac lists_get_length_some
  := match goal with 
     | [  H1 : Some _  = get ?ix ?xs 
@@ -41,7 +37,7 @@ Ltac lists_get_length_some
     end.
 
 
-(* Infer lower bound on index used in get *)
+(* Discharge lower bound on index used in get *)
 Ltac lists_get_length_none
  := match goal with 
     | [ H1 : None    = get ?ix ?xs 
@@ -85,7 +81,7 @@ Ltac lists_Forall_get
     end.
 
 
-(* Intuition tactic fof lists *)
+(* Intuition tactic for lists *)
 Ltac lists
  := try lists_get_map_some_some;
     try lists_get_length_some;

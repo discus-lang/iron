@@ -7,8 +7,7 @@ Require Export Iron.Language.Simple.Exp.
 (* Evaluation contexts for expressions.
    An evaluation context is an expression with a hole in any place
    that can take a step via our evaluatio rules. We represent
-   the hole by the function that fills it. 
- *)
+   the hole by the function that fills it. *)
 Inductive exp_ctx : (exp -> exp) -> Prop :=
  | XcTop
    :  exp_ctx (fun x => x)
@@ -50,8 +49,7 @@ Hint Constructors STEP.
    A sequence of small step transitions.
    As opposed to STEPSL, this version has an append constructor
    EsAppend that makes it easy to join two evaluations together.
-   We use this when converting big-step evaluations to small-step.
- *)
+   We use this when converting big-step evaluations to small-step. *)
 Inductive STEPS : exp -> exp -> Prop :=
 
  (* After no steps, we get the same exp.
@@ -96,8 +94,7 @@ Qed.
    As opposed to STEPS, this version provides a single step at a time
    and does not have an append constructor. This is convenient
    when converting a small-step evaluations to big-step, via the
-   eval_expansion lemma.
- *)
+   eval_expansion lemma.*)
 Inductive STEPSL : exp -> exp -> Prop :=
 
  | EslNone 
@@ -114,8 +111,7 @@ Hint Constructors STEPSL.
 
 (* Transitivity of left linearised multi-step evaluation.
    We use this when "flattening" a big step evaluation to the
-   small step one.
- *)
+   small step one. *)
 Lemma stepsl_trans
  :  forall x1 x2 x3
  ,  STEPSL x1 x2 -> STEPSL x2 x3
@@ -128,8 +124,7 @@ Qed.
 
 (* Linearise a regular multi-step evaluation.
    This flattens out all the append constructors, leaving us with
-   a list of individual transitions. 
- *)
+   a list of individual transitions. *)
 Lemma stepsl_of_steps
  :  forall x1 x2
  ,  STEPS  x1 x2

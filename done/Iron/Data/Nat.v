@@ -1,6 +1,8 @@
+
 (* Add some trivial facts about nats to the auto hint database,
    so we don't have to use omega as much. *)
 Require Import Iron.Base.Tactics.
+
 
 Lemma nat_zero_le_all
  : forall n, 0 <= n.
@@ -16,6 +18,7 @@ Proof.
  intros. omega.
 Qed.
 Hint Resolve nat_zero_lt_succ.
+
 
 (* Don't add transitivity lemmas to the hints database as it
    can severley degrade performance. *)
