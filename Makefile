@@ -11,7 +11,11 @@ root_done \
  =	done/Iron/Language/Simple.vo \
  	done/Iron/Language/SimplePCF.vo \
  	done/Iron/Language/SimpleRef.vo \
- 	done/Iron/Language/SimpleData.vo
+ 	done/Iron/Language/SimpleData.vo \
+ 	done/Iron/Language/SystemF.vo \
+ 	done/Iron/Language/SystemF2.vo \
+ 	done/Iron/Language/SystemF2Data.vo \
+ 	done/Iron/Language/SystemF2Store.vo 
 
 
 # -------------------------------------------------------------------
