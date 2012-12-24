@@ -1,7 +1,8 @@
 
 Iron Lambda.
+http://iron.ouroborus.net
 
-Iron Lambda is a collection of Coq formalisations for programming languages
+Iron Lambda is a collection of Coq formalisations for functional languages
 of various complexities. The aim of the project was to get the proofs done
 and not worry much about using the coolest new approaches.
 
@@ -9,22 +10,23 @@ All proofs use straight deBruijn indices for binders, which aren't too bad
 once you understand what lifting lemmas are required. They use a 
 "semi-Chilpala" approach to mechanisation -- most lemmas are added to the
 global hint and rewrite databases, but if the proof script of a particular
-lemma was already of a sane length then we haven't invested time writing
+lemma was already of a sane length, then we haven't invested time writing
 tricky LTac code to make it smaller.
 
 Coding style guidelines:
 
  * Verbose comments explaining what the main definitions and theorems 
-   are for. The scripts should be digestable by novice Coq users.
+   are for. The scripts should be digestable by intermediate Coq users.
  
  * No unicode or infix operators for judgement forms.
    When *I* use them in *my* proofs they make perfect sense, but when you
    use them in yours they're completely unreadable.
 
  * Heavy use of the 'burn' megatactic. This is in the same vein as Chilpala's
-  'crush' tactic, but I couldn't understand what 'crush' was doing...
+  'crush' tactic, but I couldn't work out what 'crush' was doing...
 
  * Uses the 'Case' meta-tactic to add structure.
+
 
 -------------------------------------------------------------------------------
 Proofs that are "done" have at least Progress and Preservation theorems.
@@ -44,7 +46,7 @@ Proofs that are "done" have at least Progress and Preservation theorems.
   STLC with algebraic data and case expressions.
   The definition of expressions uses indirect mutual recursion. Expressions
   contain a list of case-alternatives, and alternatives contain expressions,
-  but the definitio of the list type is not part of the same recursive group.
+  but the definition of the list type is not part of the same recursive group.
   The proof requires that we define our own induction scheme for expressions. 
 
  SystemF
@@ -57,9 +59,9 @@ Proofs that are "done" have at least Progress and Preservation theorems.
  SystemF2Data
   SystemF2 with algebraic data and case expressions.
   Requires that we define simultaneous substitutions, which are used when
-  subsituting expressions bound by a pattern variable into the body of
+  subsituting expressions bound by pattern variables into the body of
   an alternative. The language allows data constructors to be applied to 
-  general expressions rather than just values, which results in more work
+  general expressions rather than just values, which requires more work
   when defining evaluation contexts.
 
  SystemF2Store
@@ -71,4 +73,13 @@ Proofs that are "done" have at least Progress and Preservation theorems.
 -------------------------------------------------------------------------------
 Proofs that are still being developed.  
 
+ SystemF2Effect
+  SystemF2 with a region and effect system.
+
+ SimplePCFa.
+  Formalisation of STLC using frame stacks instead of Felleisen style
+  evaluation contexts.
+
+ DiscipleKernel
+  The kernel of the Disciplined Disciple Compiler's core language.
 
