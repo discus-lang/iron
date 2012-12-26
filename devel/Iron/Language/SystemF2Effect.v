@@ -46,6 +46,9 @@ Require Export Iron.Language.SystemF2Effect.VaExpLift.
 (* Substitution of types and values into expressions. *)
 Require Export Iron.Language.SystemF2Effect.VaExpSubst.
 
+(* All of the value modules. *)
+Require Export Iron.Language.SystemF2Effect.Va.
+
 (* Type judgements *)
 Require Export Iron.Language.SystemF2Effect.TyJudge.
 
@@ -55,3 +58,8 @@ Require Export Iron.Language.SystemF2Effect.SubstTypeExp.
 (* Substitution of values into expressions preserves typing. *)
 Require Export Iron.Language.SystemF2Effect.SubstValExp.
 
+(* Store definition *)
+Require Export Iron.Language.SystemF2Effect.Store.
+
+(* Single Step Evaluation *)
+Require Export Iron.Language.SystemF2Effect.Step.

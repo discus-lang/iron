@@ -5,10 +5,10 @@ Require Export Iron.Language.SystemF2Effect.TyExp.
 
 (* Constants *)
 Inductive const : Type := 
-  | CLoc    : nat      -> const
-  | CUnit   : nat      -> const
-  | CNat    : nat      -> const
-  | CBool   : bool     -> const.
+  | CUnit   : const
+  | CLoc    : nat   -> const
+  | CNat    : nat   -> const
+  | CBool   : bool  -> const.
 Hint Constructors const.
 
 
