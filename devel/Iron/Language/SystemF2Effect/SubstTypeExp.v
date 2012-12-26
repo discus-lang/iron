@@ -29,8 +29,11 @@ Proof.
   unfold substTE. auto.
 
  Case "VLoc".
-  eapply TvLoc;
-   unfold substTE; eauto.
+  eapply TvLoc.
+  fold substTT.
+  rrwrite ( tRef (substTT ix t2 r) (substTT ix t2 t)
+          = substTT ix t2 (tRef r t)).
+  unfold substTE; eauto.
 
  Case "VLam".
   simpl. apply TvLam.

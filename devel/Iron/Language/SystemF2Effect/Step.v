@@ -52,6 +52,19 @@ Inductive STEP : store -> exp -> store -> exp -> Prop :=
  | EsWrite 
    :  forall s l v
    ,  STEP s               (XWrite (VLoc l) v) 
-           (update l v s)  (XVal (VConst CUnit)).
+           (update l v s)  (XVal (VConst CUnit))
+
+ (* Take the successor of a natural. *)
+ | EsSucc
+   :  forall s n
+   ,  STEP s  (XOp1 OSucc (VConst (CNat n)))
+           s  (XVal (VConst (CNat (S n))))
+
+ (* Test a natural for zero. *)
+ | EsIsZeroTrue 
+   :  forall s n
+   ,  STEP s  (XOp1 OIsZero (VConst (CNat n)))
+           s  (XVal (VConst (CBool (beq_nat n 0)))).
 
 Hint Constructors STEP.
+

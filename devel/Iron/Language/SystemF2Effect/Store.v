@@ -25,7 +25,9 @@ Hint Unfold STORET.
 
 (*******************************************************************)
 (* Well formed store. *)
-Definition WfS (se: stenv) (ss: store)
+Definition WfS (se: stenv) (ss: list val)
  := STOREM se ss
  /\ STORET se ss.
+
+
 

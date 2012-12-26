@@ -19,9 +19,9 @@ Inductive TYPEV : kienv -> tyenv -> stenv -> val -> ty -> Prop :=
     -> TYPEV ke te se (VVar i) t 
 
   | TvLoc 
-    :  forall ke te se i t
-    ,  get i se  = Some t
-    -> TYPEV ke te se (VLoc i) t
+    :  forall ke te se i r t
+    ,  get i se  = Some (tRef r t)
+    -> TYPEV ke te se (VLoc i) (tRef r t)
 
   | TvLam
     :  forall ke te se t1 t2 x2 e2
@@ -233,6 +233,8 @@ Proof.
 
  Case "VLoc".
   eapply TvLoc; eauto.
+  rrwrite ( tRef (liftTT 1 ix r) (liftTT 1 ix t)
+          = liftTT 1 ix (tRef r t)).
   apply get_map; auto.
 
  Case "VLam".
