@@ -1,6 +1,6 @@
 
 Require Import Iron.Data.List.Base.
-Require Import Iron.Base.Tactics.
+Require Import Iron.Tactics.
 Require Import Coq.Program.Basics.
 
 

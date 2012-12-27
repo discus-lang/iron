@@ -16,7 +16,7 @@ Require Export Iron.Data.List.Update.
 Require Export Iron.Data.List.Extends.
 Require Export Iron.Data.List.Program.
 Require Import Iron.Data.Nat.
-Require Import Iron.Base.Tactics.
+Require Import Iron.Tactics.
 Require Import Coq.Program.Basics.
 
 

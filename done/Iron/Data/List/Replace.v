@@ -1,7 +1,7 @@
 
 Require Import Iron.Data.List.Base.
 Require Import Iron.Data.Nat.
-Require Import Iron.Base.Tactics.
+Require Import Iron.Tactics.
 
 
 (* Replace the element at point in the list.

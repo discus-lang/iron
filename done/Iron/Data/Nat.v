@@ -1,7 +1,7 @@
 
 (* Add some trivial facts about nats to the auto hint database,
    so we don't have to use omega as much. *)
-Require Import Iron.Base.Tactics.
+Require Import Iron.Tactics.
 
 
 Lemma nat_zero_le_all

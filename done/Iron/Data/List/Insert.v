@@ -1,7 +1,7 @@
 
 Require Import Iron.Data.List.Base.
 Require Import Iron.Data.Nat.
-Require Import Iron.Base.Tactics.
+Require Import Iron.Tactics.
 
 
 (* Insert a new element at a place in the list.

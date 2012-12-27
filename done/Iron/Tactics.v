@@ -1,5 +1,6 @@
 
-Require Export Iron.Base.LibTactics.
+Require Export Iron.Tactics.LibTactics.
+Require Export Iron.Tactics.Case.
 Require Export Omega.
 Require Import Coq.Lists.List.
 

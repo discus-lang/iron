@@ -1,7 +1,7 @@
 
 Require Export Coq.Lists.List.
 Require Import Iron.Data.Nat.
-Require Import Iron.Base.Tactics.
+Require Import Iron.Tactics.
 
 
 (* Unfolding defs from Coq.Lists.List module *)

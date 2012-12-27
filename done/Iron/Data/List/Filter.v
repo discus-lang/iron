@@ -1,6 +1,6 @@
 
 Require Import Iron.Data.List.Base.
-Require Import Iron.Base.Tactics.
+Require Import Iron.Tactics.
 
 
 (* Select elements that match a given predicate. *)
