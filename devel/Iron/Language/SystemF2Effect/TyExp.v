@@ -30,6 +30,28 @@ Definition tAlloc   r1          := TApp (TCon TyConAlloc) r1.
 
 
 (********************************************************************)
+(* Subsumption for sum types *)
+Inductive SUBS : ty -> ty -> Prop :=
+ | SRefl      
+   :  forall t
+   ,  SUBS t t
+
+ | SBot
+   :   forall t k
+   ,  SUBS t (TBot k)
+
+ | SSumLeft
+   :  forall t1 t2 t3
+   ,  SUBS t1 t2
+   -> SUBS (TSum t1 t3) t2
+
+ | SSumRight
+   :  forall t1 t2 t3
+   ,  SUBS t1 t2
+   -> SUBS (TSum t3 t1) t2.
+
+
+(********************************************************************)
 (* Type Utils *)
 
 (* Get the type constructor of a type, if any *)

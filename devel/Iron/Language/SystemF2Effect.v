@@ -63,3 +63,7 @@ Require Export Iron.Language.SystemF2Effect.Store.
 
 (* Single Step Evaluation *)
 Require Export Iron.Language.SystemF2Effect.Step.
+
+(* Progress theorem *)
+Require Export Iron.Language.SystemF2Effect.Progress.
+
