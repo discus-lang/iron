@@ -1,7 +1,6 @@
 
 Require Import Iron.Data.List.
 Require Import Iron.Tactics.
-Require Import List.
 
 
 (********************************************************************)

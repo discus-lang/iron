@@ -108,7 +108,9 @@ Lemma Forall_app_left
  ,  Forall P (xs ++ ys)
  -> Forall P xs.
 Proof.
- intros. nforall. eauto.
+ intros. 
+ rewrite Forall_forall in *.
+ eauto.
 Qed.
 Hint Resolve Forall_app_left.
 
@@ -118,7 +120,9 @@ Lemma Forall_app_right
  ,  Forall P (xs ++ ys)
  -> Forall P ys.
 Proof.
- intros. nforall. eauto.
+ intros. 
+ rewrite Forall_forall in *.
+ eauto.
 Qed.
 Hint Resolve Forall_app_right.
 
