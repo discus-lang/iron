@@ -9,7 +9,6 @@ Require Export Iron.Language.SimplePCFa.ExpLift.
 Require Export Iron.Language.SimplePCFa.ExpSwap.
 Require Export Iron.Language.SimplePCFa.ExpRefs.
 Require Export Iron.Language.SimplePCFa.ExpSubsts.
-Require Iron.Base.
 
 
 (* Expressions are ciu-equivalent at the given type

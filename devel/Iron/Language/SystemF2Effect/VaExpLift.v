@@ -1,8 +1,6 @@
 
 Require Export Iron.Language.SystemF2Effect.TyLift.
 Require Export Iron.Language.SystemF2Effect.VaExpBase.
-Require Export Iron.Base.
-Require Import Coq.Logic.FunctionalExtensionality.
 
 
 (********************************************************************)

@@ -5,7 +5,6 @@ Require Export Iron.Language.SystemF2Data.SubstTypeExp.
 Require Export Iron.Language.SystemF2Data.Step.
 Require Import Iron.Language.SystemF2Data.TyJudge.
 Require Export Iron.Language.SystemF2Data.Exp.
-Require Import Iron.Base.
 
 
 (* Big Step Evaluation

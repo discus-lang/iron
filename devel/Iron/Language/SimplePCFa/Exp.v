@@ -1,5 +1,4 @@
 
-Require Export Iron.Base.
 Require Export Iron.Language.SimplePCFa.Ty.
 
 

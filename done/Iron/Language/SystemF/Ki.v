@@ -1,5 +1,5 @@
 
-Require Export Iron.Base.
+Require Export Iron.Language.SystemF.Base.
 
 
 (* Kind expressions *)

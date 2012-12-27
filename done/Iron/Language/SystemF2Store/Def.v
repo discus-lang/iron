@@ -3,8 +3,7 @@ Require Import Iron.Language.SystemF2.Ki.
 Require Import Iron.Language.SystemF2.KiJudge.
 Require Import Iron.Language.SystemF2.Ty.
 Require Import Iron.Language.SystemF2Store.ExpDataCon.
-Require Import Iron.Base.
-Require Import Coq.Bool.Bool.
+Require Import Iron.Language.SystemF2Store.Base.
 
 
 (********************************************************************) 

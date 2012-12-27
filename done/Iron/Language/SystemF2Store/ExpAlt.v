@@ -1,6 +1,5 @@
 
 Require Export Iron.Language.SystemF2Store.ExpBase.
-Require Export Iron.Base.
 
 
 (* Get the data constructor of an alternative. *)

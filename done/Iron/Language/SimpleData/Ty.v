@@ -1,5 +1,5 @@
 
-Require Import Iron.Base.
+Require Export Iron.Language.SimpleData.Base.
 
 
 (* Type Constructors *)

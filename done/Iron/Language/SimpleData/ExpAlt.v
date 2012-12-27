@@ -1,6 +1,5 @@
 
 Require Export Iron.Language.SimpleData.ExpBase.
-Require Export Iron.Base.
 
 
 (* Get the data constructor of an alternative. *)

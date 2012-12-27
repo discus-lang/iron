@@ -2,7 +2,6 @@
 Require Import Iron.Language.SimpleData.Step.
 Require Import Iron.Language.SimpleData.TyJudge.
 Require Import Iron.Language.SimpleData.Exp.
-Require Import Iron.Base.
 
 
 (* A well typed expression is either a well formed value, 

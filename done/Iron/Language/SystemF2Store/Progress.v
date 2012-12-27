@@ -2,7 +2,6 @@
 Require Import Iron.Language.SystemF2Store.Step.
 Require Import Iron.Language.SystemF2Store.TyJudge.
 Require Import Iron.Language.SystemF2Store.Exp.
-Require Import Iron.Base.
 
 
 (* A well typed expression is either a well formed value, 

@@ -4,7 +4,6 @@ Require Export Iron.Language.SimpleData.Step.
 Require Export Iron.Language.SimpleData.Exp.
 Require Import Iron.Language.SimpleData.Preservation.
 Require Import Iron.Language.SimpleData.TyJudge.
-Require Import Iron.Base.
 
 
 (* Big Step Evaluation

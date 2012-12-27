@@ -1,7 +1,6 @@
 
 Require Export Iron.Language.SimpleData.ExpBase.
 Require Export Iron.Language.SimpleData.ExpAlt.
-Require Export Iron.Base.
 
 
 (********************************************************************)

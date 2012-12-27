@@ -1,7 +1,7 @@
 
 Require Export Iron.Language.SystemF2.Ty.
 Require Export Iron.Language.SystemF2Data.Def.
-Require Export Iron.Base.
+
 
 (* Expressions *)
 Inductive exp : Type :=

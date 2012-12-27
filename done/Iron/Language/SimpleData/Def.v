@@ -1,6 +1,5 @@
 
-Require Import Iron.Language.SimpleData.Ty.
-Require Import Iron.Base.
+Require Export Iron.Language.SimpleData.Ty.
 
 
 (* Data Constructors *)

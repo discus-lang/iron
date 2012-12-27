@@ -3,7 +3,7 @@
 # Coq binaries to use when building
 COQDEP		= coqdep
 COQC		= coqc
-THREADS		= 4
+THREADS		= 1
 
 
 # -- Roots ----------------------------------------------------------

@@ -1,6 +1,5 @@
 
-Require Import Iron.Base.
-Require Import Coq.Bool.Bool.
+Require Import Iron.Language.SystemF2Store.Base.
 
 
 (********************************************************************)

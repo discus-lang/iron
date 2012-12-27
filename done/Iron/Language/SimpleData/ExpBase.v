@@ -1,7 +1,6 @@
 
 Require Export Iron.Language.SimpleData.Ty.
 Require Export Iron.Language.SimpleData.Def.
-Require Export Iron.Base.
 
 
 (* Expressions *)

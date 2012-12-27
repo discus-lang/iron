@@ -2,7 +2,6 @@
 Require Export Iron.Language.SystemF2.Ty.
 Require Export Iron.Language.SystemF2Store.Def.
 Require Export Iron.Language.SystemF2Store.ExpDataCon.
-Require Export Iron.Base.
 
 
 (* Expressions *)

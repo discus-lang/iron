@@ -1,8 +1,6 @@
 
 Require Export Iron.Language.SystemF2Store.ExpBase.
 Require Export Iron.Language.SystemF2Store.ExpAlt.
-Require Export Iron.Base.
-Require Import Coq.Logic.FunctionalExtensionality.
 
 
 (********************************************************************)

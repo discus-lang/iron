@@ -1,5 +1,6 @@
 
-Require Export Iron.Base.
+Require Export Iron.Language.SystemF2.Base.
+
 
 (* Kinds *)
 Inductive ki : Type :=
