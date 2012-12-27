@@ -12,15 +12,15 @@ Inductive BagEquiv {A} : Bag A -> Bag A -> Prop :=
    :  forall (b : Bag A)
    ,  BagEquiv b b
 
+ | BagEquivSym
+   :  forall (b1 b2 : Bag A)
+   ,  Bag b1 b2
+   -> Bagquiv b2 b1
+
  | BagEquivTrans
    :  forall (b1 b2 b3 : Bag A)
    ,  BagEquiv b1 b2 -> BagEquiv b2 b3
    -> BagEquiv b1 b3
-
- | BagEquivComm
-   :  forall (b1 b2 : Bag A)
-   ,  BagEquiv b1 b2
-   -> BagEquiv b2 b1
 
  | BagEquivJoinComm
    :  forall (b1 b2 : Bag A)
@@ -31,8 +31,6 @@ Inductive BagEquiv {A} : Bag A -> Bag A -> Prop :=
    ,  BagEquiv b (BagJoin A b b).
 
 Hint Constructors BagEquiv.
-
-
 
 
 (* Subsumption of bags *)
@@ -48,8 +46,6 @@ Inductive BagSubs {A} : Bag A -> Bag A -> Prop :=
 
  | BagSubsNone
    : forall (b : Bag A)
-   , BagSubs b (BagNone A)
-
- | 
+   , BagSubs b (BagNone A).
 
 
