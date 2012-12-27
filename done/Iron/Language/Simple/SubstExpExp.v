@@ -24,8 +24,7 @@ Proof.
   fbreak_nat_compare; try burn.
   SCase "n > ix".
    eapply TYVar.
-   destruct n.
-    burn.
+   destruct n; try burn.
     simpl. nnat. rewrite <- H3.
     apply get_delete_below. burn.
 

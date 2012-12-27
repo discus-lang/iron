@@ -81,7 +81,7 @@ Proof.
  induction_type x.
 
  Case "XVar".
-  lift_cases; intros; auto.
+  lift_cases; auto.
 
  Case "XLam".
   apply TYLam.
