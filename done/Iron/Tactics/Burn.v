@@ -103,7 +103,6 @@ Tactic Notation "have" constr(E) "as" ident(H) "by" tactic(T) :=
  assert E as H by T.
 
 
-(********************************************************************)
 (* Rewrite using burn.
    Just state the equality to use. *)
 Tactic Notation "rrwrite" constr(xx)

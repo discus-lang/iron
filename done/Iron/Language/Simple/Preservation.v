@@ -13,15 +13,14 @@ Theorem preservation
  -> TYPE nil x' t.
 Proof.
  intros x x' t HT HS. gen t.
- induction HS; intros.
+ induction HS; rip.
 
  Case "EsContext".
-  destruct H; 
-   inverts_type; eauto.
+  destruct H; inverts_type; burn.
 
  Case "EsLamApp".
   inverts_type.
-  eapply subst_exp_exp; eauto.
+  burn using subst_exp_exp.
 Qed.
 
 
@@ -34,8 +33,7 @@ Lemma preservation_steps
  -> TYPE nil x2 t1.
 Proof.
  intros x1 t1 x2 HT HS.
- induction HS; eauto.
-  eapply preservation; eauto.
+ induction HS; burn using preservation.
 Qed.
 
 
@@ -49,7 +47,6 @@ Lemma preservation_stepsl
  -> TYPE nil x2 t1.
 Proof.
  intros x1 t1 x2 HT HS.
- induction HS;
-  eauto using preservation.
+ induction HS; burn using preservation.
 Qed.
 

@@ -85,7 +85,7 @@ Lemma steps_context
  -> STEPS (C x1) (C x1').
 Proof.
  intros C x1 x1' HC HS.
- induction HS; eauto.
+ induction HS; burn. 
 Qed.
 
 
@@ -117,8 +117,8 @@ Lemma stepsl_trans
  ,  STEPSL x1 x2 -> STEPSL x2 x3
  -> STEPSL x1 x3.
 Proof.
- intros.
- induction H; eauto.
+ intros x1 x2 x3 HS1 HS2.
+ induction HS1; burn.
 Qed.
 
 
@@ -130,7 +130,7 @@ Lemma stepsl_of_steps
  ,  STEPS  x1 x2
  -> STEPSL x1 x2.
 Proof. 
- intros.
- induction H; eauto using stepsl_trans.
+ intros x1 x2 HS.
+ induction HS; burn using stepsl_trans.
 Qed.
 

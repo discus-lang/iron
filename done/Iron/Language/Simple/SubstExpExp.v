@@ -20,18 +20,17 @@ Proof.
  induction_type x1.
 
  Case "XVar".
-  fbreak_nat_compare; rip.
+  fbreak_nat_compare; burn.
 
   SCase "n > ix".
    eapply TYVar.
-   destruct n.
-    omega.
-    norm. down. apply get_delete_below. omega.
+    destruct n; burn.
+     norm. down. apply get_delete_below. omega.
    
  Case "XLam". 
   apply TYLam.
   rewrite delete_rewind.
-  apply IHx1; norm.
+  apply IHx1; burn.
 Qed.
 
 
@@ -41,7 +40,6 @@ Theorem subst_exp_exp
  -> TYPE te         x2 t2 
  -> TYPE te (substX 0 x2 x1) t1.
 Proof.
- rip.
- lets D: subst_exp_exp_ix 0 (te :> t2). norm.
+ rip. lets D: subst_exp_exp_ix 0 (te :> t2). burn.
 Qed.
 

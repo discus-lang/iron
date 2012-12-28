@@ -1,4 +1,6 @@
 
+Require Import Iron.Tactics.Have.
+
 
 (* Apply rewrites from the hypotheses *)
 Ltac rewritess
@@ -11,7 +13,14 @@ Ltac rewritess
     end.
 
 
-Tactic Notation "rw" constr(E) "by" tactic(T) :=
- let H := fresh 
- in assert E as H by T; rewrite H; clear H.
+(* Rewrite using the 'have' tactic.
+   Just state the equality to use. *)
+Tactic Notation "rrwrite" constr(xx)
+ := let H := fresh 
+    in assert xx as H by have_auto; rewrite H; clear H.
+
+Tactic Notation "rrwrite" constr(xx) "in" hyp(H)
+ := let H2 := fresh
+    in  assert xx as H2 by have_auto; rewrite H2 in H; clear H2.
+
 

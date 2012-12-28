@@ -79,7 +79,7 @@ Proof.
    eapply EsAppend.
     eapply EsStep.
      eapply EsLamApp.
-      split; norm.
+      split; burn.
      eauto.
 Qed.
 
@@ -121,13 +121,12 @@ Lemma eval_of_stepsl
 Proof.
  intros x1 t1 v2 HT HS Hv.
  induction HS; try burn.
+
  admit.
- admit.
-(*
+
  Case "ESLCons".
   eapply eval_expansion;
    eauto using preservation.
-*)
 Qed.
 
 
@@ -145,5 +144,4 @@ Proof.
  eapply eval_of_stepsl; eauto.
   apply stepsl_of_steps; auto.
 Qed.
-
 

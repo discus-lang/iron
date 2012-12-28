@@ -36,7 +36,7 @@ Ltac inverts_type :=
    inverting compound typing judgements along the way.
    This gets common cases in proofs about TYPE judgements. *)
 Tactic Notation "induction_type" ident(X) :=
- induction X; rip; inverts_type; norm.
+ induction X; norm; inverts_type; burn.
 
 
 (*******************************************************************)
@@ -50,7 +50,7 @@ Lemma value_lam
  -> TYPE te xx (TFun t1 t2)
  -> (exists t x, xx = XLam t x).
 Proof. 
- destruct xx; eauto; nope.
+ destruct xx; burn.
 Qed.
 Hint Resolve value_lam.
 
@@ -81,11 +81,11 @@ Proof.
  induction_type x.
 
  Case "XVar".
-  lift_cases; auto.
+  lift_cases; burn.
 
  Case "XLam".
   apply TYLam.
-  rewrite insert_rewind. auto. 
+  rewrite insert_rewind; auto.
 Qed.
 Hint Resolve type_tyenv_insert.
 
@@ -95,8 +95,7 @@ Lemma type_tyenv_weaken
  ,  TYPE  te         x          t1
  -> TYPE (te :> t2) (liftX 0 x) t1.
 Proof.
- rip.
- rw (te :> t2 = insert 0 t2 te) by burn. auto.
+ rip. rrwrite (te :> t2 = insert 0 t2 te). burn.
 Qed.
 Hint Resolve type_tyenv_weaken.
 

@@ -46,15 +46,11 @@ Proof.
  induction_type x; subst. 
 
  Case "XVar".
-  destruct H. eauto.
+  destruct H; burn.
 
  Case "XLam".
-  simpl in H.
   eapply TYLam.
-   eapply IHx with (n := S n) (te := te :> t); auto.
-
- Case "XApp".
-  simpl in H. rip. eauto.
+  eapply IHx with (n := S n) (te := te :> t); burn.
 Qed.
 
 
@@ -64,9 +60,10 @@ Lemma type_check_closed_in_empty_tyenv
  -> TYPE tenv x t
  -> TYPE nil  x t.
 Proof.
- intros.
- eapply type_tyenv_strengthen; eauto.
-  symmetry. eapply firstn_zero.
+ rip.
+ eapply type_tyenv_strengthen; burn.
+ symmetry.
+ eapply firstn_zero.
 Qed.
 
 
@@ -76,11 +73,13 @@ Theorem type_check_closed_in_any_tyenv
  -> TYPE tenv  x1 t1
  -> TYPE tenv' x1 t1.
 Proof.
- intros.
- assert (TYPE nil x1 t1).
-  eapply type_check_closed_in_empty_tyenv; eauto.
- assert (TYPE (tenv' >< nil) x1 t1); eauto.
-  apply type_tyenv_weaken. auto.
+ rip.
+
+ have (TYPE nil x1 t1) 
+  by burn using type_check_closed_in_empty_tyenv.
+
+ rrwrite (tenv' = tenv' >< nil).
+ eauto using type_tyenv_weaken.
 Qed.
 
 
@@ -94,7 +93,7 @@ Theorem liftX_wfX
  -> liftX d x = x.
 Proof.
  intros. gen e d.
- induction x; intros; simpl; simpl in H0.
+ induction x; intros; norm.
  
  Case "XVar".
   lift_cases; intros; eauto.
@@ -106,10 +105,8 @@ Proof.
   simpl in H0. symmetry. rewrite H. rewrite H0. auto.
 
  Case "XApp".
-  destruct H0.
-  spec IHx1 H0 H. rewrite IHx1.
-  spec IHx2 H1 H. rewrite IHx2.
-  auto.
+  spec IHx1 H1. rewrite IHx1; burn.
+  spec IHx2 H2. rewrite IHx2; burn.
 Qed.
 
 
@@ -120,7 +117,6 @@ Lemma liftX_closed
  ,  closedX x
  -> liftX 0 x = x.
 Proof.
- intros.
-  eapply liftX_wfX; eauto. auto.
+ rip. eapply liftX_wfX; burn. burn.
 Qed.
 

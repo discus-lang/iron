@@ -13,14 +13,33 @@ Require Export Iron.Tactics.Short.
 Require Export Iron.Tactics.Comb.
 Require Export Iron.Tactics.Down.
 Require Export Iron.Tactics.Rewrite.
+Require Export Iron.Tactics.Have.
 Require Export Iron.Tactics.LibTactics.
 
 Require Export Coq.Arith.Compare_dec.
 Require Import Coq.Logic.FunctionalExtensionality.
 
+
 Tactic Notation "norm"
- := simpl in *;
-    try (first [norm_nat | norm_lists]); eauto.
+ := simpl in *; rip;
+    try (first [norm_nat | norm_lists]).
+
+
+Tactic Notation "burn0"
+ := norm; eauto; nope.
+
+Tactic Notation "burn0" "using" tactic(T)
+ := norm; eauto using T; nope.
+
 
 Tactic Notation "burn"
- := norm; eauto.
+ := try (solve [ burn0
+               | red; burn0 ]).
+
+Tactic Notation "burn" "using" tactic(T) 
+ := try (solve [ burn0 using T
+               | red; burn0 using T]).
+
+
+Ltac have_auto ::= burn.
+
