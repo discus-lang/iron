@@ -13,7 +13,6 @@ Fixpoint replace {A: Type} (ix: nat) (x': A) (xs: list A) : list A :=
  | S ix', y :: xs' => y  :: (replace ix' x' xs')
  | O    , x :: xs' => x' :: xs'
  end.
-Hint Unfold replace.
 
 
 Lemma replace_nil

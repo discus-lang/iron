@@ -14,6 +14,11 @@ Fixpoint insert {A: Type} (ix: nat) (x: A) (xs: list A) : list A :=
  | O    , xs'      => x :: xs'
  end.
 
+(* When using the 'simpl' tactic we don't want to do a reduction
+   that will leave the inner match expression in head position. *)
+Arguments insert A ix x xs : simpl nomatch.
+
+
 
 (********************************************************************)
 (** Lemmas: insert *)

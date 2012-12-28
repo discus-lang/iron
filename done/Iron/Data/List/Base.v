@@ -20,7 +20,6 @@ Fixpoint snoc {A: Type} (x: A) (xx: list A) : list A :=
  | nil       => x :: nil
  | y :: xs'  => y :: snoc x xs'
  end.
-Hint Unfold snoc.
 
 
 (* Get an indexed element from a list, starting from 0.
@@ -34,7 +33,6 @@ Fixpoint get {A: Type} (i: nat) (e: list A) {struct e}: option A :=
  | _ :: xs, S i'  => get  i' xs
  | _, _           => None
  end.
-Hint Unfold get.
 
 
 (********************************************************************)

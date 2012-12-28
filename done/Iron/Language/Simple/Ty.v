@@ -96,7 +96,7 @@ Lemma type_tyenv_weaken
  -> TYPE (te :> t2) (liftX 0 x) t1.
 Proof.
  rip.
- rw (te :> t2 = insert 0 t2 te) by auto. auto.
+ rw (te :> t2 = insert 0 t2 te) by burn. auto.
 Qed.
 Hint Resolve type_tyenv_weaken.
 

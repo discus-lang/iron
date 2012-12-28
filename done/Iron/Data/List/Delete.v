@@ -14,6 +14,10 @@ Fixpoint delete {A: Type} (ix: nat) (xs: list A) : list A :=
  | S n', x :: xs'  => x :: delete n' xs'
  end.
 
+(* When using the 'simpl' tactic we don't want to do a reduction
+   that will leave the inner match expression in head position. *)
+Arguments delete A ix xs : simpl nomatch.
+
 
 (********************************************************************)
 (** Lemmas: delete *)
@@ -126,6 +130,4 @@ Proof.
    rewrite <- delete_rewind.
    rewrite <- IHxx. auto.
 Qed.
-
-
 
