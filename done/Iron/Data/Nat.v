@@ -57,7 +57,7 @@ Proof. intros. omega. Qed.
 
 (* Tactics **********************************************************)
 (* Normalise naturals. *)
-Tactic Notation "nnat" 
+Tactic Notation "norm_nat" 
  := try rewrite nat_plus_zero
   ; try rewrite nat_minus_zero
   ; try rewrite nat_plus_one.

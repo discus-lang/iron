@@ -106,7 +106,7 @@ Lemma delete_app
 Proof.
  intros.
  induction e2.
-  simpl. nnat. auto.
+  simpl. norm_nat. auto.
   simpl. rewrite IHe2.
    assert (n + S (length e2) = S (n + length e2)). omega. rewrite H.
    apply delete_rewind.

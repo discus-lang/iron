@@ -372,7 +372,7 @@ Lemma get_minus1
 Proof.
  intros. destruct n.
   inverts H.
-  simpl. nnat. trivial.
+  simpl. norm_nat. trivial.
 Qed.
 Hint Resolve get_minus1.
 
@@ -422,7 +422,7 @@ Proof.
  intros.
  destruct n.
   simpl. auto.
-  simpl. nnat. auto.
+  simpl. norm_nat. auto.
 Qed.
 Hint Resolve get_cons_some.
 
@@ -434,12 +434,12 @@ Lemma get_app_left_some
 Proof.
  intros.
  induction e2.
-  simpl. nnat. auto.
+  simpl. norm_nat. auto.
   assert ((e2 :> a) ++ e1 = (e2 ++ e1) :> a). 
    simpl. auto.
   rewrite H0.
   assert (n + length (e2 :> a) = ((n + length e2) + 1)).
-   nnat. simpl. auto.
+   norm_nat. simpl. auto.
   rewrite H1.
   rewrite <- (get_cons_some A (n + length e2) (e2 ++ e1) a).
    auto. auto.

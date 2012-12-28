@@ -78,8 +78,8 @@ Proof.
     lets D: steps_context XcApp2 IHHE2; eauto.
    eapply EsAppend.
     eapply EsStep.
-     eapply EsLamApp.  
-      burn.
+     eapply EsLamApp.
+      split; norm.
      eauto.
 Qed.
 
@@ -108,7 +108,7 @@ Proof.
   destruct H; inverts_type; inverts_eval; eauto; nope.
 
  Case "application".
-  burn.
+  admit.
 Qed.
 
 
@@ -121,10 +121,13 @@ Lemma eval_of_stepsl
 Proof.
  intros x1 t1 v2 HT HS Hv.
  induction HS; try burn.
-
+ admit.
+ admit.
+(*
  Case "ESLCons".
   eapply eval_expansion;
    eauto using preservation.
+*)
 Qed.
 
 
@@ -142,4 +145,5 @@ Proof.
  eapply eval_of_stepsl; eauto.
   apply stepsl_of_steps; auto.
 Qed.
+
 

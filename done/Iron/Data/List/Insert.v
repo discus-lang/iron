@@ -13,7 +13,6 @@ Fixpoint insert {A: Type} (ix: nat) (x: A) (xs: list A) : list A :=
  | S ix', y :: xs' => y :: (insert ix' x xs')
  | O    , xs'      => x :: xs'
  end.
-Hint Unfold insert.
 
 
 (********************************************************************)
@@ -108,11 +107,10 @@ Lemma insert_app
 Proof.
  intros. 
  induction ys. 
-  simpl. nnat.  auto.
+  simpl. norm_nat.  auto.
   simpl. rewrite IHys.
    rewrite insert_rewind.
    assert (S (ix + length ys) = ix + S (length ys)). auto.
    rewrite H. auto.
 Qed.
-
 

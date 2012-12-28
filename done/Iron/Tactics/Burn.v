@@ -4,6 +4,9 @@ Require Import Iron.Tactics.Rewrite.
 Require Import Iron.Tactics.Rip.
 Require Import Omega.
 
+Ltac rs := rewritess.
+Ltac rr := autorewrite with global in *.
+
 
 (********************************************************************)
 (* Burn mega-tactic for semantics proofs.
@@ -113,3 +116,5 @@ Tactic Notation "rrwrite" constr(xx) "in" hyp(H)
 
 Tactic Notation "rw" constr(xx)             := rrwrite xx.
 Tactic Notation "rw" constr(xx) "in" hyp(H) := rrwrite xx in H.
+
+

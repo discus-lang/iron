@@ -36,7 +36,7 @@ Ltac inverts_type :=
    inverting compound typing judgements along the way.
    This gets common cases in proofs about TYPE judgements. *)
 Tactic Notation "induction_type" ident(X) :=
- induction X; intros; inverts_type; simpl; eauto.
+ induction X; rip; inverts_type; norm.
 
 
 (*******************************************************************)
@@ -95,7 +95,8 @@ Lemma type_tyenv_weaken
  ,  TYPE  te         x          t1
  -> TYPE (te :> t2) (liftX 0 x) t1.
 Proof.
- rip. rw (te :> t2 = insert 0 t2 te). auto.
+ rip.
+ rw (te :> t2 = insert 0 t2 te) by auto. auto.
 Qed.
 Hint Resolve type_tyenv_weaken.
 

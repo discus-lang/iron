@@ -1,7 +1,6 @@
 
 Require Export Iron.Language.Simple.Exp.
 Require Import Iron.Language.Simple.Ty.
-Require Import Coq.Logic.FunctionalExtensionality.
 
 
 (* Substitution of expressions in expressions preserves typing.
@@ -21,17 +20,18 @@ Proof.
  induction_type x1.
 
  Case "XVar".
-  fbreak_nat_compare; try burn.
+  fbreak_nat_compare; rip.
+
   SCase "n > ix".
    eapply TYVar.
-   destruct n; try burn.
-    simpl. nnat. rewrite <- H3.
-    apply get_delete_below. burn.
-
+   destruct n.
+    omega.
+    norm. down. apply get_delete_below. omega.
+   
  Case "XLam". 
   apply TYLam.
   rewrite delete_rewind.
-  apply IHx1; burn.
+  apply IHx1; norm.
 Qed.
 
 
@@ -41,7 +41,7 @@ Theorem subst_exp_exp
  -> TYPE te         x2 t2 
  -> TYPE te (substX 0 x2 x1) t1.
 Proof.
- rip. lets D: subst_exp_exp_ix 0 (te :> t2).
- simpl in D. eauto.
+ rip.
+ lets D: subst_exp_exp_ix 0 (te :> t2). norm.
 Qed.
 

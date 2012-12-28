@@ -3,7 +3,7 @@ Require Import Coq.Lists.List.
 
 
 (* Normalise foralls to In form. *)
-Ltac nforall := 
+Ltac norm_lists := 
  repeat
   (match goal with 
    | [ H: Forall _ _ |- _ ] => rewrite Forall_forall in H

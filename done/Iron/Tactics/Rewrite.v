@@ -10,5 +10,8 @@ Ltac rewritess
     | [H: forall _ _ _, eq _ _ |- _ ] => simpl; rewrite H; auto
     end.
 
-Ltac rs := rewritess.
-Ltac rr := autorewrite with global in *.
+
+Tactic Notation "rw" constr(E) "by" tactic(T) :=
+ let H := fresh 
+ in assert E as H by T; rewrite H; clear H.
+

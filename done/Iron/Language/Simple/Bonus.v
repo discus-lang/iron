@@ -54,7 +54,7 @@ Proof.
    eapply IHx with (n := S n) (te := te :> t); auto.
 
  Case "XApp".
-  simpl in H. burn.
+  simpl in H. rip. eauto.
 Qed.
 
 
