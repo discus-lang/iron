@@ -16,36 +16,24 @@ Theorem subst_exp_exp_ix
  -> TYPE (delete ix te) (substX ix x2 x1) t1.
 Proof.
  intros. gen ix te x2 t1.
- induction x1; intros; simpl; inverts H0; eauto.
+ induction x1; rip; simpl; inverts H0; eauto.
 
  Case "XVar".
-  fbreak_nat_compare.
-  SCase "i = ix".
-   rewrite H in H4. inverts H4. auto.
-
-  SCase "n < ix".
-   apply TYVar.
-   rewrite <- H4.
-    apply get_delete_above. auto.
-
+  fbreak_nat_compare; burn.
   SCase "n > ix".
-   apply TYVar.
-   destruct n.
-    false. omega.
-    simpl. nnat. rewrite <- H4.
-     apply get_delete_below. omega.
+   eapply TyVar.
+   destruct n; burn.
+    norm. down. apply get_delete_below. omega.
 
  Case "XLam".
-  apply TYLam.
+  apply TyLam.
   rewrite delete_rewind.
-  apply IHx1; auto.
-   simpl. apply type_tyenv_weaken. auto.
+  apply IHx1; burn using type_tyenv_weaken.
 
  Case "XFix".
-  apply TYFix.
+  apply TyFix.
   rewrite delete_rewind.
-  apply IHx1; auto.
-   simpl. apply type_tyenv_weaken. auto.
+  apply IHx1; burn using type_tyenv_weaken.
 Qed.
 
 
@@ -55,8 +43,8 @@ Theorem subst_exp_exp
  -> TYPE te         x2 t2 
  -> TYPE te (substX 0 x2 x1) t1.
 Proof. 
- intros te x1 x2 t1 t2 Ht1 Ht2.
- lets H: subst_exp_exp_ix 0 (te :> t2).
-  simpl in H. eauto.
+  intros te x1 x2 t1 t2 Ht1 Ht2.
+  lets H: subst_exp_exp_ix 0 (te :> t2).
+  burn.
 Qed.
 

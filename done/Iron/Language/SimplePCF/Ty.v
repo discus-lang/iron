@@ -4,69 +4,99 @@ Require Export Iron.Language.SimplePCF.Exp.
 (* Typing judgement assigns a type to an expression. *)
 Inductive TYPE : tyenv -> exp -> ty -> Prop :=
  (* Variables *)
- | TYVar 
+ | TyVar 
    :  forall te i t
    ,  get i te = Some t
    -> TYPE te (XVar i) t
 
  (* Function abstraction *)
- | TYLam
+ | TyLam
    :  forall te x t1 t2
    ,  TYPE (te :> t1) x t2
    -> TYPE te (XLam t1 x) (TFun t1 t2)
 
  (* Function application *)
- | TYApp
+ | TyApp
    :  forall te x1 x2 t1 t2
    ,  TYPE te x1 (TFun t1 t2)
    -> TYPE te x2 t1
    -> TYPE te (XApp x1 x2) t2
 
   (* Fixpoints *)
-  | TYFix
+  | TyFix
     :  forall te x1 t1
     ,  TYPE (te :> t1) x1          t1
     -> TYPE te        (XFix t1 x1) t1
 
   (* Naturals ************************)
-  | TYNat
+  | TyNat
     :  forall te n
     ,  TYPE te (XNat n) tNat
 
   (* Take the successor of a natural *)
-  | TYSucc
+  | TySucc
     :  forall te x1
     ,  TYPE te x1 tNat
     -> TYPE te (XSucc x1) tNat
 
   (* Take the predecessor of a natural *)
-  | TYPred
+  | TyPred
     :  forall te x1
     ,  TYPE te x1 tNat
     -> TYPE te (XPred x1) tNat
 
   (* Booleans *************************)
-  | TYTrue
+  | TyTrue
     :  forall te 
     ,  TYPE te XTrue tBool
  
-  | TYFalse
+  | TyFalse
     :  forall te
     ,  TYPE te XFalse tBool
  
-  | TYIsZero
+  | TyIsZero
     :  forall te x1
     ,  TYPE te x1 tNat
     -> TYPE te (XIsZero x1) tBool
 
   (* Branching ************************)
-  | TYIf
+  | TyIf
     :  forall te x1 x2 x3 tR
     ,  TYPE te x1 tBool
     -> TYPE te x2 tR -> TYPE te x3 tR
     -> TYPE te (XIf x1 x2 x3) tR.
 
 Hint Constructors TYPE.
+
+
+(*******************************************************************)
+(* Forms of values. 
+   If we know the type of a value then we know the
+   form of that value. *)
+
+Lemma value_lam 
+ :  forall xx te t1 t2
+ ,  value xx 
+ -> TYPE te xx (TFun t1 t2)
+ -> (exists t x, xx = XLam t x).
+Proof. destruct xx; burn. Qed.
+Hint Resolve value_lam.
+
+Lemma value_nat
+ :  forall te x
+ ,  value x
+ -> TYPE te x tNat
+ -> (exists n, x = XNat n).
+Proof. destruct x; burn. Qed.
+Hint Resolve value_nat.
+
+Lemma value_bool
+ :  forall te x
+ ,  value x
+ -> TYPE te x tBool
+ -> x = XFalse \/ x = XTrue.
+Proof. destruct x; burn. Qed.
+Hint Resolve value_bool.
 
 
 (********************************************************************)
@@ -76,8 +106,8 @@ Theorem type_wfX
  ,  TYPE te x t
  -> wfX  te x.
 Proof.
- intros. gen te t.
- induction x; intros; inverts H; simpl; eauto 10.
+ intros te x t HT. gen te t.
+ induction x; rip; inverts HT; burn.
 Qed.
 Hint Resolve type_wfX.
 
@@ -91,21 +121,23 @@ Lemma type_tyenv_insert
  ,  TYPE te x t1
  -> TYPE (insert ix t2 te) (liftX ix x) t1.
 Proof.
- intros. gen ix te t1.
- induction x; intros; simpl; inverts H; eauto.
+ intros te ix x t1 t2 HT. gen ix te t1.
+ induction x; rip; inverts HT; burn.
 
  Case "XVar".
-  lift_cases; intros; auto.
+  simpl; lift_cases; burn.
 
  Case "XLam".
-  apply TYLam.
+  simpl.
+  apply TyLam.
   rewrite insert_rewind. 
-   apply IHx. auto.
+  apply IHx; burn.
 
  Case "XFix".
-  apply TYFix.
+  simpl.
+  apply TyFix.
   rewrite insert_rewind.
-   apply IHx. auto.
+  apply IHx; burn.
 Qed.
 
 
@@ -115,9 +147,7 @@ Lemma type_tyenv_weaken
  -> TYPE (te :> t2) (liftX 0 x) t1.
 Proof.
  intros.
- assert (te :> t2 = insert 0 t2 te).
-  simpl. destruct te; auto.
-  rewrite H0. apply type_tyenv_insert. auto.
+ rrwrite (te :> t2 = insert 0 t2 te).
+ burn using type_tyenv_insert.
 Qed.
-
 

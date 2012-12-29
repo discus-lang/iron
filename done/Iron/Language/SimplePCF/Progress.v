@@ -13,77 +13,71 @@ Theorem progress
 Proof.
  intros.
  remember (@nil ty) as te.
- induction H; eauto.
-
- Case "XVar".
-  subst. inverts H.
-
- Case "XLam".
-  left. subst. eauto. 
+ induction H; subst; try (solve [left; burn]); right.
 
  Case "XApp".
-  right. 
-  specializes IHTYPE1 Heqte.
-  specializes IHTYPE2 Heqte.
-  destruct IHTYPE1.
+  have HN: (@nil ty = nil). rip. clear HN.
 
+  destruct IHTYPE1.
   SCase "value x1".
    destruct IHTYPE2.
    SSCase "value x2".
-    inverts H1. inverts H3.
-     inverts H4. false.
-     exists (substX 0 x2 x0).
-     apply EsLamApp. inverts H2. auto.
-     inverts H.
-     inverts H.
-     inverts H.
+    have HL: (exists t x, x1 = XLam t x).
+    destruct HL as [t].
+    destruct H3 as [x].
+    subst.
+    exists (substX 0 x2 x). burn.
+
    SSCase "x2 steps".
     destruct H2 as [x2'].
-    exists (XApp x1 x2'). inverts H1. auto.
+    exists (XApp x1 x2'). burn.
 
    SSCase "x1 steps".
     destruct H1 as [x1'].
     exists (XApp x1' x2).
-    eapply (EsContext (fun xx => XApp xx x2)); eauto.
+    eapply (EsContext (fun xx => XApp xx x2)); burn.
 
-  SCase "XSucc".
-   right. 
-   destruct IHTYPE. auto. subst.
-    inverts H0. inverts H1;
-     try inverts H2; try inverts H.
-     false.
-     exists (XNat (S n)).
-      eapply EsSucc.
-     destruct H0. exists (XSucc x). eauto.
+ Case "XFix".
+  exists (substX 0 (XFix t1 x1) x1).
+  burn.  
 
-  SCase "XPred".
-   right.
-   destruct IHTYPE. auto. subst.
-   inverts H0. inverts H1;
-    try inverts H2; try inverts H.
-    false. 
-    destruct n; eauto.
-    destruct H0. eauto.
+ Case "XSucc".
+  have HN: (@nil ty = nil). rip. clear HN.
+  destruct IHTYPE.
+   have HN: (exists n, x1 = XNat n).
+    destruct HN. subst. burn.
+    destruct H0 as [x'].
+   exists (XSucc x').
+    burn.
 
-  SCase "XIsZero".
-   right.
-   destruct IHTYPE. auto. subst.
-   inverts H0. inverts H1; 
-    try inverts H2; try inverts H.
-    false.
-    destruct n; eauto.
-    destruct H0. eauto.
+ Case "XPred".
+  have HN: (@nil ty = nil). rip. clear HN.
+  destruct IHTYPE.
+   have HN: (exists n, x1 = XNat n).
+    destruct HN as [n]. subst.
+    destruct n; burn.
+   destruct H0 as [x'].
+    exists (XPred x').
+    burn.
 
-  SCase "XIf".
-   right. 
-   destruct IHTYPE1. eauto.
-    inverts H2; inverts H3; 
-     try inverts H2; try inverts H;
-     inverts H4. false.
-     exists x2. eauto.
-     exists x3. eauto.
-     destruct H2. exists (XIf x x2 x3).
-     eapply (EsContext (fun xx => XIf xx x2 x3)); eauto.
+ Case "XIsZero".
+  have HN: (@nil ty = nil). rip. clear HN.
+  destruct IHTYPE.
+   have HN: (exists n, x1 = XNat n).
+    destruct HN as [n]. subst.
+    destruct n; burn.
+   destruct H0 as [x'].
+    exists (XIsZero x').
+    burn. 
+
+ Case "XIf".
+  have HN: (@nil ty = nil). rip. clear HN.
+  destruct IHTYPE1.
+   have HN: (x1 = XFalse \/ x1 = XTrue).
+    destruct HN; subst; burn.
+   destruct H2 as [x1'].
+    exists (XIf x1' x2 x3).
+    eapply (EsContext (fun xx => XIf xx x2 x3)); burn.
 Qed.
 
 

@@ -109,12 +109,19 @@ Hint Unfold closedX.
 
 
 (* Values are closed expressions that cannot be reduced further. *)
-Inductive value : exp -> Prop :=
- | Value 
-   :  forall xx
-   ,  wnfX xx -> closedX xx
-   -> value xx.
-Hint Constructors value.
+Definition value (x : exp)
+ := wnfX x /\ closedX x.
+Hint Unfold value.
+
+Lemma value_wnfX 
+ : forall x, value x -> wnfX x.
+Proof. intros. inverts H. auto. Qed.
+Hint Resolve value_wnfX.
+
+Lemma value_closedX
+ : forall x, value x -> closedX x.
+Proof. intros. inverts H. auto. Qed.
+Hint Resolve value_closedX.
 
 
 (********************************************************************)
