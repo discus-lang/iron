@@ -32,8 +32,7 @@ Proof.
    apply TyVar.
    destruct n.
     burn.
-    simpl. nnat. rewrite <- H5.
-     apply get_delete_below. burn.
+    simpl. norm. down. apply get_delete_below. omega.
 
  Case "XLam".
   apply TyLam.

@@ -81,10 +81,24 @@ Inductive STEP  : heap -> exp -> heap -> exp -> Prop :=
 Hint Constructors STEP.
 
 
+(********************************************************************)
 (* Well-formed heaps contain values only. 
    No free variables or reducible terms in heap cells. *)
 Definition wfH (h: heap) 
  := Forall value h.
+Hint Unfold wfH.
+
+(* Any expression obtained from a well formed heap is a value. *)
+Lemma heap_value
+ :  forall l h x
+ ,  wfH h
+ -> get l h = Some x
+ -> value x.
+Proof.
+ intros.
+ eapply Forall_get; eauto.
+Qed.
+Hint Resolve heap_value.
 
 
 (* Taking a single evaluation step preserves the well-formedness
@@ -95,10 +109,8 @@ Lemma step_preserves_wfH
  -> STEP h1 x1 h2 x2
  -> wfH h2.
 Proof.
- intros.
- induction H0; auto.
- eapply Forall_snoc; auto.
- eapply Forall_update; auto.
+ intros h1 h2 x1 x2 HW HS.
+ induction HS; burn using Forall_update.
 Qed.
 
 
@@ -174,10 +186,7 @@ Lemma stepsl_trans
  :  forall h1 x1 h2 x2 h3 x3
  ,  STEPSL h1 x1 h2 x2 -> STEPSL h2 x2 h3 x3
  -> STEPSL h1 x1 h3 x3.
-Proof.
- intros.
- induction H; eauto.
-Qed.
+Proof. intros. induction H; burn. Qed.
 
 
 (* Linearise a regular multi-step evaluation.
@@ -188,7 +197,6 @@ Lemma stepsl_of_steps
  ,  STEPS  h1 x1 h2 x2
  -> STEPSL h1 x1 h2 x2.
 Proof. 
- intros.
- induction H; eauto using stepsl_trans.
+ intros. induction H; eauto using stepsl_trans.
 Qed.
 

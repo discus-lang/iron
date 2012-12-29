@@ -14,25 +14,9 @@ Theorem progress
 Proof.
  intros se h x t HTH HT.
  remember (@nil ty) as te.
- induction HT; subst.
-
- Case "XCon".
-  left. 
-  eapply Value.
-   auto.
-   unfold closedX. simpl. auto.
-
- Case "XVar".
-  nope.
-
- Case "XLoc".
-  left. eauto.
-
- Case "XLam".
-  left. eauto.
+ induction HT; subst; try (solve [left; burn]); right.
 
  Case "XApp".
-  right. 
   destruct IHHT1; eauto.
   SCase "value x1".
    destruct IHHT2; eauto.
@@ -50,13 +34,11 @@ Proof.
     lets D: EsContext XcApp1; eauto.
 
  Case "XNewRef".
-  right.
   destruct IHHT; eauto.
   SCase "x1 steps".
    dests H. exists h' (XNewRef x'). auto.
 
  Case "XReadRef".
-  right.
   destruct IHHT; eauto.
   SCase "xRef value".
    assert (exists l, xRef = XLoc l) as HF. eauto.
@@ -73,7 +55,6 @@ Proof.
    lets D: EsContext XcReadRef. eauto.
 
  Case "XWriteRef".
-  right.
   destruct IHHT1; eauto.
   SCase "value xRef".
    destruct IHHT2; eauto.

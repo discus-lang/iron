@@ -84,12 +84,10 @@ Lemma eval_produces_wfH_value
  -> wfH h1 /\ value v1.
 Proof.
  intros. induction H; rip; try burn.
- apply Forall_snoc; eauto.
- eapply Value; burn.
- eapply Forall_get; eauto.
- eapply Forall_update; auto.
- unfold xUnit.
- eapply Value; burn.
+ inverts H1; eauto.
+ eapply Forall_update; eauto.
+ eapply Forall_update; eauto.
+ unfold xUnit. auto.
 Qed.
 
 
@@ -99,8 +97,7 @@ Lemma eval_produces_wfH
  ,  EVAL h0 x1 h1 v1
  -> wfH h1.
 Proof.
- intros.
- lets D: eval_produces_wfH_value H. tauto.
+ intros. lets D: eval_produces_wfH_value H. burn.
 Qed.
 Hint Resolve eval_produces_wfH.
 
@@ -111,11 +108,9 @@ Lemma eval_produces_value
  ,  EVAL h0 x1 h1 v1
  -> value v1.
 Proof.
- intros.
- lets D: eval_produces_wfH_value H. tauto.
+ intros. lets D: eval_produces_wfH_value H. burn.
 Qed.
 Hint Resolve eval_produces_value.
-
 
 
 (********************************************************************)
@@ -152,94 +147,90 @@ Proof.
    rename H5 into Tx2.
 
   (* evaluate function *)
-  assert (STEPS h0 x1 h1 (XLam t11 x12)) as Sx1.
-   eauto. clear IHHE1.
+  have Sx1: (STEPS h0 x1 h1 (XLam t11 x12)).
+   clear IHHE1.
   lets Rx1: preservation_steps HTH Tx1 Sx1.
    destruct Rx1 as [se1]. rip.
    inverts keep H2.
 
   (* evaluate arg *)
-  assert (TYPE  nil se1 x2 t0). burn.
-  assert (STEPS h1  x2  h2 v2) as Sx2.
-   burn. clear IHHE2.
+  have (TYPE  nil se1 x2 t0).
+  have Sx2: (STEPS h1  x2  h2 v2).  
+   clear IHHE2.
   lets Rx1: preservation_steps se1 h1 x2 t0 h2.
-  lets Rx1': Rx1 v2. clear Rx1. rip.
+  lets Rx1': Rx1 v2. 
+   clear Rx1. rip.
   destruct Rx1' as [se2]. rip.
 
   (* perform substitution *)
-  assert (TYPE  nil se2 (substX 0 v2 x12) t1).
-   eapply subst_exp_exp; eauto.
-  assert (STEPS h2 (substX 0 v2 x12) h3 v3). eauto.
+  have (TYPE  nil se2 (substX 0 v2 x12) t1) 
+   by burn using subst_exp_exp.
+  have (STEPS h2 (substX 0 v2 x12) h3 v3).
   lets Rx2: preservation_steps se2 h2 (substX 0 v2 x12) t1 h3.
-  lets Rx2': Rx2 v3. clear Rx2. rip.
+  lets Rx2': Rx2 v3. 
+   clear Rx2. rip.
   destruct Rx2' as [se3]. rip.
 
   eapply EsAppend.
-    lets D: steps_context XcApp1.
-     eapply D. eauto.
+   lets D: steps_context XcApp1.
+   eapply D. eauto.
   eapply EsAppend.
    lets D: steps_context XcApp2.
-    assert (wnfX (XLam t0 x12)) as WL. auto.
-     assert (closedX (XLam t0 x12)). 
-     eauto. eauto. eapply D. eauto.
-
-  eapply EsAppend.
-   eapply EsStep.
-    eapply EsLamApp. eauto.
-    eauto.
+    have WL: (wnfX (XLam t0 x12)).
+     eauto. eapply D. eauto.
+  eapply EsAppend; eauto.
 
 
  (* Create a new Reference *******)
  Case "EvNewRef".
   inverts_type.
-   rename H2 into Tx1.
+  rename H2 into Tx1.
   
   (* evaluate argument *)
-  assert (STEPS h0 x1 h1 v1) as Sx1.
-   eauto. clear IHHE.
+  have Sx1: (STEPS h0 x1 h1 v1). 
+   clear IHHE.
   lets Rx1: preservation_steps HTH Tx1 Sx1.
    destruct Rx1 as [se1]. rip.
   
   eapply EsAppend.
    lets D: steps_context XcNewRef.
-    eapply D. eauto.
+   eapply D. eauto.
   eapply EsStep. eauto.
 
 
  (* Read a reference ************)
  Case "EvReadRef".
   inverts_type.
-   rename H3 into Tx1.
+  rename H3 into Tx1.
   
   (* evaluate argument to a location *)  
-  assert (STEPS h0 x1 h1 (XLoc l)) as Sx1.
-   eauto. clear IHHE.
+  have Sx1: (STEPS h0 x1 h1 (XLoc l)).
+   clear IHHE.
   lets Rx1: preservation_steps HTH Tx1 Sx1.
    destruct Rx1 as [se1]. rip.
  
   eapply EsAppend.
    lets D: steps_context XcReadRef.
-    eapply D. eauto.
+   eapply D. eauto.
   eapply EsStep. eauto.
 
 
  (* Write a reference **********)
  Case "EvWriteRef".
   inverts_type.
-   rename H3 into Tx1.
-   rename H5 into Tx2.
+  rename H3 into Tx1.
+  rename H5 into Tx2.
 
   (* evaluate first argument to a location *)
-  assert (STEPS h0 x1 h1 (XLoc l)) as Sx1.
-   eauto. clear IHHE1.
+  have Sx1: (STEPS h0 x1 h1 (XLoc l)).
+   clear IHHE1.
   lets Rx1: preservation_steps HTH Tx1 Sx1.
    destruct Rx1 as [se1]. rip.
 
   (* evaluate second argument to a value *)
-  assert (STEPS h1 x2 h2 v2) as Sx2.
-   eauto. clear IHHE2.
-  assert (TYPE nil se1 x2 tData) as Tx2'. 
-   eauto.
+  have Sx2: (STEPS h1 x2 h2 v2).
+   clear IHHE2.
+  have Tx2': (TYPE nil se1 x2 tData).
   lets Rx2: preservation_steps H Tx2' Sx2.
    destruct Rx2 as [se2]. rip.
 
@@ -248,7 +239,7 @@ Proof.
     eapply D. eapply Sx1.
   eapply EsAppend.
    lets D: steps_context XcWriteRef2.
-    assert (value (XLoc l)). eauto. eauto.
+    have (value (XLoc l)). eauto.
     eapply D. eapply Sx2.
     eauto.
 Qed.
@@ -290,14 +281,14 @@ Proof.
     eauto.
  
   SCase "XcNewRef".
-   inverts_eval. simpl. nope. eauto.
+   inverts_eval; burn.
 
   SCase "XcReadRef".
-   inverts_eval. nope. eauto.
+   inverts_eval; burn.
 
   SCase "XcWriteRef".
-   inverts_eval. nope. eauto. eauto.
-   inverts_eval. nope. eauto.
+   inverts_eval; burn.
+   inverts_eval. nope.
     assert (h1 = h' /\ XLoc l0 = v1).
     eapply eval_value_eq; eauto. rip.
     eauto.
@@ -305,40 +296,31 @@ Proof.
  Case "XApp".
   inverts_type.
   eapply EvLamApp; eauto.
-  assert (value (XLam t0 x12)). eauto.
-  eauto.
+  have (value (XLam t0 x12)). burn.
 
  Case "XNewRef".
   assert (h3 = v1 <: h /\ v3 = XLoc (length h)).
-   eapply eval_value_eq; eauto. eapply Value; burn. 
-   rip.
+   eapply eval_value_eq; eauto. burn. rip. 
 
  Case "XReadRef".
-  assert (value v).
-   eapply Forall_get.
-    eapply HW. eapply H.
+  have (value v).
   assert (h3 = h /\ v3 = v).
    eapply eval_value_eq; eauto. rip.
   eapply EvReadRef; eauto.
-  eapply EvDone. eapply Value; burn.
-   auto.
+  eapply EvDone; burn. 
 
  Case "XWriteRef".
   assert (h3 = update l v2 h /\ v3 = xUnit).
-   eapply eval_value_eq; eauto. unfold xUnit. 
-   eapply Value; burn. rip.
-  eauto.
+   eapply eval_value_eq; eauto. 
+   unfold xUnit; burn. 
+   rip.
   eapply EvWriteRef.
-  eapply EvDone. eapply Value; burn.
-  auto.
+  eapply EvDone; burn.
   inverts HE.
    inverts_type.
-   assert (value v2). 
-    assert (exists xData, get l h = Some xData).
-    eapply Forall2_get_get_right.
-     eapply HTH. eapply H7. destruct H2.
-    eapply Forall_update_result.
-     eapply H2. auto.
+   have (value v2). 
+   assert (exists xData, get l h = Some xData).
+    eauto using (@Forall2_get_get_right exp).
    eauto.
 Qed.
 
@@ -361,10 +343,8 @@ Proof.
   eapply eval_expansion; eauto.
   lets D: preservation H1 H4 H0.
   dest D. rip.
-  assert (wfH h2). 
-   eapply step_preserves_wfH; eauto.
-  rip.
-  eauto.
+  have (wfH h2) by burn using step_preserves_wfH.
+  burn.
 Qed.
 
 
@@ -381,6 +361,6 @@ Lemma eval_of_steps
 Proof.
  intros.
  eapply eval_of_stepsl; eauto.
- apply  stepsl_of_steps; auto.
+  apply  stepsl_of_steps; auto.
 Qed.
 
