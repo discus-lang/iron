@@ -12,8 +12,9 @@ Lemma getAlt_bodyIsWellTyped_fromAlts
  -> In (AAlt dc tsArgs x) alts
  -> TYPE ds (te >< tsArgs) x tResult.
 Proof.
- intros.
- nforall. spec H H0. inverts_type. auto.
+ intros. 
+ norm. spec H H0. 
+ inverts_type. auto.
 Qed.
 
 
@@ -33,7 +34,7 @@ Proof.
  lets HXT: getAlt_bodyIsWellTyped_fromAlts H5 HA.
  auto.
 Qed.
- 
+
 
 (* If an alternative is well typed then the types of the ctor
    args embedded in it match those in the data type definition *)
@@ -44,12 +45,8 @@ Lemma getAlt_ctorArgTypesMatchDataDef
  -> getAlt dc alts   = Some (AAlt    dc tsArgs' x)
  -> tsArgs = tsArgs'.
 Proof.
- intros.
- nforall.
+ intros. norm.
  lets D: getAlt_in H1. spec H D.
- inverts_type.
- rewrite H0 in H9.
- inverts H9. auto.
+ inverts_type. rip.
 Qed.
-
 

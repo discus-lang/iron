@@ -133,10 +133,7 @@ Lemma evals_produces_wnfX
  :  forall xs vs
  ,  EVALS xs vs
  -> Forall wnfX vs.
-Proof.
- intros.
- induction H; eauto.
-Qed.
+Proof. intros. induction H; eauto. Qed.
 Hint Resolve evals_produces_wnfX.
 
 
@@ -166,7 +163,6 @@ Proof.
 
   lets E1: IHHE1 H3. 
   lets E2: IHHE2 H5.
-
   lets T1: preservation_steps H3 E1. inverts keep T1.
   lets T2: preservation_steps H5 E2.
   lets T3: subst_exp_exp H2 T2.
@@ -207,24 +203,21 @@ Proof.
    eapply getAlt_ctorArgTypesMatchDataDef; eauto. subst.
 
   lets HA: getAlt_in H0.
-  rewrite Forall_forall in H4.
-  apply H4 in HA. clear H4.
+  norm. rip.
+  apply H4 in HA.
   inverts HA.
 
    (* substitute ctor values into alternative *)
   eapply EsAppend.
    eapply EsStep.
-    eapply EsCaseAlt.
-     auto.
-     rewrite Forall_forall in H. eauto.
-     eapply IHHE2.
-     eapply subst_exp_exp_list; eauto.
+    eapply EsCaseAlt; burn.
+     burn using subst_exp_exp_list.
 
  Case "EvsNil".
   auto.
 
  Case "EvsHead".
-  destruct ts. 
+  destruct ts.
    inverts H0. 
    inverts H0. eauto.
 Qed.
@@ -255,10 +248,10 @@ Proof.
   destruct H; inverts_type; eauto.
 
    SCase "XcApp1".
-    inverts_eval. inverts H. eauto.
-   
+    inverts_eval; burn.
+
    SCase "XcApp2".
-    inverts_eval. inverts H1. eauto.
+    inverts_eval; burn.
 
    SCase "XcCon".
     assert (exists t, TYPE ds te x t).
@@ -272,7 +265,8 @@ Proof.
     induction H; intros.
       inverts H5.
       eapply EvsCons. eauto.
-       induction xs. eauto.
+       induction xs. 
+        eauto.
         inverts H6. eauto.
         inverts H5. eauto.
 
@@ -299,20 +293,18 @@ Proof.
  induction H0.
  
  Case "EslNone".
-   apply EvDone. inverts H1. auto.
+  apply EvDone. inverts H1. auto.
 
  Case "EslCons".
   eapply eval_expansion; eauto.
-   apply IHSTEPSL; auto.
-   eapply preservation; eauto.
+  burn using preservation. 
 Qed.
 
 
 (* Convert a multi-step evaluation to a big-step evaluation.
    We use stepsl_of_steps to flatten out the append constructors
    in the multi-step evaluation, leaving a list of individual
-   small-steps.
- *)
+   small-steps. *)
 Lemma eval_of_steps
  :  forall ds x1 t1 v2
  ,  TYPE ds nil x1 t1

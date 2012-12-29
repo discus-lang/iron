@@ -72,14 +72,13 @@ Lemma step_wnfX
 Proof.
  intros x v HW HS.
  induction HS; nope.
-  destruct H; auto; nope.
+  destruct H; burn.
 
  Case "XCon dc (C x)".
   inverts HW.
   assert (wnfX x).
   eapply exps_ctx_Forall; eauto.
-  assert (x' = x); auto.
-  subst. auto.
+  rrwrite (x' = x). auto.
 Qed.
 
 
@@ -101,13 +100,12 @@ Lemma steps_wnfX
  ,  wnfX x -> STEPS x v -> v = x.
 Proof.
  intros x v HW HS.
- induction HS; auto.
+ induction HS; burn.
   Case "EsStep".
    apply step_wnfX; auto.
   
   Case "EsAppend".
-   assert (x2 = x1); auto.
-    subst. auto.
+   have (x2 = x1). subst. auto.
 Qed.
 
 

@@ -105,17 +105,14 @@ Proof.
   ; intros; inverts_type; eauto.
 
  Case "XCon".
-  apply WfX_XCon. repeat (norm_nat; norm_lists).
-
- norm_lists. norm. norm_lists. nforall.
-  nforall. intros.
-  eapply Forall2_exists_left in H9; eauto.
-  destruct H9. eauto.
+  apply WfX_XCon. norm. intros.
+  have HT: (exists t, TYPE ds te x t).
+  spec H H0 ds te.
+  destruct HT as [t].
+  burn.
 
  Case "XCase".
-  eapply WfX_XCase.
-   eapply IHx. eauto.
-   nforall. eauto.
+  eapply WfX_XCase; burn.
 Qed.
 Hint Resolve type_wfX.
 
@@ -134,19 +131,18 @@ Proof.
   (PA := fun a => forall ix ds te t3 t4
       ,  TYPEA ds te a t3 t4 
       -> TYPEA ds (insert ix t2 te) (liftA 1 ix a) t3 t4)
-  ; intros; inverts_type; simpl; eauto.
+  ; intros; inverts_type; burn; simpl.
 
  Case "XVar".
-  nnat. 
-  lift_cases; intros; auto.
+  lift_cases; burn.
 
  Case "XLam".
   apply TYLam.
   rewrite insert_rewind. auto.
 
  Case "XCon".
-  eapply TYCon; eauto.
-   nforall.
+  eapply TYCon; burn.
+   norm.
    apply (Forall2_map_left (TYPE ds (insert ix t2 te))).
    apply (Forall2_impl_in  (TYPE ds te)); eauto.
 
@@ -154,16 +150,15 @@ Proof.
   eapply TYCase; eauto.
    apply Forall_map.
    apply (Forall_impl_in (fun a => TYPEA ds te a (TCon tcPat) t1)); eauto.
-   nforall. eauto.
-
+   burn.
+ 
   rewrite map_length; auto.
 
-  nforall.
+  norm.
    intros. rename x0 into d. 
    rewrite map_map. unfold Basics.compose.
    eapply map_exists_in.
-   assert (In d (map dcOfAlt aa)). 
-    eauto.
+   have (In d (map dcOfAlt aa)). 
    assert (exists a, dcOfAlt a = d /\ In a aa).
     eapply map_in_exists. auto.
    shift a. rip.
@@ -183,10 +178,8 @@ Lemma type_tyenv_weaken1
  -> TYPE ds (te :> t2) (liftX 1 0 x) t1.
 Proof.
  intros.
- assert (te :> t2 = insert 0 t2 te).
-  simpl. destruct te; auto.
- rewrite H0.
-  apply type_tyenv_insert. auto.
+ rrwrite (te :> t2 = insert 0 t2 te).
+ burn using type_tyenv_insert.
 Qed.
 
 
@@ -199,12 +192,10 @@ Lemma type_tyenv_weaken_append
 Proof.
  intros.
  induction te'; simpl.
-  rewrite liftX_zero. 
-   auto. 
-  rewrite <- nat_plus_one.
-   assert (length te' + 1 = 1 + length te') as HL. 
-    burn. rewrite HL. clear HL.
-   rewrite <- liftX_plus.
-   eapply type_tyenv_weaken1. auto. 
+ rewrite liftX_zero; auto.
+ rewrite <- nat_plus_one.
+ rrwrite (length te' + 1 = 1 + length te').
+ rewrite <- liftX_plus.
+ eapply type_tyenv_weaken1. auto. 
 Qed.
 

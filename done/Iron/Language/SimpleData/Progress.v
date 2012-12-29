@@ -13,14 +13,7 @@ Theorem progress
 Proof.
  intros. gen t.
  induction x using exp_mutind with 
-  (PA := fun a => a = a)
-  ; intros.
- 
- Case "XVar".
-  nope.
-
- Case "XLam".
-  left. eauto.
+  (PA := fun a => a = a); rip; burn.
 
  Case "XApp".
   right.
@@ -29,12 +22,12 @@ Proof.
   SCase "value x1".
    edestruct IHx2; eauto.
     SSCase "value x2".
-     assert (exists t x, x1 = XLam t x) as HF. eauto.
+     have HF: (exists t x, x1 = XLam t x).
      destruct HF as [t11].
      destruct H1 as [x12].
      subst.
-     exists (substX 0 x2 x12). 
-     apply EsLamApp; eauto.
+     exists (substX 0 x2 x12).
+     eauto. 
     SSCase "x2 steps".
      destruct H0 as [x2'].
      exists (XApp x1 x2'). auto.
@@ -45,14 +38,12 @@ Proof.
  
  Case "XCon".
   inverts_type.
+
   (* All ctor args are either wnf or can step *)
   assert (Forall (fun x => wnfX x \/ (exists x', STEP x x')) xs) as HWS.
-   nforall. intros.
-   assert (exists t, TYPE ds nil x t).
-    eapply Forall2_exists_left; eauto.
-    dest t.
-   assert (value x \/ (exists x', STEP x x')).
-    eapply H; eauto.
+   norm. rip.
+   have (exists t, TYPE ds nil x t). dest t.
+   have (value x \/ (exists x', STEP x x')).
    inverts H2; burn.
 
   (* All ctor args are wnf, or there is a context where one can step *)
@@ -70,27 +61,22 @@ Proof.
  Case "XCase".
   right.
   inverts_type.
-  assert (value x \/ (exists x', STEP x x')) as HS; eauto.
+  have HS: (value x \/ (exists x', STEP x x')).
   inverts HS. clear IHx.
   SCase "x value".
    destruct x; nope.
     SSCase "XCon".
      inverts_type.
-     assert (dcs0 = dcs).
-      rewrite H8 in H12. inverts H12. auto. subst.
-     assert (exists ts x, getAlt d aa = Some (AAlt d ts x)) as HG.
-      eapply getAlt_exists.
-      nforall. eauto.
+     rrwrite (dcs0 = dcs).
+     have HG: (exists ts x, getAlt d aa = Some (AAlt d ts x))
+      by burn using getAlt_exists.
      dest ts. dest x.
      exists (substXs 0 l x).
-     eapply EsCaseAlt; eauto.
+     burn.
 
   SCase "x steps".
    destruct H0 as [x'].
    exists (XCase x' aa).
    lets D: EsContext XcCase; eauto.
-
- Case "XAlt".
-   auto.     
 Qed.
 

@@ -31,8 +31,7 @@ Proof.
   eapply getAlt_bodyIsWellTyped_fromCase; eauto.
   assert (tsArgs = tsArgs0).
    lets D: getAlt_ctorArgTypesMatchDataDef H4 H7 H0. auto.
-   rewrite <- H1. clear H1.
-  auto.
+   subst. auto.
 Qed.
 
 

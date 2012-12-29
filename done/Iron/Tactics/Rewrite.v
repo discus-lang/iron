@@ -17,7 +17,7 @@ Ltac rewritess
    Just state the equality to use. *)
 Tactic Notation "rrwrite" constr(xx)
  := let H := fresh 
-    in assert xx as H by have_auto; rewrite H; clear H.
+    in  assert xx as H  by have_auto; rewrite H in *;  clear H.
 
 Tactic Notation "rrwrite" constr(xx) "in" hyp(H)
  := let H2 := fresh

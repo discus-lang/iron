@@ -26,30 +26,21 @@ Proof.
   ; intros; simpl; inverts_type; eauto.
 
  Case "XVar".
-  fbreak_nat_compare.
-  SCase "i = ix".
-   rewrite H in H5. inverts H5. auto.
-
-  SCase "n < ix".
-   apply TYVar.
-    rewrite <- H5.
-    apply get_delete_above. auto.
+  fbreak_nat_compare; burn.
 
   SCase "n > ix".
    apply TYVar.
-   destruct n.
-    false. omega.
-    simpl. nnat. rewrite <- H5.
-     apply get_delete_below. omega.
-
+   destruct n; burn.
+   norm. down. apply get_delete_below. omega.
+   
  Case "XLam".
   apply TYLam.
   rewrite delete_rewind.
   eauto using type_tyenv_weaken1.
 
  Case "XCon".
-  eapply TYCon; eauto.
-   nforall.
+  eapply TYCon; burn.
+   norm.
    apply (Forall2_map_left (TYPE ds (delete ix te))).
    apply (Forall2_impl_in  (TYPE ds te)); eauto.
 
@@ -57,22 +48,22 @@ Proof.
  Case "XCase".
   eapply TYCase; eauto.
    clear IHx1.
+
    (* Alts have correct type *)
-    eapply Forall_map.
-    nforall. eauto.
+   eapply Forall_map. burn.
 
    (* There is at least one alt *)
-   rewrite map_length; eauto.
+   rewrite map_length; burn.
 
    (* Required datacon is in alts list *)
    nforall. intros.
    rename x into d.
    rewrite map_map. unfold Basics.compose.
    apply in_map_iff.
-   assert (exists a, dcOfAlt a = d /\ In a aa). 
-    eapply map_in_exists. eauto. shift a. rip.
+   have (exists a, dcOfAlt a = d /\ In a aa). 
+   shift a. rip.
    rewrite dcOfAlt_substA; auto.
-     
+
  Case "AAlt".
   eapply TYAlt; auto.
   rewrite delete_app.
@@ -103,23 +94,17 @@ Theorem subst_exp_exp_list
 Proof.
  intros ds te x1 xs t1 ts HF HT.
  gen ts x1.
- induction xs; intros; inverts_type.
+ induction xs; intros; inverts_type; simpl.
 
  Case "base case".
-  destruct ts. 
-   simpl. auto.
-   nope.
+  destruct ts; burn.
 
  Case "step case".
-  simpl. 
-   destruct ts.
-    nope.
-    inverts HF.
-     eapply IHxs. eauto.
-     simpl in HT.
-     eapply subst_exp_exp. eauto. 
-     assert (length xs = length ts).
-      eapply Forall2_length in H4. auto. rewrite H. clear H.   
-     eapply type_tyenv_weaken_append. auto.
+  destruct ts; burn.
+  simpl in *.
+  inverts HF.
+  eapply IHxs. eauto.
+  eapply subst_exp_exp; eauto.
+  rrwrite (length xs = length ts).
+  burn using type_tyenv_weaken_append.
 Qed.
-
