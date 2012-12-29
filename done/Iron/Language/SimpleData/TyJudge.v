@@ -85,7 +85,7 @@ Lemma value_lam
  -> TYPE ds te x (TFun t1 t2)
  -> (exists t x', x = XLam t x').
 Proof.
- intros. destruct x; eauto; nope.
+ intros. destruct x; burn.
 Qed.
 Hint Resolve value_lam.
 
@@ -105,7 +105,9 @@ Proof.
   ; intros; inverts_type; eauto.
 
  Case "XCon".
-  apply WfX_XCon.
+  apply WfX_XCon. repeat (norm_nat; norm_lists).
+
+ norm_lists. norm. norm_lists. nforall.
   nforall. intros.
   eapply Forall2_exists_left in H9; eauto.
   destruct H9. eauto.

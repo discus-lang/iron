@@ -19,7 +19,7 @@ Require Import Coq.Logic.FunctionalExtensionality.
 
 Tactic Notation "norm"
  := simpl in *; rip;
-    try (first [norm_nat | norm_lists]).
+    repeat (norm_nat; norm_lists).
 
 
 Tactic Notation "burn0"
