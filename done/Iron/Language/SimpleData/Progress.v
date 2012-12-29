@@ -53,7 +53,7 @@ Proof.
     dest t.
    assert (value x \/ (exists x', STEP x x')).
     eapply H; eauto.
-   burn. 
+   inverts H2; burn.
 
   (* All ctor args are wnf, or there is a context where one can step *)
   lets D: (@exps_ctx_run exp exp) HWS.

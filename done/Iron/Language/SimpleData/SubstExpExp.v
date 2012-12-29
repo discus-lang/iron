@@ -67,7 +67,7 @@ Proof.
    (* Required datacon is in alts list *)
    nforall. intros.
    rename x into d.
-   rewrite map_map. unfold compose.
+   rewrite map_map. unfold Basics.compose.
    apply in_map_iff.
    assert (exists a, dcOfAlt a = d /\ In a aa). 
     eapply map_in_exists. eauto. shift a. rip.

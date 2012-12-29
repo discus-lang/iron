@@ -158,7 +158,7 @@ Proof.
 
   nforall.
    intros. rename x0 into d. 
-   rewrite map_map. unfold compose.
+   rewrite map_map. unfold Basics.compose.
    eapply map_exists_in.
    assert (In d (map dcOfAlt aa)). 
     eauto.
