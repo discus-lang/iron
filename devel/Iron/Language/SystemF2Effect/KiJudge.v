@@ -72,6 +72,7 @@ Lemma kind_wfT
 Proof.
  intros ke t k HK. gen ke k.
  induction t; intros; inverts_kind; burn.
+ lets D: IHt H3. burn.
 Qed.
 Hint Resolve kind_wfT.
 
@@ -92,8 +93,7 @@ Lemma kind_wfT_Forall2
  -> Forall (wfT (length ke)) ts.
 Proof.
  intros.
- eapply (Forall2_Forall_left (KIND ke)).
- nforall. intros. eauto. eauto.
+ eapply (Forall2_Forall_left (KIND ke)); burn.
 Qed.
 Hint Resolve kind_wfT_Forall2.
 
@@ -125,7 +125,7 @@ Proof.
  induction t; intros; simpl; inverts_kind; eauto.
 
  Case "TVar".
-  lift_cases; intros; nnat; auto.
+  lift_cases; intros; norm; auto.
 
  Case "TForall".
   apply KIForall.
@@ -139,8 +139,7 @@ Lemma kind_kienv_weaken
  -> KIND (ke :> k2) (liftTT 1 0 t) k1.
 Proof.
  intros.
- assert (ke :> k2 = insert 0 k2 ke). simpl.
-   destruct ke; auto.
- rewrite H0. apply kind_kienv_insert. auto.
+ rrwrite (ke :> k2 = insert 0 k2 ke).
+ apply kind_kienv_insert. auto.
 Qed.
 

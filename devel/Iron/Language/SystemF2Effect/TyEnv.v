@@ -36,7 +36,8 @@ Lemma liftTE_liftTE
 Proof. 
  intros. induction te; rip.
   unfold liftTE.
-  simpl. rewrite liftTT_liftTT_11. burn.
+  simpl. rewrite liftTT_liftTT_11. 
+  f_equal. burn.
 Qed.
 
 
@@ -48,6 +49,7 @@ Proof.
  unfold substTE. unfold liftTE.
  lists.
  induction te; simpl; burn.
+ try rewritess; burn.
 Qed.
 
 
@@ -72,8 +74,9 @@ Proof.
  intros.
  unfold liftTE.
  induction se; rip.
-  inverts H. rip.
-  rs. rw (liftTT 1 n a = a).
+  inverts H. norm.
+  rewritess.
+  rrwrite (liftTT 1 n a = a).
   auto.
 Qed.
 Hint Resolve liftTE_closedT_id.
@@ -87,8 +90,9 @@ Proof.
  intros.
  unfold substTE.
  induction se; rip.
-  inverts H. rip.
-  rs. rw (substTT n t2 a = a).
+  inverts H. norm. 
+  rewritess.
+  rrwrite (substTT n t2 a = a).
   auto.
 Qed.
 Hint Resolve substTE_closedT_id.

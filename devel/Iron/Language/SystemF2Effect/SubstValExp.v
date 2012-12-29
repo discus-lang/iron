@@ -24,20 +24,12 @@ Proof.
   ; intros; simpl; inverts_type; eauto.
 
  Case "VVar".
-  fbreak_nat_compare.
-  SCase "n = ix".
-   have (t2 = t1) by congruence. subst.
-   auto.
-
-  SCase "n < ix".
-   apply TvVar; auto.
-
+  fbreak_nat_compare; burn.
   SCase "n > ix".
    apply TvVar; auto.
-   rewrite <- H6.
    destruct n.
-    burn. 
-    simpl. nnat. apply get_delete_below; burn.
+    burn.
+    down. norm. eapply get_delete_below. omega.
 
  Case "VLam".
   apply TvLam; auto.

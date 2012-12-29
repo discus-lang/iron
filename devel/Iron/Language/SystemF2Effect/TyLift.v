@@ -29,12 +29,12 @@ Lemma liftTT_wfT
  -> wfT (S kn) (liftTT 1 d t).
 Proof.
  intros. gen kn d.
- lift_burn t; inverts H; try burn.
+ lift_burn t; inverts H; burn.
  
  Case "TVar".
-  repeat (simpl; lift_cases).
-   eapply WfT_TVar. burn.
-   eapply WfT_TVar. burn.
+  repeat (simpl; lift_cases). 
+   eapply WfT_TVar. omega.
+   eapply WfT_TVar. omega.
 Qed.
 Hint Resolve liftTT_wfT.
 
@@ -75,12 +75,10 @@ Proof.
  intros. gen n d.
  induction m; intros.
  rewrite liftTT_zero; burn.
-
- rw (n + S m = S n + m). 
-  rewrite liftTT_comm.
-  rewrite <- IHm.
-  rewrite liftTT_comm.
-  burn.
+ rrwrite (n + S m = S n + m).
+ rewrite <- IHm.
+ rewrite liftTT_succ.
+ auto.
 Qed. 
 Hint Rewrite <- liftTT_plus : global.
 
@@ -95,18 +93,18 @@ Proof.
  induction t; intros; inverts H; simpl; auto.
 
   Case "TVar".
-   lift_cases; burn.
+   lift_cases; burn; omega.
 
   Case "TForall".
    f_equal. spec IHt H1.
-   rw (S (n + ix) = S n + ix).
+   rrwrite (S (n + ix) = S n + ix).
    burn.
 
   Case "TApp".
-   rs. burn.
+   repeat (rewritess; burn).
 
   Case "TSum".
-   rs. burn.
+   repeat (rewritess; burn).
 Qed.
 Hint Resolve liftTT_wfT_1.
 
@@ -117,7 +115,7 @@ Lemma liftTT_closedT_id_1
  -> liftTT 1 d t = t.
 Proof.
  intros.
- rw (d = d + 0). eauto.
+ rrwrite (d = d + 0). eauto.
 Qed.
 Hint Resolve liftTT_closedT_id_1.
 
@@ -128,7 +126,7 @@ Lemma liftTT_closedT_10
  -> closedT (liftTT 1 0 t).
 Proof.
  intros. red.
- rw (0 = 0 + 0).
+ rrwrite (0 = 0 + 0).
  rewrite liftTT_wfT_1; auto.
 Qed.
 Hint Resolve liftTT_closedT_10.
@@ -147,14 +145,16 @@ Lemma liftTT_liftTT_11
  =  liftTT 1 (1 + (d + d')) (liftTT 1 d t).
 Proof.
  intros. gen d d'.
- induction t; intros; simpl; try burn.
+ induction t; intros; simpl; 
+  try burn;
+  try (f_equal; rewritess; burn).
 
  Case "TVar".
-  repeat (lift_cases; unfold liftTT); burn.
+  repeat (lift_cases; unfold liftTT); burn; omega.
 
  Case "TForall".
-  rw (S (d + d') = (S d) + d').
-  burn.
+  rrwrite (S (d + d') = (S d) + d').
+  f_equal. rewritess. burn.
 Qed.
 
 
@@ -167,10 +167,10 @@ Proof.
  induction m1; intros; simpl.
   burn. 
 
-  rw (S m1 = 1 + m1).
+  rrwrite (S m1 = 1 + m1).
   rewrite <- liftTT_plus.
-  rs.
-  rw (m1 + n2 + n1 = n1 + (m1 + n2)).
+  rewritess.
+  rrwrite (m1 + n2 + n1 = n1 + (m1 + n2)) by omega.
   rewrite liftTT_liftTT_11.
   burn.
 Qed.
@@ -185,7 +185,7 @@ Proof.
  induction m2; intros.
   burn.
 
-  rw (S m2 = 1 + m2).
+  rrwrite (S m2 = 1 + m2).
   rewrite <- liftTT_plus.
   rewrite liftTT_liftTT_1.
   rewrite IHm2.
@@ -199,6 +199,6 @@ Lemma liftTT_map_liftTT
  ,  map (liftTT m1 n1) (map (liftTT m2 (n2 + n1)) ts)
  =  map (liftTT m2 (m1 + n2 + n1)) (map (liftTT m1 n1) ts).
 Proof.
- induction ts; simpl; burn.
+ induction ts; simpl; f_equal; burn.
 Qed.  
 

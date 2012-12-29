@@ -4,11 +4,11 @@ Require Export Iron.Data.Nat.
 Require Export Iron.Norm.List.
 Require Export Iron.Norm.
 Require Export Iron.Tactics.Rip2.
+Require Export Iron.Tactics.Rewrite2.
 Require Export Iron.Tactics.Case.
 Require Export Iron.Tactics.Nope.
 Require Export Iron.Tactics.Break.
 Require Export Iron.Tactics.Rewrite.
-Require Export Iron.Tactics.Down.
 Require Export Iron.Tactics.Have.
 Require Export Iron.Tactics.Exists.
 Require Export Iron.Tactics.Short.

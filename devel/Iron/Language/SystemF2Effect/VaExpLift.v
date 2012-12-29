@@ -70,7 +70,7 @@ Proof.
  induction x using exp_mutind with 
   (PV := fun v => forall d
       ,  liftXV 0 d v = v)
-  ; intros; simpl; try burn.
+  ; intros; simpl; f_equal; try burn.
 
  Case "XVar".
   lift_cases; burn.
@@ -88,11 +88,13 @@ Proof.
  induction x using exp_mutind with 
   (PV := fun v => forall d
       ,  liftXV n d (liftXV m d v)
-      =  liftXV m d (liftXV n d v))
-  ; intros; simpl; try burn.
+      =  liftXV m d (liftXV n d v)); 
+  rip; simpl; 
+  try (solve [f_equal; burn]).
 
  Case "XVar".
-  repeat (simple; lift_cases; intros); burn.
+  subst.
+  repeat (simple; lift_cases; intros); f_equal; burn; omega.
 Qed.
 
 
@@ -107,11 +109,12 @@ Proof.
  induction x using exp_mutind with 
   (PV := fun v => forall d
       ,  liftXV (S n) d (liftXV  m    d v)
-      =  liftXV n     d (liftXV (S m) d v))
-  ; intros; simpl; try burn.
+      =  liftXV n     d (liftXV (S m) d v));
+  rip; simpl;
+  try (solve [f_equal; burn]). 
 
  Case "XVar".
-  repeat (simple; lift_cases; intros); burn.
+  repeat (simple; lift_cases; intros); f_equal; burn; omega.
 Qed.
 Hint Rewrite liftXX_succ : global.
 

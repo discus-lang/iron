@@ -31,9 +31,11 @@ Lemma substTT_wfT
  -> substTT (d + ix) t2 t = t.
 Proof.
  intros. gen d ix t2.
- induction t; intros; inverts H; simpl; try burn.
-  Case "TVar".
-   lift_cases; burn.
+ induction t; rip; inverts H; simpl; f_equal; burn.
+ Case "TVar".
+  lift_cases; burn; omega.
+
+ lets D: IHt H1. burn.
 Qed.
 Hint Resolve substTT_wfT.
 
@@ -43,8 +45,7 @@ Lemma substTT_closedT_id
  ,  closedT t
  -> substTT d t2 t = t.
 Proof.
- intros.
- rw (d = d + 0). eauto.
+ intros. rrwrite (d = d + 0). eauto.
 Qed.
 Hint Resolve substTT_closedT_id.
 
@@ -66,11 +67,11 @@ Lemma substTT_liftTT
  ,  substTT d t2 (liftTT 1 d t1) = t1.
 Proof.
  intros. gen d t2.
- induction t1; intros; simpl; try burn.
+ induction t1; intros; simpl; f_equal; burn.
 
  Case "TVar".
   lift_cases; unfold substTT;
-   fbreak_nat_compare; burn. 
+   fbreak_nat_compare; f_equal; burn; omega.
 Qed.
 Hint Rewrite substTT_liftTT : global.
 
@@ -84,11 +85,11 @@ Lemma liftTT_substTT_1
  =  substTT (1 + n + n') (liftTT 1 n t2) (liftTT 1 n t1).
 Proof.
  intros. gen n n' t2.
- induction t1; intros; simpl; try burn.
+ induction t1; intros; simpl; f_equal; try burn.
 
  Case "TVar".
-  repeat (simpl; fbreak_nat_compare; 
-          try lift_cases; try intros); burn.
+  repeat (simpl; fbreak_nat_compare; try lift_cases; rip);
+   f_equal; burn; omega.
 
  Case "TForall".
   rewrite (IHt1 (S n) n').
@@ -106,10 +107,10 @@ Proof.
  induction m; intros; simpl.
   burn.
 
-  rw (S m = 1 + m).
+  rrwrite (S m = 1 + m).
   rewrite <- liftTT_plus.
-  rs.
-  rw (m + n + n' = n + (m + n')).
+  rewritess.
+  rrwrite (m + n + n' = n + (m + n')) by omega.
   rewrite liftTT_substTT_1. 
   burn.
 Qed.
@@ -125,13 +126,15 @@ Lemma liftTT_substTT'
  =  substTT n (liftTT 1 (n + n') t2) (liftTT 1 (1 + n + n') t1).
 Proof.
  intros. gen n n' t2.
- induction t1; intros; try burn.
+ induction t1; intros; 
+  try (solve [simpl; f_equal; burn]);
+  burn.
 
  Case "TVar".
   repeat ( unfold liftTT; unfold substTT; fold liftTT; fold substTT
          ; try lift_cases
          ; try fbreak_nat_compare
-         ; intros); burn.
+         ; intros); f_equal; burn; omega.
 
  Case "TForall".
   simpl. rewrite (IHt1 (S n) n').
@@ -149,10 +152,12 @@ Lemma substTT_substTT
               (substTT (1 + n + m) (liftTT 1 n t3) t1).
 Proof.
  intros. gen n m t2 t3.
- induction t1; intros; try burn.
+ induction t1; intros; 
+  try (solve [simpl; f_equal; burn]); 
+  burn.
 
  Case "TVar".
-  repeat (simpl; fbreak_nat_compare); burn.
+  repeat (simpl; fbreak_nat_compare); burn; omega.
 
  Case "TForall".
   simpl.
@@ -161,3 +166,4 @@ Proof.
   rewrite (liftTT_liftTT_11 0 n).
   burn.
 Qed.
+

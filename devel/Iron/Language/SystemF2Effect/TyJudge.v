@@ -167,7 +167,8 @@ Proof.
 
  Case "XAlloc".
   inverts_type.
-  burn.
+  spec IHx H9 H10.
+  subst. burn.
 
  Case "XRead".
   inverts_type.
@@ -197,8 +198,11 @@ Proof.
  induction x using exp_mutind with 
   (PV := fun v => forall ke te se t1
       ,  TYPEV ke te se v t1
-      -> wfV (length ke) (length te) (length se) v)
-  ; intros; inverts_type; try burn.
+      -> wfV (length ke) (length te) (length se) v);
+   rip; inverts_type; try burn.
+
+ Case "VLam".
+  spec IHx H7. burn.
 
  Case "VLAM".
   eapply WfV_VLAM.
@@ -207,6 +211,11 @@ Proof.
   rewrite <- length_liftTE in H6.
   rewrite <- length_liftTE in H6.
   auto.
+
+ Case "XLet".
+  spec IHx1 H9.
+  spec IHx2 H10.
+  burn.
 Qed.
 Hint Resolve type_wfX.
 
@@ -224,8 +233,8 @@ Proof.
   (PV := fun v => forall ix ke te se k2 t3
                ,  TYPEV ke te se v t3
                -> TYPEV (insert ix k2 ke) (liftTE ix te)   (liftTE ix se)
-                        (liftTV ix v)     (liftTT 1 ix t3))
-  ; intros; inverts_type; simpl; eauto.
+                        (liftTV ix v)     (liftTT 1 ix t3));
+   intros; inverts_type; simpl; eauto.
 
  Case "VVar".
   apply TvVar; auto.
@@ -242,6 +251,7 @@ Proof.
    apply kind_kienv_insert. auto.
    rrwrite ( liftTE ix te :> liftTT 1 ix t
            = liftTE ix (te :> t)).
+   spec IHx1 H7.
    burn.
 
  Case "VLAM".
@@ -250,7 +260,7 @@ Proof.
   rewrite (liftTE_liftTE 0 ix).
   rewrite (liftTE_liftTE 0 ix).
   rrwrite (TBot KEffect = liftTT 1 (S ix) (TBot KEffect)).
-  burn.
+  eauto.
 
  Case "XLet".
   apply TxLet.
@@ -258,7 +268,7 @@ Proof.
    eauto.
    rrwrite ( liftTE ix te :> liftTT 1 ix t
            = liftTE ix (te :> t)).
-   burn.
+   eauto.
 
  Case "XApp".
   eapply TxApp.
@@ -317,7 +327,7 @@ Lemma typev_kienv_weaken1
           (liftTV 0 v1) (liftTT 1 0 t1).
 Proof.
  intros.
- have (TYPEX ke te se (XVal v1) t1 (TBot KEffect)) as HX.
+ have HX: (TYPEX ke te se (XVal v1) t1 (TBot KEffect)).
  eapply type_kienv_weaken1 in HX.
  simpl in HX.
  inverts HX. eauto.
@@ -353,7 +363,7 @@ Proof.
   assert ( liftTE 0 (insert ix t2 te)
          = insert ix (liftTT 1 0 t2) (liftTE 0 te)).
    unfold liftTE. rewrite map_insert. auto.
-   burn.
+   rewritess. eauto.
 
  Case "XLet".
   apply TxLet; eauto. 
@@ -369,10 +379,8 @@ Lemma type_tyenv_weaken1
  -> TYPEX ke (te :> t2) se (liftXX 1 0 x) t1 e1.
 Proof.
  intros.
- assert (te :> t2 = insert 0 t2 te) as HI.
-  simpl. destruct te; auto.
- rewrite HI.
- apply type_tyenv_insert. auto.
+ rrwrite (te :> t2 = insert 0 t2 te).
+ burn using type_tyenv_insert.
 Qed.
 
 
@@ -385,10 +393,9 @@ Lemma typev_tyenv_weaken1
  -> TYPEV ke (te :> t2) se (liftXV 1 0 v) t1.
 Proof.
  intros.
- have (TYPEX ke te se (XVal v) t1 (TBot KEffect)) as HX.
+ have HX: (TYPEX ke te se (XVal v) t1 (TBot KEffect)).
  eapply type_tyenv_weaken1 in HX.
- simpl in HX.
- inverts HX. eauto.
+ simpl in HX. inverts HX. eauto.
 Qed.
 
 

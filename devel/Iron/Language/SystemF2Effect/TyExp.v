@@ -98,7 +98,7 @@ Lemma makeTApps_snoc
  = TApp (makeTApps t1 (cons t2 ts)) t3.
 Proof.
  intros. gen t1 t2.
- induction ts; simpl; burn.
+ induction ts; burn.
 Qed.
 
 
@@ -108,9 +108,7 @@ Lemma makeTApps_snoc'
  =  TApp (makeTApps t1 ts) t2.
 Proof.
  intros. gen t1 t2.
- induction ts; intros.
-  auto.
-  simpl. auto.
+ induction ts; burn.
 Qed.
 
 
@@ -119,8 +117,8 @@ Lemma takeTCon_makeTApps
  ,  takeTCon (makeTApps t1 ts) = takeTCon t1.
 Proof.
  intros. gen t1.
- induction ts; intros; simpl; auto.
-  rewrite IHts. burn.
+ induction ts; rip; burn.
+ simpl. rewritess. burn.
 Qed.    
 Hint Resolve takeTCon_makeTApps.
 
@@ -144,8 +142,7 @@ Lemma getCtorOfType_makeTApps
  -> getCtorOfType (makeTApps t1 ts) = Some tc.
 Proof.
  intros. gen t1.
- induction ts; intros.
-  auto. rs.
+ induction ts; burn.
 Qed.
 Hint Resolve getCtorOfType_makeTApps.
 
@@ -153,7 +150,7 @@ Hint Resolve getCtorOfType_makeTApps.
 Lemma makeTApps_rewind
  :  forall t1 t2 ts
  ,  makeTApps (TApp t1 t2) ts = makeTApps t1 (t2 :: ts).
-Proof. intros. auto. Qed.
+Proof. burn. Qed.
 
 
 Lemma makeTApps_tycon_eq
@@ -162,8 +159,9 @@ Lemma makeTApps_tycon_eq
  -> tc1 = tc2.
 Proof.
  intros.
- assert ( takeTCon (makeTApps (TCon tc1) ts1) 
-        = takeTCon (makeTApps (TCon tc2) ts2)) as HT by rs.
+ have HT: ( takeTCon (makeTApps (TCon tc1) ts1) 
+          = takeTCon (makeTApps (TCon tc2) ts2))
+  by (rewritess; burn).
  repeat (rewrite takeTCon_makeTApps in HT).
  simpl in HT. inverts HT. auto.
 Qed.
@@ -203,7 +201,8 @@ Proof.
    SCase "ts2 ~ snoc" .
     dest t. dest ts'. subst.
     rewrite app_snoc in H.
-    rewrite app_snoc. rr.
+    rewrite app_snoc.
+    rrwrite (nil >< (x <: ts1) = x <: ts1) in H.
     rewrite makeTApps_snoc' in H.
     rewrite makeTApps_snoc' in H.
     inverts H.
@@ -218,12 +217,8 @@ Lemma makeTApps_eq_params
  -> tc1 = tc2 /\ ts1 = ts2.
 Proof.
  intros.
- assert (tc1 = tc2).
-  eapply makeTApps_tycon_eq; eauto.
-  subst.
- assert (ts1 = ts2).
-  eapply makeTApps_args_eq; eauto.
-  subst.
+ have (tc1 = tc2) by burn using makeTApps_tycon_eq. subst.
+ have (ts1 = ts2) by burn using makeTApps_args_eq.  subst.
  auto.
 Qed.
 

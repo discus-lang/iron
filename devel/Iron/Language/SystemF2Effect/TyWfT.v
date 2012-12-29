@@ -63,7 +63,7 @@ Proof.
  induction tt; intros; inverts H0; eauto.
 
  Case "TVar".
-  eapply WfT_TVar; burn.
+  eapply WfT_TVar; burn. omega.
 
  Case "TForall".
   eapply WfT_TForall.
@@ -83,10 +83,10 @@ Proof.
         \/ ((tn2 <= tn1) /\ max tn1 tn2 = tn1)).
   eapply Max.max_spec.
 
- inverts H0. rip. rs.
-  eapply wfT_more; eauto. 
+ inverts H0. rip. rewritess.
+  eapply wfT_more; eauto.
 
- inverts H1. rip. rs.
+ inverts H1. rip. rewritess; burn.
 Qed.
 Hint Resolve wfT_max.
 
