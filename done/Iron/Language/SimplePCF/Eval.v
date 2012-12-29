@@ -6,7 +6,6 @@ Require Export Iron.Language.SimplePCF.Ty.
 Require Export Iron.Language.SimplePCF.Exp.
 
 
-(********************************************************************)
 (* Big Step Evaluation.
    This is also called 'Natural Semantics'.
    It provides a relation between the expression to be reduced 
@@ -14,57 +13,57 @@ Require Export Iron.Language.SimplePCF.Exp.
 Inductive EVAL : exp -> exp -> Prop :=
 
  (* Values are already evaluated ******)
- | EVDone
+ | EvDone
    :  forall v2
    ,  wnfX v2
    -> EVAL v2 v2
 
  (* Function Applications *************)
- | EVLamApp
+ | EvLamApp
    :  forall x1 t11 x12 x2 v2 v3
    ,  EVAL x1 (XLam t11 x12) -> EVAL x2 v2 -> EVAL (substX 0 v2 x12) v3
    -> EVAL (XApp x1 x2) v3
 
  (* Fixpoint recursion ****************)
- | EVFix 
+ | EvFix 
    :  forall t11 x12 v3
    ,  EVAL (substX 0 (XFix t11 x12) x12) v3
    -> EVAL (XFix t11 x12) v3
 
  (* Naturals **************************)
- | EVSucc
+ | EvSucc
    :  forall x1 n
    ,  EVAL x1 (XNat n)
    -> EVAL (XSucc x1) (XNat (S n))
 
- | EVPredZero
+ | EvPredZero
    :  forall x1
    ,  EVAL x1 (XNat O) 
    -> EVAL (XPred x1) (XNat O)
 
- | EVPredSucc
+ | EvPredSucc
    :  forall x1 n
    ,  EVAL x1 (XNat (S n))
    -> EVAL (XPred x1) (XNat n)
 
  (* Booleans **************************)
- | EVIsZeroTrue
+ | EvIsZeroTrue
    :  forall x1
    ,  EVAL x1 (XNat O) 
    -> EVAL (XIsZero x1) XTrue
 
- | EVIsZeroFalse
+ | EvIsZeroFalse
    :  forall x1 n
    ,  EVAL x1 (XNat (S n))
    -> EVAL (XIsZero x1) XFalse
 
  (* Branching *************************)
- | EVIfThen
+ | EvIfThen
    :  forall x1 x2 x3 v2
    ,  EVAL x1 XTrue -> EVAL x2 v2
    -> EVAL (XIf x1 x2 x3) v2
 
- | EVIfElse
+ | EvIfElse
    :  forall x1 x2 x3 v3
    ,  EVAL x1 XFalse -> EVAL x3 v3
    -> EVAL (XIf x1 x2 x3) v3.
@@ -163,8 +162,7 @@ Lemma eval_expansion
 Proof.
  intros te x1 t1 x2 v3 HT HS. gen te t1 v3.
  induction HS; intros;
-  try (solve [inverts H; eauto]);
-  try eauto.
+  try (solve [inverts H; eauto]); eauto.
 
  Case "Context".
   destruct H.
@@ -185,17 +183,12 @@ Lemma eval_of_stepsl
  -> STEPSL x1 v2 -> value v2
  -> EVAL   x1 v2.
 Proof.
- intros.
- induction H0.
- 
- Case "ESLNone".
-   apply EVDone. inverts H1. auto.
+ intros x1 t1 v2 HT HS HV.
+ induction HS; burn.
 
  Case "ESLCons".
-  eapply eval_expansion. 
-   eauto. eauto. 
-   apply IHSTEPSL.
-   eapply preservation. eauto. auto. auto.
+  eapply eval_expansion;
+   burn using preservation.
 Qed.
 
 
@@ -210,6 +203,7 @@ Lemma eval_of_steps
  -> EVAL  x1 v2.
 Proof.
  intros.
- eapply eval_of_stepsl; eauto.
- apply  stepsl_of_steps; auto.
+ eapply eval_of_stepsl; burn.
+  apply  stepsl_of_steps; burn.
 Qed.
+
