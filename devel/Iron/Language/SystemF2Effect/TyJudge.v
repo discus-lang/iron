@@ -77,14 +77,16 @@ Inductive TYPEV : kienv -> tyenv -> stenv -> val -> ty -> Prop :=
 
   | TxOpRead
     :  forall ke te se v1 r1 t2
-    ,  TYPEV ke te se v1 (tRef r1 t2)
-    -> TYPEX ke te se (XRead v1)   t2      (tRead r1)
+    ,  KIND  ke r1 KRegion
+    -> TYPEV ke te se v1 (tRef r1 t2)
+    -> TYPEX ke te se (XRead r1 v1)  t2    (tRead r1)
 
   | TxOpWrite
     :  forall ke te se v1 v2 r1 t2
-    ,  TYPEV ke te se v1 (tRef r1 t2)
+    ,  KIND  ke r1 KRegion
+    -> TYPEV ke te se v1 (tRef r1 t2)
     -> TYPEV ke te se v2 t2
-    -> TYPEX ke te se (XWrite v1 v2) tUnit (tWrite r1)
+    -> TYPEX ke te se (XWrite r1 v1 v2) tUnit (tWrite r1)
 
   (* Primtive Operators *)
   | TxOpSucc
@@ -115,8 +117,8 @@ Ltac inverts_type :=
    | [ H: TYPEX _ _ _ (XApp   _ _)   _ _    |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ (XAPP   _ _)   _ _    |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ (XAlloc _ _)   _ _    |- _ ] => inverts H
-   | [ H: TYPEX _ _ _ (XRead  _)     _ _    |- _ ] => inverts H
-   | [ H: TYPEX _ _ _ (XWrite _ _)   _ _    |- _ ] => inverts H
+   | [ H: TYPEX _ _ _ (XRead  _ _)   _ _    |- _ ] => inverts H
+   | [ H: TYPEX _ _ _ (XWrite _ _ _) _ _    |- _ ] => inverts H
    | [ H: TYPEX _ _ _ (XOp1   _ _)   _ _    |- _ ] => inverts H 
    end).
 
@@ -171,16 +173,12 @@ Proof.
   subst. burn.
 
  Case "XRead".
-  inverts_type.
-  spec IHx H5 H4.
+  inverts_type. rip.
+  spec IHx H9 H10.
   inverts IHx. auto.
 
  Case "XWrite".
-  inverts_type.
-  spec IHx  H6 H5.
-  spec IHx0 H9 H10.
-  subst. 
-  inverts IHx. auto.
+  inverts_type. rip.
 
  Case "XOp1".
   inverts_type; auto.
@@ -286,18 +284,14 @@ Proof.
   eapply TxOpAlloc; eauto using kind_kienv_insert.
 
  Case "XRead".
-  eapply TxOpRead.
-  rrwrite ( tRef (liftTT 1 ix r1) (liftTT 1 ix t1)
-          = liftTT 1 ix (tRef r1 t1)).
+  eapply TxOpRead;  eauto using kind_kienv_insert.
+  rrwrite ( tRef (liftTT 1 ix r) (liftTT 1 ix t1)
+          = liftTT 1 ix (tRef r t1)).
   eauto.
 
  Case "XWrite".
-  eapply TxOpWrite.
-  eapply IHx1 in H5. simpl in H5. eauto.
-  eapply IHx0 in H8. eauto.
-
- Case "XSucc".
-  eapply TxOpSucc.
+  eapply TxOpWrite; eauto using kind_kienv_insert.
+  eapply IHx1 in H9. simpl in H9. eauto.
   eapply IHx1 in H7. eauto.
 
  Case "XIsZero".

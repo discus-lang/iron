@@ -38,21 +38,21 @@ Inductive STEP : store -> exp -> store -> exp -> Prop :=
 
  (* Allocate a reference. *) 
  | EsAlloc
-   :  forall s t1 v1
-   ,  STEP s           (XAlloc t1 v1)
-           (snoc v1 s) (XVal (VLoc (length s)))
+   :  forall s r1 v1
+   ,  STEP s (XAlloc (TCon (TyConRegion r1)) v1)
+           (snoc (SBind r1 v1) s) (XVal (VLoc (length s)))
 
  (* Read from a reference. *)
  | EsRead
-   :  forall s l v 
-   ,  get l s = Some v
-   -> STEP s (XRead (VLoc l)) s (XVal v)
+   :  forall s l v r
+   ,  get l s = Some (SBind r v)
+   -> STEP s (XRead (TCon (TyConRegion r)) (VLoc l)) s (XVal v)
 
  (* Write to a reference. *)
  | EsWrite 
-   :  forall s l v
-   ,  STEP s               (XWrite (VLoc l) v) 
-           (update l v s)  (XVal (VConst CUnit))
+   :  forall s l r v
+   ,  STEP s (XWrite (TCon (TyConRegion r)) (VLoc l) v) 
+           (update l (SBind r v) s)  (XVal (VConst CUnit))
 
  (* Take the successor of a natural. *)
  | EsSucc

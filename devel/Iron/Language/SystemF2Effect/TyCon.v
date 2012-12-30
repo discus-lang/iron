@@ -6,17 +6,19 @@ Require Export Iron.Language.SystemF2Effect.Ki.
 Inductive tycon : Type :=
 
   (* Value type constructors *)
-  | TyConFun   : tycon
-  | TyConUnit  : tycon
-  | TyConBool  : tycon
-  | TyConNat   : tycon
-  | TyConRef   : tycon
-  | TyConData  : nat   -> ki -> tycon
+  | TyConFun    : tycon
+  | TyConUnit   : tycon
+  | TyConBool   : tycon
+  | TyConNat    : tycon
+  | TyConRef    : tycon
+
+  (* Region handles. *)
+  | TyConRegion : nat   -> tycon
 
   (* Effect type constructors *)
-  | TyConRead  : tycon
-  | TyConWrite : tycon
-  | TyConAlloc : tycon.
+  | TyConRead   : tycon
+  | TyConWrite  : tycon
+  | TyConAlloc  : tycon.
 Hint Constructors tycon.
 
 
@@ -27,7 +29,8 @@ Fixpoint tycon_beq t1 t2 :=
   | TyConBool,      TyConBool      => true
   | TyConNat,       TyConNat       => true
   | TyConRef,       TyConRef       => true
-  | TyConData n1 _, TyConData n2 _ => beq_nat n1 n2
+
+  | TyConRegion n1, TyConRegion n2 => beq_nat n1 n2
 
   | TyConRead,      TyConRead      => true
   | TyConWrite,     TyConWrite     => true
@@ -43,10 +46,3 @@ Definition isTyConFun  (tc: tycon) : Prop :=
   end.
 Hint Unfold isTyConFun.
 
-
-Definition isTyConData (tc: tycon) : Prop :=
-  match tc with
-  | TyConData _ _ => True
-  | _             => False
-  end.
-Hint Unfold isTyConData.

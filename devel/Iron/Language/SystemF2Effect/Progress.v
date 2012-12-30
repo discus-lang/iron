@@ -50,28 +50,29 @@ Proof.
 
  Case "XAlloc".
   right.
-  exists (v <: s).
+  inverts_type.
+  have HR: (exists n, t = TCon (TyConRegion n)).
+  destruct HR as [n].
+  exists (SBind n v <: s).
   exists (XVal (VLoc (length s))).
+  subst.
   eauto.
 
  Case "XRead".
   right.
   inverts_type.
-  destruct v; nope.
-  inverts_type.
-  inverts HS; rip.
-  eapply Forall2_get_get_right in H5; eauto.
-  exists s.
-  destruct H5 as [v].
-  exists (XVal v).
-  auto.
+  have HR: (exists n, t = TCon (TyConRegion n)).
+  have HL: (exists l, v = VLoc l).
+  destruct HL as [l]. subst.
+  burn.
 
  Case "XWrite".
   right.
-  destruct v; nope.
-  exists (update n v0 s).
-  exists (XVal (VConst CUnit)).
-  auto.
+  inverts_type.
+  have HR: (exists n, t = TCon (TyConRegion n)).
+  have HL: (exists l, v = VLoc l).
+  destruct HL as [l]. subst.
+  burn.
 
  Case "XOp1".
   destruct o.
@@ -90,5 +91,5 @@ Proof.
    destruct v; nope.
    destruct c; nope.
    eauto.
-Qed.   
+Qed.
 

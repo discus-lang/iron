@@ -83,14 +83,16 @@ Proof.
 
  Case "XRead".
   eapply TxOpRead; fold substTT.
-  rrwrite ( tRef (substTT ix t2 r1) (substTT ix t2 t1)
-          = substTT ix t2 (tRef r1 t1)).
-  eauto.
+   eauto using subst_type_type_ix.
+   rrwrite ( tRef (substTT ix t2 r) (substTT ix t2 t1)
+           = substTT ix t2 (tRef r t1)).
+   eauto.
 
  Case "XWrite".
   eapply TxOpWrite; fold substTT.
-   eapply IHx1 in H7;  eauto. simpl in H7. eauto.
-   eapply IHx0 in H10; eauto.
+   eauto using subst_type_type_ix.
+   eapply IHx1 in H11;  eauto. simpl in H11. eauto.
+   eapply IHx0 in H12; eauto.
 
  Case "OSucc".
   eapply TxOpSucc.

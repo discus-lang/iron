@@ -53,21 +53,23 @@ with   wfX (kn tn sn: nat) : exp -> Prop :=
    -> wfX kn tn sn (XAPP x1 t2)
 
  | WfX_XAlloc
-   :  forall t1 v1
-   ,  wfT kn t1
+   :  forall tR v1
+   ,  wfT kn tR
    -> wfV kn tn sn v1
-   -> wfX kn tn sn (XAlloc t1 v1)
+   -> wfX kn tn sn (XAlloc tR v1)
 
  | WfX_XRead
-   :  forall v1
-   ,  wfV kn tn sn v1
-   -> wfX kn tn sn (XRead v1)
+   :  forall tR v1
+   ,  wfT kn tR
+   -> wfV kn tn sn v1
+   -> wfX kn tn sn (XRead tR v1)
 
  | WfX_XWrite
-   :  forall v1 v2
-   ,  wfV kn tn sn v1
+   :  forall tR v1 v2
+   ,  wfT kn tR
+   -> wfV kn tn sn v1
    -> wfV kn tn sn v2
-   -> wfX kn tn sn (XWrite v1 v2)
+   -> wfX kn tn sn (XWrite tR v1 v2)
 
  | WfX_XOp1
    :  forall op1 v1

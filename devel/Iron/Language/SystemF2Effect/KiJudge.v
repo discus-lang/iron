@@ -6,9 +6,13 @@ Require Export Iron.Language.SystemF2Effect.TyExp.
 
 (* Only types of effect and closure kinds can be used in sums. *)
 Definition sumkind (k : ki) : Prop
-  := k = KEffect.
+ := k = KEffect.
 Hint Unfold sumkind.
 
+(* Region kinds cannot be the result of type applications. *)
+Definition appkind (k : ki) : Prop
+ := ~ (k = KRegion).
+Hint Unfold appkind.
 
 (* Kinds judgement assigns a kind to a type *)
 Inductive KIND : kienv -> ty -> ki -> Prop :=
@@ -16,10 +20,6 @@ Inductive KIND : kienv -> ty -> ki -> Prop :=
     :  forall ke
     ,  KIND ke (TCon TyConFun) 
                (KFun KData (KFun KEffect (KFun KData KData)))
-
-  | KIConData
-    :  forall ke i k
-    ,  KIND ke (TCon (TyConData i k)) k
 
   | KIVar
     :  forall ke i k
@@ -33,7 +33,8 @@ Inductive KIND : kienv -> ty -> ki -> Prop :=
 
   | KIApp 
     :  forall ke t1 t2 k11 k12
-    ,  KIND ke t1 (KFun k11 k12)
+    ,  appkind k12
+    -> KIND ke t1 (KFun k11 k12)
     -> KIND ke t2 k11
     -> KIND ke (TApp t1 t2) k12
 
@@ -96,6 +97,22 @@ Proof.
  eapply (Forall2_Forall_left (KIND ke)); burn.
 Qed.
 Hint Resolve kind_wfT_Forall2.
+
+
+(********************************************************************)
+(* Forms of types *)
+Lemma kind_region
+ :  forall t
+ ,  KIND nil t KRegion
+ -> (exists n, t = TCon (TyConRegion n)).
+Proof.
+ intros.
+ destruct t; burn.
+ inverts H.
+ unfold appkind in *.
+ false. auto.
+Qed.
+Hint Resolve kind_region.
 
 
 (********************************************************************)

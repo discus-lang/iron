@@ -34,8 +34,8 @@ with     exp : Type :=
   | XAPP    : val -> ty  -> exp
 
   | XAlloc  : ty  -> val -> exp
-  | XRead   : val -> exp
-  | XWrite  : val -> val -> exp
+  | XRead   : ty  -> val -> exp
+  | XWrite  : ty  -> val -> val -> exp
 
   | XOp1    : op1 -> val -> exp.
 Hint Constructors val.
@@ -56,9 +56,9 @@ Lemma exp_mutind : forall
  -> (forall t x1 x2,    PX x1 -> PX x2          -> PX (XLet   t x1 x2))
  -> (forall v1 v2,      PV v1 -> PV v2          -> PX (XApp   v1 v2))
  -> (forall v t,        PV v                    -> PX (XAPP   v  t))
- -> (forall t v,        PV v                    -> PX (XAlloc t v))
- -> (forall v,          PV v                    -> PX (XRead  v))
- -> (forall v1 v2,      PV v1 -> PV v2          -> PX (XWrite v1 v2))
+ -> (forall r v,        PV v                    -> PX (XAlloc r v))
+ -> (forall r v,        PV v                    -> PX (XRead  r v))
+ -> (forall r v1 v2,    PV v1 -> PV v2          -> PX (XWrite r v1 v2))
  -> (forall o v,        PV v                    -> PX (XOp1 o v))
  ->  forall x, PX x.
 Proof. 

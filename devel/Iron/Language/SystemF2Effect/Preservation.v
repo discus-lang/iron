@@ -34,7 +34,9 @@ Proof.
    inverts H; burn.
    inverts H; burn.
    inverts H; burn.
-      
+   inverts H.
+    eapply TxLet; auto.
+    eapply typex_stenv_extends; eauto.
 
  Case "EsLetSubst".
   exists se. exists e2.
@@ -66,14 +68,30 @@ Proof.
    norm.
 
  Case "EsAlloc".
-  exists (t2 <: se).
-  exists (tAlloc t1).
+  exists (tRef (TCon (TyConRegion r1)) t2 <: se).
+  exists (TBot KEffect).
   rip.
+  inverts HH. rip; burn.
+  burn.
 
-  (* New store is well formed under the extended store typing. *)
-  eapply store_extended_wellformed; eauto.
-  
-  
+ Case "EsRead".
+  exists se.
+  exists (TBot KEffect).
+  burn.
 
+ Case "EsWrite".
+  exists se.
+  exists (TBot KEffect).
+  burn.
 
+ Case "EsSucc".
+  exists se.
+  exists (TBot KEffect).
+  burn.
+
+ Case "EsIsZeroTrue".
+  exists se.
+  exists (TBot KEffect).
+  burn.
+Qed.
 

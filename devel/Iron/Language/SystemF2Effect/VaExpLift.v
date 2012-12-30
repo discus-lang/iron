@@ -20,9 +20,9 @@ Fixpoint liftTV (d: nat) (vv: val) : val :=
   |  XApp x1 x2   => XApp   (liftTV d x1)   (liftTV d x2)
   |  XAPP x t     => XAPP   (liftTV d x)    (liftTT 1 d t)
 
-  |  XAlloc t v   => XAlloc (liftTT 1 d t)  (liftTV d v)
-  |  XRead  v     => XRead  (liftTV d v)
-  |  XWrite v1 v2 => XWrite (liftTV d v1)   (liftTV d v2)
+  |  XAlloc tR v     => XAlloc (liftTT 1 d tR) (liftTV d v)
+  |  XRead  tR v     => XRead  (liftTT 1 d tR) (liftTV d v)
+  |  XWrite tR v1 v2 => XWrite (liftTT 1 d tR) (liftTV d v1) (liftTV d v2)
 
   |  XOp1   op1 v => XOp1   op1 (liftTV d v)
  end.
@@ -51,9 +51,9 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
   | XApp v1 v2   => XApp   (liftXV n d v1) (liftXV n d v2)
   | XAPP v1 t2   => XAPP   (liftXV n d v1) t2
 
-  | XAlloc t v   => XAlloc t (liftXV n d v)
-  | XRead  v     => XRead  (liftXV n d v)
-  | XWrite v1 v2 => XWrite (liftXV n d v1) (liftXV n d v2)
+  | XAlloc tR v     => XAlloc tR (liftXV n d v)
+  | XRead  tR v     => XRead  tR (liftXV n d v)
+  | XWrite tR v1 v2 => XWrite tR (liftXV n d v1) (liftXV n d v2)
 
   | XOp1   op1 v => XOp1   op1 (liftXV n d v)
   end.
