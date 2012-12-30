@@ -34,7 +34,8 @@ Proof.
    inverts H; burn.
    inverts H; burn.
    inverts H; burn.
-   
+      
+
  Case "EsLetSubst".
   exists se. exists e2.
   rip.
