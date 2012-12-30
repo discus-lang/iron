@@ -417,3 +417,24 @@ Proof.
   burn.
 Qed.
 
+
+(********************************************************************)
+(* Weakening Store Typing in Type Judgement. *)
+Lemma type_stenv_snoc 
+ :  forall ke te se t2 x t1 e1
+ ,  closedT t2
+ -> TYPEX ke te se         x t1 e1
+ -> TYPEX ke te (t2 <: se) x t1 e1.
+Proof.
+ intros. gen ke te se t1 e1 t2.
+ induction x using exp_mutind with 
+  (PV := fun v => forall ke te se t1 t2
+      ,  closedT t2
+      -> TYPEV ke te se         v t1
+      -> TYPEV ke te (t2 <: se) v t1)
+  ; intros; inverts_type; eauto.
+
+ Case "TForall".
+  
+
+

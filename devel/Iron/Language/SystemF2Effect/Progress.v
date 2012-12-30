@@ -59,7 +59,7 @@ Proof.
   inverts_type.
   destruct v; nope.
   inverts_type.
-  inverts HS.
+  inverts HS; rip.
   eapply Forall2_get_get_right in H5; eauto.
   exists s.
   destruct H5 as [v].
