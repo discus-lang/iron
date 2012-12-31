@@ -20,6 +20,8 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
   | XApp v1 v2     => XApp   (substTV d u v1) (substTV d u v2)
   | XAPP v1 t2     => XAPP   (substTV d u v1) (substTT d u t2)
 
+  | XNew x         => XNew   (substTX (S d) (liftTT 1 0 u) x)
+  | XUse n x       => XUse   n (substTX d u x)
   | XAlloc r v     => XAlloc (substTT d u r) (substTV d u v)
   | XRead  r v     => XRead  (substTT d u r) (substTV d u v)
   | XWrite r v1 v2 => XWrite (substTT d u r) (substTV d u v1) (substTV d u v2)
@@ -66,6 +68,8 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
   |  XApp v1 v2   => XApp   (substVV d u v1) (substVV d u v2)
   |  XAPP v1 t2   => XAPP   (substVV d u v1) t2
 
+  |  XNew   x        => XNew   (substVX d u x)
+  |  XUse   n x      => XUse   n (substVX d u x)
   |  XAlloc tR v2    => XAlloc tR (substVV d u v2)
   |  XRead  tR v1    => XRead  tR (substVV d u v1)
   |  XWrite tR v1 v2 => XWrite tR (substVV d u v1) (substVV d u v2)

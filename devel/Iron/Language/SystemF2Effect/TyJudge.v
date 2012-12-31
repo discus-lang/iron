@@ -1,6 +1,7 @@
 
 Require Import Iron.Language.SystemF2Effect.KiJudge.
 Require Import Iron.Language.SystemF2Effect.TySubst.
+Require Import Iron.Language.SystemF2Effect.TyLower.
 Require Import Iron.Language.SystemF2Effect.TyEnv.
 Require Import Iron.Language.SystemF2Effect.VaExpBase.
 Require Import Iron.Language.SystemF2Effect.VaExpWfX.
@@ -69,8 +70,24 @@ Inductive TYPEV : kienv -> tyenv -> stenv -> val -> ty -> Prop :=
     -> TYPEX ke te se (XAPP v1 t2) (substTT 0 t2 t12) (TBot KEffect)
 
   (* Store Operators *)
+  | TxNew
+    :  forall ke te se x t tL e eL
+    ,  lowerTT 0 t = Some tL
+    -> lowerTT 0 e = Some eL
+    -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) x        t  e
+    -> TYPEX ke              te             se           (XNew x) tL eL
+    (* TODO: As it stands this should be sound and go through the proof,
+             but need to cut effects on new region from 'e' before lowering
+             otherwise the body can't actually use the new region *)
+
+  | TxUse
+    :  forall ke te se n x t e
+    ,  TYPEX ke te se x t e
+    -> TYPEX ke te se (XUse n x) t e
+    (* TODO: cut effects due to the bound region variable *)
+
   | TxOpAlloc 
-    : forall ke te se r1 v2 t2
+    :  forall ke te se r1 v2 t2
     ,  KIND  ke r1 KRegion
     -> TYPEV ke te se v2 t2
     -> TYPEX ke te se (XAlloc r1 v2) (tRef r1 t2) (tAlloc r1)
@@ -79,7 +96,7 @@ Inductive TYPEV : kienv -> tyenv -> stenv -> val -> ty -> Prop :=
     :  forall ke te se v1 r1 t2
     ,  KIND  ke r1 KRegion
     -> TYPEV ke te se v1 (tRef r1 t2)
-    -> TYPEX ke te se (XRead r1 v1)  t2    (tRead r1)
+    -> TYPEX ke te se (XRead r1 v1)     t2    (tRead r1)
 
   | TxOpWrite
     :  forall ke te se v1 v2 r1 t2
@@ -116,6 +133,8 @@ Ltac inverts_type :=
    | [ H: TYPEX _ _ _ (XLet   _ _ _) _ _    |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ (XApp   _ _)   _ _    |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ (XAPP   _ _)   _ _    |- _ ] => inverts H 
+   | [ H: TYPEX _ _ _ (XNew   _) _ _        |- _ ] => inverts H
+   | [ H: TYPEX _ _ _ (XUse   _ _) _ _      |- _ ] => inverts H
    | [ H: TYPEX _ _ _ (XAlloc _ _)   _ _    |- _ ] => inverts H
    | [ H: TYPEX _ _ _ (XRead  _ _)   _ _    |- _ ] => inverts H
    | [ H: TYPEX _ _ _ (XWrite _ _ _) _ _    |- _ ] => inverts H
@@ -137,51 +156,50 @@ Proof.
       ,  TYPEV ke te se v1 t1
       -> TYPEV ke te se v1 t1'
       -> t1 = t1');
-  intros; try (solve [inverts_type; try congruence]).
+  intros; 
+   try (solve [inverts_type; try congruence]);
+   inverts_type; auto.
 
  Case "VLam".
-  inverts_type. spec IHx H8 H9. burn.
+  spec IHx H8 H9. burn.
 
  Case "VLAM".
-  inverts_type. spec IHx H7 H6. burn.
+  spec IHx H7 H6. burn.
 
  Case "XVal".
-  inverts_type. spec IHx H5 H4. burn.
+  spec IHx H5 H4. burn.
 
  Case "XLet".
-  inverts_type.
   spec IHx1 H10 H12.
   spec IHx2 H11 H13. 
   rip.
 
  Case "XApp".
-  inverts_type.
   spec IHx  H6 H5.
   spec IHx0 H9 H10.
   subst.
   inverts IHx. auto.
 
  Case "VAPP". 
-  inverts_type.
   spec IHx H6 H5.
   inverts IHx.
   auto.
 
+ Case "XNew".
+  spec IHx H7 H9.
+  rip.
+
+ Case "XUse".
+  spec IHx H8 H7.
+  rip.
+
  Case "XAlloc".
-  inverts_type.
   spec IHx H9 H10.
   subst. burn.
 
  Case "XRead".
-  inverts_type. rip.
   spec IHx H9 H10.
   inverts IHx. auto.
-
- Case "XWrite".
-  inverts_type. rip.
-
- Case "XOp1".
-  inverts_type; auto.
 Qed.
 
 
@@ -204,15 +222,23 @@ Proof.
 
  Case "VLAM".
   eapply WfV_VLAM.
-  apply IHx in H6.
-  rrwrite (length (ke :> k) = S (length ke)) in H6.
-  rewrite <- length_liftTE in H6.
-  rewrite <- length_liftTE in H6.
+  spec IHx H6.
+  rrwrite (length (ke :> k) = S (length ke)) in IHx.
+  rewrite <- length_liftTE in IHx.
+  rewrite <- length_liftTE in IHx.
   auto.
 
  Case "XLet".
   spec IHx1 H9.
   spec IHx2 H10.
+  burn.
+
+ Case "XNew".
+  eapply WfX_XNew.
+  spec IHx H6.
+  rrwrite (length (ke :> KRegion) = S (length ke)) in IHx.
+  rewrite <- length_liftTE in IHx.
+  rewrite <- length_liftTE in IHx.
   burn.
 Qed.
 Hint Resolve type_wfX.
@@ -279,6 +305,16 @@ Proof.
   eapply TvAPP.
   eapply (IHx1 ix) in H5. simpl in H5. eauto.
   auto using kind_kienv_insert.
+
+ Case "XNew".
+  eapply TxNew 
+   with (t := liftTT 1 (S ix) t)
+        (e := liftTT 1 (S ix) e).
+  admit. admit.                    (* looks reasonable *)
+  rewrite insert_rewind.
+  rewrite (liftTE_liftTE 0 ix).
+  rewrite (liftTE_liftTE 0 ix).
+  auto.
 
  Case "XAlloc".
   eapply TxOpAlloc; eauto using kind_kienv_insert.
@@ -362,6 +398,13 @@ Proof.
  Case "XLet".
   apply TxLet; eauto. 
   rewrite insert_rewind. eauto.
+
+ Case "XNew".
+  eapply TxNew with (t := t) (e := e); eauto.
+  assert ( liftTE 0 (insert ix t2 te)
+         = insert ix (liftTT 1 0 t2) (liftTE 0 te)).
+   unfold liftTE. rewrite map_insert. auto.
+   rewritess. eauto.
 Qed. 
 
 
@@ -433,6 +476,14 @@ Proof.
   spec IHx H7 H. clear H7.
   unfold liftTE in *.
   simpl. norm. 
+  rrwrite (liftTT 1 0 t2 = t2).
+  auto.
+
+ Case "XNew".
+  eapply TxNew with (t := t) (e := e); eauto.
+  spec IHx H7 H. clear H7.
+  unfold liftTE in *.
+  simpl. norm.
   rrwrite (liftTT 1 0 t2 = t2).
   auto.
 Qed.

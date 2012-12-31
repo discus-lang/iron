@@ -1,6 +1,7 @@
 
-Require Export Iron.Language.SystemF2Effect.TySubst.
 Require Export Iron.Language.SystemF2Effect.KiJudge.
+Require Export Iron.Language.SystemF2Effect.TySubst.
+Require Export Iron.Language.SystemF2Effect.TyLower.
 
 
 (* Substitution of types in types preserves kinding.
@@ -52,3 +53,71 @@ Proof.
  rrwrite (ke = delete 0 (ke :> k2)).
  eapply subst_type_type_ix; burn.
 Qed.
+
+
+Theorem lower_type_type_ix
+ :  forall ix ke t1 k1 t2
+ ,  lowerTT ix t1 = Some t2
+ -> KIND ke t1 k1
+ -> KIND (delete ix ke) t2 k1.
+Proof.
+ intros. gen ix ke k1 t2.
+ induction t1; intros; simpl.
+
+ Case "TCon".
+  inverts_kind.
+  norm.
+  destruct t2; burn. inverts H.
+  eauto.
+
+ Case "TVar".
+  inverts_kind.
+  simpl in H.
+  remember (nat_compare n ix) as X.
+  destruct X.
+   SCase "n = ix".
+    nope.
+
+   SCase "n < ix".
+    inverts H.
+    eapply KIVar.
+    admit. (* ok, lists *)
+
+   SCase "n > ix".
+    inverts H.
+    eapply KIVar.
+    admit. (* ok, lists *)
+
+ Case "TForall".
+  inverts_kind. norm.
+  remember (lowerTT (S ix) t1) as X.
+  destruct X.
+   inverts H.
+   eapply KIForall.
+   rewrite delete_rewind. eauto.
+   false.
+
+ Case "TApp".
+  inverts_kind. norm.
+  remember (lowerTT ix t1_1) as X1.
+  remember (lowerTT ix t1_2) as X2.
+  destruct X1. destruct X2.
+  inverts H.
+   spec IHt1_1 H5. eauto.
+   nope. nope.
+
+ Case "TSum".
+  inverts_kind. norm.
+  remember (lowerTT ix t1_1) as X1.
+  remember (lowerTT ix t1_2) as X2.
+  destruct X1. destruct X2.
+  inverts H.
+   spec IHt1_1 H5. eauto.
+   nope. nope.
+
+ Case "TBot".
+  inverts_kind. norm.
+  inverts H.
+  auto.
+Qed.
+

@@ -22,6 +22,22 @@ Inductive tycon : Type :=
 Hint Constructors tycon.
 
 
+Fixpoint kindOfTyCon (tc : tycon) :=
+  match tc with
+  | TyConFun      => KFun KData (KFun KEffect (KFun KData KData))
+  | TyConUnit     => KData
+  | TyConBool     => KData
+  | TyConNat      => KData
+  | TyConRef      => KFun KRegion (KFun KData KData)
+    
+  | TyConRegion _ => KRegion
+    
+  | TyConRead     => KFun KRegion KEffect
+  | TyConWrite    => KFun KRegion KEffect
+  | TyConAlloc    => KFun KRegion KEffect
+  end.
+
+
 Fixpoint tycon_beq t1 t2 :=
   match t1, t2 with
   | TyConFun,       TyConFun       => true

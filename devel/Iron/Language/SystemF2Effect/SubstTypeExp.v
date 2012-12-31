@@ -76,6 +76,19 @@ Proof.
    simpl. eapply (IHx1 ix) in H7; eauto.
    simpl. eauto using subst_type_type_ix.
 
+ Case "XNew".
+  simpl. 
+  apply TxNew 
+   with (t := substTT (S ix) (liftTT 1 0 t2) t)
+        (e := substTT (S ix) (liftTT 1 0 t2) e).
+  admit.                                           (* ok, lowerTT / substTT *)
+  admit.                                           (* ok, lowerTT / substTT *)
+  rewrite delete_rewind.
+  rewrite (liftTE_substTE 0 ix).
+  rewrite (liftTE_substTE 0 ix).
+  eauto using kind_kienv_weaken.
+  
+
  Case "XAlloc".
   eapply TxOpAlloc; fold substTT.
    eauto using subst_type_type_ix.

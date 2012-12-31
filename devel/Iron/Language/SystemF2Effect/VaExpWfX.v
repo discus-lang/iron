@@ -52,6 +52,16 @@ with   wfX (kn tn sn: nat) : exp -> Prop :=
    ,  wfV kn tn sn x1 -> wfT kn t2
    -> wfX kn tn sn (XAPP x1 t2)
 
+ | WfX_XNew
+   :  forall x
+   ,  wfX (S kn) tn sn x 
+   -> wfX kn     tn sn (XNew x)
+
+ | WfX_XUse
+   :  forall n x
+   ,  wfX kn tn sn x
+   -> wfX kn tn sn (XUse n x)
+
  | WfX_XAlloc
    :  forall tR v1
    ,  wfT kn tR

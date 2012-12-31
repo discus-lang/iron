@@ -16,10 +16,10 @@ Hint Unfold appkind.
 
 (* Kinds judgement assigns a kind to a type *)
 Inductive KIND : kienv -> ty -> ki -> Prop :=
-  | KIConFun
-    :  forall ke
-    ,  KIND ke (TCon TyConFun) 
-               (KFun KData (KFun KEffect (KFun KData KData)))
+  | KICon
+    :  forall ke tc k
+    ,  k = kindOfTyCon tc
+    -> KIND ke (TCon tc) k
 
   | KIVar
     :  forall ke i k
@@ -48,6 +48,7 @@ Inductive KIND : kienv -> ty -> ki -> Prop :=
     :  forall ke k
     ,  sumkind k
     -> KIND ke (TBot k) k.
+
 Hint Constructors KIND.
 
 
@@ -108,9 +109,13 @@ Lemma kind_region
 Proof.
  intros.
  destruct t; burn.
- inverts H.
- unfold appkind in *.
- false. auto.
+
+  inverts H.
+  destruct t; burn.
+
+  inverts H.
+  unfold appkind in *.
+  false. auto.
 Qed.
 Hint Resolve kind_region.
 
