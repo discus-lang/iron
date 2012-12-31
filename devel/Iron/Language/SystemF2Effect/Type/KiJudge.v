@@ -9,10 +9,12 @@ Definition sumkind (k : ki) : Prop
  := k = KEffect.
 Hint Unfold sumkind.
 
+
 (* Region kinds cannot be the result of type applications. *)
 Definition appkind (k : ki) : Prop
  := ~ (k = KRegion).
 Hint Unfold appkind.
+
 
 (* Kinds judgement assigns a kind to a type *)
 Inductive KIND : kienv -> ty -> ki -> Prop :=

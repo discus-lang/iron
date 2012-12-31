@@ -45,21 +45,34 @@ Proof.
   inverts_type.
   exists s.
   destruct v; nope.
-   SCase "v1 = VLAM".
-    exists (substTX 0 t e). eauto.
+  exists (substTX 0 t e). eauto.
 
  Case "XNew".
   right.
   inverts_type.
-  exists s.
-  
+  exists (SDesc <: s).
+  exists (substTX 0 (TCon (TyConRegion (length s))) x).
+  eauto.
+
+ Case "XUse".
+  right.
+  inverts_type.
+  edestruct IHx; eauto.
+  SCase "x value".
+   dest v. subst.
+   exists s. exists (XVal v).
+   eauto.
+  SCase "x steps".
+   shift s'. dest x'.
+   exists (XUse n x').
+   eauto.
 
  Case "XAlloc".
   right.
   inverts_type.
   have HR: (exists n, t = TCon (TyConRegion n)).
   destruct HR as [n].
-  exists (SBind n v <: s).
+  exists (SValue n v <: s).
   exists (XVal (VLoc (length s))).
   subst.
   eauto.
@@ -68,8 +81,17 @@ Proof.
   right.
   inverts_type.
   have HR: (exists n, t = TCon (TyConRegion n)).
-  have HL: (exists l, v = VLoc l).
+  destruct HR as [n]. subst.
+  have HL: (exists l, v = VLoc l) by (destruct v; burn).
   destruct HL as [l]. subst.
+  inverts_type. 
+  destruc
+ 
+  exists s.
+  inverts H7.
+  
+  burn.
+  
   burn.
 
  Case "XWrite".

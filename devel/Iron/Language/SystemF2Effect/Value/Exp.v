@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Effect.Type.
 
 
+(******************************************************************************)
 (* Constants *)
 Inductive const : Type := 
   | CUnit   : const
@@ -42,7 +43,6 @@ with     exp : Type :=
 
   (* Primitive operators *)
   | XOp1   : op1 -> val -> exp.
-
 Hint Constructors val.
 Hint Constructors exp.
 

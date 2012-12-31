@@ -35,23 +35,40 @@ Inductive STEP : store -> exp -> store -> exp -> Prop :=
    ,  STEP s (XAPP (VLAM k11 x12) t2)
            s (substTX 0 t2 x12)
 
+ (* Create a new region. *)
+ | EsNew
+   :  forall s x
+   ,  STEP s                   (XNew x) 
+           (SDesc <: s)        (substTX 0 (TCon (TyConRegion (length s))) x)
+
+ (* Evaluation with a region. *)
+ | EsUse
+   :  forall n s s' x x'
+   ,  STEP s x s' x'
+   -> STEP s (XUse n x) s' (XUse n x')
+
+ (* Pop a region from the stack. *)
+ | EsUsePop
+   :  forall s n v
+   ,  STEP s (XUse n (XVal v)) s (XVal v)
+
  (* Allocate a reference. *) 
  | EsAlloc
    :  forall s r1 v1
-   ,  STEP s (XAlloc (TCon (TyConRegion r1)) v1)
-           (snoc (SBind r1 v1) s) (XVal (VLoc (length s)))
+   ,  STEP s                   (XAlloc (TCon (TyConRegion r1)) v1)
+           (SValue r1 v1 <: s) (XVal (VLoc (length s)))
 
  (* Read from a reference. *)
  | EsRead
    :  forall s l v r
-   ,  get l s = Some (SBind r v)
+   ,  get l s = Some (SValue r v)
    -> STEP s (XRead (TCon (TyConRegion r)) (VLoc l)) s (XVal v)
 
  (* Write to a reference. *)
  | EsWrite 
    :  forall s l r v
-   ,  STEP s (XWrite (TCon (TyConRegion r)) (VLoc l) v) 
-           (update l (SBind r v) s)  (XVal (VConst CUnit))
+   ,  STEP s    (XWrite (TCon (TyConRegion r)) (VLoc l) v)
+           (update l (SValue r v) s) (XVal (VConst CUnit))
 
  (* Take the successor of a natural. *)
  | EsSucc
