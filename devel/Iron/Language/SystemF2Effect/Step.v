@@ -41,8 +41,8 @@ Inductive
  (* Create a new region. *)
  | EsNew
    :  forall ss sp x
-   ,  STEP ss sp              (XNew x) 
-           ss (SRegion <: sp) (substTX 0 (TCon (TyConRegion (length sp))) x)
+   ,  STEP ss sp    (XNew x) 
+           ss sp    (XUse (length sp) (substTX 0 (TCon (TyConRegion (length sp))) x))
 
  (* Evaluation with a region. *)
  | EsUse
@@ -56,6 +56,7 @@ Inductive
    :  forall ss sp n v
    ,  STEP ss  sp   (XUse n (XVal v)) 
            ss  sp   (XVal v)
+   (* TODO: pop bindings and handle for the inner-most region *)
 
  (* Allocate a reference. *) 
  | EsAlloc
