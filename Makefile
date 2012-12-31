@@ -30,7 +30,7 @@ all:
 
 # Build the Coq proofs.
 .PHONY: proof
-proof: $(root_done) $(root_devel)
+proof: $(root_done)
 
 .PHONY: done
 proof: $(root_done)
