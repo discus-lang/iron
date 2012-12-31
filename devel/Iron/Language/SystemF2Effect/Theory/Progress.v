@@ -1,9 +1,9 @@
 
-Require Import Iron.Language.SystemF2Effect.Step.
+Require Import Iron.Language.SystemF2Effect.Kind.
+Require Import Iron.Language.SystemF2Effect.Type.
+Require Import Iron.Language.SystemF2Effect.Value.
 Require Import Iron.Language.SystemF2Effect.Store.
-Require Import Iron.Language.SystemF2Effect.TyEnv.
-Require Import Iron.Language.SystemF2Effect.TyJudge.
-Require Import Iron.Language.SystemF2Effect.KiJudge.
+Require Import Iron.Language.SystemF2Effect.Step.
 
 
 (* A closed, well typed expression is either a value or can 
@@ -47,6 +47,12 @@ Proof.
   destruct v; nope.
    SCase "v1 = VLAM".
     exists (substTX 0 t e). eauto.
+
+ Case "XNew".
+  right.
+  inverts_type.
+  exists s.
+  
 
  Case "XAlloc".
   right.

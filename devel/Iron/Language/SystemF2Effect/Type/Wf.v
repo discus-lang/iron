@@ -1,6 +1,6 @@
 
-Require Export Iron.Language.SystemF2Effect.Ki.
-Require Export Iron.Language.SystemF2Effect.TyExp.
+Require Export Iron.Language.SystemF2Effect.Kind.
+Require Export Iron.Language.SystemF2Effect.Type.Ty.
 
 
 (********************************************************************)

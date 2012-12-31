@@ -1,9 +1,7 @@
 
-Require Import Iron.Language.SystemF2Effect.SubstTypeType.
-Require Import Iron.Language.SystemF2Effect.VaExpSubst.
-Require Import Iron.Language.SystemF2Effect.TyEnv.
-Require Import Iron.Language.SystemF2Effect.TyJudge.
-Require Import Coq.Logic.FunctionalExtensionality.
+Require Import Iron.Language.SystemF2Effect.Theory.SubstTypeType.
+Require Import Iron.Language.SystemF2Effect.Type.
+Require Import Iron.Language.SystemF2Effect.Value.
 
 
 Theorem subst_type_exp_ix

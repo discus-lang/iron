@@ -1,7 +1,7 @@
 
-Require Export Iron.Language.SystemF2Effect.TySubst.
-Require Export Iron.Language.SystemF2Effect.VaExpBase.
-Require Export Iron.Language.SystemF2Effect.VaExpLift.
+Require Export Iron.Language.SystemF2Effect.Type.
+Require Export Iron.Language.SystemF2Effect.Value.Exp.
+Require Export Iron.Language.SystemF2Effect.Value.Lift.
 
 
 (* Substitution of Types in Exps *)
@@ -68,7 +68,7 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
   |  XApp v1 v2   => XApp   (substVV d u v1) (substVV d u v2)
   |  XAPP v1 t2   => XAPP   (substVV d u v1) t2
 
-  |  XNew   x        => XNew   (substVX d u x)
+  |  XNew   x        => XNew   (substVX d (liftTV 0 u) x)
   |  XUse   n x      => XUse   n (substVX d u x)
   |  XAlloc tR v2    => XAlloc tR (substVV d u v2)
   |  XRead  tR v1    => XRead  tR (substVV d u v1)

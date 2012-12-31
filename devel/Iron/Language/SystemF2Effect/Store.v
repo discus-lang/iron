@@ -1,9 +1,9 @@
 
-Require Import Iron.Language.SystemF2Effect.KiJudge.
-Require Import Iron.Language.SystemF2Effect.Ty.
-Require Import Iron.Language.SystemF2Effect.TyJudge.
-Require Import Iron.Language.SystemF2Effect.Va.
-Require Export Iron.Language.SystemF2Effect.StoreBind.
+Require Import Iron.Language.SystemF2Effect.Type.KiJudge.
+Require Import Iron.Language.SystemF2Effect.Type.Ty.
+Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
+Require Import Iron.Language.SystemF2Effect.Value.Exp.
+Require Export Iron.Language.SystemF2Effect.Store.Bind.
 
 
 (* A store is a list of store bindings. *)

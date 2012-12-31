@@ -1,11 +1,8 @@
 
-Require Import Iron.Language.SystemF2Effect.KiJudge.
-Require Import Iron.Language.SystemF2Effect.TySubst.
-Require Import Iron.Language.SystemF2Effect.TyLower.
-Require Import Iron.Language.SystemF2Effect.TyEnv.
-Require Import Iron.Language.SystemF2Effect.VaExpBase.
-Require Import Iron.Language.SystemF2Effect.VaExpWfX.
-Require Import Iron.Language.SystemF2Effect.VaExpLift.
+Require Export Iron.Language.SystemF2Effect.Type.
+Require Export Iron.Language.SystemF2Effect.Value.Exp.
+Require Export Iron.Language.SystemF2Effect.Value.Wf.
+Require Export Iron.Language.SystemF2Effect.Value.Lift.
 
 
 (* Store Environment holds the types of locations. *)

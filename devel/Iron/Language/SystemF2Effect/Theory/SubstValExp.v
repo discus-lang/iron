@@ -1,9 +1,9 @@
 
-Require Import Iron.Language.SystemF2Effect.SubstTypeType.
-Require Import Iron.Language.SystemF2Effect.SubstTypeExp.
-Require Import Iron.Language.SystemF2Effect.TyJudge.
-Require Import Iron.Language.SystemF2Effect.TyEnv.
-Require Import Iron.Language.SystemF2Effect.VaExpSubst.
+Require Import Iron.Language.SystemF2Effect.Theory.SubstTypeType.
+Require Import Iron.Language.SystemF2Effect.Theory.SubstTypeExp.
+Require Import Iron.Language.SystemF2Effect.Kind.
+Require Import Iron.Language.SystemF2Effect.Type.
+Require Import Iron.Language.SystemF2Effect.Value.
 
 
 (* Substitution of values in exps preserves typing *)
@@ -44,7 +44,7 @@ Proof.
    eapply get_map. eauto.
    unfold liftTE. rewrite <- map_delete.
     rrwrite ( map (liftTT 1 0) (delete ix te) 
-            = liftTE 0 (delete ix te)). 
+            = liftTE 0 (delete ix te)).
     eauto using typev_kienv_weaken1.
 
  Case "XLet".
@@ -52,7 +52,16 @@ Proof.
    rewrite delete_rewind.
    eauto using typev_tyenv_weaken1.
 
- 
+ Case "XNew".
+  eapply (IHx1 ix) in H8.
+  eapply TxNew; eauto.
+   unfold liftTE. rewrite map_delete. eauto.
+   eapply get_map. eauto.
+   unfold liftTE. rewrite <- map_delete.
+    rrwrite ( map (liftTT 1 0) (delete ix te)
+            = liftTE 0 (delete ix te)).
+    lets D: typev_kienv_weaken1 H1.
+    eauto using typev_kienv_weaken1.
 Qed.
 
 

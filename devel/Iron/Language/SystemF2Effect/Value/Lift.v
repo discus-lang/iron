@@ -1,6 +1,6 @@
 
-Require Export Iron.Language.SystemF2Effect.TyLift.
-Require Export Iron.Language.SystemF2Effect.VaExpBase.
+Require Export Iron.Language.SystemF2Effect.Type.
+Require Export Iron.Language.SystemF2Effect.Value.Exp.
 
 
 (********************************************************************)

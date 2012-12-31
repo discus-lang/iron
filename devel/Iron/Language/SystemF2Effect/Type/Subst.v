@@ -1,8 +1,7 @@
 
-Require Import Iron.Language.SystemF2Effect.TyLift.
-Require Import Iron.Language.SystemF2Effect.TyWfT.
-Require Import Iron.Language.SystemF2Effect.TyExp.
-Require Import Coq.Logic.FunctionalExtensionality.
+Require Import Iron.Language.SystemF2Effect.Type.Ty.
+Require Import Iron.Language.SystemF2Effect.Type.Wf.
+Require Import Iron.Language.SystemF2Effect.Type.Lift.
 
 
 (********************************************************************)

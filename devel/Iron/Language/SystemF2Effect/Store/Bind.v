@@ -1,7 +1,5 @@
 
-Require Export Iron.Language.SystemF2Effect.Va.
-Require Export Iron.Language.SystemF2Effect.TyJudge.
-Require Export Iron.Language.SystemF2Effect.TyEnv.
+Require Export Iron.Language.SystemF2Effect.Value.
 
 
 (* Store bindings are the primitive objects we keep in the store.

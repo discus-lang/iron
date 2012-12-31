@@ -1,10 +1,9 @@
 
 Require Export Iron.Language.SystemF2Effect.Store.
-Require Export Iron.Language.SystemF2Effect.TyJudge.
-Require Export Iron.Language.SystemF2Effect.SubstValExp.
-Require Export Iron.Language.SystemF2Effect.Va.
+Require Export Iron.Language.SystemF2Effect.Type.
+Require Export Iron.Language.SystemF2Effect.Value.
 
-(********************************************************************)
+
 (** * Single Small Step Evaluation *)
 (** The single step rules model the individual transitions that the 
      machine can make at runtime. *)

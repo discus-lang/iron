@@ -1,11 +1,10 @@
 
-Require Import Iron.Language.SystemF2Effect.Step.
-Require Import Iron.Language.SystemF2Effect.TyJudge.
-Require Import Iron.Language.SystemF2Effect.TyEnv.
-Require Import Iron.Language.SystemF2Effect.KiJudge.
-Require Import Iron.Language.SystemF2Effect.SubstValExp.
-Require Import Iron.Language.SystemF2Effect.SubstTypeExp.
+Require Import Iron.Language.SystemF2Effect.Theory.SubstValExp.
+Require Import Iron.Language.SystemF2Effect.Kind.
+Require Import Iron.Language.SystemF2Effect.Type.
+Require Import Iron.Language.SystemF2Effect.Value.
 Require Import Iron.Language.SystemF2Effect.Store.
+Require Import Iron.Language.SystemF2Effect.Step.
 
 
 (* When a well typed expression transitions to the next state

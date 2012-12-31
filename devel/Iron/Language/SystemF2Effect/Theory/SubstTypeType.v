@@ -1,7 +1,7 @@
 
-Require Export Iron.Language.SystemF2Effect.KiJudge.
-Require Export Iron.Language.SystemF2Effect.TySubst.
-Require Export Iron.Language.SystemF2Effect.TyLower.
+Require Export Iron.Language.SystemF2Effect.Kind.
+Require Export Iron.Language.SystemF2Effect.Type.
+Require Export Iron.Language.SystemF2Effect.Value.
 
 
 (* Substitution of types in types preserves kinding.

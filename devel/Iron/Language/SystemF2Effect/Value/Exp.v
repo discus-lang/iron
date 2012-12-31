@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SystemF2Effect.TyExp.
+Require Export Iron.Language.SystemF2Effect.Type.
 
 
 (* Constants *)
