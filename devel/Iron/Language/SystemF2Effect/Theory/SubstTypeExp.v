@@ -5,20 +5,20 @@ Require Import Iron.Language.SystemF2Effect.Value.
 
 
 Theorem subst_type_exp_ix
- :  forall ix ke te se x1 t1 e1 t2 k2
+ :  forall ix ke te se sp x1 t1 e1 t2 k2
  ,  get ix ke = Some k2
- -> TYPEX ke te se x1 t1 e1
+ -> TYPEX ke te se sp x1 t1 e1
  -> KIND  (delete ix ke) t2 k2
- -> TYPEX (delete ix ke)     (substTE ix t2 te)  (substTE ix t2 se)
+ -> TYPEX (delete ix ke)     (substTE ix t2 te)  (substTE ix t2 se) sp
           (substTX ix t2 x1) (substTT ix t2 t1)  (substTT ix t2 e1).
 Proof.
- intros. gen ix ke te se t1 t2 e1 k2.
+ intros. gen ix ke te se sp t1 t2 e1. gen k2.
  induction x1 using exp_mutind with 
-  (PV := fun v => forall ix ke te se t1 t2 k3
+  (PV := fun v => forall ix ke te se sp t1 t2 k3
       ,  get ix ke = Some k3
-      -> TYPEV ke te se v t1
+      -> TYPEV ke te se sp v t1
       -> KIND  (delete ix ke) t2 k3
-      -> TYPEV (delete ix ke)   (substTE ix t2 te) (substTE ix t2 se)
+      -> TYPEV (delete ix ke)   (substTE ix t2 te) (substTE ix t2 se) sp
                (substTV ix t2 v)(substTT ix t2 t1));
   intros; simpl; inverts_type; eauto.
 
@@ -61,9 +61,9 @@ Proof.
 
  Case "XApp".
   eapply TxApp.
-   eapply IHx1 in H7; eauto.
-    simpl in H7. burn.
-   eapply IHx0 in H10; eauto.
+   eapply IHx1 in H8; eauto.
+    simpl in H8. burn.
+   eapply IHx0 in H11; eauto.
 
  Case "XAPP".
   rrwrite ( TBot KEffect
@@ -71,7 +71,7 @@ Proof.
   rewrite (substTT_substTT 0 ix).
   rewrite (substTT_substTT 0 ix).
   eapply TvAPP.
-   simpl. eapply (IHx1 ix) in H7; eauto.
+   simpl. eapply (IHx1 ix) in H8; eauto.
    simpl. eauto using subst_type_type_ix.
 
  Case "XNew".
@@ -102,8 +102,8 @@ Proof.
  Case "XWrite".
   eapply TxOpWrite; fold substTT.
    eauto using subst_type_type_ix.
-   eapply IHx1 in H11;  eauto. simpl in H11. eauto.
-   eapply IHx0 in H12; eauto.
+   eapply IHx1 in H12; eauto. norm. eauto.
+   eapply IHx0 in H13; eauto.
 
  Case "OSucc".
   eapply TxOpSucc.
@@ -116,11 +116,11 @@ Qed.
 
 
 Theorem subst_type_exp
- :  forall ke te se x1 t1 e1 t2 k2
- ,  TYPEX (ke :> k2) te se x1 t1 e1
- -> KIND  ke  t2 k2
- -> TYPEX ke (substTE 0 t2 te) (substTE 0 t2 se) 
-             (substTX 0 t2 x1) (substTT 0 t2 t1) (substTT 0 t2 e1).
+ :  forall ke te se sp x1 t1 e1 t2 k2
+ ,  TYPEX (ke :> k2) te se sp x1 t1 e1
+ -> KIND   ke t2 k2
+ -> TYPEX  ke (substTE 0 t2 te) (substTE 0 t2 se) sp
+              (substTX 0 t2 x1) (substTT 0 t2 t1) (substTT 0 t2 e1).
 Proof.
  intros. 
  rrwrite (ke = delete 0 (ke :> k2)).

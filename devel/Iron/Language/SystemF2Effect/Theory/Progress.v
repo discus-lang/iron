@@ -85,8 +85,8 @@ Proof.
   have HL: (exists l, v = VLoc l) by (destruct v; burn).
   destruct HL as [l]. subst.
   inverts_type. 
-  destruc
- 
+
+  (** BROKEN **) 
   exists s.
   inverts H7.
   

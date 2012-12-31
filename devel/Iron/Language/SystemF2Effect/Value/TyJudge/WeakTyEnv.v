@@ -7,15 +7,15 @@ Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
    lift existing references to types higher in the stack across
    the new one. *)
 Lemma type_tyenv_insert
- :  forall ke te se ix x t1 e1 t2
- ,  TYPEX ke te se x t1 e1
- -> TYPEX ke (insert ix t2 te) se (liftXX 1 ix x) t1 e1.
+ :  forall ke te se sp ix x t1 e1 t2
+ ,  TYPEX  ke te se sp x t1 e1
+ -> TYPEX  ke (insert ix t2 te) se sp (liftXX 1 ix x) t1 e1.
 Proof.
- intros. gen ix ke se te t1 e1 t2.
+ intros. gen ix ke se sp te t1 e1 t2.
  induction x using exp_mutind with 
-  (PV := fun v => forall ix ke se te t1 t2
-      ,  TYPEV ke te se v t1 
-      -> TYPEV ke (insert ix t2 te) se (liftXV 1 ix v) t1)
+  (PV := fun v => forall ix ke se sp te t1 t2
+      ,  TYPEV ke te se sp v t1 
+      -> TYPEV ke (insert ix t2 te) se sp (liftXV 1 ix v) t1)
   ; intros; inverts_type; simpl; eauto.
 
  Case "VVar".
@@ -48,9 +48,9 @@ Qed.
 (* We can push a new type onto the environment stack provided
    we lift references to existing types across the new one. *)
 Lemma type_tyenv_weaken1
- :  forall ke te se x t1 e1 t2
- ,  TYPEX ke te se x t1 e1
- -> TYPEX ke (te :> t2) se (liftXX 1 0 x) t1 e1.
+ :  forall ke te se sp x t1 e1 t2
+ ,  TYPEX  ke te se sp x t1 e1
+ -> TYPEX  ke (te :> t2) se sp (liftXX 1 0 x) t1 e1.
 Proof.
  intros.
  rrwrite (te :> t2 = insert 0 t2 te).
@@ -62,12 +62,12 @@ Qed.
    judgement provided we lift references to existing types across
    the new one *)
 Lemma typev_tyenv_weaken1
- :  forall ke te se v t1 t2
- ,  TYPEV ke te se v t1
- -> TYPEV ke (te :> t2) se (liftXV 1 0 v) t1.
+ :  forall ke te se sp v t1 t2
+ ,  TYPEV  ke te se sp v t1
+ -> TYPEV  ke (te :> t2) se sp (liftXV 1 0 v) t1.
 Proof.
  intros.
- have HX: (TYPEX ke te se (XVal v) t1 (TBot KEffect)).
+ have HX: (TYPEX ke te se sp (XVal v) t1 (TBot KEffect)).
  eapply type_tyenv_weaken1 in HX.
  simpl in HX. inverts HX. eauto.
 Qed.
@@ -76,9 +76,9 @@ Qed.
 (* We can several new types onto the environment stack provided
    we lift referenes to existing types across the new one. *)
 Lemma type_tyenv_weaken_append
- :  forall ke te te' se x t1 e1
- ,  TYPEX ke te se x t1 e1
- -> TYPEX ke (te >< te') se (liftXX (length te') 0 x) t1 e1.
+ :  forall ke te se sp te' x t1 e1
+ ,  TYPEX  ke te se sp x t1 e1
+ -> TYPEX  ke (te >< te') se sp (liftXX (length te') 0 x) t1 e1.
 Proof.
  intros.
  induction te'; simpl.

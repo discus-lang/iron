@@ -8,19 +8,19 @@ Require Import Iron.Language.SystemF2Effect.Value.
 
 (* Substitution of values in exps preserves typing *)
 Theorem subst_val_exp_ix
- :  forall ix ke te se x1 t1 e1 v2 t2
+ :  forall ix ke te se sp x1 t1 e1 v2 t2
  ,  get  ix te = Some t2
- -> TYPEX ke te             se x1 t1 e1
- -> TYPEV ke (delete ix te) se v2 t2
- -> TYPEX ke (delete ix te) se (substVX ix v2 x1) t1 e1.
+ -> TYPEX ke te             se sp x1 t1 e1
+ -> TYPEV ke (delete ix te) se sp v2 t2
+ -> TYPEX ke (delete ix te) se sp (substVX ix v2 x1) t1 e1.
 Proof.
- intros. gen ix ke te se t1 e1 v2 t2.
+ intros. gen ke te se sp t1 e1 v2 t2. gen ix.
  induction x1 using exp_mutind with 
-  (PV := fun v1 => forall ix ke te se v2 t1 t2
+  (PV := fun v1 => forall ix ke te se sp t1 t2 v2
       ,  get ix te = Some t2
-      -> TYPEV ke te             se v1 t1
-      -> TYPEV ke (delete ix te) se v2 t2
-      -> TYPEV ke (delete ix te) se (substVV ix v2 v1) t1)
+      -> TYPEV ke te             se sp v1 t1
+      -> TYPEV ke (delete ix te) se sp v2 t2
+      -> TYPEV ke (delete ix te) se sp (substVV ix v2 v1) t1)
   ; intros; simpl; inverts_type; eauto.
 
  Case "VVar".
@@ -38,7 +38,7 @@ Proof.
 
  Case "VLAM".
   simpl.
-  eapply (IHx1 ix) in H8.
+  eapply (IHx1 ix) in H9.
   apply TvLAM.
    unfold liftTE. rewrite map_delete. eauto.
    eapply get_map. eauto.
@@ -53,7 +53,7 @@ Proof.
    eauto using typev_tyenv_weaken1.
 
  Case "XNew".
-  eapply (IHx1 ix) in H8.
+  eapply (IHx1 ix) in H9.
   eapply TxNew; eauto.
    unfold liftTE. rewrite map_delete. eauto.
    eapply get_map. eauto.
@@ -66,12 +66,13 @@ Qed.
 
 
 Theorem subst_val_exp
- :  forall ke te se x1 t1 e1 v2 t2
- ,  TYPEX  ke (te :> t2) se x1                t1 e1
- -> TYPEV  ke te se         v2                t2
- -> TYPEX  ke te se         (substVX 0 v2 x1) t1 e1.
+ :  forall ke te se sp x1 t1 e1 v2 t2
+ ,  TYPEX  ke (te :> t2) se sp x1                t1 e1
+ -> TYPEV  ke te se         sp v2                t2
+ -> TYPEX  ke te se         sp (substVX 0 v2 x1) t1 e1.
 Proof.
  intros.
  rrwrite (te = delete 0 (te :> t2)). 
  eapply subst_val_exp_ix; burn.
 Qed.
+

@@ -7,7 +7,7 @@ Require Export Iron.Language.SystemF2Effect.Store.Bind.
 
 
 (* A store is a list of store bindings. *)
-Definition store := list sbind.
+Definition store := list stbind.
 
 
 (* Store typing models the store.
@@ -19,15 +19,15 @@ Hint Unfold STOREM.
 
 
 (* Well typed store. *)
-Definition STORET (se: stenv) (ss: store)
- := Forall2 (TYPEB nil nil se) ss se.
+Definition STORET (se: stenv) (sp: stprops) (ss: store)
+ := Forall2 (TYPEB nil nil se sp) ss se.
 Hint Unfold STORET.
 
 
 (* Well formed store. *)
-Definition WfS (se: stenv) (ss: store)
+Definition WfS (se: stenv) (sp: stprops) (ss: store)
  := Forall closedT se
- /\ STOREM se ss
- /\ STORET se ss.
+ /\ STOREM se    ss
+ /\ STORET se sp ss.
 Hint Unfold WfS.
 
