@@ -41,15 +41,20 @@ Proof.
     exists sp.
     exists (substVX 0 v0 e0). 
     eauto.
+   SCase "v1 = VConst".
+    destruct c; nope.
 
  Case "XAPP".
   right.
   inverts_type.
   destruct v; nope.
-  exists ss. 
-  exists sp.
-  exists (substTX 0 t e).
-  eauto.
+   SCase "v = VLAM".
+    exists ss. 
+    exists sp.
+    exists (substTX 0 t e).
+    eauto.
+   SCase "v = VConst".
+    destruct c; nope.
 
  Case "XNew".
   right.
@@ -93,8 +98,11 @@ Proof.
 
   have HR: (exists n, t = TCon (TyConRegion n)).
    dest n. subst.
-  have HL: (exists l, v = VLoc l) by (destruct v; burn).
-   dest l. subst.
+
+  assert (exists l, v = VLoc l) as HL.
+   destruct v; burn.
+   destruct c; nope.
+  dest l. subst.
 
   inverts_type. 
   exists ss.
@@ -117,6 +125,7 @@ Proof.
   have HR: (exists n, t = TCon (TyConRegion n)).
    dest n. subst.
   destruct v; burn.
+  destruct c; nope.
 
  Case "XOp1".
   destruct o.

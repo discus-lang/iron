@@ -92,3 +92,15 @@ Inductive
 
 Hint Constructors STEP.
 
+
+(* When we step the expression the resulting set of store properties
+   is at least as big as the initial ones. *)
+Lemma step_stprops_extends
+ :  forall ss ss' sp sp' x x'
+ ,  STEP ss sp x ss' sp' x'
+ -> extends sp' sp.
+Proof.
+ intros. induction H; eauto.
+Qed.
+Hint Resolve step_stprops_extends.
+

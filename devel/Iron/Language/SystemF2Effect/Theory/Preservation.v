@@ -35,9 +35,7 @@ Proof.
    inverts H; burn.
    inverts H; burn.
    inverts H. rip.
-    eapply TxLet; auto.
-    eapply typex_stenv_extends; eauto.
-    admit.                            (* need weaken store props in typex *)
+    eapply TxLet; eauto.
 
  Case "EsLetSubst".
   exists se. exists e2.
@@ -73,12 +71,15 @@ Proof.
   exists se.
   exists e.
   rip.
+
+  (* Store with the new region handle property is well formed. *)
   assert (WfS se (SRegion <: sp) ss).
    inverts HH. rip.
     unfold STORET in *.
-    admit.                              (* ok need weaken stprops in TYPEB *)  
+    lets D: (@Forall2_impl stbind). eauto.
   auto.
 
+  (* Result expression is well typed. *)
   inverts HH; rip. 
   rrwrite (liftTE 0 nil = nil).
   rrwrite (liftTE 0 se  = se).
@@ -97,8 +98,7 @@ Proof.
   have SE: (substTT 0 r e0  = e) by admit. (* likewise *)
   rewrite ST in H5.
   rewrite SE in H5.
-  eapply TxUse. auto.
-  admit.                                (* ok, need weaken stprops in TYPEX *)
+  eauto.
 
  Case "EsUse".
   spec IHHS H7.
@@ -138,10 +138,8 @@ Proof.
   rip.
   inverts HH. rip.
   unfold STORET in *.
-  admit.
-  admit.
-  eapply TxVal.
-   admit.                               (* need to add TvConstUnit *)
+  admit.                                (* store env models update store *)
+  admit.                                (* updated store is typed under store env *)
 
  Case "EsSucc".
   exists se.

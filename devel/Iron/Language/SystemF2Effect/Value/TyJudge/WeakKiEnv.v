@@ -43,6 +43,10 @@ Proof.
   rrwrite (TBot KEffect = liftTT 1 (S ix) (TBot KEffect)).
   eauto.
 
+ Case "XConst".
+  eapply TvConst.
+  destruct c; burn.
+
  Case "XLet".
   apply TxLet.
    auto using kind_kienv_insert.

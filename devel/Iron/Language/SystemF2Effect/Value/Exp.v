@@ -6,10 +6,16 @@ Require Export Iron.Language.SystemF2Effect.Type.
 (* Constants *)
 Inductive const : Type := 
   | CUnit   : const
-  | CLoc    : nat   -> const
   | CNat    : nat   -> const
   | CBool   : bool  -> const.
 Hint Constructors const.
+
+Fixpoint typeOfConst (c : const) : ty
+ := match c with
+    | CUnit     => tUnit
+    | CNat  _   => tNat
+    | CBool _   => tBool
+    end.
 
 
 (* Primitive Operators *)

@@ -50,6 +50,9 @@ Proof.
           = substTT (S ix) (liftTT 1 0 t2) (TBot KEffect)).
   eauto using kind_kienv_weaken.
 
+ Case "VConst".
+  destruct c; burn.
+ 
  Case "XLet".
   simpl. apply TxLet.
    eapply subst_type_type_ix; eauto.
