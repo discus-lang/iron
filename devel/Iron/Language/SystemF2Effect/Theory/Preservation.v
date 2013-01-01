@@ -115,6 +115,13 @@ Proof.
   exists (TBot KEffect).
   rip.
   inverts HH. rip; burn.
+  assert (closedT (tRef (TCon (TyConRegion r1)) t2)).
+   unfold tRef. unfold closedT.
+   eapply WfT_TApp.
+    eauto.
+    eauto.
+    have (exists k, KIND nil t2 k).
+
   admit.                                (* ok, closed r1 due to nil ke, same for t2 *)
   admit.                                (* ok, extended STORET *)
   eapply TxVal.

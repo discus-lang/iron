@@ -180,7 +180,7 @@ Ltac inverts_type :=
 
 (********************************************************************)
 (* A well typed expression is well formed *)
-Theorem type_wfX
+Lemma typex_wfX
  :  forall ke te se sp x t e
  ,  TYPEX  ke te se sp x t e
  -> wfX (length ke) (length te) (length se) x.
@@ -197,8 +197,7 @@ Proof.
 
  Case "VLAM".
   eapply WfV_VLAM.
-  spec IHx H7.
-  rrwrite (length (ke :> k) = S (length ke)) in IHx.
+  spec IHx H7. simpl in IHx.
   rewrite <- length_liftTE in IHx.
   rewrite <- length_liftTE in IHx.
   auto.
@@ -216,6 +215,6 @@ Proof.
   rewrite <- length_liftTE in IHx.
   burn.
 Qed.
-Hint Resolve type_wfX.
+Hint Resolve typex_wfX.
 
 
