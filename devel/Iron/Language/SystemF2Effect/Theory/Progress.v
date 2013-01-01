@@ -55,7 +55,7 @@ Proof.
   right.
   inverts_type.
   exists ss.
-  exists sp.
+  exists (SRegion <: sp).
   exists (XUse (length sp) (substTX 0 (TCon (TyConRegion (length sp))) x)).
   eauto.
 

@@ -73,7 +73,13 @@ Proof.
   exists se.
   exists e.
   rip.
-  inverts HH. rip.
+  assert (WfS se (SRegion <: sp) ss).
+   inverts HH. rip.
+    unfold STORET in *.
+    admit.                              (* ok need weaken stprops in TYPEB *)  
+  auto.
+
+  inverts HH; rip. 
   rrwrite (liftTE 0 nil = nil).
   rrwrite (liftTE 0 se  = se).
 
@@ -92,6 +98,7 @@ Proof.
   rewrite ST in H5.
   rewrite SE in H5.
   eapply TxUse. auto.
+  admit.                                (* ok, need weaken stprops in TYPEX *)
 
  Case "EsUse".
   spec IHHS H7.
@@ -123,7 +130,7 @@ Proof.
   eapply TxVal.
   inverts HH. rip.
   unfold STORET in *.
-  admit.                               (* ok, has type via get ss/ get se *)
+  admit.                                (* ok, has type via get ss/ get se *)
 
  Case "EsWrite".
   exists se.
@@ -134,7 +141,7 @@ Proof.
   admit.
   admit.
   eapply TxVal.
-   admit.                              (* need to add TvConstUnit *)
+   admit.                               (* need to add TvConstUnit *)
 
  Case "EsSucc".
   exists se.
