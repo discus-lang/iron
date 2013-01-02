@@ -1,4 +1,5 @@
 
+% ------------------------------------------------------------------------------
 % Big-step evaluation.
 eval : exp -> exp -> type.
 
@@ -7,6 +8,36 @@ eval_value
   -> eval X X.
 
 eval_app
-  : eval X1 (lam T (\x. X11))
+  : eval X1 (lam T (\x. X11 x))
   -> eval X2 V2
-  -> eval (app X1 X2) (X1 V2).
+  -> eval (X11 V2) V3
+  -> eval (app X1 X2) V3.
+
+
+% Lemma: The result of big-step evaluation is a value.
+rec eval_yields_value
+  : [.eval X1 X2] -> [.value X2]
+  = fn e
+  => case e of
+    | [.eval_value V]    => [.V]
+    | [.eval_app _ _ E3] => eval_yields_value [.E3];
+
+
+% ------------------------------------------------------------------------------
+%{
+rec steps_from_eval
+  : [.eval X1 X2] -> [.steps X1 X2]
+  = fn e
+  => case e of
+    | [.eval_value vlam] 
+    => [.steps_none]
+
+    | [.eval_app E1 E2 E3]
+    => let [.SS1] = steps_from_eval [.E1] in
+      let [.SS2] = steps_from_eval [.E2] in
+      let [.
+      in  case [.SS1] of
+          | [.steps_cons S11 SS11]
+          => [.steps_cons S11 SS2];
+%}
+     

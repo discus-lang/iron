@@ -17,6 +17,56 @@ step_app3
   -> step (app (lam T (\x. X1 x)) X2)  (X1 X2).
 
 
+% ------------------------------------------------------------------------------
+% Lemma: Values can't step.
+rec nostep_value 
+  : [.step X X'] -> [.value X] -> [.false]
+  = fn s => fn v
+  => case v of
+    | [.vlam] => impossible s in [];
+
+
+% Lemma: Small step evaluation is deterministic.
+step_split      : exp -> exp -> exp -> type.
+step_split_pair : step X X1 -> step X X2 -> step_split X X1 X2.
+
+rec step_det_split
+  : [.step_split X X1 X2] -> [.eqx X1 X2]
+  = fn s 
+  => case s of
+    | [. step_split_pair (step_app1 S1) (step_app1 S2) ]
+    => let [.eqx_refl] = step_det_split [.step_split_pair S1 S2] in [.eqx_refl]
+  
+    | [. step_split_pair (step_app2 _ S1) (step_app2 _ S2) ]
+    => let [.eqx_refl] = step_det_split [.step_split_pair S1 S2] in [.eqx_refl]
+
+    | [. step_split_pair (step_app3 _)  (step_app3 _) ]
+    => [. eqx_refl]
+
+    % -- Impossible cases.
+    | [. step_split_pair (step_app1 S1)   (step_app2 V S2) ]
+    => impossible nostep_value [.S1] [.V]    in []
+
+    | [. step_split_pair (step_app1 S1)   (step_app3 _) ]
+    => impossible nostep_value [.S1] [.vlam] in []
+
+    | [. step_split_pair (step_app2 V _) (step_app1 S2) ]
+    => impossible nostep_value [.S2] [.V]    in []
+
+    | [. step_split_pair (step_app2 V S1) (step_app3 V) ]  
+             % Remove second V here get "Type synthesis of term failed" ??
+    => impossible nostep_value [.S1] [.V]    in []
+
+    | [. step_split_pair (step_app3 _)    (step_app1 S2) ]
+    => impossible nostep_value [.S2] [.vlam] in []
+
+    | [. step_split_pair (step_app3 V)   (step_app2 V S2) ]
+    => impossible nostep_value [.S2] [.V]    in []
+
+    | [. step_split_pair (step_app3 _)    (step_app1 S2) ]
+    => impossible nostep_value [.S2] [.vlam] in [];
+
+
 % Progress ---------------------------------------------------------------------
 result : exp -> type.
 rval   : value X   -> result X.

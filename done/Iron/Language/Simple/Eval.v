@@ -71,6 +71,7 @@ Proof.
   lets T2: preservation_steps H3 IHHE2.
   lets T3: subst_exp_exp H0 T2.
   lets E3: IHHE3 T3.
+  clear H0. clear T1. clear T2. clear T3. clear HE1.
 
   eapply EsAppend.
     lets D: steps_context XcApp1. eapply D. eauto.

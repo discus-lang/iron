@@ -18,6 +18,28 @@ steps_append
   -> steps X1 X3.
 
 
+% Lemmas: steps in a context.
+%{
+rec steps_app1
+  : [.steps X1 X1']
+  -> [.steps (app X1 X2) (app X1' X2)]
+  = fn ss
+  => case ss of
+    | [.steps_none]          
+    => [.steps_none]
+
+    | [.steps_cons S1 SS2]   
+    => let [.SS2'] = steps_app1 [.SS2]
+      in  [.steps_cons (step_app1 S1) SS2']
+
+    | [.steps_append SS1 SS2]
+    => let [.SS1'] = steps_app1 [.SS1] in
+      let [.SS2'] = steps_app1 [.SS2] 
+      in  [.steps_append SS1' SS2];
+}%
+% This doesn't work, says .. is not closed
+
+
 % ------------------------------------------------------------------------------
 % Left-linearised multi-step evaluation.
 %  This version provides a single step at a time and does not have an

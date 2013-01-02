@@ -16,6 +16,12 @@ lam   : ty  -> (exp -> exp) -> exp.
 app   : exp -> exp -> exp.
 
 
+% Intensional equality for expresions.
+eqx      : exp -> exp -> type.
+eqx_refl : eqx X X.
+
+
+% Values -------------------------------------------------------------
 % Values are expressions that cannot be further reduced.
 value : exp -> type.
 vlam  : value (lam T X).
