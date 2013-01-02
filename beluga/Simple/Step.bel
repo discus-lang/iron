@@ -1,12 +1,13 @@
 
-% Single step evaluation.
+% ------------------------------------------------------------------------------
+% Single-step evaluation.
 step : exp -> exp -> type.
 
-step_app1 
+step_app1
   : step X1 X1'
   -> step (app X1 X2) (app X1' X2).
 
-step_app2 
+step_app2
   : value X1
   -> step X2 X2'
   -> step (app X1 X2) (app X1 X2').
@@ -16,7 +17,7 @@ step_app3
   -> step (app (lam T (\x. X1 x)) X2)  (X1 X2).
 
 
-% Progress -----------------------------------------------------------
+% Progress ---------------------------------------------------------------------
 result : exp -> type.
 rval   : value X   -> result X.
 rstep  : step X X' -> result X.
@@ -37,7 +38,7 @@ rec progress
         | [.rval V2]  => [.rstep (step_app3 V2)];
 
 
-% Preservation -------------------------------------------------------
+% Preservation -----------------------------------------------------------------
 rec preservation
   : [.typex X T] -> [.step X X'] -> [.typex X' T]
   = fn d => fn s 

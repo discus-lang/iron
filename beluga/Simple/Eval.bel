@@ -1,0 +1,12 @@
+
+% Big-step evaluation.
+eval : exp -> exp -> type.
+
+eval_value 
+  : value X
+  -> eval X X.
+
+eval_app
+  : eval X1 (lam T (\x. X11))
+  -> eval X2 V2
+  -> eval (app X1 X2) (X1 V2).
