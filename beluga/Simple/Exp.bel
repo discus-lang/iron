@@ -1,0 +1,24 @@
+
+% Types --------------------------------------------------------------
+ty    : type.
+
+% The function type.
+arr   : ty -> ty -> ty.
+
+
+% Expressions --------------------------------------------------------
+exp   : type.
+
+% Function abstraction
+lam   : ty  -> (exp -> exp) -> exp.
+
+% Function application
+app   : exp -> exp -> exp.
+
+
+% Values are expressions that cannot be further reduced.
+value : exp -> type.
+vlam  : value (lam T X).
+
+
+
