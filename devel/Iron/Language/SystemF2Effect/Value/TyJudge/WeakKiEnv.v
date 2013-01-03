@@ -1,5 +1,6 @@
 
 Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
+Require Import Iron.Language.SystemF2Effect.Type.Lower.
 
 
 (* Weakening Kind Env in Type Judgement. *)
@@ -70,13 +71,18 @@ Proof.
   auto using kind_kienv_insert.
 
  Case "XNew".
-  eapply TxNew 
-   with (t := liftTT 1 (S ix) t)
-        (e := liftTT 1 (S ix) e).
-  admit. admit.                      (* ok, lowerTT_liftTT *)
+  eapply TxNew
+   with (t := liftTT 1 (S ix) (liftTT 1 0 t1))
+        (e := liftTT 1 (S ix) (liftTT 1 0 e1)).
+  rewrite lowerTT_liftTT'. auto.
+  rewrite lowerTT_liftTT'. auto.
   rewrite insert_rewind.
   rewrite (liftTE_liftTE 0 ix).
   rewrite (liftTE_liftTE 0 ix).
+  eapply IHx1.
+  have (liftTT 1 0 t1 = t).
+  have (liftTT 1 0 e1 = e).
+  repeat rewritess.
   auto.
 
  Case "XAlloc".

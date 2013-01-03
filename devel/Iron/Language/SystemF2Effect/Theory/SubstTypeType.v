@@ -55,6 +55,8 @@ Proof.
 Qed.
 
 
+(* If we can lower a particular index then the term does not use it, 
+   so we can delete the corresponding slot from the enviornment. *)
 Theorem lower_type_type_ix
  :  forall ix ke t1 k1 t2
  ,  lowerTT ix t1 = Some t2
@@ -81,12 +83,20 @@ Proof.
    SCase "n < ix".
     inverts H.
     eapply KIVar.
-    admit. (* ok, lists *)
+    norm.
+    symmetry in HeqX.
+    apply nat_compare_lt in HeqX.
+    burn.
 
    SCase "n > ix".
     inverts H.
     eapply KIVar.
-    admit. (* ok, lists *)
+    rewrite <- H3.
+    symmetry in HeqX.
+    apply nat_compare_gt in HeqX.
+    destruct n.
+     simpl. burn.
+     simpl. norm. eapply get_delete_below. omega.
 
  Case "TForall".
   inverts_kind. norm.
