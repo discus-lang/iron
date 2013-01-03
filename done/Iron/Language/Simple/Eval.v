@@ -71,12 +71,12 @@ Proof.
   lets T2: preservation_steps H3 IHHE2.
   lets T3: subst_exp_exp H0 T2.
   lets E3: IHHE3 T3.
-  clear H0. clear T1. clear T2. clear T3. clear HE1.
 
   eapply EsAppend.
     lets D: steps_context XcApp1. eapply D. eauto.
    eapply EsAppend.
     lets D: steps_context XcApp2 IHHE2; eauto.
+    unfold value. rip.
    eapply EsAppend.
     eapply EsStep.
      eapply EsLamApp.
@@ -109,7 +109,9 @@ Proof.
   destruct H; inverts_type; inverts_eval; eauto; nope.
 
  Case "application".
-  admit.
+  inverts_type.
+  eapply EVLamApp; eauto.
+  destruct v2; nope.
 Qed.
 
 
@@ -123,7 +125,9 @@ Proof.
  intros x1 t1 v2 HT HS Hv.
  induction HS; try burn.
 
- admit.
+ Case "ESLStep".
+  unfold value in *. 
+  rip.
 
  Case "ESLCons".
   eapply eval_expansion;
