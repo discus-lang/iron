@@ -4,6 +4,7 @@ Require Import Iron.Language.SystemF2Effect.Theory.SubstValExp.
 Require Import Iron.Language.SystemF2Effect.Kind.
 Require Import Iron.Language.SystemF2Effect.Type.
 Require Import Iron.Language.SystemF2Effect.Value.
+Require Import Iron.Language.SystemF2Effect.Value.TyJudge.TypeKind.
 Require Import Iron.Language.SystemF2Effect.Store.
 Require Import Iron.Language.SystemF2Effect.Step.
 
@@ -119,10 +120,11 @@ Proof.
    unfold tRef. unfold closedT.
    eapply WfT_TApp.
     eauto.
+    have (KIND nil t2 KData).
+    rrwrite (0 = @length ki nil).
+    eapply kind_wfT.
     eauto.
-    have (exists k, KIND nil t2 k).
-
-  admit.                                (* ok, closed r1 due to nil ke, same for t2 *)
+   
   admit.                                (* ok, extended STORET *)
   eapply TxVal.
   eapply TvLoc.

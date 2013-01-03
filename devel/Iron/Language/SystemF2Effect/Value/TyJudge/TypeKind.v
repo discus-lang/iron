@@ -13,11 +13,7 @@ Proof.
   (PV := fun v => forall ke te se sp t
       ,  TYPEV  ke te se sp v t
       -> KIND   ke t KData);
-   intros; inverts_type.
-
- Case "VLoc".
-  admit.                                 (* need to know types in se are well kinded *)
-  admit.
+   intros; inverts_type; eauto 1.
 
  Case "VLam".
   unfold tFun.
@@ -127,6 +123,7 @@ Proof.
  intros. 
  lets D: typex_kind_type_effect H. rip.
 Qed.
+Hint Resolve typex_kind_type.
 
 
 Lemma typex_kind_effect
@@ -137,3 +134,5 @@ Proof.
  intros. 
  lets D: typex_kind_type_effect H. rip.
 Qed.
+Hint Resolve typex_kind_effect.
+

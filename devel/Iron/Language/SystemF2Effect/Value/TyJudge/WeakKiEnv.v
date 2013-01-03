@@ -20,12 +20,14 @@ Proof.
  Case "VVar".
   apply TvVar; auto.
   apply get_map; auto.
+  eauto using kind_kienv_insert.
 
  Case "VLoc".
-  eapply TvLoc; eauto.
-  rrwrite ( tRef (liftTT 1 ix r) (liftTT 1 ix t)
-          = liftTT 1 ix (tRef r t)).
+  eapply TvLoc; eauto;
+   rrwrite ( tRef (liftTT 1 ix r) (liftTT 1 ix t)
+           = liftTT 1 ix (tRef r t)).
   apply get_map; auto.
+  eauto using kind_kienv_insert.
 
  Case "VLam".
   apply TvLam.

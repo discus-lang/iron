@@ -20,6 +20,7 @@ Inductive
   | TvVar
     :  forall ke te se sp i t
     ,  get i te = Some t
+    -> KIND   ke t KData
     -> TYPEV  ke te se sp (VVar i) t 
 
   (* Store locations.
@@ -29,7 +30,8 @@ Inductive
      annotations themselves. *)
   | TvLoc 
     :  forall ke te se sp i r t
-    ,  get i se = Some (tRef r t)       
+    ,  get i se = Some (tRef r t)
+    -> KIND   ke (tRef r t) KData       
     -> TYPEV  ke te se sp (VLoc i) (tRef r t)
     (* TODO: ensure the region is in the props *)
 

@@ -25,13 +25,14 @@ Proof.
  Case "VVar".
   apply TvVar; auto.
   unfold substTE. auto.
+  eauto using subst_type_type_ix.
 
  Case "VLoc".
-  eapply TvLoc.
-  fold substTT.
+  eapply TvLoc; fold substTT;
   rrwrite ( tRef (substTT ix t2 r) (substTT ix t2 t)
           = substTT ix t2 (tRef r t)).
   unfold substTE; eauto.
+  eauto using subst_type_type_ix.
 
  Case "VLam".
   simpl. apply TvLam.
@@ -110,11 +111,13 @@ Proof.
 
  Case "OSucc".
   eapply TxOpSucc.
-  rrwrite (tNat = substTT ix t2 tNat). eauto.
+  rrwrite (tNat = substTT ix t2 tNat).
+  eauto.
 
  Case "OIsZero".
   eapply TxOpIsZero.
-  rrwrite (tNat = substTT ix t2 tNat). eauto.
+  rrwrite (tNat = substTT ix t2 tNat).
+  eauto.
 Qed.
 
 
