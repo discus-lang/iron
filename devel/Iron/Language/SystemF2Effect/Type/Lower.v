@@ -38,12 +38,65 @@ Fixpoint lowerTT (d: nat) (tt: ty) : option ty
     end.
 
 
-Lemma lowerTT_liftTT'
+(* Cleanup the Coqage here. 
+   How to we match on an 'if' scrutinee to remove the need for explicit
+   remembers?
+*)
+Lemma lowerTT_liftTT_some
  : forall t d d'
  , lowerTT d (liftTT 1 (1 + d + d') (liftTT 1 d t)) 
  = Some (liftTT 1 (d + d') t).
 Proof.
- admit.
+(* Keep this opaque so simpl doesn't unfold it *)
+Opaque le_gt_dec.
+ intros. gen d.
+ induction t; intros; burn.
+
+ Case "TVar".
+  simpl in *.
+  lift_cases; simpl;
+  lift_cases; simpl; 
+  lift_cases; repeat (simpl; nnat); burn; try omega.
+
+ Case "TForall".
+  simpl.
+  remember (lowerTT (S d) (liftTT 1 (S (S (d + d'))) (liftTT 1 (S d) t))) as X.
+  destruct X;
+  erewrite IHt in HeqX;
+   inverts HeqX; trivial.
+
+ Case "TApp".
+  simpl.
+  remember (lowerTT d (liftTT 1 (S (d + d')) (liftTT 1 d t1))) as X.
+  destruct X;
+  erewrite IHt1 in HeqX.
+
+  remember (lowerTT d (liftTT 1 (S (d + d')) (liftTT 1 d t2))) as Y;
+  destruct Y.
+  erewrite IHt2 in HeqY; 
+   inverts HeqX; inverts HeqY; trivial.
+
+  inverts HeqX.
+  erewrite IHt2 in HeqY; nope.
+
+  nope.
+
+ Case "TSum".
+  simpl.
+  remember (lowerTT d (liftTT 1 (S (d + d')) (liftTT 1 d t1))) as X.
+  destruct X;
+  erewrite IHt1 in HeqX.
+
+  remember (lowerTT d (liftTT 1 (S (d + d')) (liftTT 1 d t2))) as Y;
+  destruct Y.
+  erewrite IHt2 in HeqY; 
+   inverts HeqX; inverts HeqY; trivial.
+
+  inverts HeqX.
+  erewrite IHt2 in HeqY; nope.
+
+  nope.
+Transparent le_gt_dec.  
 Qed. 
 
 
@@ -97,7 +150,7 @@ Qed.
 Hint Rewrite lowerTT_some_liftTT. 
 Hint Resolve lowerTT_some_liftTT.
 
-
+(*
 Lemma lowerTT_liftTT
  : forall ix t
  , lowerTT ix (liftTT 1 (S ix) (liftTT 1 ix t)) 
@@ -114,3 +167,4 @@ Proof.
     simpl; lift_cases; burn; omega.
 Qed.  
 Hint Rewrite lowerTT_liftTT.
+*)

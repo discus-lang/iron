@@ -114,21 +114,30 @@ Proof.
  Case "EsAlloc".
   exists (tRef (TCon (TyConRegion r1)) t2 <: se).
   exists (TBot KEffect).
-  rip.
-  inverts HH. rip; burn.
+  inverts HH; rip.
   assert (closedT (tRef (TCon (TyConRegion r1)) t2)).
-   unfold tRef. unfold closedT.
-   eapply WfT_TApp.
-    eauto.
+    unfold tRef.
+    unfold closedT.
+    apply WfT_TApp.
+    auto.
     have (KIND nil t2 KData).
     rrwrite (0 = @length ki nil).
-    eapply kind_wfT.
-    eauto.
-   
-  admit.                                (* ok, extended STORET *)
+    apply kind_wfT with (k := KData). 
+     auto.
+     auto.
+
+     unfold STOREM.
+     have (length se = length ss). burn.
+
+     unfold STORET in *.
+     set (ref := tRef (TCon (TyConRegion r1)) t2).
+     eauto.
+     unfold 
+     skip.                                (* ok, extended STORET *)
+
   eapply TxVal.
-  eapply TvLoc.
-   inverts HH.
+  eapply TvLoc; eauto.
+   inverts_kind.
    have (length ss = length se). 
    rewritess. eauto.
 

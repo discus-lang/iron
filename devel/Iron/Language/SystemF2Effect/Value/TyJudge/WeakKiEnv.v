@@ -74,8 +74,8 @@ Proof.
   eapply TxNew
    with (t := liftTT 1 (S ix) (liftTT 1 0 t1))
         (e := liftTT 1 (S ix) (liftTT 1 0 e1)).
-  rewrite lowerTT_liftTT'. auto.
-  rewrite lowerTT_liftTT'. auto.
+  rewrite lowerTT_liftTT_some. auto.
+  rewrite lowerTT_liftTT_some. auto.
   rewrite insert_rewind.
   rewrite (liftTE_liftTE 0 ix).
   rewrite (liftTE_liftTE 0 ix).

@@ -38,6 +38,10 @@ proof: $(root_done)
 .PHONY: devel
 proof: $(root_devel)
 
+# Start the Coq ide
+.PHONY: start
+start: 
+	coqide -R done/Iron Iron -R devel/Iron Iron &
 
 # Build dependencies for Coq proof scripts.
 .PHONY: deps
