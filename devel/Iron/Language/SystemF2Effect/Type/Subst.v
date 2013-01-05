@@ -2,6 +2,7 @@
 Require Import Iron.Language.SystemF2Effect.Type.Ty.
 Require Import Iron.Language.SystemF2Effect.Type.Wf.
 Require Import Iron.Language.SystemF2Effect.Type.Lift.
+Require Import Iron.Language.SystemF2Effect.Type.Lower.
 
 
 (********************************************************************)
@@ -118,7 +119,7 @@ Hint Rewrite <- liftTT_substTT : global.
 
 (********************************************************************)
 (* Lifting after substiution, 
-   with the ligting at a higher index *)
+   with the lifting at a higher index *)
 Lemma liftTT_substTT'
  :  forall n n' t1 t2
  ,  liftTT 1 (n + n') (substTT n t2 t1)
@@ -139,6 +140,130 @@ Proof.
   simpl. rewrite (IHt1 (S n) n').
   simpl. rewrite (liftTT_liftTT_11 0 (n + n')). 
   burn.
+Qed.
+
+
+(********************************************************************)
+(* What a horrow show *)
+Lemma lowerTT_substTT_liftTT
+ :  forall t1 t1' d d' t2
+ ,  lowerTT d t1 = Some t1'
+ -> lowerTT d (substTT (1 + d + d') (liftTT 1 d t2) t1) 
+       = Some (substTT (d + d')      t2              t1').
+Proof.
+ intros. gen d d' t2 t1'.
+ induction t1; intros;
+  try (solve [simpl in *; f_equal; inverts H; burn]).
+
+
+ Case "TVar".
+  simpl in *.
+  remember (nat_compare n d) as X.
+  destruct X; burn.
+
+  symmetry in HeqX. apply nat_compare_lt in HeqX. inverts H.
+  lift_cases.
+   omega.
+   simpl. lift_cases; burn; try omega.
+   simpl. lift_cases; burn; try omega.
+
+  symmetry in HeqX. apply nat_compare_gt in HeqX. inverts H.
+  lift_cases.
+   norm. lift_cases; burn; try omega.
+   admit.                                                              (* ok, lowerTT_liftTT *)
+   norm. lift_cases; burn; try omega.
+   norm. lift_cases; burn; try omega.
+
+
+ Case "TForall".
+  simpl.
+  simpl in H.
+  remember (lowerTT (S d) t1) as X.
+  destruct X.
+   inverts H.
+   symmetry in HeqX.
+
+  remember (lowerTT (S d) (substTT (S (S (d + d'))) (liftTT 1 0 (liftTT 1 d t2)) t1)) as X. 
+  destruct X.
+
+   (* Goal 5 *)
+   norm. symmetry in HeqX0.
+   lets L: liftTT_liftTT 1 0 1 d t2. 
+   rrwrite (d + 0 = d) in L.
+   rewrite L in HeqX0. clear L.
+   norm.
+   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. rip. clear IHt1.
+   norm.
+
+   (* Goal 4 *)
+   norm. symmetry in HeqX0.
+   lets L: liftTT_liftTT 1 0 1 d t2.
+   rrwrite (d + 0 = d) in L.
+   rewrite L in HeqX0. clear L.
+   norm.
+   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. rip. clear IHt1.
+   norm.
+
+   (* Goal 3 *)
+   nope.
+
+
+ Case "TApp".
+  simpl. norm.
+  remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_1)) as X1. destruct X1.
+   remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_2)) as X2. destruct X2.
+    remember (lowerTT d t1_1) as B1. destruct B1.
+    remember (lowerTT d t1_2) as B2. destruct B2.
+     inverts H.
+     erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
+     erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
+     simpl. eauto.
+     nope.
+     nope.
+
+    remember (lowerTT d t1_1) as B1. destruct B1.
+    remember (lowerTT d t1_2) as B2. destruct B2.
+    inverts H. simpl.
+    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
+    erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
+    nope.
+    nope.
+
+    remember (lowerTT d t1_1) as B1. destruct B1.
+    remember (lowerTT d t1_2) as B2. destruct B2.
+    inverts H. simpl.
+    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
+    nope.
+    nope.
+
+
+ Case "TSum".
+  simpl. norm.
+  remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_1)) as X1. destruct X1.
+   remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_2)) as X2. destruct X2.
+    remember (lowerTT d t1_1) as B1. destruct B1.
+    remember (lowerTT d t1_2) as B2. destruct B2.
+     inverts H.
+     erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
+     erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
+     simpl. eauto.
+     nope.
+     nope.
+
+    remember (lowerTT d t1_1) as B1. destruct B1.
+    remember (lowerTT d t1_2) as B2. destruct B2.
+    inverts H. simpl.
+    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
+    erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
+    nope.
+    nope.
+
+    remember (lowerTT d t1_1) as B1. destruct B1.
+    remember (lowerTT d t1_2) as B2. destruct B2.
+    inverts H. simpl.
+    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
+    nope.
+    nope.
 Qed.
 
 

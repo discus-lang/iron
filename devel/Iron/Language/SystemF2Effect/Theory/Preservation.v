@@ -25,6 +25,7 @@ Proof.
  intros se sp sp' ss ss' x x' t e HH HT HS. gen t e.
  induction HS; intros; inverts_type; rip.
 
+
  Case "EsLet".
   spec IHHS t e1. rip.
   shift se'.
@@ -38,16 +39,19 @@ Proof.
    inverts H. rip.
     eapply TxLet; eauto.
 
+
  Case "EsLetSubst".
   exists se. exists e2.
   rip.
   burn.
   eapply subst_val_exp; eauto.
 
+
  Case "EsAppSubst".
   exists se. exists e.
   rip.
   eapply subst_val_exp; eauto.
+
 
  Case "EsLAMSubst".
   exists se. exists (TBot KEffect).
@@ -66,6 +70,7 @@ Proof.
    rrwrite (substTE 0 t2 nil = nil).
    rrwrite (substTE 0 t2 se  = se).
    norm.
+
 
  Case "EsNew".
   remember (TCon (TyConRegion (length sp))) as r.
@@ -101,69 +106,56 @@ Proof.
   rewrite SE in H5.
   eauto.
 
+
  Case "EsUse".
   spec IHHS H7.
   shift se'. shift e'.
   rip; inverts H; rip.
+
 
  Case "EsUsePop".
   exists se.
   exists (TBot KEffect).
   rip.
 
+
  Case "EsAlloc".
   set (tRef' := tRef (TCon (TyConRegion r1)) t2).
   exists (tRef' <: se).
   exists (TBot KEffect).
-  inverts HH; rip.
+  inverts HH. rip.
 
-  (* Extended store environment is closed *)
-  assert (Forall closedT (tRef' <: se)).
-   assert (closedT tRef').
-    assert (wfT 0 t2).
-     have (KIND nil t2 KData).
-     rrwrite (0 = @length ki nil).
-     apply kind_wfT with (k := KData); auto.
-     subst tRef'. unfold tRef. unfold closedT.
-    burn.
-   auto.
-  auto.
-
-  (* Extended store environment models the extended store *)
-  assert (STOREM (tRef' <: se) (StValue r1 v1 <: ss)).
-   unfold STOREM.
-   have (length se = length ss). 
-   burn.
-   unfold STORET in *.
-   eauto.
-
-  (* Extended store is well typed under extended store environment *)
-  assert (STORET (tRef' <: se) sp (StValue r1 v1 <: ss)).
-   assert (TYPEB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
-    eapply TbValue.
-     eapply typev_stenv_snoc.
-      subst tRef'. eauto.
-      auto.
-
-      assert (Forall2 (TYPEB nil nil (tRef' <: se) sp) ss se).
-       lets D: (@Forall2_impl stbind ty) 
-                  (TYPEB nil nil se sp) 
-                  (TYPEB nil nil (tRef' <: se) sp)
-                  ss se
-                  H2.
-       intros.
-       eapply typeb_stenv_snoc. auto. 
-       subst tRef'.
-       eauto. 
-      auto. 
-     auto. 
+  (* Extended store environment is closed.
+     Done manually to avoid non-instantiated existentials. *)
+  assert (closedT t2).
+   unfold closedT.
+   rrwrite (0 = @length ki nil).
+   apply (kind_wfT nil t2 KData).
+    apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).
     auto.
+  subst tRef'. auto.
 
-  eapply TxVal.
-  eapply TvLoc; eauto.
+  (* Extended store is well typed. *)
+  subst tRef'. eauto.
+
+  (* Resulting location is well typed.
+     Done manually to avoid non-instantiated existentials. *)
+  apply TxVal.
+  apply TvLoc.
+   unfold tRef'. 
    inverts_kind.
    rrwrite (length ss = length se).
+    auto.
+   apply KIApp with (k11 := KData).
+    unfold appkind. burn.
+    
+   apply KIApp with (k11 := KRegion).
+    unfold appkind. burn.
+    auto. auto.
+
+   apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).
    auto.
+
 
  Case "EsRead".
   exists se.
@@ -174,6 +166,7 @@ Proof.
   unfold STORET in *.
   admit.                                (* ok, has type via get ss/ get se *)
 
+
  Case "EsWrite".
   exists se.
   exists (TBot KEffect).
@@ -183,10 +176,12 @@ Proof.
   admit.                                (* store env models update store *)
   admit.                                (* updated store is typed under store env *)
 
+
  Case "EsSucc".
   exists se.
   exists (TBot KEffect).
   burn.
+
 
  Case "EsIsZeroTrue".
   exists se.
