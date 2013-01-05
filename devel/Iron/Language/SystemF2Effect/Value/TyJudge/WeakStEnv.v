@@ -36,6 +36,21 @@ Qed.
 Hint Resolve typex_stenv_snoc.
 
 
+Lemma typev_stenv_snoc
+ :  forall ke te se sp t2 v t1
+ ,  closedT t2
+ -> TYPEV ke te se         sp v t1
+ -> TYPEV ke te (t2 <: se) sp v t1.
+Proof.
+ intros.
+ have HX: (TYPEX ke te se sp (XVal v) t1 (TBot KEffect)).
+ eapply typex_stenv_snoc in HX.
+ inverts HX; eauto.
+ eauto.
+Qed.
+Hint Resolve typev_stenv_snoc.
+
+
 Lemma typex_stenv_weaken
  :  forall ke te se1 se2 sp x t1 e1
  ,  Forall closedT se2
@@ -82,5 +97,4 @@ Proof.
  inverts HX. auto.
 Qed.
 Hint Resolve typex_stenv_extends.
-
 

@@ -112,34 +112,58 @@ Proof.
   rip.
 
  Case "EsAlloc".
-  exists (tRef (TCon (TyConRegion r1)) t2 <: se).
+  set (tRef' := tRef (TCon (TyConRegion r1)) t2).
+  exists (tRef' <: se).
   exists (TBot KEffect).
   inverts HH; rip.
-  assert (closedT (tRef (TCon (TyConRegion r1)) t2)).
-    unfold tRef.
-    unfold closedT.
-    apply WfT_TApp.
+
+  (* Extended store environment is closed *)
+  assert (Forall closedT (tRef' <: se)).
+   assert (closedT tRef').
+    assert (wfT 0 t2).
+     have (KIND nil t2 KData).
+     rrwrite (0 = @length ki nil).
+     apply kind_wfT with (k := KData); auto.
+     subst tRef'. unfold tRef. unfold closedT.
+    burn.
+   auto.
+  auto.
+
+  (* Extended store environment models the extended store *)
+  assert (STOREM (tRef' <: se) (StValue r1 v1 <: ss)).
+   unfold STOREM.
+   have (length se = length ss). 
+   burn.
+   unfold STORET in *.
+   eauto.
+
+  (* Extended store is well typed under extended store environment *)
+  assert (STORET (tRef' <: se) sp (StValue r1 v1 <: ss)).
+   assert (TYPEB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
+    eapply TbValue.
+     eapply typev_stenv_snoc.
+      subst tRef'. eauto.
+      auto.
+
+      assert (Forall2 (TYPEB nil nil (tRef' <: se) sp) ss se).
+       lets D: (@Forall2_impl stbind ty) 
+                  (TYPEB nil nil se sp) 
+                  (TYPEB nil nil (tRef' <: se) sp)
+                  ss se
+                  H2.
+       intros.
+       eapply typeb_stenv_snoc. auto. 
+       subst tRef'.
+       eauto. 
+      auto. 
+     auto. 
     auto.
-    have (KIND nil t2 KData).
-    rrwrite (0 = @length ki nil).
-    apply kind_wfT with (k := KData). 
-     auto.
-     auto.
-
-     unfold STOREM.
-     have (length se = length ss). burn.
-
-     unfold STORET in *.
-     set (ref := tRef (TCon (TyConRegion r1)) t2).
-     eauto.
-     unfold 
-     skip.                                (* ok, extended STORET *)
 
   eapply TxVal.
   eapply TvLoc; eauto.
    inverts_kind.
-   have (length ss = length se). 
-   rewritess. eauto.
+   rrwrite (length ss = length se).
+   auto.
 
  Case "EsRead".
   exists se.

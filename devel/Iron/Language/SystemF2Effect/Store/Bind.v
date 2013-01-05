@@ -20,11 +20,23 @@ Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
 Hint Constructors TYPEB.
 
 
-(* Weakening store properties in store binding judegment *)
+(* Weakening store environment in type of store binding *)
+Lemma typeb_stenv_snoc 
+ :  forall ke te se sp v t1 t2 
+ ,  TYPEB  ke te se sp v t1
+ -> closedT t2
+ -> TYPEB  ke te (t2 <: se) sp v t1.
+Proof.
+ intros. inverts H. eauto.
+Qed.
+Hint Resolve typeb_stenv_snoc.
+
+
+(* Weakening store properties  in type of store binding *)
 Lemma typeb_stprops_snoc
  :  forall ke te se sp v t p
- ,  TYPEB ke te se sp v t
- -> TYPEB ke te se (p <: sp) v t.
+ ,  TYPEB  ke te se sp v t
+ -> TYPEB  ke te se (p <: sp) v t.
 Proof. 
  intros. inverts H. eauto.
 Qed.
