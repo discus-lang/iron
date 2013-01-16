@@ -5,6 +5,7 @@ Require Export Iron.Language.SystemF2Effect.Value.Wf.
 Require Export Iron.Language.SystemF2Effect.Value.Lift.
 Require Export Iron.Language.SystemF2Effect.Store.Prop.
 
+
 (* Store Environment holds the types of locations. *)
 Definition stenv := list ty.
 
@@ -20,7 +21,7 @@ Inductive
   | TvVar
     :  forall ke te se sp i t
     ,  get i te = Some t
-    -> KIND   ke t KData
+    -> KIND   ke sp t KData
     -> TYPEV  ke te se sp (VVar i) t 
 
   (* Store locations.
@@ -31,8 +32,8 @@ Inductive
   | TvLoc 
     :  forall ke te se sp i r t
     ,  get i se = Some (tRef r t)
-    -> KIND   ke (tRef r t) KData       
-    -> TYPEV  ke te se sp (VLoc i) (tRef r t)
+    -> KIND   ke sp       (tRef r t) KData       
+    -> TYPEV  ke te se sp (VLoc i)   (tRef r t)
     (* TODO: ensure the region is in the props *)
 
   (* Value abstraction.
@@ -40,7 +41,7 @@ Inductive
      of the formal parameter. *)
   | TvLam
     :  forall ke te se sp t1 t2 x2 e2
-    ,  KIND   ke t1 KData
+    ,  KIND   ke sp t1 KData
     -> TYPEX  ke (te :> t1) se sp x2 t2 e2
     -> TYPEV  ke te         se sp (VLam t1 x2) (tFun t1 e2 t2)
 
@@ -82,7 +83,7 @@ Inductive
   (* Let-bindings. *)
   | TxLet
     :  forall ke te se sp t1 x1 t2 x2 e1 e2
-    ,  KIND   ke t1 KData
+    ,  KIND   ke sp t1 KData
     -> TYPEX  ke te         se sp x1 t1 e1
     -> TYPEX  ke (te :> t1) se sp x2 t2 e2
     -> TYPEX  ke te         se sp (XLet t1 x1 x2) t2 (TSum e1 e2)
@@ -98,7 +99,7 @@ Inductive
   | TvAPP
     :  forall ke te se sp v1 k11 t12 t2
     ,  TYPEV  ke te se sp v1 (TForall k11 t12)
-    -> KIND   ke t2 k11
+    -> KIND   ke sp t2 k11
     -> TYPEX  ke te se sp (XAPP v1 t2) (substTT 0 t2 t12) (TBot KEffect)
 
   (* Store Operators ******************)
@@ -123,21 +124,21 @@ Inductive
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
     :  forall ke te se sp r1 v2 t2
-    ,  KIND   ke r1 KRegion
+    ,  KIND   ke sp r1 KRegion
     -> TYPEV  ke te se sp v2 t2
     -> TYPEX  ke te se sp (XAlloc r1 v2) (tRef r1 t2) (tAlloc r1)
 
   (* Read a value from a heap binding. *)
   | TxOpRead
     :  forall ke te se sp v1 r1 t2
-    ,  KIND   ke r1 KRegion
+    ,  KIND   ke sp r1 KRegion
     -> TYPEV  ke te se sp v1 (tRef r1 t2)
     -> TYPEX  ke te se sp (XRead r1 v1)     t2    (tRead r1)
 
   (* Write a value to a heap binding. *)
   | TxOpWrite
     :  forall ke te se sp v1 v2 r1 t2
-    ,  KIND   ke r1 KRegion
+    ,  KIND   ke sp r1 KRegion
     -> TYPEV  ke te se sp v1 (tRef r1 t2)
     -> TYPEV  ke te se sp v2 t2
     -> TYPEX  ke te se sp (XWrite r1 v1 v2) tUnit (tWrite r1)

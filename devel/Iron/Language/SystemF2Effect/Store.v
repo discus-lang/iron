@@ -79,7 +79,7 @@ Proof.
     assert (closedT t2).
      unfold closedT.
      rrwrite (0 = @length ki nil).
-     apply (kind_wfT nil t2 KData).
+     apply (kind_wfT nil sp t2 KData).
 
      (* NOTE: This one has to be done manually to instantiate existentials *)
      apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).

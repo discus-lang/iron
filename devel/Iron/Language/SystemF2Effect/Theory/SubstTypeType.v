@@ -9,27 +9,27 @@ Require Export Iron.Language.SystemF2Effect.Value.
    otherwise indices that reference subst type are broken, and 
    the resulting type env would not be well formed *)
 Theorem subst_type_type_ix
- :  forall ix ke t1 k1 t2 k2
+ :  forall ix ke sp t1 k1 t2 k2
  ,  get ix ke = Some k2
- -> KIND ke t1 k1
- -> KIND (delete ix ke) t2 k2
- -> KIND (delete ix ke) (substTT ix t2 t1) k1.
+ -> KIND ke sp t1 k1
+ -> KIND (delete ix ke) sp t2 k2
+ -> KIND (delete ix ke) sp (substTT ix t2 t1) k1.
 Proof.
- intros. gen ix ke t2 k1 k2.
+ intros. gen ix ke sp t2 k1 k2.
  induction t1; intros; simpl; inverts_kind; eauto.
 
  Case "TVar".
   fbreak_nat_compare.
   SCase "n = ix".
-   rewrite H in H4.
-   inverts H4. auto.
+   rewrite H in H5.
+   inverts H5. auto.
 
   SCase "n < ix".
-   apply KiVar. rewrite <- H4.
+   apply KiVar. rewrite <- H5.
    apply get_delete_above; auto.
 
   SCase "n > ix".
-   apply KiVar. rewrite <- H4.
+   apply KiVar. rewrite <- H5.
    destruct n.
     burn.
     simpl. nnat. apply get_delete_below. omega.
@@ -43,10 +43,10 @@ Qed.
 
 
 Theorem subst_type_type
- :  forall ke t1 k1 t2 k2
- ,  KIND (ke :> k2) t1 k1
- -> KIND ke         t2 k2
- -> KIND ke (substTT 0 t2 t1) k1.
+ :  forall ke sp t1 k1 t2 k2
+ ,  KIND (ke :> k2) sp t1 k1
+ -> KIND ke         sp t2 k2
+ -> KIND ke sp (substTT 0 t2 t1) k1.
 Proof.
  intros.
  unfold substTT.
@@ -58,12 +58,12 @@ Qed.
 (* If we can lower a particular index then the term does not use it, 
    so we can delete the corresponding slot from the enviornment. *)
 Theorem lower_type_type_ix
- :  forall ix ke t1 k1 t2
+ :  forall ix ke sp t1 k1 t2
  ,  lowerTT ix t1 = Some t2
- -> KIND ke t1 k1
- -> KIND (delete ix ke) t2 k1.
+ -> KIND ke sp t1 k1
+ -> KIND (delete ix ke) sp t2 k1.
 Proof.
- intros. gen ix ke k1 t2.
+ intros. gen ix ke sp k1 t2.
  induction t1; intros; simpl.
 
  Case "TCon".
@@ -97,7 +97,7 @@ Proof.
    SCase "n > ix".
     inverts H.
     eapply KiVar.
-    rewrite <- H3.
+    rewrite <- H4.
     symmetry in HeqX.
     apply nat_compare_gt in HeqX.
     destruct n.
@@ -119,7 +119,7 @@ Proof.
   remember (lowerTT ix t1_2) as X2.
   destruct X1. destruct X2.
   inverts H.
-   spec IHt1_1 H5. eauto.
+   spec IHt1_1 H6. eauto.
    nope. nope.
 
  Case "TSum".
@@ -128,7 +128,7 @@ Proof.
   remember (lowerTT ix t1_2) as X2.
   destruct X1. destruct X2.
   inverts H.
-   spec IHt1_1 H5. eauto.
+   spec IHt1_1 H6. eauto.
    nope. nope.
 
  Case "TBot".
@@ -139,10 +139,10 @@ Qed.
 
 
 Theorem lower_type_type_snoc
- :  forall t1 t2 ke k1 k2
+ :  forall t1 t2 ke sp k1 k2
  ,  lowerTT 0 t1 = Some t2
- -> KIND (ke :> k1) t1 k2 
- -> KIND ke         t2 k2.
+ -> KIND (ke :> k1) sp t1 k2 
+ -> KIND ke         sp t2 k2.
 Proof.
  intros.
  lets D: lower_type_type_ix H H0.

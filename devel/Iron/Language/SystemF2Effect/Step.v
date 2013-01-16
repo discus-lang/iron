@@ -41,8 +41,10 @@ Inductive
  (* Create a new region. *)
  | EsNew
    :  forall ss sp x
-   ,  STEP ss sp              (XNew x) 
-           ss (SRegion <: sp) (XUse (length sp) (substTX 0 (TCap (TyCapRegion (length sp))) x))
+   ,  STEP ss sp              
+              (XNew x) 
+           ss (SRegion (length sp) <: sp) 
+              (XUse (length sp) (substTX 0 (TCap (TyCapRegion (length sp))) x))
 
  (* Evaluation with a region. *)
  | EsUse

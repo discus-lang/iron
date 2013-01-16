@@ -4,7 +4,8 @@
 Inductive stprop :=
  (* A region descriptor.
     One of these exists in the store for every live region in the store. *)
- | SRegion  : stprop.
+ | SRegion : nat -> stprop.
 
 
-Definition stprops := list stprop.
+Definition stprops 
+ := list stprop.

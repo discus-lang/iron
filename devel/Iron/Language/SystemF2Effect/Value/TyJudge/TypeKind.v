@@ -6,13 +6,13 @@ Require Import Iron.Language.SystemF2Effect.Theory.SubstTypeType.
 Lemma typex_kind_type_effect
  :  forall ke te se sp v t e
  ,  TYPEX  ke te se sp v t e
- -> (KIND ke t KData /\ KIND ke e KEffect).
+ -> (KIND  ke sp t KData /\ KIND ke sp e KEffect).
 Proof.
  intros. gen ke te se sp t e. 
  induction v using exp_mutind with
   (PV := fun v => forall ke te se sp t
       ,  TYPEV  ke te se sp v t
-      -> KIND   ke t KData);
+      -> KIND   ke sp t KData);
    intros; inverts_type; eauto 1.
 
  Case "VLam".
@@ -46,13 +46,13 @@ Proof.
 
  Case "XLet".
   unfold tFun in *.
-  lets D1: IHv  H6.
+  lets D1: IHv H6.
   inverts D1.
-  inverts H3.
-  inverts H7.
+  inverts H4.
   inverts H8.
+  inverts H10.
   simpl in *.
-  inverts H4. eauto.
+  inverts H5. eauto.
 
  Case "XAPP".
   eapply IHv in H6.
@@ -86,18 +86,13 @@ Proof.
  Case "XRead".
   spec IHv H9.
   unfold tRef in *.
-  inverts IHv.
-  unfold tFun in *.
-  inverts H3.
-  inverts H7.
-  simpl in *.
-  inverts H3.
+  inverts_kind.
   rip.
-  unfold tRead.
-  eapply KiApp.
-  unfold appkind; burn.
-  eapply KiCon; burn.
-  auto.
+   simpl in *. congruence.
+   eapply KiApp.
+    unfold appkind; burn.
+    eapply KiCon. simpl in *. eauto.
+    simpl in *. eauto.
 
  Case "XWrite".
   unfold tUnit. rip. 
@@ -118,7 +113,7 @@ Hint Resolve typex_kind_type_effect.
 Lemma typex_kind_type
  :  forall ke te se sp v t e
  ,  TYPEX  ke te se sp v t e
- -> KIND   ke t KData.
+ -> KIND   ke sp t KData.
 Proof. 
  intros. 
  lets D: typex_kind_type_effect H. rip.
@@ -129,7 +124,7 @@ Hint Resolve typex_kind_type.
 Lemma typex_kind_effect
  :  forall ke te se sp v t e
  ,  TYPEX  ke te se sp v t e
- -> KIND   ke e KEffect.
+ -> KIND   ke sp e KEffect.
 Proof. 
  intros. 
  lets D: typex_kind_type_effect H. rip.

@@ -13,7 +13,8 @@ Proof.
   (PV := fun v => forall ke te se sp t p
       ,  TYPEV ke te se sp v t
       -> TYPEV ke te se (p <: sp) v t);
-  intros; inverts_type; eauto.
+  intros; inverts_type; 
+  eauto using kind_stprops_snoc.
 Qed.
 Hint Resolve typex_stprops_snoc.
 

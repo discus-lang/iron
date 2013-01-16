@@ -60,7 +60,7 @@ Proof.
   right.
   inverts_type.
   exists ss.
-  exists (SRegion <: sp).
+  exists (SRegion (length sp) <: sp).
   exists (XUse (length sp) (substTX 0 (TCap (TyCapRegion (length sp))) x)).
   eauto.
 

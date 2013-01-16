@@ -82,7 +82,7 @@ Proof.
   rip.
 
   (* Store with the new region handle property is well formed. *)
-  assert (WfS se (SRegion <: sp) ss).
+  assert (WfS se (SRegion (length sp) <: sp) ss).
    inverts HH. rip.
     unfold STORET in *.
     lets D: (@Forall2_impl stbind). eauto.
@@ -93,7 +93,7 @@ Proof.
   rrwrite (liftTE 0 nil = nil).
   rrwrite (liftTE 0 se  = se).
 
-  have   (KIND nil r KRegion)
+  have   (KIND nil sp r KRegion)
    by (subst; eauto).
 
   have   (TYPEX nil (substTE 0 r nil) (substTE 0 r se) sp
@@ -132,7 +132,7 @@ Proof.
   assert (closedT t2).
    unfold closedT.
    rrwrite (0 = @length ki nil).
-   apply (kind_wfT nil t2 KData).
+   apply (kind_wfT nil sp t2 KData).
     apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).
     auto.
   subst tRef'. auto.
