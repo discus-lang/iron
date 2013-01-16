@@ -13,6 +13,19 @@ Fixpoint update {A: Type} (ix: nat) (y: A) (xx: list A) : list A :=
  end.
 
 
+(* Updating an element in a list preserves that list's length *)
+Lemma update_length
+ : forall {A} i (x : A) (xs : list A)
+ , length (update i x xs) = length xs.
+Proof.
+ intros. gen i.
+ induction xs.
+  destruct i; burn.
+  intros.
+   destruct i; burn.
+Qed.
+
+
 Lemma Forall_update
  :  forall A (P: A -> Prop) ix x xs
  ,  P x

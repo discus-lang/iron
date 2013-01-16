@@ -164,7 +164,7 @@ Proof.
   exists se.
   exists (TBot KEffect).
   rip.
-   eapply TxVal.
+  eapply TxVal.
    inverts HH. rip.
    eapply storet_get_typev; eauto.
 
@@ -174,10 +174,7 @@ Proof.
   exists se.
   exists (TBot KEffect).
   rip.
-  inverts HH. rip.
-  unfold STORET in *.
-  admit.                                (* store env models update store *)
-  admit.                                (* updated store is typed under store env *)
+  eapply store_update_wf; eauto.
 
 
  (* Primitives ************************)
