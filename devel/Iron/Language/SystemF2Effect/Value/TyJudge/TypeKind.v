@@ -63,8 +63,8 @@ Proof.
  Case "XNew".
   eapply IHv in H7.
   rip.
-  admit.                               (* go via lemma about lowerTT_substTT *)
-  admit.
+  eapply lower_type_type_snoc; eauto.
+  eapply lower_type_type_snoc; eauto.
 
  Case "XUse".
   eapply IHv in H8.

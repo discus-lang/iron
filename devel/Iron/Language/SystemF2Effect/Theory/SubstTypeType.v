@@ -131,3 +131,15 @@ Proof.
   auto.
 Qed.
 
+
+Theorem lower_type_type_snoc
+ :  forall t1 t2 ke k1 k2
+ ,  lowerTT 0 t1 = Some t2
+ -> KIND (ke :> k1) t1 k2 
+ -> KIND ke         t2 k2.
+Proof.
+ intros.
+ lets D: lower_type_type_ix H H0.
+ simpl in D. auto.
+Qed.
+
