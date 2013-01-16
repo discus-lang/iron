@@ -54,7 +54,6 @@ rec step_det_split
     => impossible nostep_value [.S2] [.V]    in []
 
     | [. step_split_pair (step_app2 V S1) (step_app3 V) ]  
-             % Remove second V here get "Type synthesis of term failed" ??
     => impossible nostep_value [.S1] [.V]    in []
 
     | [. step_split_pair (step_app3 _)    (step_app1 S2) ]
