@@ -164,10 +164,9 @@ Proof.
   exists se.
   exists (TBot KEffect).
   rip.
-  eapply TxVal.
-  inverts HH. rip.
-  unfold STORET in *.
-  admit.                                (* ok, has type via get ss/ get se *)
+   eapply TxVal.
+   inverts HH. rip.
+   eapply storet_get_typev; eauto.
 
 
  (* Write store binding ***************)
