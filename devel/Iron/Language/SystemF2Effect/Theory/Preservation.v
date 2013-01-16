@@ -181,12 +181,15 @@ Proof.
  Case "EsSucc".
   exists se.
   exists (TBot KEffect).
+  simpl in *.
+  repeat (unfold tFun in *; unfold tNat in *); inverts H5.
   burn.
-
 
  Case "EsIsZeroTrue".
   exists se.
   exists (TBot KEffect).
+  simpl in *.
+  repeat (unfold tFun in *; unfold tNat in *); inverts H5.
   burn.
 Qed.
 

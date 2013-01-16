@@ -97,11 +97,14 @@ Proof.
  Case "XWrite".
   eapply TxOpWrite; eauto using kind_kienv_insert.
   eapply IHx1 in H10. simpl in H10. eauto.
-  eapply IHx1 in H8. eauto.
+  eapply IHx1 in H9. eauto.
 
- Case "XIsZero".
-  eapply TxOpIsZero.
-  eapply IHx1 in H8. eauto.
+ Case "XOpPrim".
+  eapply TxOpPrim.
+  destruct o; simpl in *;
+   inverts H6; simpl; eauto.
+  destruct o; simpl in *;
+   inverts H6; eauto.
 Qed.
 
 

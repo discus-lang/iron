@@ -128,23 +128,15 @@ Proof.
   destruct c; nope.
 
  Case "XOp1".
-  destruct o.
-  SCase "OSucc".
-   inverts_type.
-   right.
-   exists ss.
-   exists sp.
-   destruct v; nope.
-   destruct c; nope.
-   eauto.
-
-  SCase "OIsZero".
-   inverts_type.
-   right.
-   exists ss.
-   exists sp.
-   destruct v; nope.
-   destruct c; nope.
-   eauto.
+  destruct o;
+   ( inverts_type
+   ; right
+   ; exists ss
+   ; exists sp
+   ; repeat (simpl in *; unfold tFun in *; unfold tNat in *)
+   ; inverts H5
+   ; (destruct v; nope)
+   ; (destruct c; nope)
+   ; eauto).
 Qed.
 

@@ -10,6 +10,16 @@ Require Export Iron.Language.SystemF2Effect.Store.Prop.
 Definition stenv := list ty.
 
 
+(* Types of primops. 
+   We keep this separte from the main typing judgement to make it easy
+   to add new primops. *)
+Fixpoint typeOfOp1 (op : op1) : ty
+ := match op with
+    | OSucc    => tFun tNat tNat  (TBot KEffect)
+    | OIsZero  => tFun tNat tBool (TBot KEffect)
+    end.
+
+
 (* Types of Value expressions *)
 Inductive 
   TYPEV : kienv -> tyenv -> stenv -> stprops 
@@ -143,16 +153,11 @@ Inductive
     -> TYPEX  ke te se sp (XWrite r1 v1 v2) tUnit (tWrite r1)
 
   (* Primtive Operators ***************)
-  (* TODO: get these types from a separate typeOfPrimOp function *)
-  | TxOpSucc
-    :  forall ke te se sp v1
-    ,  TYPEV  ke te se sp v1 tNat
-    -> TYPEX  ke te se sp (XOp1 OSucc v1)   tNat  (TBot KEffect)
-
-  | TxOpIsZero
-    :  forall ke te se sp v1
-    ,  TYPEV  ke te se sp v1 tNat
-    -> TYPEX  ke te se sp (XOp1 OIsZero v1) tBool (TBot KEffect).
+  | TxOpPrim
+    :  forall ke te se sp op v1 t11 t12 e
+    ,  typeOfOp1 op = tFun t11 t12 e
+    -> TYPEV  ke te se sp v1 t11
+    -> TYPEX  ke te se sp (XOp1 op v1) t12 e.
 
 Hint Constructors TYPEV.
 Hint Constructors TYPEX.

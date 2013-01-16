@@ -61,4 +61,8 @@ Proof.
  Case "XRead".
   spec IHx H10 H11.
   inverts IHx. auto.
+
+ Case "XOp1".
+  spec IHx H10 H11.
+  subst. rip.
 Qed.

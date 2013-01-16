@@ -101,11 +101,9 @@ Proof.
    unfold appkind; burn.
    eapply KiCon; burn. auto.
 
- Case "XSucc".
-  unfold tNat. rip.
-
- Case "XIsZero".
-  unfold tBool. rip.
+ Case "XOp1".
+  destruct o; simpl in *; inverts H6; 
+   unfold tNat; unfold tBool; rip.
 Qed.
 Hint Resolve typex_kind_type_effect.
 

@@ -110,15 +110,19 @@ Proof.
    eapply IHx1 in H12; eauto. norm. eauto.
    eapply IHx0 in H13; eauto.
 
- Case "OSucc".
-  eapply TxOpSucc.
-  rrwrite (tNat = substTT ix t2 tNat).
-  eauto.
 
- Case "OIsZero".
-  eapply TxOpIsZero.
-  rrwrite (tNat = substTT ix t2 tNat).
-  eauto.
+ Case "XOp1".
+  eapply TxOpPrim.
+  destruct o; simpl in *;
+   try (rrwrite (tNat  = substTT ix t2 tNat));
+   try (rrwrite (tBool = substTT ix t2 tBool)); 
+   inverts H8; eauto.
+
+  destruct o; simpl in *; 
+   try (rrwrite (tNat  = substTT ix t2 tNat));
+   try (rrwrite (tBool = substTT ix t2 tBool));
+   inverts H8; eauto;
+   spec IHx1 H11; eauto. 
 Qed.
 
 
