@@ -147,16 +147,34 @@ Proof.
    rewrite IHt1_1; burn.
    rewrite IHt1_2; burn.
 Qed.
-Hint Rewrite lowerTT_some_liftTT. 
 Hint Resolve lowerTT_some_liftTT.
+Hint Rewrite lowerTT_some_liftTT.
 
 
 Lemma lowerTT_liftTT
- : forall ix t
- , lowerTT ix (liftTT 1 (S ix) (liftTT 1 ix t)) 
- = Some (liftTT 1 ix t).
+ : forall d t
+ , lowerTT d (liftTT 1 d t) = Some t.
 Proof.
- intros. gen ix. 
+ intros. gen d.
+ lift_burn t.
+
+ Case "TVar".
+  simpl. lift_cases; simpl.
+  lift_cases; try omega.
+   repeat norm.
+
+  lift_cases; try omega. auto.
+Qed.
+Hint Resolve lowerTT_liftTT.
+Hint Rewrite lowerTT_liftTT.
+
+
+Lemma lowerTT_liftTT_switch
+ : forall d t
+ , lowerTT d (liftTT 1 (S d) (liftTT 1 d t)) 
+ = Some (liftTT 1 d t).
+Proof.
+ intros. gen d.
  lift_burn t.
 
  Case "TVar".
@@ -166,6 +184,7 @@ Proof.
    lift_cases;
     simpl; lift_cases; burn; omega.
 Qed.  
-Hint Rewrite lowerTT_liftTT.
+Hint Resolve lowerTT_liftTT_switch.
+Hint Rewrite lowerTT_liftTT_switch.
 
 

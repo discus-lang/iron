@@ -162,17 +162,12 @@ Proof.
   destruct X; burn.
 
   symmetry in HeqX. apply nat_compare_lt in HeqX. inverts H.
-  lift_cases.
-   omega.
-   simpl. lift_cases; burn; try omega.
-   simpl. lift_cases; burn; try omega.
+  lift_cases;
+   repeat (norm; lift_cases; burn; try omega).
 
   symmetry in HeqX. apply nat_compare_gt in HeqX. inverts H.
-  lift_cases.
-   norm. lift_cases; burn; try omega.
-   admit.                                                              (* ok, lowerTT_liftTT *)
-   norm. lift_cases; burn; try omega.
-   norm. lift_cases; burn; try omega.
+  lift_cases;
+   repeat (norm; lift_cases; burn; try omega).
 
 
  Case "TForall".
