@@ -25,7 +25,7 @@ Proof.
  intros se sp sp' ss ss' x x' t e HH HT HS. gen t e.
  induction HS; intros; inverts_type; rip.
 
-
+ (* Let binding ***********************)
  Case "EsLet".
   spec IHHS t e1. rip.
   shift se'.
@@ -47,12 +47,14 @@ Proof.
   eapply subst_val_exp; eauto.
 
 
+ (* Value Application *****************)
  Case "EsAppSubst".
   exists se. exists e.
   rip.
   eapply subst_val_exp; eauto.
 
 
+ (* Type Application ******************)
  Case "EsLAMSubst".
   exists se. exists (TBot KEffect).
   rip.
@@ -72,6 +74,7 @@ Proof.
    norm.
 
 
+ (* New Region ************************)
  Case "EsNew".
   remember (TCon (TyConRegion (length sp))) as r.
   exists se.
@@ -104,6 +107,7 @@ Proof.
   burn.
 
 
+ (* Use Region ************************)
  Case "EsUse".
   spec IHHS H7.
   shift se'. shift e'.
@@ -116,6 +120,7 @@ Proof.
   rip.
 
 
+ (* Alloc store binding ***************)
  Case "EsAlloc".
   set (tRef' := tRef (TCon (TyConRegion r1)) t2).
   exists (tRef' <: se).
@@ -154,6 +159,7 @@ Proof.
    auto.
 
 
+ (* Read store binding ****************)
  Case "EsRead".
   exists se.
   exists (TBot KEffect).
@@ -164,6 +170,7 @@ Proof.
   admit.                                (* ok, has type via get ss/ get se *)
 
 
+ (* Write store binding ***************)
  Case "EsWrite".
   exists se.
   exists (TBot KEffect).
@@ -174,6 +181,7 @@ Proof.
   admit.                                (* updated store is typed under store env *)
 
 
+ (* Primitives ************************)
  Case "EsSucc".
   exists se.
   exists (TBot KEffect).
