@@ -18,35 +18,39 @@ Hint Unfold appkind.
 
 (* Kinds judgement assigns a kind to a type *)
 Inductive KIND : kienv -> ty -> ki -> Prop :=
-  | KICon
+  | KiCon
     :  forall ke tc k
     ,  k = kindOfTyCon tc
     -> KIND ke (TCon tc) k
 
-  | KIVar
+  | KiCap
+    :  forall ke n
+    ,  KIND ke (TCap (TyCapRegion n)) KRegion
+
+  | KiVar
     :  forall ke i k
     ,  get i ke = Some k
     -> KIND ke (TVar i) k
 
-  | KIForall
+  | KiForall
     :  forall ke k t
     ,  KIND (ke :> k) t             KData
     -> KIND ke        (TForall k t) KData
 
-  | KIApp 
+  | KiApp 
     :  forall ke t1 t2 k11 k12
     ,  appkind k12
     -> KIND ke t1 (KFun k11 k12)
     -> KIND ke t2 k11
     -> KIND ke (TApp t1 t2) k12
 
-  | KISum
+  | KiSum
     :  forall ke k t1 t2
     ,  sumkind k
     -> KIND ke t1 k -> KIND ke t2 k
     -> KIND ke (TSum t1 t2) k
 
-  | KIBot
+  | KiBot
     :  forall ke k
     ,  sumkind k
     -> KIND ke (TBot k) k.
@@ -59,6 +63,7 @@ Ltac inverts_kind :=
  repeat 
   (match goal with 
    | [ H: KIND _ (TCon _)    _   |- _ ] => inverts H
+   | [ H: KIND _ (TCap _)    _   |- _ ] => inverts H
    | [ H: KIND _ (TVar _)    _   |- _ ] => inverts H
    | [ H: KIND _ (TForall _ _) _ |- _ ] => inverts H
    | [ H: KIND _ (TApp _ _) _    |- _ ] => inverts H
@@ -107,17 +112,18 @@ Hint Resolve kind_wfT_Forall2.
 Lemma kind_region
  :  forall t
  ,  KIND nil t KRegion
- -> (exists n, t = TCon (TyConRegion n)).
+ -> (exists n, t = TCap (TyCapRegion n)).
 Proof.
  intros.
  destruct t; burn.
+  inverts H. 
+   destruct t; burn.
+
+  inverts H. burn.
 
   inverts H.
-  destruct t; burn.
-
-  inverts H.
-  unfold appkind in *.
-  false. auto.
+   unfold appkind in *.
+   false. auto.
 Qed.
 Hint Resolve kind_region.
 
@@ -152,7 +158,7 @@ Proof.
   lift_cases; intros; norm; auto.
 
  Case "TForall".
-  apply KIForall.
+  apply KiForall.
   rewrite insert_rewind. auto.
 Qed.
 

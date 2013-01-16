@@ -39,7 +39,7 @@ Hint Unfold WfS.
 Lemma closedT_tRef
  :  forall r1 t2
  ,  closedT t2
- -> closedT (tRef (TCon (TyConRegion r1)) t2).
+ -> closedT (tRef (TCap (TyCapRegion r1)) t2).
 Proof. 
  intros.
  unfold tRef. auto.
@@ -67,10 +67,10 @@ Lemma storet_snoc
  :  forall se sp ss r1 v1 t2
  ,  TYPEV  nil nil se sp v1 t2
  -> STORET                                     se  sp                   ss
- -> STORET (tRef (TCon (TyConRegion r1)) t2 <: se) sp (StValue r1 v1 <: ss).
+ -> STORET (tRef (TCap (TyCapRegion r1)) t2 <: se) sp (StValue r1 v1 <: ss).
 Proof.
  intros.
- set (tRef' := tRef (TCon (TyConRegion r1)) t2).
+ set (tRef' := tRef (TCap (TyCapRegion r1)) t2).
 
  assert (TYPEB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
   apply TbValue.
@@ -105,7 +105,7 @@ Hint Resolve storet_snoc.
 Lemma storet_get_typev
  :  forall se sp ss ix r v t
  ,  STORET se sp ss
- -> get ix se = Some (tRef (TCon (TyConRegion r)) t)
+ -> get ix se = Some (tRef (TCap (TyCapRegion r)) t)
  -> get ix ss = Some (StValue r v)
  -> TYPEV nil nil se sp v t.
 Proof.
@@ -121,7 +121,7 @@ Qed.
 Lemma store_update_wf
  :  forall se sp ss l r v t
  ,  WfS se sp ss
- -> get l se = Some (tRef (TCon (TyConRegion r)) t)
+ -> get l se = Some (tRef (TCap (TyCapRegion r)) t)
  -> TYPEV nil nil se sp v t
  -> WfS se sp (update l (StValue r v) ss).
 Proof.

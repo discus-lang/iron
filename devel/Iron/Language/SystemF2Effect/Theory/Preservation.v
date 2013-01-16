@@ -76,7 +76,7 @@ Proof.
 
  (* New Region ************************)
  Case "EsNew".
-  remember (TCon (TyConRegion (length sp))) as r.
+  remember (TCap (TyCapRegion (length sp))) as r.
   exists se.
   exists e.
   rip.
@@ -122,7 +122,7 @@ Proof.
 
  (* Alloc store binding ***************)
  Case "EsAlloc".
-  set (tRef' := tRef (TCon (TyConRegion r1)) t2).
+  set (tRef' := tRef (TCap (TyCapRegion r1)) t2).
   exists (tRef' <: se).
   exists (TBot KEffect).
   inverts HH. rip.
@@ -148,10 +148,10 @@ Proof.
    inverts_kind.
    rrwrite (length ss = length se).
     auto.
-   apply KIApp with (k11 := KData).
+   apply KiApp with (k11 := KData).
     unfold appkind. burn.
     
-   apply KIApp with (k11 := KRegion).
+   apply KiApp with (k11 := KRegion).
     unfold appkind. burn.
     auto. auto.
 

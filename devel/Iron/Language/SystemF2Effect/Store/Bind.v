@@ -16,7 +16,7 @@ Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
  | TbValue
    :  forall ke te se sp n v t
    ,  TYPEV  ke te se sp v t
-   -> TYPEB  ke te se sp (StValue n v) (tRef (TCon (TyConRegion n)) t).
+   -> TYPEB  ke te se sp (StValue n v) (tRef (TCap (TyCapRegion n)) t).
 Hint Constructors TYPEB.
 
 

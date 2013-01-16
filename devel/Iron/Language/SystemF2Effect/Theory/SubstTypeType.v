@@ -25,17 +25,17 @@ Proof.
    inverts H4. auto.
 
   SCase "n < ix".
-   apply KIVar. rewrite <- H4.
+   apply KiVar. rewrite <- H4.
    apply get_delete_above; auto.
 
   SCase "n > ix".
-   apply KIVar. rewrite <- H4.
+   apply KiVar. rewrite <- H4.
    destruct n.
     burn.
     simpl. nnat. apply get_delete_below. omega.
 
  Case "TForall".
-  apply KIForall.
+  apply KiForall.
   rewrite delete_rewind.
   eapply IHt1; eauto.
    apply kind_kienv_weaken; auto.
@@ -67,10 +67,16 @@ Proof.
  induction t1; intros; simpl.
 
  Case "TCon".
+  inverts_kind. 
+  norm.
+  destruct t2; burn.
+  inverts H. eauto.
+
+ Case "TCap".
   inverts_kind.
   norm.
-  destruct t2; burn. inverts H.
-  eauto.
+  destruct t2; burn.
+  inverts H. eauto.
 
  Case "TVar".
   inverts_kind.
@@ -82,7 +88,7 @@ Proof.
 
    SCase "n < ix".
     inverts H.
-    eapply KIVar.
+    eapply KiVar.
     norm.
     symmetry in HeqX.
     apply nat_compare_lt in HeqX.
@@ -90,7 +96,7 @@ Proof.
 
    SCase "n > ix".
     inverts H.
-    eapply KIVar.
+    eapply KiVar.
     rewrite <- H3.
     symmetry in HeqX.
     apply nat_compare_gt in HeqX.
@@ -103,7 +109,7 @@ Proof.
   remember (lowerTT (S ix) t1) as X.
   destruct X.
    inverts H.
-   eapply KIForall.
+   eapply KiForall.
    rewrite delete_rewind. eauto.
    false.
 

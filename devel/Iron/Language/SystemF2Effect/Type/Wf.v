@@ -6,14 +6,18 @@ Require Export Iron.Language.SystemF2Effect.Type.Ty.
 (********************************************************************)
 (* Well formed types are closed under the given kind environment. *)
 Inductive wfT (kn: nat) : ty -> Prop :=
+ | WfT_TCon
+   :  forall tc
+   ,  wfT kn (TCon tc)
+
+ | WfT_TCap
+   :  forall tc
+   ,  wfT kn (TCap tc)
+
  | WfT_TVar 
    :  forall ki
    ,  ki < kn
    -> wfT kn (TVar ki)
-
- | WfT_TCon
-   :  forall n
-   ,  wfT kn (TCon n)
 
  | WfT_TForall
    :  forall k t
@@ -98,6 +102,9 @@ Proof.
  intros.
  induction t1.
  Case "TCon".
+  exists 0. auto.
+
+ Case "TCap".
   exists 0. auto.
 
  Case "TVar".

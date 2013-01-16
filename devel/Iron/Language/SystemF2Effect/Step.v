@@ -42,7 +42,7 @@ Inductive
  | EsNew
    :  forall ss sp x
    ,  STEP ss sp              (XNew x) 
-           ss (SRegion <: sp) (XUse (length sp) (substTX 0 (TCon (TyConRegion (length sp))) x))
+           ss (SRegion <: sp) (XUse (length sp) (substTX 0 (TCap (TyCapRegion (length sp))) x))
 
  (* Evaluation with a region. *)
  | EsUse
@@ -62,20 +62,20 @@ Inductive
  (* Allocate a reference. *) 
  | EsAlloc
    :  forall ss sp r1 v1
-   ,  STEP ss                    sp (XAlloc (TCon (TyConRegion r1)) v1)
+   ,  STEP ss                    sp (XAlloc (TCap (TyCapRegion r1)) v1)
            (StValue r1 v1 <: ss) sp (XVal (VLoc (length ss)))
 
  (* Read from a reference. *)
  | EsRead
    :  forall ss sp l v r
    ,  get l ss = Some (StValue r v)
-   -> STEP ss sp    (XRead (TCon (TyConRegion r)) (VLoc l)) 
+   -> STEP ss sp    (XRead (TCap (TyCapRegion r)) (VLoc l)) 
            ss sp    (XVal v)
 
  (* Write to a reference. *)
  | EsWrite 
    :  forall ss sp l r v
-   ,  STEP ss sp    (XWrite (TCon (TyConRegion r)) (VLoc l) v)
+   ,  STEP ss sp    (XWrite (TCap (TyCapRegion r)) (VLoc l) v)
            (update l (StValue r v) ss) sp (XVal (VConst CUnit))
 
  (* Take the successor of a natural. *)

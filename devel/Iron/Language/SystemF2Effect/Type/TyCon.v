@@ -12,9 +12,6 @@ Inductive tycon : Type :=
   | TyConNat    : tycon
   | TyConRef    : tycon
 
-  (* Region handles. *)
-  | TyConRegion : nat   -> tycon
-
   (* Effect type constructors *)
   | TyConRead   : tycon
   | TyConWrite  : tycon
@@ -30,8 +27,6 @@ Fixpoint kindOfTyCon (tc : tycon) :=
   | TyConNat      => KData
   | TyConRef      => KFun KRegion (KFun KData KData)
     
-  | TyConRegion _ => KRegion
-    
   | TyConRead     => KFun KRegion KEffect
   | TyConWrite    => KFun KRegion KEffect
   | TyConAlloc    => KFun KRegion KEffect
@@ -45,8 +40,6 @@ Fixpoint tycon_beq t1 t2 :=
   | TyConBool,      TyConBool      => true
   | TyConNat,       TyConNat       => true
   | TyConRef,       TyConRef       => true
-
-  | TyConRegion n1, TyConRegion n2 => beq_nat n1 n2
 
   | TyConRead,      TyConRead      => true
   | TyConWrite,     TyConWrite     => true

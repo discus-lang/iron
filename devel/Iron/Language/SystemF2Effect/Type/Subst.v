@@ -9,6 +9,9 @@ Require Import Iron.Language.SystemF2Effect.Type.Lower.
 (* Substitution of Types in Types. *)
 Fixpoint substTT (d: nat) (u: ty) (tt: ty) : ty 
  := match tt with
+    | TCon _      => tt
+    | TCap _      => tt
+ 
     | TVar ix
     => match nat_compare ix d with
        | Eq => u
@@ -16,7 +19,6 @@ Fixpoint substTT (d: nat) (u: ty) (tt: ty) : ty
        | _  => TVar  ix
        end
 
-    |  TCon _      => tt
     |  TForall k t => TForall k (substTT (S d) (liftTT 1 0 u) t)
     |  TApp t1 t2  => TApp      (substTT d u t1) (substTT d u t2)
     |  TSum t1 t2  => TSum      (substTT d u t1) (substTT d u t2)
@@ -297,6 +299,9 @@ Proof.
  induction t1; intros; simpl in *; burn.
 
  Case "TCon".
+  congruence.
+
+ Case "TCap".
   congruence.
 
  Case "TVar".

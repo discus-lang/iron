@@ -1,12 +1,14 @@
 
 Require Export Iron.Language.SystemF2Effect.Kind.
 Require Export Iron.Language.SystemF2Effect.Type.TyCon.
+Require Export Iron.Language.SystemF2Effect.Type.TyCap.
 
 
 (********************************************************************)
 (* Type Expressions. *)
 Inductive ty  : Type :=
  | TCon      : tycon -> ty
+ | TCap      : tycap -> ty
  | TVar      : nat   -> ty
  | TForall   : ki    -> ty -> ty
  | TApp      : ty    -> ty -> ty
@@ -38,11 +40,11 @@ Inductive EquivT : ty -> ty -> Prop :=
 
  | EqSym
    : forall t1 t2
-   , EquivT t1 t2 -> EquivT t2 t1
+   , EquivT t1 t2 -> EquivT t2 t1    (* TODO: get this from Refl *)
 
  | EqTrans
    : forall t1 t2 t3
-   , EquivT t1 t2 -> EquivT t2 t3
+   , EquivT t1 t2 -> EquivT t2 t3    (* TODO: get this from Refl *)
   -> EquivT t1 t3
 
  | EqSumSym

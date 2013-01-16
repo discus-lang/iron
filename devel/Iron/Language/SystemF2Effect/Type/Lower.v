@@ -7,14 +7,15 @@ Require Import Iron.Language.SystemF2Effect.Type.Lift.
 (* Lowering of indices in types. *)
 Fixpoint lowerTT (d: nat) (tt: ty) : option ty 
  := match tt with
-    | TVar ix
+    |  TCon _      => Some tt
+    |  TCap _      => Some tt
+
+    |  TVar ix
     => match nat_compare ix d with
        | Eq => None
        | Gt => Some (TVar (ix - 1))
        | _  => Some (TVar  ix)
        end
-
-    |  TCon _      => Some tt
 
     |  TForall k t 
     => match lowerTT (S d) t with

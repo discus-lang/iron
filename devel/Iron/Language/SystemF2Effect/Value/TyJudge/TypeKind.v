@@ -18,13 +18,13 @@ Proof.
  Case "VLam".
   unfold tFun.
   lets D: IHv H8. rip.
-   eapply KIApp.
+   eapply KiApp.
     unfold appkind. burn.
-    eapply KIApp.
+    eapply KiApp.
     unfold appkind. burn.
-    eapply KIApp.
+    eapply KiApp.
     unfold appkind. burn.
-    eapply KICon. simpl. eauto.
+    eapply KiCon. simpl. eauto.
   auto. auto. auto.
 
  Case "VLAM".
@@ -72,15 +72,15 @@ Proof.
 
  Case "XAlloc". 
   unfold tRef. rip.
-  eapply KIApp. unfold appkind. burn.
-  eapply KIApp. unfold appkind. burn.
-  eapply KICon. simpl. eauto.
+  eapply KiApp. unfold appkind. burn.
+  eapply KiApp. unfold appkind. burn.
+  eapply KiCon. simpl. eauto.
   auto.
   spec IHv H9. auto.
   unfold tAlloc in *.
-  eapply KIApp.
+  eapply KiApp.
   unfold appkind; burn.
-  eapply KICon; burn.
+  eapply KiCon; burn.
   auto.
 
  Case "XRead".
@@ -94,17 +94,17 @@ Proof.
   inverts H3.
   rip.
   unfold tRead.
-  eapply KIApp.
+  eapply KiApp.
   unfold appkind; burn.
-  eapply KICon; burn.
+  eapply KiCon; burn.
   auto.
 
  Case "XWrite".
   unfold tUnit. rip. 
   unfold tWrite. 
-  eapply KIApp.
+  eapply KiApp.
    unfold appkind; burn.
-   eapply KICon; burn. auto.
+   eapply KiCon; burn. auto.
 
  Case "XSucc".
   unfold tNat. rip.

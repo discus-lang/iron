@@ -61,7 +61,7 @@ Proof.
   inverts_type.
   exists ss.
   exists (SRegion <: sp).
-  exists (XUse (length sp) (substTX 0 (TCon (TyConRegion (length sp))) x)).
+  exists (XUse (length sp) (substTX 0 (TCap (TyCapRegion (length sp))) x)).
   eauto.
 
  Case "XUse".
@@ -84,7 +84,7 @@ Proof.
  Case "XAlloc".
   right.
   inverts_type.
-  have HR: (exists n, t = TCon (TyConRegion n)).
+  have HR: (exists n, t = TCap (TyCapRegion n)).
   destruct HR as [n].
   exists (StValue n v <: ss).
   exists sp.
@@ -96,7 +96,7 @@ Proof.
   right.
   inverts_type.
 
-  have HR: (exists n, t = TCon (TyConRegion n)).
+  have HR: (exists n, t = TCap (TyCapRegion n)).
    dest n. subst.
 
   assert (exists l, v = VLoc l) as HL.
@@ -113,7 +113,7 @@ Proof.
 
   unfold STORET in *.
   destruct v.
-  have HB: (TYPEB nil nil se sp (StValue n0 v) (tRef (TCon (TyConRegion n)) t0))
+  have HB: (TYPEB nil nil se sp (StValue n0 v) (tRef (TCap (TyCapRegion n)) t0))
    by (eapply Forall2_get_get_same; eauto).
   inverts HB.
   exists (XVal v).
@@ -122,7 +122,7 @@ Proof.
  Case "XWrite".
   right.
   inverts_type.
-  have HR: (exists n, t = TCon (TyConRegion n)).
+  have HR: (exists n, t = TCap (TyCapRegion n)).
    dest n. subst.
   destruct v; burn.
   destruct c; nope.
