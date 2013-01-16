@@ -291,3 +291,50 @@ Proof.
   burn.
 Qed.
 
+
+(********************************************************************)
+Lemma lowerTT_substTT
+ :  forall ix t1 t1' t2
+ ,  lowerTT ix    t1 = Some t1'
+ -> substTT ix t2 t1 = t1'.
+Proof.
+ intros. gen ix t2 t1'.
+ induction t1; intros; simpl in *; burn.
+
+ Case "TCon".
+  congruence.
+
+ Case "TVar".
+  fbreak_nat_compare; try congruence; burn.
+
+ Case "TForall".
+  remember (lowerTT (S ix) t1) as X.
+  destruct X; nope.
+   symmetry in HeqX.
+   spec IHt1 HeqX.
+   erewrite IHt1. congruence.
+
+ Case "TApp".
+  remember (lowerTT ix t1_1) as X.
+  destruct X; nope. symmetry in HeqX.
+   remember (lowerTT ix t1_2) as X.
+   destruct X; nope. symmetry in HeqX0.
+    spec IHt1_1 HeqX.
+    spec IHt1_2 HeqX0.
+    repeat rewritess. congruence.
+
+ Case "TSum".
+  remember (lowerTT ix t1_1) as X.
+  destruct X; nope. symmetry in HeqX.
+   remember (lowerTT ix t1_2) as X.
+   destruct X; nope. symmetry in HeqX0.
+    spec IHt1_1 HeqX.
+    spec IHt1_2 HeqX0.
+    repeat rewritess. congruence.
+
+ Case "TBot".
+  congruence.
+Qed.
+Hint Resolve lowerTT_substTT.
+Hint Rewrite lowerTT_substTT : global.
+

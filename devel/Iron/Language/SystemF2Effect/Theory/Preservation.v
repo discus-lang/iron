@@ -99,12 +99,9 @@ Proof.
 
   rrwrite (substTE 0 r nil = nil).
   rrwrite (substTE 0 r se  = se).
-
-  have ST: (substTT 0 r t0  = t) by admit. (* ok, no free var 0 due to lowerTT 0 t0 = Some t *)
-  have SE: (substTT 0 r e0  = e) by admit. (* likewise *)
-  rewrite ST in H5.
-  rewrite SE in H5.
-  eauto.
+  rrwrite (substTT 0 r t0 = t) in H5.
+  rrwrite (substTT 0 r e0 = e) in H5.
+  burn.
 
 
  Case "EsUse".

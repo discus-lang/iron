@@ -150,7 +150,7 @@ Qed.
 Hint Rewrite lowerTT_some_liftTT. 
 Hint Resolve lowerTT_some_liftTT.
 
-(*
+
 Lemma lowerTT_liftTT
  : forall ix t
  , lowerTT ix (liftTT 1 (S ix) (liftTT 1 ix t)) 
@@ -167,4 +167,5 @@ Proof.
     simpl; lift_cases; burn; omega.
 Qed.  
 Hint Rewrite lowerTT_liftTT.
-*)
+
+
