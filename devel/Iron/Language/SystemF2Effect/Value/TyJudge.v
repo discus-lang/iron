@@ -34,7 +34,6 @@ Inductive
     ,  get i se = Some (tRef r t)
     -> KIND   ke sp       (tRef r t) KData       
     -> TYPEV  ke te se sp (VLoc i)   (tRef r t)
-    (* TODO: ensure the region is in the props *)
 
   (* Value abstraction.
      The body is checked in an environment extended with the type of

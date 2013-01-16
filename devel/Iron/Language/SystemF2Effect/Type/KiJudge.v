@@ -26,7 +26,8 @@ Inductive KIND : kienv -> stprops -> ty -> ki -> Prop :=
 
   | KiCap
     :  forall ke sp n
-    ,  KIND ke sp (TCap (TyCapRegion n)) KRegion
+    ,  In (SRegion n) sp
+    -> KIND ke sp (TCap (TyCapRegion n)) KRegion
 
   | KiVar
     :  forall ke sp i k

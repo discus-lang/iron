@@ -93,10 +93,10 @@ Proof.
   rrwrite (liftTE 0 nil = nil).
   rrwrite (liftTE 0 se  = se).
 
-  have   (KIND nil sp r KRegion)
+  have   (KIND nil (SRegion (length sp) <: sp) r KRegion)
    by (subst; eauto).
 
-  have   (TYPEX nil (substTE 0 r nil) (substTE 0 r se) sp
+  have   (TYPEX nil (substTE 0 r nil) (substTE 0 r se) (SRegion (length sp) <: sp)
                     (substTX 0 r x)   (substTT 0 r t0) (substTT 0 r e0))
    by (eapply subst_type_exp; eauto).
 
