@@ -71,7 +71,7 @@ Proof.
 Qed.
 
 
-Lemma liftTT_maskOnCAp
+Lemma liftTT_maskOnCap
  :  forall r d t
  ,  maskOnCap r (liftTT 1 d t) = liftTT 1 d (maskOnCap r t).
 Proof.

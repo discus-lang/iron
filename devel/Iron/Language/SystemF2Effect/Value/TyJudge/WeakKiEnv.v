@@ -104,7 +104,11 @@ Proof.
    auto.
 
  Case "XUse".
-  admit.              (* fix XUse case *)
+  simpl.
+  eapply TxUse.
+  rewrite liftTT_maskOnCap.
+  eauto.
+  eauto.
 
  Case "XAlloc".
   eapply TxOpAlloc; eauto using kind_kienv_insert.
