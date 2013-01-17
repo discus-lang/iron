@@ -61,16 +61,10 @@ Proof.
   eapply subst_type_type; eauto.
  
  Case "XNew".
-  admit.                      (* need mask cap lemma *)
-
-(*
-  eapply IHv in H7.
-  rip.
+  spec IHv H7. rip.
   eapply lower_type_type_snoc; eauto.
   eapply lower_type_type_snoc; eauto.
-  skip.
-       ok mask doesn't change kind of result
-*)
+  eapply maskOnVar_kind. eauto.
 
  Case "XUse".
   eapply IHv in H9.

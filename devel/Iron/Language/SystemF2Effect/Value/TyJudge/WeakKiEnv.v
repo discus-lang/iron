@@ -1,7 +1,7 @@
 
 Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
 Require Import Iron.Language.SystemF2Effect.Type.Lower.
-Require Import Iron.Language.SystemF2Effect.Type.Mask.
+Require Import Iron.Language.SystemF2Effect.Type.MaskOnVar.
 
 
 (* Weakening Kind Env in Type Judgement. *)
@@ -91,7 +91,7 @@ Proof.
    eapply lowerTT_liftTT_succ. auto.
 
    rrwrite (S ix = 1 + (0 + ix)).   
-   rewrite liftTT_mask.
+   rewrite liftTT_maskOnVar.
    eapply lowerTT_liftTT_succ. auto.  
 
    rewrite insert_rewind.
@@ -99,7 +99,7 @@ Proof.
    rewrite (liftTE_liftTE 0 ix).
    eapply IHx1.
    have (liftTT 1 0 t1 = t).
-   have (liftTT 1 0 e1 = mask 0 e).
+   have (liftTT 1 0 e1 = maskOnVar 0 e).
    repeat rewritess.
    auto.
 
