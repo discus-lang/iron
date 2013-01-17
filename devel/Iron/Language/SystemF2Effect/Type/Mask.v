@@ -8,9 +8,8 @@ Fixpoint liftTT_var (n : nat) (d : nat) (ix : nat)
      then ix + n
      else ix.
 
-
 (* Mask effects on the given region, 
-   replacing with the bottom effect. *)   (** TODO: let it take the region TCap as well *)
+   replacing with the bottom effect. *)
 Fixpoint mask (r : nat) (e : ty) : ty
  := match e with
     |  TVar tc       => TVar tc
