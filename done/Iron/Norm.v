@@ -38,5 +38,60 @@ Ltac lift_burn t
           (* try to apply rewrites from the hypotheses *)    
           | repeat rewritess ].
 
+
+Ltac norm_inverts_option := 
+ match goal with 
+ | [H : Some _ = Some _ |- _] => inverts H
+ | [H : Some _ = None   |- _] => inverts H
+ | [H : None   = Some _ |- _] => inverts H
+ end.
+
+
+Ltac norm_nat_compare :=
+  match goal with 
+  (* Equality *)
+  | [ H: nat_compare _ _ = Eq           |- _ ]
+    => apply nat_compare_eq in H
+
+  | [ H: Eq = nat_compare _ _           |- _ ]
+    => symmetry in H; apply nat_compare_eq in H
+
+  | [ H: context [nat_compare _ _ = Eq] |- _ ]
+    => rewrite <- nat_compare_eq in H
+
+  | [ H: context [Eq = nat_compare _ _] |- _ ]
+    => symmetry in H; rewrite <- nat_compare_eq in H
+
+
+  (* Less Than *)
+  | [ H: nat_compare _ _ = Lt           |- _ ]
+    => apply nat_compare_lt in H
+
+  | [ H: Lt = nat_compare _ _           |- _ ]
+    => symmetry in H; apply nat_compare_lt in H
+
+  | [ H: context [Lt = nat_compare _ _] |- _ ]
+    => symmetry in H; rewrite <- nat_compare_lt in H
+
+  | [ H: context [nat_compare _ _ = Lt] |- _ ]
+    => rewrite <- nat_compare_lt in H
+
+
+  (* Greather Than *)
+  | [ H: nat_compare _ _ = Gt           |- _ ]
+    => apply nat_compare_gt in H
+
+  | [ H: Gt = nat_compare _ _           |- _ ]
+    => symmetry in H; apply nat_compare_gt in H
+
+  | [ H: context [Gt = nat_compare _ _] |- _ ]
+    => symmetry in H; rewrite <- nat_compare_gt in H
+
+  | [ H: context [nat_compare _ _ = Gt] |- _ ]
+    => rewrite <- nat_compare_gt in H
+  end.
+
+
 Tactic Notation "nnat"    := norm_nat.
 Tactic Notation "nforall" := norm_lists.
+

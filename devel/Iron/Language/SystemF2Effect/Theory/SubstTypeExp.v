@@ -86,7 +86,8 @@ Proof.
    rrwrite (ix = 0 + ix).
    eapply lowerTT_substTT_liftTT. auto.
    rrwrite (ix = 0 + ix).
-   eapply lowerTT_substTT_liftTT. auto.
+   admit.                                     (* need mask/subst *)
+
   rewrite delete_rewind.
   rewrite (liftTE_substTE 0 ix).
   rewrite (liftTE_substTE 0 ix).

@@ -103,7 +103,8 @@ Proof.
   rrwrite (substTE 0 r nil = nil).
   rrwrite (substTE 0 r se  = se).
   rrwrite (substTT 0 r t0 = t) in H5.
-  rrwrite (substTT 0 r e0 = e) in H5.
+  admit.                                 (* subst into effects under masking *)
+(*  rrwrite (substTT 0 r e0 = e) in H5. *)
   burn.
 
 
@@ -146,15 +147,9 @@ Proof.
   apply TvLoc.
    unfold tRef'. 
    inverts_kind.
-   rrwrite (length ss = length se).
-    auto.
-   apply KiApp with (k11 := KData).
-    unfold appkind. burn.
-    
-   apply KiApp with (k11 := KRegion).
-    unfold appkind. burn.
-    auto. auto.
-
+   rrwrite (length ss = length se). auto.
+   unfold tRef in *.
+   eapply KiCon2. norm. auto. 
    apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).
    auto.
 

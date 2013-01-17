@@ -39,6 +39,14 @@ Proof.
   rewrite delete_rewind.
   eapply IHt1; eauto.
    apply kind_kienv_weaken; auto.
+
+ Case "TCon2".
+  eapply KiCon2.
+  destruct tc. simpl in *. inverts H4.
+  destruct t.  simpl in *. eauto.
+  eauto.
+  destruct tc. simpl in *. inverts H4.
+  eauto.
 Qed.
 
 
@@ -66,18 +74,6 @@ Proof.
  intros. gen ix ke sp k1 t2.
  induction t1; intros; simpl.
 
- Case "TCon".
-  inverts_kind. 
-  norm.
-  destruct t2; burn.
-  inverts H. eauto.
-
- Case "TCap".
-  inverts_kind.
-  norm.
-  destruct t2; burn.
-  inverts H. eauto.
-
  Case "TVar".
   inverts_kind.
   simpl in H.
@@ -87,19 +83,11 @@ Proof.
     nope.
 
    SCase "n < ix".
-    inverts H.
-    eapply KiVar.
-    norm.
-    symmetry in HeqX.
-    apply nat_compare_lt in HeqX.
-    burn.
+    norm. eapply KiVar. burn.
 
    SCase "n > ix".
-    inverts H.
-    eapply KiVar.
+    norm. eapply KiVar.
     rewrite <- H4.
-    symmetry in HeqX.
-    apply nat_compare_gt in HeqX.
     destruct n.
      simpl. burn.
      simpl. norm. eapply get_delete_below. omega.
@@ -132,9 +120,33 @@ Proof.
    nope. nope.
 
  Case "TBot".
+  inverts_kind. norm. auto.
+
+ Case "TCon0".
+  inverts_kind. norm. 
+  destruct t; burn.
+ 
+ Case "TCon1".
   inverts_kind. norm.
-  inverts H.
-  auto.
+  break (lowerTT ix t1).
+  norm.
+  spec IHt1 H7. eauto.
+  nope.
+
+ Case "TCon2".
+  inverts_kind. norm.
+  break (lowerTT ix t1_1).
+  break (lowerTT ix t1_2).
+  norm.
+  spec IHt1_1 H6. symmetry in HeqX.
+  spec IHt1_1 HeqX.
+   eapply KiCon2. eauto.
+   destruct tc; destruct t; eauto. auto. auto.
+   nope. nope.
+
+ Case "TCap".
+  inverts_kind.
+  norm. burn.
 Qed.
 
 

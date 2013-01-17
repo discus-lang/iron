@@ -116,19 +116,15 @@ Inductive
   | TxNew
     :  forall ke te se sp x t tL e eL
     ,  lowerTT 0 t = Some tL
-    -> lowerTT 0 e = Some eL
+    -> lowerTT 0 (mask 0 e) = Some eL
     -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x        t  e
     -> TYPEX ke              te             se           sp (XNew x) tL eL
-    (* TODO: As it stands this should be sound and go through the proof,
-             but need to cut effects on new region from 'e' before lowering
-             otherwise the body can't actually use the new region *)
 
   (* Evaluation in the context of a local region. *)
   | TxUse
     :  forall ke te se sp n x t e
     ,  TYPEX  ke te se sp x t e
-    -> TYPEX  ke te se sp (XUse n x) t e
-    (* TODO: cut effects due to the bound region variable *)
+    -> TYPEX  ke te se sp (XUse n x) t e (* (mask (TCap (TyCapRegion n)) e) *)
 
   (* Allocate a new heap binding. *)
   | TxOpAlloc 

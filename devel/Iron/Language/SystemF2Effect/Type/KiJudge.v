@@ -19,16 +19,6 @@ Hint Unfold appkind.
 
 (* Kinds judgement assigns a kind to a type *)
 Inductive KIND : kienv -> stprops -> ty -> ki -> Prop :=
-  | KiCon
-    :  forall ke sp tc k
-    ,  k = kindOfTyCon tc
-    -> KIND ke sp (TCon tc) k
-
-  | KiCap
-    :  forall ke sp n
-    ,  In (SRegion n) sp
-    -> KIND ke sp (TCap (TyCapRegion n)) KRegion
-
   | KiVar
     :  forall ke sp i k
     ,  get i ke = Some k
@@ -55,7 +45,30 @@ Inductive KIND : kienv -> stprops -> ty -> ki -> Prop :=
   | KiBot
     :  forall ke sp k
     ,  sumkind k
-    -> KIND ke sp (TBot k) k.
+    -> KIND ke sp (TBot k) k
+
+  | KiCon0
+    :  forall ke sp tc k
+    ,  k = kindOfTyCon0 tc
+    -> KIND ke sp (TCon0 tc) k
+
+  | KiCon1 
+    :  forall ke sp tc t1 k1 k
+    ,  KFun k1 k = kindOfTyCon1 tc
+    -> KIND ke sp t1 k1
+    -> KIND ke sp (TCon1 tc t1) k
+
+  | KiCon2 
+    :  forall ke sp tc t1 t2 k1 k2 k
+    ,  KFun k1 (KFun k2 k) = kindOfTyCon2 tc
+    -> KIND ke sp t1 k1
+    -> KIND ke sp t2 k2
+    -> KIND ke sp (TCon2 tc t1 t2) k
+
+  | KiCap
+    :  forall ke sp n
+    ,  In (SRegion n) sp
+    -> KIND ke sp (TCap (TyCapRegion n)) KRegion.
 
 Hint Constructors KIND.
 
@@ -64,13 +77,15 @@ Hint Constructors KIND.
 Ltac inverts_kind :=
  repeat 
   (match goal with 
-   | [ H: KIND _ _ (TCon _)    _   |- _ ] => inverts H
-   | [ H: KIND _ _ (TCap _)    _   |- _ ] => inverts H
-   | [ H: KIND _ _ (TVar _)    _   |- _ ] => inverts H
-   | [ H: KIND _ _ (TForall _ _) _ |- _ ] => inverts H
-   | [ H: KIND _ _ (TApp _ _) _    |- _ ] => inverts H
-   | [ H: KIND _ _ (TSum _ _) _    |- _ ] => inverts H
-   | [ H: KIND _ _ (TBot _ ) _     |- _ ] => inverts H
+   | [ H: KIND _ _ (TVar _)      _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TForall _ _) _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TApp _ _)    _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TSum _ _)    _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TBot _ )     _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TCon0 _)     _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TCon1 _ _)   _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TCon2 _ _ _) _  |- _ ] => inverts H
+   | [ H: KIND _ _ (TCap _)      _  |- _ ] => inverts H
    end).
 
 
@@ -118,14 +133,25 @@ Lemma kind_region
 Proof.
  intros.
  destruct t; burn.
-  inverts H. 
-   destruct t; burn.
 
-  inverts H. burn.
-
-  inverts H.
-   unfold appkind in *.
+  Case "TApp".
+   inverts_kind.
    false. auto.
+
+  Case "TCon0".
+   destruct t; nope.
+
+  Case "TCon1".
+   destruct t; nope.
+
+  Case "TCon2".
+   destruct t1; nope.
+   inverts_kind.
+    destruct tc. simpl in *. nope.
+
+  Case "TCap".
+   destruct t.
+   exists n. auto.
 Qed.
 Hint Resolve kind_region.
 
@@ -162,6 +188,13 @@ Proof.
  Case "TForall".
   apply KiForall.
   rewrite insert_rewind. auto.
+
+ Case "TCon2".
+  eapply KiCon2.
+  destruct t1.
+   destruct tc. eauto.
+  destruct tc. eauto.
+  destruct tc. eauto.
 Qed.
 
 
@@ -185,5 +218,11 @@ Lemma kind_stprops_snoc
 Proof.
  intros. gen ke k.
  induction t; intros; inverts_kind; burn.
+
+ Case "TCon2".
+  destruct tc. norm. inverts H2. 
+  eapply KiCon2.
+  destruct t1. simpl in *. eauto.
+  eauto. eauto.
 Qed.  
   

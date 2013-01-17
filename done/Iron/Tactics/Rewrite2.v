@@ -15,10 +15,10 @@ Ltac down
 (* Apply all rewrites from the hypothesis. *)
 Ltac rewritess
  := match goal with
-    | [H: eq _ _               |- _ ] => rewrite H
-    | [H: forall _,     eq _ _ |- _ ] => rewrite H
-    | [H: forall _ _,   eq _ _ |- _ ] => rewrite H
-    | [H: forall _ _ _, eq _ _ |- _ ] => rewrite H
+    | [H: eq _ _               |- _ ] => rewrite H in *
+    | [H: forall _,     eq _ _ |- _ ] => rewrite H in *
+    | [H: forall _ _,   eq _ _ |- _ ] => rewrite H in *
+    | [H: forall _ _ _, eq _ _ |- _ ] => rewrite H in *
     end.
 
 

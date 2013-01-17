@@ -3,17 +3,8 @@ Require Export Iron.Language.SystemF2Effect.Kind.
 Require Export Iron.Language.SystemF2Effect.Type.Ty.
 
 
-(********************************************************************)
 (* Well formed types are closed under the given kind environment. *)
 Inductive wfT (kn: nat) : ty -> Prop :=
- | WfT_TCon
-   :  forall tc
-   ,  wfT kn (TCon tc)
-
- | WfT_TCap
-   :  forall tc
-   ,  wfT kn (TCap tc)
-
  | WfT_TVar 
    :  forall ki
    ,  ki < kn
@@ -36,7 +27,26 @@ Inductive wfT (kn: nat) : ty -> Prop :=
 
  | WfT_TBot
    :  forall k
-   ,  wfT kn (TBot k).
+   ,  wfT kn (TBot k)
+
+ | WfT_TCon0
+   :  forall tc
+   ,  wfT kn (TCon0 tc)
+
+ | WfT_TCon1 
+   :  forall tc t1
+   ,  wfT kn t1
+   -> wfT kn (TCon1 tc t1)
+
+ | WfT_TCon2 
+   :  forall tc t1 t2
+   ,  wfT kn t1 -> wfT kn t2
+   -> wfT kn (TCon2 tc t1 t2)
+
+ | WfT_TCap
+   :  forall tc
+   ,  wfT kn (TCap tc).
+
 Hint Constructors wfT.
 
 
@@ -46,6 +56,7 @@ Definition closedT : ty -> Prop
 Hint Unfold closedT.
 
 
+(* Type is well formed under an environment one element larger. *)
 Lemma wfT_succ
  :  forall tn t1
  ,  wfT tn     t1
@@ -57,6 +68,7 @@ Qed.
 Hint Resolve wfT_succ.
 
 
+(* Type is well formed under a larger environment. *)
 Lemma wfT_more
  :  forall tn1 tn2 tt
  ,  tn1 <= tn2
@@ -77,6 +89,7 @@ Qed.
 Hint Resolve wfT_more.
 
 
+(* Type is well formed under a larger environment. *)
 Lemma wfT_max
  :  forall tn1 tn2 tt
  ,  wfT tn1 tt
@@ -95,17 +108,14 @@ Qed.
 Hint Resolve wfT_max.
 
 
+(* For every type, there is an environment that it is well formed under. *)
 Lemma wfT_exists
  :  forall t1
  ,  (exists tn, wfT tn t1).
 Proof.
  intros.
- induction t1.
- Case "TCon".
-  exists 0. auto.
-
- Case "TCap".
-  exists 0. auto.
+ induction t1;
+  try (solve [exists 0; auto]).
 
  Case "TVar".
   exists (S n). eauto.
@@ -130,12 +140,22 @@ Proof.
    eauto.
    rewrite Max.max_comm. eauto.
 
- Case "TBot".
-  exists 0. auto.
+ Case "TCon1".
+  shift tn. auto.
+
+ Case "TCon2".
+  destruct IHt1_1 as [tn1].
+  destruct IHt1_2 as [tn2].
+  exists (max tn1 tn2).
+  eapply WfT_TCon2.
+   eauto.
+   rewrite Max.max_comm. auto.
 Qed.
 Hint Resolve wfT_exists.
 
 
+(* A type application constructed from well formed components is
+   itself well formed. *)
 Lemma makeTApps_wfT
  :  forall n t1 ts
  ,  wfT n t1 

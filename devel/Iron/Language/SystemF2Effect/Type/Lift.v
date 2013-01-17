@@ -7,17 +7,20 @@ Require Import Iron.Language.SystemF2Effect.Type.Wf.
 (* Lift type indices that are at least a certain depth. *)
 Fixpoint liftTT (n: nat) (d: nat) (tt: ty) : ty :=
  match tt with
- |  TCon _      => tt
- |  TCap _      => tt
  |  TVar ix
  => if le_gt_dec d ix
      then TVar (ix + n)
      else tt
 
- |  TForall k t => TForall k (liftTT n (S d) t)
- |  TApp t1 t2  => TApp      (liftTT n d t1) (liftTT n d t2)
- |  TSum t1 t2  => TSum      (liftTT n d t1) (liftTT n d t2)
- |  TBot k      => TBot k
+ |  TForall k t    => TForall k (liftTT n (S d) t)
+ |  TApp t1 t2     => TApp      (liftTT n d t1) (liftTT n d t2)
+ |  TSum t1 t2     => TSum      (liftTT n d t1) (liftTT n d t2)
+ |  TBot k         => TBot  k
+
+ |  TCon0 tc       => TCon0 tc
+ |  TCon1 tc t1    => TCon1 tc  (liftTT n d t1)
+ |  TCon2 tc t1 t2 => TCon2 tc  (liftTT n d t1) (liftTT n d t2)
+ |  TCap  _        => tt
  end.
 Hint Unfold liftTT.
 
@@ -30,12 +33,14 @@ Lemma liftTT_wfT
  -> wfT (S kn) (liftTT 1 d t).
 Proof.
  intros. gen kn d.
- lift_burn t; inverts H; burn.
- 
+
+ induction t; intros; eauto;
+  try (solve [simpl; inverts H; eauto]).
+
  Case "TVar".
   repeat (simpl; lift_cases). 
-   eapply WfT_TVar. omega.
-   eapply WfT_TVar. omega.
+   eapply WfT_TVar. inverts H. omega.
+   eapply WfT_TVar. inverts H. omega.
 Qed.
 Hint Resolve liftTT_wfT.
 
@@ -91,7 +96,9 @@ Lemma liftTT_wfT_1
  -> liftTT 1 (n + ix) t = t.
 Proof.
  intros. gen n ix.
- induction t; intros; inverts H; simpl; auto.
+ induction t; intros; inverts H; simpl; 
+  try burn;
+  try (solve [repeat (rewritess; burn)]).
 
   Case "TVar".
    lift_cases; burn; omega.
@@ -100,12 +107,6 @@ Proof.
    f_equal. spec IHt H1.
    rrwrite (S (n + ix) = S n + ix).
    burn.
-
-  Case "TApp".
-   repeat (rewritess; burn).
-
-  Case "TSum".
-   repeat (rewritess; burn).
 Qed.
 Hint Resolve liftTT_wfT_1.
 

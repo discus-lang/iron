@@ -19,7 +19,10 @@ Require Export Coq.Logic.FunctionalExtensionality.
 
 Tactic Notation "norm"
  := simpl in *; rip;
-    repeat (norm_nat; norm_lists);
+    repeat ( try norm_nat
+           ; try norm_nat_compare
+           ; try norm_lists
+           ; try norm_inverts_option);
     autorewrite with global in *.
 
 

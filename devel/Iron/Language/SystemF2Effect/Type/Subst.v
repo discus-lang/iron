@@ -9,20 +9,22 @@ Require Import Iron.Language.SystemF2Effect.Type.Lower.
 (* Substitution of Types in Types. *)
 Fixpoint substTT (d: nat) (u: ty) (tt: ty) : ty 
  := match tt with
-    | TCon _      => tt
-    | TCap _      => tt
- 
     | TVar ix
     => match nat_compare ix d with
-       | Eq => u
-       | Gt => TVar (ix - 1)
-       | _  => TVar  ix
+       | Eq          => u
+       | Gt          => TVar (ix - 1)
+       | _           => TVar  ix
        end
 
-    |  TForall k t => TForall k (substTT (S d) (liftTT 1 0 u) t)
-    |  TApp t1 t2  => TApp      (substTT d u t1) (substTT d u t2)
-    |  TSum t1 t2  => TSum      (substTT d u t1) (substTT d u t2)
-    |  TBot k      => TBot k
+    |  TForall k t   => TForall k (substTT (S d) (liftTT 1 0 u) t)
+    |  TApp t1 t2    => TApp      (substTT d u t1) (substTT d u t2)
+    |  TSum t1 t2    => TSum      (substTT d u t1) (substTT d u t2)
+    |  TBot k        => TBot k
+
+    | TCon0 tc       => TCon0 tc
+    | TCon1 tc t1    => TCon1 tc  (substTT d u t1)
+    | TCon2 tc t1 t2 => TCon2 tc  (substTT d u t1) (substTT d u t2)
+    | TCap _         => tt
   end.
 
 
@@ -36,8 +38,7 @@ Proof.
  induction t; rip; inverts H; simpl; f_equal; burn.
  Case "TVar".
   lift_cases; burn; omega.
-
- lets D: IHt H1. burn.
+  lets D: IHt H1. burn.
 Qed.
 Hint Resolve substTT_wfT.
 
@@ -159,108 +160,98 @@ Proof.
 
 
  Case "TVar".
-  simpl in *.
-  remember (nat_compare n d) as X.
-  destruct X; burn.
-
-  symmetry in HeqX. apply nat_compare_lt in HeqX. inverts H.
-  lift_cases;
-   repeat (norm; lift_cases; burn; try omega).
-
-  symmetry in HeqX. apply nat_compare_gt in HeqX. inverts H.
-  lift_cases;
-   repeat (norm; lift_cases; burn; try omega).
+  norm.
+  split_match; burn;
+   repeat (repeat norm_nat_compare; norm; lift_cases; burn; try omega).
 
 
  Case "TForall".
-  simpl.
-  simpl in H.
-  remember (lowerTT (S d) t1) as X.
-  destruct X.
-   inverts H.
-   symmetry in HeqX.
+  norm.
+  split_match; norm.
 
-  remember (lowerTT (S d) (substTT (S (S (d + d'))) (liftTT 1 0 (liftTT 1 d t2)) t1)) as X. 
-  destruct X.
+   (* Goal 7 *)
+   lets L: liftTT_liftTT 1 0 1 d t2.
+    rrwrite (d + 0 = d) in L.
+    rewrite L in HeqH0.
+    clear L.
+
+   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t0. 
+   symmetry in HeqH1. rip. clear IHt1. clear HeqH1.
+   norm.   
+   rewrite D in HeqH0.
+   norm. auto.
+
+   (* Goal 6 *)
+   rewrite <- HeqH1 in H2. nope.
 
    (* Goal 5 *)
-   norm. symmetry in HeqX0.
-   lets L: liftTT_liftTT 1 0 1 d t2. 
-   rrwrite (d + 0 = d) in L.
-   rewrite L in HeqX0. clear L.
-   norm.
-   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. rip. clear IHt1.
-   norm.
-
-   (* Goal 4 *)
-   norm. symmetry in HeqX0.
    lets L: liftTT_liftTT 1 0 1 d t2.
-   rrwrite (d + 0 = d) in L.
-   rewrite L in HeqX0. clear L.
-   norm.
-   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. rip. clear IHt1.
-   norm.
+    rrwrite (d + 0 = d) in L.
+    rewrite L in HeqH0. 
+    clear L.
+    norm.
 
-   (* Goal 3 *)
+   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. 
+   symmetry in HeqH1. rip. clear IHt1. clear HeqH1.
+   norm.
+   rewrite D in HeqH0.
    nope.
 
-
  Case "TApp".
-  simpl. norm.
-  remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_1)) as X1. destruct X1.
-   remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_2)) as X2. destruct X2.
-    remember (lowerTT d t1_1) as B1. destruct B1.
-    remember (lowerTT d t1_2) as B2. destruct B2.
-     inverts H.
-     erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
-     erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
-     simpl. eauto.
-     nope.
-     nope.
+  norm.
+  split_match; nope.
 
-    remember (lowerTT d t1_1) as B1. destruct B1.
-    remember (lowerTT d t1_2) as B2. destruct B2.
-    inverts H. simpl.
-    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
-    erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
-    nope.
-    nope.
+   erewrite IHt1_1 in *; eauto.
+   erewrite IHt1_2 in *; eauto.
+   repeat norm.
 
-    remember (lowerTT d t1_1) as B1. destruct B1.
-    remember (lowerTT d t1_2) as B2. destruct B2.
-    inverts H. simpl.
-    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
-    nope.
-    nope.
+   erewrite IHt1_1 in HeqH0. inverts HeqH0.
+   erewrite IHt1_2 in HeqH1. nope. 
+   eauto. eauto.
 
+   erewrite IHt1_1 in HeqH0.
+   nope.
+   eauto.
 
  Case "TSum".
-  simpl. norm.
-  remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_1)) as X1. destruct X1.
-   remember (lowerTT d (substTT (S (d + d')) (liftTT 1 d t2) t1_2)) as X2. destruct X2.
-    remember (lowerTT d t1_1) as B1. destruct B1.
-    remember (lowerTT d t1_2) as B2. destruct B2.
-     inverts H.
-     erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
-     erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
-     simpl. eauto.
-     nope.
-     nope.
+  norm.
+  split_match; nope.
 
-    remember (lowerTT d t1_1) as B1. destruct B1.
-    remember (lowerTT d t1_2) as B2. destruct B2.
-    inverts H. simpl.
-    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
-    erewrite IHt1_2 in HeqX2; eauto. inverts HeqX2.
-    nope.
-    nope.
+    erewrite IHt1_1 in *; eauto.
+    erewrite IHt1_2 in *; eauto.
+    repeat norm.   
+  
+    erewrite IHt1_1 in HeqH0. inverts HeqH0.
+    erewrite IHt1_2 in HeqH1. nope.
+    eauto. eauto.
 
-    remember (lowerTT d t1_1) as B1. destruct B1.
-    remember (lowerTT d t1_2) as B2. destruct B2.
-    inverts H. simpl.
-    erewrite IHt1_1 in HeqX1; eauto. inverts HeqX1.
-    nope.
-    nope.
+    erewrite IHt1_1 in HeqH0.
+    nope. eauto.
+
+ Case "TCon1".
+  norm.
+  split_match; nope.
+
+    erewrite IHt1 in *; eauto. 
+    repeat norm.
+
+    erewrite IHt1 in HeqH0.
+    nope. eauto.
+
+ Case "TCon2".
+  norm.
+  split_match; nope.
+
+    erewrite IHt1_1 in *; eauto.
+    erewrite IHt1_2 in *; eauto.
+    repeat norm.   
+  
+    erewrite IHt1_1 in HeqH0. inverts HeqH0.
+    erewrite IHt1_2 in HeqH1. nope.
+    eauto. eauto.
+
+    erewrite IHt1_1 in HeqH0.
+    nope. eauto.
 Qed.
 
 
@@ -298,12 +289,6 @@ Proof.
  intros. gen ix t2 t1'.
  induction t1; intros; simpl in *; burn.
 
- Case "TCon".
-  congruence.
-
- Case "TCap".
-  congruence.
-
  Case "TVar".
   fbreak_nat_compare; try congruence; burn.
 
@@ -315,25 +300,27 @@ Proof.
    erewrite IHt1. congruence.
 
  Case "TApp".
-  remember (lowerTT ix t1_1) as X.
-  destruct X; nope. symmetry in HeqX.
-   remember (lowerTT ix t1_2) as X.
-   destruct X; nope. symmetry in HeqX0.
-    spec IHt1_1 HeqX.
-    spec IHt1_2 HeqX0.
-    repeat rewritess. congruence.
+  split_match; try nope.
+   symmetry in HeqH0. spec IHt1_1 HeqH0.
+   symmetry in HeqH1. spec IHt1_2 HeqH1.
+   repeat rewritess. congruence.
 
  Case "TSum".
-  remember (lowerTT ix t1_1) as X.
-  destruct X; nope. symmetry in HeqX.
-   remember (lowerTT ix t1_2) as X.
-   destruct X; nope. symmetry in HeqX0.
-    spec IHt1_1 HeqX.
-    spec IHt1_2 HeqX0.
-    repeat rewritess. congruence.
+  split_match; try nope.
+   symmetry in HeqH0. spec IHt1_1 HeqH0.
+   symmetry in HeqH1. spec IHt1_2 HeqH1.
+   repeat rewritess. congruence.
 
- Case "TBot".
-  congruence.
+ Case "TCon1".
+  split_match; try nope.
+   symmetry in HeqH0. spec IHt1 HeqH0.
+   repeat rewritess. congruence.
+
+ Case "TCon2".
+  split_match; try nope.
+   symmetry in HeqH0. spec IHt1_1 HeqH0.
+   symmetry in HeqH1. spec IHt1_2 HeqH1.
+   repeat rewritess. congruence.
 Qed.
 Hint Resolve lowerTT_substTT.
 Hint Rewrite lowerTT_substTT : global.

@@ -1,6 +1,7 @@
 
 Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
 Require Import Iron.Language.SystemF2Effect.Type.Lower.
+Require Import Iron.Language.SystemF2Effect.Type.Mask.
 
 
 (* Weakening Kind Env in Type Judgement. *)
@@ -16,14 +17,16 @@ Proof.
                ,  TYPEV ke te se sp v t3
                -> TYPEV (insert ix k2 ke) (liftTE ix te)   (liftTE ix se) sp
                         (liftTV ix v)     (liftTT 1 ix t3));
-   intros; inverts_type; simpl; eauto.
+   intros; inverts_type.
 
  Case "VVar".
+  simpl.
   apply TvVar; auto.
   apply get_map; auto.
   eauto using kind_kienv_insert.
 
  Case "VLoc".
+  simpl.
   eapply TvLoc; eauto;
    rrwrite ( tRef (liftTT 1 ix r) (liftTT 1 ix t)
            = liftTT 1 ix (tRef r t)).
@@ -31,6 +34,7 @@ Proof.
   eauto using kind_kienv_insert.
 
  Case "VLam".
+  simpl.
   apply TvLam.
    apply kind_kienv_insert. auto.
    rrwrite ( liftTE ix te :> liftTT 1 ix t
@@ -39,6 +43,7 @@ Proof.
    burn.
 
  Case "VLAM".
+  simpl.
   eapply TvLAM. 
   rewrite insert_rewind. 
   rewrite (liftTE_liftTE 0 ix).
@@ -47,10 +52,15 @@ Proof.
   eauto.
 
  Case "XConst".
+  simpl.
   eapply TvConst.
   destruct c; burn.
+ 
+ Case "XVal".
+  simpl. auto.
 
  Case "XLet".
+  simpl.
   apply TxLet.
    auto using kind_kienv_insert.
    eauto.
@@ -59,11 +69,13 @@ Proof.
    eauto.
 
  Case "XApp".
+  simpl.
   eapply TxApp.
    eapply IHx1 in H6. simpl in H6. eauto.
    eapply IHx0 in H9. eauto.
 
  Case "XAPP".
+  simpl.
   rewrite (liftTT_substTT' 0 ix). 
   simpl.
   eapply TvAPP.
@@ -71,19 +83,28 @@ Proof.
   auto using kind_kienv_insert.
 
  Case "XNew".
+  simpl.
   eapply TxNew
-   with (t := liftTT 1 (S ix) (liftTT 1 0 t1))
-        (e := liftTT 1 (S ix) (liftTT 1 0 e1)).
-  rewrite lowerTT_liftTT_some. auto.
-  rewrite lowerTT_liftTT_some. auto.
-  rewrite insert_rewind.
-  rewrite (liftTE_liftTE 0 ix).
-  rewrite (liftTE_liftTE 0 ix).
-  eapply IHx1.
-  have (liftTT 1 0 t1 = t).
-  have (liftTT 1 0 e1 = e).
-  repeat rewritess.
-  auto.
+   with (t := liftTT 1 (S ix) t)
+        (e := liftTT 1 (S ix) e).
+
+   eapply lowerTT_liftTT_succ. auto.
+
+   rrwrite (S ix = 0 + S ix).   
+   rewrite liftTT_mask.
+   eapply lowerTT_liftTT_succ. auto.  
+
+   rewrite insert_rewind.
+   rewrite (liftTE_liftTE 0 ix).
+   rewrite (liftTE_liftTE 0 ix).
+   eapply IHx1.
+   have (liftTT 1 0 t1 = t).
+   have (liftTT 1 0 e1 = mask 0 e).
+   repeat rewritess.
+   auto.
+
+ Case "XUse".
+  admit.              (* fix XUse case *)
 
  Case "XAlloc".
   eapply TxOpAlloc; eauto using kind_kienv_insert.

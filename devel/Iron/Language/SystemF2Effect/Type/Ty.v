@@ -7,28 +7,39 @@ Require Export Iron.Language.SystemF2Effect.Type.TyCap.
 (********************************************************************)
 (* Type Expressions. *)
 Inductive ty  : Type :=
- | TCon      : tycon -> ty
- | TCap      : tycap -> ty
- | TVar      : nat   -> ty
- | TForall   : ki    -> ty -> ty
- | TApp      : ty    -> ty -> ty
- | TSum      : ty    -> ty -> ty
- | TBot      : ki    -> ty.
+ | TVar      : nat    -> ty
+ | TForall   : ki     -> ty -> ty
+ | TApp      : ty     -> ty -> ty
+ | TSum      : ty     -> ty -> ty
+ | TBot      : ki     -> ty
+
+ (* Primitive constructed types. *)
+ | TCon0     : tycon0 -> ty
+ | TCon1     : tycon1 -> ty -> ty
+ | TCon2     : tycon2 -> ty -> ty -> ty
+
+ (* Primitive capabilities. *)
+ | TCap      : tycap  -> ty.
 Hint Constructors ty.
 
 
-(* Baked-in Value Types *)
-Definition tFun   t1 eff t2     := TApp (TApp (TApp (TCon TyConFun) t1) eff) t2.
-Definition tUnit                := TCon TyConUnit.
-Definition tNat                 := TCon TyConNat.
-Definition tBool                := TCon TyConBool.
-Definition tRef   r1 t2         := TApp (TApp (TCon TyConRef) r1) t2.
+(* Synonyms for baked in types. *****)
 
+(* Function type. *)
+Definition tFun   t1 eff t2     := TApp (TApp (TApp (TCon0 TyConFun) t1) eff) t2.
 
-(* Baked-in Effect Types *)
-Definition tRead    r1          := TApp (TCon TyConRead)  r1.
-Definition tWrite   r1          := TApp (TCon TyConWrite) r1.
-Definition tAlloc   r1          := TApp (TCon TyConAlloc) r1.
+(* Primitive value types. *)
+Definition tUnit                := TCon0 TyConUnit.
+Definition tBool                := TCon0 TyConBool.
+Definition tNat                 := TCon0 TyConNat.
+
+(* Reference to a value in some region. *)
+Definition tRef   r1 t2         := TCon2 TyConRef r1 t2.
+
+(* Effect types. *)
+Definition tRead    r1          := TCon1 TyConRead  r1.
+Definition tWrite   r1          := TCon1 TyConWrite r1.
+Definition tAlloc   r1          := TCon1 TyConAlloc r1.
 
 
 (********************************************************************)
@@ -37,15 +48,6 @@ Inductive EquivT : ty -> ty -> Prop :=
  | EqRefl 
    : forall t
    , EquivT t t
-
- | EqSym
-   : forall t1 t2
-   , EquivT t1 t2 -> EquivT t2 t1    (* TODO: get this from Refl *)
-
- | EqTrans
-   : forall t1 t2 t3
-   , EquivT t1 t2 -> EquivT t2 t3    (* TODO: get this from Refl *)
-  -> EquivT t1 t3
 
  | EqSumSym
    : forall t1 t2
@@ -112,14 +114,6 @@ Hint Resolve SubsT_sum.
 
 (********************************************************************)
 (* Type Utils *)
-
-(* Get the type constructor of a type, if any *)
-Fixpoint getCtorOfType (tt: ty) : option tycon :=
- match tt with
- | TCon tc   => Some tc
- | TApp t1 _ => getCtorOfType t1
- | _         => None
- end.
 
 
 (* Construct a type application from a constructor type
@@ -195,89 +189,8 @@ Qed.
 Hint Resolve makeTApps_takeTCon.
 
 
-Lemma getCtorOfType_makeTApps
- :  forall tc t1 ts
- ,  getCtorOfType t1 = Some tc
- -> getCtorOfType (makeTApps t1 ts) = Some tc.
-Proof.
- intros. gen t1.
- induction ts; burn.
-Qed.
-Hint Resolve getCtorOfType_makeTApps.
-
-
 Lemma makeTApps_rewind
  :  forall t1 t2 ts
  ,  makeTApps (TApp t1 t2) ts = makeTApps t1 (t2 :: ts).
 Proof. burn. Qed.
-
-
-Lemma makeTApps_tycon_eq
- :  forall tc1 tc2 ts1 ts2
- ,  makeTApps (TCon tc1) ts1 = makeTApps (TCon tc2) ts2
- -> tc1 = tc2.
-Proof.
- intros.
- have HT: ( takeTCon (makeTApps (TCon tc1) ts1) 
-          = takeTCon (makeTApps (TCon tc2) ts2))
-  by (rewritess; burn).
- repeat (rewrite takeTCon_makeTApps in HT).
- simpl in HT. inverts HT. auto.
-Qed.
-
-
-Lemma makeTApps_args_eq
- :  forall tc ts1 ts2
- ,  makeTApps (TCon tc) ts1  = makeTApps (TCon tc) ts2
- -> ts1 = ts2.
-Proof.
- intros. gen ts2.
- induction ts1 using rev_ind; intros.
-  Case "ts1 = nil".
-   simpl in H. 
-   destruct ts2.
-    SCase "ts2 ~ nil".
-     auto.
-
-    SCase "ts2 ~ cons".
-    simpl in H.
-    lets D: @snocable ty ts2. inverts D.
-     simpl in H. nope.
-     destruct H0 as [t2].
-     destruct H0 as [ts2']. 
-     subst.
-     rewrite makeTApps_snoc in H. nope.
-   
-  Case "ts1 ~ snoc".
-   lets D: @snocable ty ts2. inverts D.
-   SCase "ts2 ~ nil".
-    simpl in H.
-    rewrite app_snoc in H.
-    rewrite app_nil_right in H.
-    rewrite makeTApps_snoc' in H.
-    nope.
-
-   SCase "ts2 ~ snoc" .
-    dest t. dest ts'. subst.
-    rewrite app_snoc in H.
-    rewrite app_snoc.
-    rrwrite (nil >< (x <: ts1) = x <: ts1) in H.
-    rewrite makeTApps_snoc' in H.
-    rewrite makeTApps_snoc' in H.
-    inverts H.
-    eapply IHts1 in H1. subst. 
-    auto.
-Qed.
-
-
-Lemma makeTApps_eq_params
- : forall tc1 tc2 ts1 ts2
- ,  makeTApps (TCon tc1) ts1 = makeTApps (TCon tc2) ts2
- -> tc1 = tc2 /\ ts1 = ts2.
-Proof.
- intros.
- have (tc1 = tc2) by burn using makeTApps_tycon_eq. subst.
- have (ts1 = ts2) by burn using makeTApps_args_eq.  subst.
- auto.
-Qed.
 

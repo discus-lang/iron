@@ -24,7 +24,7 @@ Proof.
     unfold appkind. burn.
     eapply KiApp.
     unfold appkind. burn.
-    eapply KiCon. simpl. eauto.
+    eapply KiCon0. simpl. eauto.
   auto. auto. auto.
 
  Case "VLAM".
@@ -61,10 +61,16 @@ Proof.
   eapply subst_type_type; eauto.
  
  Case "XNew".
+  admit.                      (* need mask cap lemma *)
+
+(*
   eapply IHv in H7.
   rip.
   eapply lower_type_type_snoc; eauto.
   eapply lower_type_type_snoc; eauto.
+  skip.
+       ok mask doesn't change kind of result
+*)
 
  Case "XUse".
   eapply IHv in H8.
@@ -72,34 +78,24 @@ Proof.
 
  Case "XAlloc". 
   unfold tRef. rip.
-  eapply KiApp. unfold appkind. burn.
-  eapply KiApp. unfold appkind. burn.
-  eapply KiCon. simpl. eauto.
-  auto.
-  spec IHv H9. auto.
+  eapply KiCon2. simpl. eauto.
+  auto. eauto.
   unfold tAlloc in *.
-  eapply KiApp.
-  unfold appkind; burn.
-  eapply KiCon; burn.
-  auto.
-
+  eapply KiCon1. norm. auto.
+  
  Case "XRead".
   spec IHv H9.
   unfold tRef in *.
-  inverts_kind.
-  rip.
-   simpl in *. congruence.
-   eapply KiApp.
-    unfold appkind; burn.
-    eapply KiCon. simpl in *. eauto.
-    simpl in *. eauto.
+  inverts_kind; rip.
+   destruct tc. norm. inverts H1. auto. 
+   unfold tRead in *.
+   destruct tc. norm. inverts H1.
+   eapply KiCon1. simpl in *. eauto. eauto.
 
  Case "XWrite".
   unfold tUnit. rip. 
   unfold tWrite. 
-  eapply KiApp.
-   unfold appkind; burn.
-   eapply KiCon; burn. auto.
+  eapply KiCon1. norm. auto.
 
  Case "XOp1".
   destruct o; simpl in *; inverts H6; 
