@@ -1,19 +1,15 @@
 
 Require Import Iron.Language.SystemF2Effect.Type.Ty.
 Require Import Iron.Language.SystemF2Effect.Type.Lift.
+Require Import Iron.Language.SystemF2Effect.Type.KiJudge.
 
-
-Fixpoint liftTT_var (n : nat) (d : nat) (ix : nat)
- := if le_gt_dec d ix
-     then ix + n
-     else ix.
 
 (* Mask effects on the given region, 
    replacing with the bottom effect. *)
 Fixpoint mask (r : nat) (e : ty) : ty
  := match e with
     |  TVar tc       => TVar tc
-    |  TForall k t1  => TForall k (mask (liftTT_var 1 0 r) t1)
+    |  TForall k t1  => TForall k (mask (S r) t1)
     |  TApp t1 t2    => TApp (mask r t1) (mask r t2)
     |  TSum t1 t2    => TSum (mask r t1) (mask r t2)
     |  TBot k        => TBot k
@@ -37,6 +33,34 @@ Fixpoint mask (r : nat) (e : ty) : ty
 Arguments mask r e : simpl nomatch.
 
 
+Lemma mask_kind
+ :  forall ke sp t k n
+ ,  KIND ke sp t k 
+ -> KIND ke sp (mask n t) k.
+Proof.
+ intros. gen ke sp n k.
+ induction t; intros; inverts_kind; simpl; auto.
+  
+ Case "TApp".
+  spec IHt1 H5.
+  spec IHt2 H7.
+  eapply KiApp; eauto.
+
+ Case "TCon1".
+  spec IHt H6.
+  destruct t0; simpl in *; eauto.
+  destruct t;  norm; inverts H4;
+  unfold mask; split_if; norm; eauto;
+   eapply KiCon1; norm; eauto. 
+
+ Case "TCon2".
+  spec IHt1 H5.
+  spec IHt2 H7.
+  eapply KiCon2; eauto.
+   destruct tc; destruct t1; norm.
+Qed.
+
+
 Lemma liftTT_mask
  :  forall r d t
  ,  mask r (liftTT 1 (1 + (r + d)) t) = liftTT 1 (1 + (r + d)) (mask r t).
@@ -54,7 +78,7 @@ Opaque le_gt_dec.
 
  Case "TForall".
   simpl. f_equal.
-  rrwrite (S (r + d) = (r + 1) + d).
+  rrwrite (S (S (r + d)) = 1 + ((S r) + d)).
   rewrite IHt. auto.
 
  Case "TCon1".
@@ -118,5 +142,5 @@ Opaque le_gt_dec.
 
  SCase "TCap".
   burn.
-Qed.  
+Qed.
 
