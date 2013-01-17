@@ -110,10 +110,11 @@ Proof.
 
  (* Use Region ************************)
  Case "EsUse".
-  spec IHHS H7.
+  spec IHHS H8.
   shift se'. shift e'.
   rip; inverts H; rip.
-
+  admit.                    (* need SubstT maskOnCap *)
+  admit.
 
  Case "EsUsePop".
   exists se.

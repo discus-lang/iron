@@ -92,6 +92,9 @@ Proof.
   rewrite (liftTE_substTE 0 ix).
   rewrite (liftTE_substTE 0 ix).
   eauto using kind_kienv_weaken.
+
+ Case "XUse".
+  admit.
   
  Case "XAlloc".
   eapply TxOpAlloc; fold substTT.
