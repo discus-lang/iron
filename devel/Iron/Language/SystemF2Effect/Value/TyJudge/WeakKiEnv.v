@@ -90,7 +90,7 @@ Proof.
 
    eapply lowerTT_liftTT_succ. auto.
 
-   rrwrite (S ix = 0 + S ix).   
+   rrwrite (S ix = 1 + (0 + ix)).   
    rewrite liftTT_mask.
    eapply lowerTT_liftTT_succ. auto.  
 

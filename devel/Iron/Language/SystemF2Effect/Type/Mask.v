@@ -33,15 +33,17 @@ Fixpoint mask (r : nat) (e : ty) : ty
     
     | TCon2 tc t1 t2 => TCon2 tc (mask r t1) (mask r t2)
 
-    | TCap  tc      => TCap tc
+    | TCap  tc       => TCap tc
     end.
 Arguments mask r e : simpl nomatch.
 
 
 Lemma liftTT_mask
  :  forall r d t
- ,  mask r (liftTT 1 (r + d) t) = liftTT 1 (r + d) (mask r t).
+ ,  mask r (liftTT 1 (1 + (r + d)) t) = liftTT 1 (1 + (r + d)) (mask r t).
 Proof.
+Opaque le_gt_dec.
+
  intros. gen r d.
  induction t; intros; 
    try (solve [simpl; burn]);
@@ -51,71 +53,71 @@ Proof.
   simpl. lift_cases. simpl. auto.
   simpl. auto.
 
-  admit.
-
+ Case "TForall".
+  simpl. f_equal.
+  rrwrite (S (r + d) = (r + 1) + d).
+  rewrite IHt. auto.
 
  Case "TCon1".
-  admit. 
-(*
- simpl.
+  simpl.
   destruct t0.
 
   SCase "TVar".
-   simpl.
-    lift_cases.
-     unfold mask.
-      break (beq_nat r (n + 1)).
-      break (beq_nat r n).
-       simpl. auto.
-       simpl. lift_cases. norm. 
- 
-      remember (beq_nat r (n0 + n)) as X. destruct X.
-      remember (beq_nat r n0) as Y. destruct Y.
-       simpl. auto.
-       simpl. lift_cases.
-     
-    
-
-     assert ( mask r (TCon1 TyConRead (TVar (n0 + n)))
-            = if beq_nat r (n0 + n) then TBot KEffect else TCon1 TyConRead (TVar (n0 + n))).
-     simpl.
-     simpl.
-
-     simpl match.
-
+   repeat (unfold mask; simpl; split_if; norm_beq_nat; auto; try omega).
+          
+  (* GAH. Most of this rubbish is just to force single step evaluation of mask.
+     I can't work out how to do a 'simpl' with only a single step *)
   SCase "TForall".
-    simpl liftTT.
-    set  (X0 := TForall k (liftTT n (S d) t0)).
-     rrwrite (mask r (TCon1 t X0)          = TCon1 t (mask r X0)).
-    subst X0.
-    rrwrite (TForall k (liftTT n (S d) t0) = liftTT n d (TForall k t0)).
-    rewritess. simpl. auto.
-
+   simpl liftTT.
+   set     (X0 := TForall k (liftTT 1 (S (S (r + d))) t0)).
+   rrwrite (mask r (TCon1 t X0)          = TCon1 t (mask r X0)).
+   subst X0.
+   rrwrite (TForall k (liftTT 1 (S (S (r + d))) t0) = liftTT 1 (S (r + d)) (TForall k t0)).
+   rewritess. simpl. auto.
+  
   SCase "TApp".
    simpl liftTT.
-   set      (X0 := TApp (liftTT n d t0_1) (liftTT n d t0_2)).
+   set      (X0 := TApp (liftTT 1 (S (r + d)) t0_1) (liftTT 1 (S (r + d)) t0_2)).
     rrwrite (mask r (TCon1 t X0)           = TCon1 t (mask r X0)).
    subst X0.
-   rrwrite  ( TApp (liftTT n d t0_1) (liftTT n d t0_2)
-            = liftTT n d (TApp t0_1 t0_2)).
+   rrwrite  ( TApp (liftTT 1 (S (r + d)) t0_1) (liftTT 1 (S (r + d)) t0_2)
+            = liftTT 1 (S (r + d)) (TApp t0_1 t0_2)).
    rewritess. simpl. auto.
-*)
-Qed.
 
+  SCase "TSum".
+   simpl liftTT.
+   set      (X0 := TSum (liftTT 1 (S (r + d)) t0_1) (liftTT 1 (S (r + d)) t0_2)).
+    rrwrite (mask r (TCon1 t X0)           = TCon1 t (mask r X0)).
+   subst X0.
+   rrwrite  ( TSum (liftTT 1 (S (r + d)) t0_1) (liftTT 1 (S (r + d)) t0_2)
+            = liftTT 1 (S (r + d)) (TSum t0_1 t0_2)).
+   rewritess. simpl. auto.
 
-Lemma mask_liftTT_id
- : forall d t
- , mask d (liftTT 1 d t) = liftTT 1 d t.
-Proof.
- intros. gen d. 
- induction t; intros;
-  try (solve [simpl; burn]);
-  try (solve [simpl; f_equal; norm; rewritess; auto]).
+ SCase "TBot".
+  burn.
 
- Case "TVar".
-  simpl. lift_cases; burn.
+ SCase "TCon0".
+  burn.
 
- Case "TCon1".
-   admit.
-Qed.
+ SCase "TCon1".
+  simpl liftTT.
+  set    (X0 := TCon1 t0 (liftTT 1 (S (r + d)) t1)).
+   rrwrite (mask r (TCon1 t X0)           = TCon1 t (mask r X0)).
+  subst X0.
+  rrwrite  ( TCon1 t0 (liftTT 1 (S (r + d)) t1)
+           = liftTT 1 (S (r + d)) (TCon1 t0 t1)).
+  rewritess. auto.
+
+  SCase "TCon2".
+   simpl liftTT.
+   set      (X0 := TCon2 t0 (liftTT 1 (S (r + d)) t0_1) (liftTT 1 (S (r + d)) t0_2)).
+    rrwrite (mask r (TCon1 t X0)           = TCon1 t (mask r X0)).
+   subst X0.
+   rrwrite  ( TCon2 t0 (liftTT 1 (S (r + d)) t0_1) (liftTT 1 (S (r + d)) t0_2)
+            = liftTT 1 (S (r + d)) (TCon2 t0 t0_1 t0_2)).
+   rewritess. simpl. auto.
+
+ SCase "TCap".
+  burn.
+Qed.  
 

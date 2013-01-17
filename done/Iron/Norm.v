@@ -47,6 +47,22 @@ Ltac norm_inverts_option :=
  end.
 
 
+Ltac norm_beq_nat
+ := repeat (match goal with 
+    |  [ H : true = beq_nat ?X ?Y |- _ ] 
+    => symmetry in H; apply beq_nat_true in H
+
+    |  [ H : beq_nat ?X ?Y = true |- _ ] 
+    => apply beq_nat_true in H
+
+    |  [ H : false = beq_nat ?X ?Y |- _ ] 
+    => symmetry in H; apply beq_nat_false in H
+
+    |  [ H : beq_nat ?X ?Y = false |- _ ] 
+    => apply beq_nat_false in H
+    end).
+
+
 Ltac norm_nat_compare :=
   match goal with 
   (* Equality *)

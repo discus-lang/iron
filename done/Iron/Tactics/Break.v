@@ -38,7 +38,16 @@ Ltac fbreak_nat_compare :=
  end.
 
 
-(* Split on match discriminant *)
+Ltac split_if :=
+  match goal with 
+  | [ |- context[if ?X then _ else _] ]
+    => let Z := fresh in remember X as Z; destruct Z
+
+  | [ H: context[if ?X then _ else _] |- _ ]
+    => let Z := fresh in remember X as Z; destruct Z
+  end.
+
+
 Ltac split_match_option :=
   match goal with 
   | [ |- context [match ?X with | Some _ => _ | None => _ end] ] 
@@ -47,6 +56,7 @@ Ltac split_match_option :=
   | [ H: context [match ?X with | Some _ => _ | None => _ end] |- _]
     => let Z := fresh in remember X as Z; destruct Z
   end.
+
 
 Ltac split_match_comparison :=
   match goal with
@@ -57,7 +67,8 @@ Ltac split_match_comparison :=
     => let Z := fresh in remember X as Z; destruct Z
   end.
 
+
 Ltac split_match
- := repeat (first [split_match_option | try split_match_comparison]).
+ := repeat (first [split_if | split_match_option | split_match_comparison]).
 
 
