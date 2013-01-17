@@ -51,7 +51,7 @@ Proof.
   rip.
 
  Case "XUse".
-  spec IHx H9 H8.
+  spec IHx H9 H10.
   rip.
 
  Case "XAlloc".

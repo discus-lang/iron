@@ -73,8 +73,9 @@ Proof.
 *)
 
  Case "XUse".
-  eapply IHv in H8.
+  eapply IHv in H9.
   rip.
+  eapply maskOnCap_kind. auto.
 
  Case "XAlloc". 
   unfold tRef. rip.

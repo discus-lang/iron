@@ -1,6 +1,7 @@
 
 Require Import Iron.Language.SystemF2Effect.Type.Ty.
 Require Import Iron.Language.SystemF2Effect.Type.Lift.
+Require Import Iron.Language.SystemF2Effect.Type.KiJudge.
 
 
 (* Mask effects on the given region, 
@@ -30,6 +31,44 @@ Fixpoint maskOnCap (r : nat) (e : ty) : ty
     | TCap  tc       => TCap tc
     end.
 Arguments maskOnCap r e : simpl nomatch.
+
+
+Lemma maskOnCap_kind
+ :  forall ke sp t k n
+ ,  KIND ke sp t k 
+ -> KIND ke sp (maskOnCap n t) k.
+Proof.
+ intros. gen ke sp k.
+ induction t; intros; inverts_kind; simpl; auto.
+
+ Case "TApp".
+  apply IHt1 in H5. 
+  apply IHt2 in H7. 
+  eapply KiApp; eauto.
+
+ Case "TCon1".
+  apply IHt in H6.
+  destruct t0; simpl in *; eauto.
+
+  SCase "TCap".
+   destruct t0. 
+    unfold maskOnCap. split_if.
+
+     norm_beq_nat. subst. inverts_kind.
+     destruct t; simpl in *.
+      inverts H4. auto.
+      inverts H4. auto.
+      inverts H4. auto.
+
+     norm_beq_nat. inverts_kind.
+     destruct t; simpl in *; inverts H4; eapply KiCon1; simpl; eauto.
+
+ Case "TCap".
+  spec IHt1 H5.
+  spec IHt2 H7.
+  eapply KiCon2; eauto.
+   destruct tc; destruct t1; norm.
+Qed.
 
 
 Lemma liftTT_maskOnCAp

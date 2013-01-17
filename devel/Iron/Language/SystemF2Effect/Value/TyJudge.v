@@ -115,16 +115,17 @@ Inductive
   (* Create a new location region. *)
   | TxNew
     :  forall ke te se sp x t tL e eL
-    ,  lowerTT 0 t = Some tL
+    ,  lowerTT 0 t          = Some tL
     -> lowerTT 0 (mask 0 e) = Some eL
     -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x        t  e
     -> TYPEX ke              te             se           sp (XNew x) tL eL
 
   (* Evaluation in the context of a local region. *)
   | TxUse
-    :  forall ke te se sp n x t e
-    ,  TYPEX  ke te se sp x t e
-    -> TYPEX  ke te se sp (XUse n x) t e (* (mask (TCap (TyCapRegion n)) e) *)
+    :  forall ke te se sp n x t e eM
+    ,  maskOnCap n e        = eM
+    -> TYPEX  ke te se sp x t e
+    -> TYPEX  ke te se sp (XUse n x) t eM
 
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
