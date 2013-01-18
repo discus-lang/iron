@@ -36,7 +36,8 @@ Arguments maskOnVar r e : simpl nomatch.
 
 Lemma maskOnVar_TBot_cases
  :  forall d tc n
- ,  maskOnVar d (TCon1 tc (TVar n)) = TBot KEffect -> d = n.
+ ,  maskOnVar d (TCon1 tc (TVar n)) = TBot KEffect 
+ -> d = n.
 Proof.
  intros.
  unfold maskOnVar in H.
@@ -203,17 +204,13 @@ Proof.
     inverts D.
 
     SSCase "Effect masked".
-     rewritess.
-     apply maskOnVar_TBot_cases in H. 
-     rewritess.
+     assert (d' + d = n).
+      eapply maskOnVar_TBot_cases; eauto.
+     repeat rewritess.
      simpl.
-      break (le_gt_dec d n).
-       unfold maskOnVar. split_if.
-        auto.
-        admit.                           (* ok norm nope *)
-       unfold maskOnVar. split_if.
-        auto.
-        omega.
+     repeat (split_if; unfold maskOnVar; burn).
+      symmetry in HeqH0. apply beq_nat_false in HeqH0. omega.
+      unfold maskOnVar in H; split_if; omega. 
 
     SSCase "Effect not masked".
      rewritess.
@@ -222,13 +219,33 @@ Proof.
      subst X.
      rewrite <- IHt. clear IHt.
 
-     simpl. split_if.
-      simpl. unfold maskOnVar. split_if.
-      have (S (d' + d) = n + 1) by admit. omega.
-      admit.
-     auto.
-     simpl liftTT at 1. split_if.
-       
+     simpl. 
+     split_if.
+      simpl. 
+      unfold maskOnVar. 
+      split_if; auto.
+       symmetry in HeqH1. apply beq_nat_true in HeqH1.
+       have HD: (d' + d = n) by omega.
+       rewrite HD in H.
+       simpl in H.
+       unfold maskOnVar in H.
+       split_if. 
+        nope.
+        symmetry in HeqH2. apply beq_nat_false in HeqH2.
+        false. omega.
+      
+      simpl.
+      unfold maskOnVar.
+      split_if; auto.
+       symmetry in HeqH1. apply beq_nat_true in HeqH1.
+       have HD: (d' + d = n) by omega.
+       rewrite HD in H.
+       simpl in H.
+       unfold maskOnVar in H.
+       split_if.
+        nope.
+        symmetry in HeqH2. apply beq_nat_false in HeqH2.
+        false. omega. 
 Qed.
 
 Lemma mask_substTT
