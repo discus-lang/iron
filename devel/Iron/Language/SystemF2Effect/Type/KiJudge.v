@@ -108,7 +108,7 @@ Lemma kind_wfT_Forall
  ,  Forall (fun t => KIND ks sp t k) ts
  -> Forall (wfT (length ks)) ts.
 Proof.
- intros. nforall. eauto.
+ intros. norm. eauto.
 Qed.
 Hint Resolve kind_wfT_Forall.
 

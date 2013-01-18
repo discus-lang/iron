@@ -33,14 +33,10 @@ Lemma liftTT_wfT
  -> wfT (S kn) (liftTT 1 d t).
 Proof.
  intros. gen kn d.
-
- induction t; intros; eauto;
-  try (solve [simpl; inverts H; eauto]).
+ induction t; intros; inverts H; snorm.
 
  Case "TVar".
-  repeat (simpl; lift_cases). 
-   eapply WfT_TVar. inverts H. omega.
-   eapply WfT_TVar. inverts H. omega.
+  eapply WfT_TVar. omega.
 Qed.
 Hint Resolve liftTT_wfT.
 
@@ -101,10 +97,11 @@ Proof.
   try (solve [repeat (rewritess; burn)]).
 
   Case "TVar".
-   lift_cases; burn; omega.
+   norm. omega.
 
   Case "TForall".
-   f_equal. spec IHt H1.
+   f_equal. 
+   spec IHt H1.
    rrwrite (S (n + ix) = S n + ix).
    burn.
 Qed.
@@ -147,14 +144,15 @@ Lemma liftTT_liftTT_11
  =  liftTT 1 (1 + (d + d')) (liftTT 1 d t).
 Proof.
  intros. gen d d'.
- induction t; intros; simpl; 
-  try burn;
-  try (f_equal; rewritess; burn).
+ induction t; intros;
+  try (solve [snorm; burn]);
+  try (solve [snorm; f_equal; rewritess; burn]).
 
  Case "TVar".
-  repeat (lift_cases; unfold liftTT); burn; omega.
+  repeat (snorm; unfold liftTT); burn; omega.
 
- Case "TForall".
+ Case "TForall". 
+  snorm.
   rrwrite (S (d + d') = (S d) + d').
   f_equal. rewritess. burn.
 Qed.

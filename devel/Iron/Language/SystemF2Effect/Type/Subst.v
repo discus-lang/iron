@@ -50,8 +50,9 @@ Lemma substTT_wfT
 Proof.
  intros. gen d ix t2.
  induction t; rip; inverts H; simpl; f_equal; burn.
+
  Case "TVar".
-  lift_cases; burn; omega.
+  norm; omega.
   lets D: IHt H1. burn.
 Qed.
 Hint Resolve substTT_wfT.
@@ -84,11 +85,9 @@ Lemma substTT_liftTT
  ,  substTT d t2 (liftTT 1 d t1) = t1.
 Proof.
  intros. gen d t2.
- induction t1; intros; simpl; f_equal; burn.
-
- Case "TVar".
-  lift_cases; unfold substTT;
-   fbreak_nat_compare; f_equal; burn; omega.
+ induction t1; intros;
+  first [ solve [snorm; try omega]
+        | solve [simpl; f_equal; norm]].
 Qed.
 Hint Rewrite substTT_liftTT : global.
 
@@ -102,13 +101,16 @@ Lemma liftTT_substTT_1
  =  substTT (1 + n + n') (liftTT 1 n t2) (liftTT 1 n t1).
 Proof.
  intros. gen n n' t2.
- induction t1; intros; simpl; f_equal; try burn.
+ induction t1; intros;
+  try (solve [simpl; f_equal; rewritess; burn]).
 
  Case "TVar".
-  repeat (simpl; fbreak_nat_compare; try lift_cases; rip);
-   f_equal; burn; omega.
+  repeat (simpl; split_match; 
+          repeat norm_nat_compare; 
+          subst; f_equal; try omega; auto).
 
  Case "TForall".
+  simpl.
   rewrite (IHt1 (S n) n').
   rewrite (liftTT_liftTT_11 0 n).
   burn.
@@ -143,9 +145,8 @@ Lemma liftTT_substTT'
  =  substTT n (liftTT 1 (n + n') t2) (liftTT 1 (1 + n + n') t1).
 Proof.
  intros. gen n n' t2.
- induction t1; intros; 
-  try (solve [simpl; f_equal; burn]);
-  burn.
+ induction t1; intros;
+  try (solve [simpl; f_equal; rewritess; norm]).
 
  Case "TVar".
   repeat ( unfold liftTT; unfold substTT; fold liftTT; fold substTT
@@ -174,14 +175,10 @@ Proof.
 
 
  Case "TVar".
-  norm.
-  split_match; burn;
-   repeat (repeat norm_nat_compare; norm; lift_cases; burn; try omega).
-
+  repeat (simpl in *; norm1); try nope; try omega. 
 
  Case "TForall".
-  norm.
-  split_match; norm.
+  snorm. repeat f_equal. 
 
    (* Goal 7 *)
    lets L: liftTT_liftTT 1 0 1 d t2.
@@ -191,81 +188,62 @@ Proof.
 
    lets D: IHt1 (S d) d' (liftTT 1 0 t2) t0. 
    symmetry in HeqH1. rip. clear IHt1. clear HeqH1.
-   norm.   
+   snorm.   
    rewrite D in HeqH0.
-   norm. auto.
-
-   (* Goal 6 *)
-   rewrite <- HeqH1 in H2. nope.
+   snorm. 
 
    (* Goal 5 *)
    lets L: liftTT_liftTT 1 0 1 d t2.
     rrwrite (d + 0 = d) in L.
     rewrite L in HeqH0. 
     clear L.
-    norm.
+    snorm.
+    
+   symmetry in HeqH1. rip.
 
    lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. 
    symmetry in HeqH1. rip. clear IHt1. clear HeqH1.
-   norm.
+   snorm.
+
+   lets Z: liftTT_liftTT 1 0 1 d t2.
+   rrwrite (d = d + 0) in HeqH0.
+   rewrite Z in HeqH0.
+   norm. rrwrite (1 + d = S d).
    rewrite D in HeqH0.
-   nope.
+    nope.
 
  Case "TApp".
-  norm.
-  split_match; nope.
-
+  snorm; nope.
+   repeat (espread; burn); burn.
+   espread. nope.
+   espread. nope.
    erewrite IHt1_1 in *; eauto.
-   erewrite IHt1_2 in *; eauto.
-   repeat norm.
-
-   erewrite IHt1_1 in HeqH0. inverts HeqH0.
-   erewrite IHt1_2 in HeqH1. nope. 
-   eauto. eauto.
-
-   erewrite IHt1_1 in HeqH0.
-   nope.
-   eauto.
+   erewrite IHt1_2 in *; eauto. nope.
+   erewrite IHt1_1 in *; eauto. nope.
 
  Case "TSum".
-  norm.
-  split_match; nope.
-
-    erewrite IHt1_1 in *; eauto.
-    erewrite IHt1_2 in *; eauto.
-    repeat norm.   
-  
-    erewrite IHt1_1 in HeqH0. inverts HeqH0.
-    erewrite IHt1_2 in HeqH1. nope.
-    eauto. eauto.
-
-    erewrite IHt1_1 in HeqH0.
-    nope. eauto.
+  snorm; nope.
+   repeat (espread; burn); burn.
+   espread. nope.
+   espread. nope.
+   erewrite IHt1_1 in *; eauto.
+   erewrite IHt1_2 in *; eauto. nope.
+   erewrite IHt1_1 in *; eauto. nope.
 
  Case "TCon1".
-  norm.
-  split_match; nope.
-
-    erewrite IHt1 in *; eauto. 
-    repeat norm.
-
-    erewrite IHt1 in HeqH0.
-    nope. eauto.
+  snorm; nope.
+   repeat (espread; burn).
+   espread. nope.
+   erewrite IHt1 in *; eauto. nope.
 
  Case "TCon2".
-  norm.
-  split_match; nope.
-
-    erewrite IHt1_1 in *; eauto.
-    erewrite IHt1_2 in *; eauto.
-    repeat norm.   
-  
-    erewrite IHt1_1 in HeqH0. inverts HeqH0.
-    erewrite IHt1_2 in HeqH1. nope.
-    eauto. eauto.
-
-    erewrite IHt1_1 in HeqH0.
-    nope. eauto.
+  snorm; nope.
+   repeat (espread; burn); burn.
+   espread. nope.
+   espread. nope.
+   erewrite IHt1_1 in *; eauto.
+   erewrite IHt1_2 in *; eauto. nope.
+   erewrite IHt1_1 in *; eauto. nope.
 Qed.
 
 
@@ -278,12 +256,12 @@ Lemma substTT_substTT
               (substTT (1 + n + m) (liftTT 1 n t3) t1).
 Proof.
  intros. gen n m t2 t3.
- induction t1; intros; 
-  try (solve [simpl; f_equal; burn]); 
-  burn.
+ induction t1; intros;
+  try (solve [simpl; f_equal; rewritess; norm]).
 
  Case "TVar".
-  repeat (simpl; fbreak_nat_compare); burn; omega.
+  repeat (simpl; split_match; repeat norm_nat_compare);
+   first [omega | burn].
 
  Case "TForall".
   simpl.
@@ -301,40 +279,37 @@ Lemma lowerTT_substTT
  -> substTT ix t2 t1 = t1'.
 Proof.
  intros. gen ix t2 t1'.
- induction t1; intros; simpl in *; burn.
-
- Case "TVar".
-  fbreak_nat_compare; try congruence; burn.
+ induction t1; intros; try (solve [snorm]).
 
  Case "TForall".
-  remember (lowerTT (S ix) t1) as X.
-  destruct X; nope.
-   symmetry in HeqX.
-   spec IHt1 HeqX.
-   erewrite IHt1. congruence.
+  simpl in *.
+  split_match; snorm; nope.
+   snorm.
+   symmetry in HeqH0. spec IHt1 HeqH0.
+   repeat rewritess. auto.
+   spec IHt1 H2.
+   repeat rewritess. nope.
 
  Case "TApp".
-  split_match; try nope.
+   snorm; try (solve [espread; nope]).
    symmetry in HeqH0. spec IHt1_1 HeqH0.
    symmetry in HeqH1. spec IHt1_2 HeqH1.
-   repeat rewritess. congruence.
+   repeat rewritess.  norm.
 
  Case "TSum".
-  split_match; try nope.
+   snorm; try (solve [espread; nope]).
    symmetry in HeqH0. spec IHt1_1 HeqH0.
    symmetry in HeqH1. spec IHt1_2 HeqH1.
-   repeat rewritess. congruence.
+   repeat rewritess.  norm.
 
  Case "TCon1".
-  split_match; try nope.
-   symmetry in HeqH0. spec IHt1 HeqH0.
-   repeat rewritess. congruence.
+   snorm; try (solve [espread; nope]).
 
  Case "TCon2".
-  split_match; try nope.
+   snorm; try (solve [espread; nope]).
    symmetry in HeqH0. spec IHt1_1 HeqH0.
    symmetry in HeqH1. spec IHt1_2 HeqH1.
-   repeat rewritess. congruence.
+   repeat rewritess.  norm.
 Qed.
 Hint Resolve lowerTT_substTT.
 Hint Rewrite lowerTT_substTT : global.

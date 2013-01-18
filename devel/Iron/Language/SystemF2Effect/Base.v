@@ -17,20 +17,30 @@ Require Export Coq.Arith.Compare_dec.
 Require Export Coq.Logic.FunctionalExtensionality.
 
 
+Tactic Notation "norm1"
+ := first
+    [ split_dec 
+    | split_if 
+    | split_match
+    | norm_nat
+    | norm_nat_compare
+    | norm_beq_nat
+    | norm_lists
+    | norm_inverts_option].
+
 Tactic Notation "norm"
- := simpl in *; rip;
-    repeat ( try norm_nat
-           ; try norm_nat_compare
-           ; try norm_lists
-           ; try norm_inverts_option);
+ := repeat (rip; try norm1);
     autorewrite with global in *.
 
+Tactic Notation "snorm"
+ := repeat (rip; simpl in *; try norm1);
+    autorewrite with global in *.
 
 Tactic Notation "burn0"
- := norm; eauto; nope.
+ := snorm; eauto; nope.
 
 Tactic Notation "burn0" "using" tactic(T)
- := norm; eauto using T; nope.
+ := snorm; eauto using T; nope.
 
 
 Tactic Notation "burn"

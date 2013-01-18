@@ -74,7 +74,7 @@ Proof.
  intros.
  unfold liftTE.
  induction se; rip.
-  inverts H. norm.
+  inverts H. snorm.
   rewritess.
   rrwrite (liftTT 1 n a = a).
   auto.
@@ -90,7 +90,7 @@ Proof.
  intros.
  unfold substTE.
  induction se; rip.
-  inverts H. norm. 
+  inverts H. snorm. 
   rewritess.
   rrwrite (substTT n t2 a = a).
   auto.

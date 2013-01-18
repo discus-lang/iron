@@ -60,18 +60,10 @@ Lemma lowerTT_liftTT_some
 Proof.
  intros. gen d.
  induction t; intros;
-  try burn;
-  try (solve [ simpl; split_match
-             ; repeat (rewritess; norm; auto)]).
-
-(* Keep this opaque so simpl doesn't unfold it *)
-Opaque le_gt_dec.
- Case "TVar".
-  simpl in *.
-  lift_cases; simpl;
-  lift_cases; simpl; 
-  lift_cases; repeat (simpl; nnat); burn; try omega.
-Transparent le_gt_dec.  
+  first 
+  [ solve [burn]
+  | solve [snorm; burn; try omega]
+  | solve [repeat (snorm; burn; try rewritess; burn)]].
 Qed.
 
 
@@ -82,17 +74,13 @@ Lemma lowerTT_some_liftTT
 Proof.
  intros. gen d t2.
  induction t1; intros;
-  try burn;
-  try (solve [ norm; split_match
-             ; burn; try nope
-             ; repeat norm; f_equal; repeat norm; nope]).
+  try first
+  [ solve [burn]
+  | solve [snorm; f_equal; burn; rewritess; burn]].
 
  Case "TVar".
-  simpl in *.
-  split_match; burn.
-   norm. simpl. lift_cases; burn; omega.
-   norm. simpl. lift_cases; burn.
-    destruct n; burn. omega.
+  snorm; try omega.
+   destruct n; burn.
 Qed.
 Hint Resolve lowerTT_some_liftTT.
 Hint Rewrite lowerTT_some_liftTT.
@@ -120,7 +108,7 @@ Proof.
  lift_burn t.
 
  Case "TVar".
-  simpl; lift_cases; simpl; lift_cases; try omega; repeat norm.
+  snorm; burn; omega.
 Qed.
 Hint Resolve lowerTT_liftTT.
 Hint Rewrite lowerTT_liftTT.
@@ -135,9 +123,7 @@ Proof.
  lift_burn t.
 
  Case "TVar".
-  simpl; 
-   lift_cases; unfold liftTT;
-   lift_cases; simpl; lift_cases; burn; omega.
+  repeat (snorm; unfold liftTT); burn; omega.
 Qed.  
 Hint Resolve lowerTT_liftTT_switch.
 Hint Rewrite lowerTT_liftTT_switch.

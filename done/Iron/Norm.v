@@ -33,7 +33,7 @@ Ltac lift_burn t
  := induction t; intros; eauto;  
 
           (* this gets most var cases *)
-    first [ repeat (simpl; lift_cases; norm_nat; intros); burn 
+    first [ repeat (simpl; lift_cases; try norm_nat; intros); burn 
       
           (* try to apply rewrites from the hypotheses *)    
           | repeat rewritess ].
@@ -48,7 +48,7 @@ Ltac norm_inverts_option :=
 
 
 Ltac norm_beq_nat
- := repeat (match goal with 
+ := match goal with 
     |  [ H : true = beq_nat ?X ?Y |- _ ] 
     => symmetry in H; apply beq_nat_true in H
 
@@ -60,7 +60,7 @@ Ltac norm_beq_nat
 
     |  [ H : beq_nat ?X ?Y = false |- _ ] 
     => apply beq_nat_false in H
-    end).
+    end.
 
 
 Ltac norm_nat_compare :=

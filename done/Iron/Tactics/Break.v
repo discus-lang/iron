@@ -38,6 +38,21 @@ Ltac fbreak_nat_compare :=
  end.
 
 
+(* New style ********************************************************)
+
+Ltac split_nat_dec :=
+  match goal with
+  | [ H: context[le_gt_dec ?X ?Y] |- _]
+  => case (le_gt_dec X Y); intro
+
+  | [ |- context[le_gt_dec ?X ?Y] ]
+  => case (le_gt_dec X Y); intro
+  end.
+
+Ltac split_dec
+ := split_nat_dec.
+
+
 Ltac split_if :=
   match goal with 
   | [ |- context[if ?X then _ else _] ]
@@ -69,6 +84,6 @@ Ltac split_match_comparison :=
 
 
 Ltac split_match
- := repeat (first [split_if | split_match_option | split_match_comparison]).
+ := first [split_if | split_match_option | split_match_comparison].
 
 

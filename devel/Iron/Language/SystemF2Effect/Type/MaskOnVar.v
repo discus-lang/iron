@@ -76,9 +76,9 @@ Proof.
  Case "TCon1".
   spec IHt H6.
   destruct t0; simpl in *; eauto.
-  destruct t;  norm; inverts H4;
-  unfold maskOnVar; split_if; norm; eauto;
-   eapply KiCon1; norm; eauto. 
+  destruct t;  snorm; inverts H4;
+  unfold maskOnVar; split_if; snorm; eauto;
+   eapply KiCon1; snorm; eauto. 
 
  Case "TCon2".
   spec IHt1 H5.
@@ -102,10 +102,6 @@ Opaque le_gt_dec.
    try (solve [simpl; burn]);
    try (solve [simpl; f_equal; rewritess; auto]).
 
- Case "TVar".
-  simpl. lift_cases. simpl. auto.
-  simpl. auto.
-
  Case "TForall".
   simpl. f_equal.
   rrwrite (S (S (r + d)) = 1 + ((S r) + d)).
@@ -116,7 +112,9 @@ Opaque le_gt_dec.
   destruct t0.
 
   SCase "TVar".
-   repeat (unfold maskOnVar; simpl; split_if; norm_beq_nat; auto; try omega).
+   repeat (unfold maskOnVar; simpl; 
+           try split_dec; try split_if; try norm_beq_nat; 
+           try omega; auto).
           
   (* GAH. Most of this rubbish is just to force single step evaluation of mask.
      I can't work out how to do a 'simpl' with only a single step *)
@@ -175,6 +173,18 @@ Opaque le_gt_dec.
 Qed.
 
 
+Lemma maskOnVar_match
+ : forall n t
+ , maskOnVar n (TCon1 t (TVar n)) = TBot KEffect.
+Proof.
+ intros.
+ unfold maskOnVar.
+ snorm. omega.
+Qed.
+Hint Resolve maskOnVar_match.
+Hint Rewrite maskOnVar_match : global.
+
+
 (********************************************************************)
 Lemma mask_liftTT
   : forall d d' t
@@ -184,9 +194,6 @@ Proof.
  intros. gen d d'.
  induction t; intros;
   try (solve [simpl; f_equal; burn]).
-
-  Case "TVar".
-   simpl. split_match; auto.
 
   Case "TForall".  
    simpl. f_equal.
@@ -207,10 +214,7 @@ Proof.
      assert (d' + d = n).
       eapply maskOnVar_TBot_cases; eauto.
      repeat rewritess.
-     simpl.
-     repeat (split_if; unfold maskOnVar; burn).
-      symmetry in HeqH0. apply beq_nat_false in HeqH0. omega.
-      unfold maskOnVar in H; split_if; omega. 
+     repeat (simpl; try split_dec; try split_if); snorm; omega.
 
     SSCase "Effect not masked".
      rewritess.
@@ -220,33 +224,24 @@ Proof.
      rewrite <- IHt. clear IHt.
 
      simpl. 
-     split_if.
+     split_dec.
       simpl. 
       unfold maskOnVar. 
       split_if; auto.
-       symmetry in HeqH1. apply beq_nat_true in HeqH1.
+       norm.
        have HD: (d' + d = n) by omega.
        rewrite HD in H.
-       simpl in H.
-       unfold maskOnVar in H.
-       split_if. 
-        nope.
-        symmetry in HeqH2. apply beq_nat_false in HeqH2.
-        false. omega.
+       norm. nope.
       
       simpl.
       unfold maskOnVar.
       split_if; auto.
-       symmetry in HeqH1. apply beq_nat_true in HeqH1.
+       norm.
        have HD: (d' + d = n) by omega.
        rewrite HD in H.
-       simpl in H.
-       unfold maskOnVar in H.
-       split_if.
-        nope.
-        symmetry in HeqH2. apply beq_nat_false in HeqH2.
-        false. omega. 
+       norm. nope.
 Qed.
+
 
 Lemma mask_substTT
   : forall d d' t1 t2
@@ -258,9 +253,6 @@ Proof.
  induction t1; intros; 
   try (solve [simpl; f_equal; burn]).
 
-  Case "TVar".
-   simpl. split_match; auto.
-
   Case "TForall".
    simpl. f_equal.
    rrwrite (S (S (d' + d)) = 1 + d' + (S d)).
@@ -268,7 +260,7 @@ Proof.
    rrwrite (S d = 1 + d + 0).
    rewrite mask_liftTT.
    burn.
-   admit.
+   admit.                 (* ok, lift (TVar d) = (TVar (S d)) *)
  
   Case "TCon1".
    simpl.
@@ -286,7 +278,9 @@ Proof.
         rewrite H0.        
 
         have (n < (S (d' + n))) by admit.
-        unfold maskOnVar. admit. (* ok *)
+        unfold maskOnVar. 
+        split_if; norm; omega.
+
 
       SSCase "Effect not masked".
        rewritess.
@@ -297,9 +291,8 @@ Proof.
        rrwrite (S (d' + d) = 1 + d' + d).
        rewrite <- IHt1. clear IHt1.
 
-
        lets F: substTT_TVar_cases (1 + d' + d) n t2.
-        inverts F. rip. rewrite H2. admit.         (* ok, by t <> TVar d *)
+        inverts F. rip. rewrite H2. admit.         (* ok, by t2 <> TVar d *)
 
         inverts H1. rip. rewrite H1.
          assert (d <> n - 1). omega. admit.        (* ok, by prev *)

@@ -15,10 +15,26 @@ Ltac down
 (* Apply all rewrites from the hypothesis. *)
 Ltac rewritess
  := match goal with
-    | [H: eq _ _               |- _ ] => rewrite H in *
-    | [H: forall _,     eq _ _ |- _ ] => rewrite H in *
-    | [H: forall _ _,   eq _ _ |- _ ] => rewrite H in *
-    | [H: forall _ _ _, eq _ _ |- _ ] => rewrite H in *
+    | [H: eq _ _                 |- _ ] => rewrite H in *
+    | [H: forall _,       eq _ _ |- _ ] => rewrite H in *
+    | [H: forall _ _,     eq _ _ |- _ ] => rewrite H in *
+    | [H: forall _ _ _,   eq _ _ |- _ ] => rewrite H in *
+    | [H: forall _ _ _ _, eq _ _ |- _ ] => rewrite H in *
+    end.
+
+
+(* Apply all erewrites from the hypothesis. *)
+Ltac espread
+ := match goal with
+    | [H: eq _ _                       |- _ ] => erewrite H in *; clear H
+    | [H: forall _,       eq _ _       |- _ ] => erewrite H in *; clear H
+    | [H: forall _ _,     eq _ _       |- _ ] => erewrite H in *; clear H
+    | [H: forall _ _ _,   eq _ _       |- _ ] => erewrite H in *; clear H
+    | [H: forall _ _ _ _, eq _ _       |- _ ] => erewrite H in *; clear H
+    | [H: forall _,       _ -> eq _ _  |- _ ] => erewrite H in *; clear H
+    | [H: forall _ _,     _ -> eq _ _  |- _ ] => erewrite H in *; clear H
+    | [H: forall _ _ _,   _ -> eq _ _  |- _ ] => erewrite H in *; clear H
+    | [H: forall _ _ _ _, _ -> eq _ _  |- _ ] => erewrite H in *; clear H
     end.
 
 
