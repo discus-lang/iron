@@ -96,7 +96,7 @@ Proof.
    rrwrite (1 + ix + 0 = 1 + 0 + ix).
    rewrite mask_liftTT_id.
    eapply lowerTT_substTT_liftTT.
-   auto.
+   auto. auto.
 
   rewrite delete_rewind.
   rewrite (liftTE_substTE 0 ix).

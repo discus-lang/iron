@@ -28,6 +28,20 @@ Fixpoint substTT (d: nat) (u: ty) (tt: ty) : ty
   end.
 
 
+(* What might happen when we substitute for a variable.
+   This can be easier use than the raw substTT definition. *)
+Lemma substTT_TVar_cases
+ :  forall n1 n2 t1
+ ,  (substTT n1 t1 (TVar n2) = t1            /\ n1 = n2)
+ \/ (substTT n1 t1 (TVar n2) = TVar (n2 - 1) /\ n1 < n2)
+ \/ (substTT n1 t1 (TVar n2) = TVar n2       /\ n1 > n2).
+Proof.
+ intros.
+ unfold substTT.
+  lift_cases; burn.
+Qed. 
+
+
 (********************************************************************)
 Lemma substTT_wfT
  :  forall d ix t t2
