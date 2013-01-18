@@ -83,10 +83,20 @@ Proof.
   apply TxNew 
    with (t := substTT (S ix) (liftTT 1 0 t2) t)
         (e := substTT (S ix) (liftTT 1 0 t2) e).
+
    rrwrite (ix = 0 + ix).
    eapply lowerTT_substTT_liftTT. auto.
-   rrwrite (ix = 0 + ix).
-   admit.                                     (* need mask/subst *)
+
+   rrwrite (S ix = 1 + ix + 0).
+
+   assert (liftTT 1 0 t2 <> TVar 0).
+    admit. (* show that we're not subsing in var that is being masked *)
+
+   rewrite mask_substTT.
+   rrwrite (1 + ix + 0 = 1 + 0 + ix).
+   rewrite mask_liftTT_id.
+   eapply lowerTT_substTT_liftTT.
+   auto.
 
   rewrite delete_rewind.
   rewrite (liftTE_substTE 0 ix).

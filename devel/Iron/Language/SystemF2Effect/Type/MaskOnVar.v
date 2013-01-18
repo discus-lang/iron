@@ -1,6 +1,7 @@
 
 Require Import Iron.Language.SystemF2Effect.Type.Ty.
 Require Import Iron.Language.SystemF2Effect.Type.Lift.
+Require Import Iron.Language.SystemF2Effect.Type.Subst.
 Require Import Iron.Language.SystemF2Effect.Type.KiJudge.
 
 
@@ -143,4 +144,113 @@ Opaque le_gt_dec.
  SCase "TCap".
   burn.
 Qed.
+
+
+Lemma mask_liftTT
+ : forall d d' t
+ ,  maskOnVar (1 + d' + d) (liftTT 1 d t) = liftTT 1 d (maskOnVar (d' + d) t).
+Proof. admit. Qed.
+
+Lemma substTT_TVar
+ :  forall n1 n2 t1
+ ,  (substTT n1 t1 (TVar n2)  = t1            /\ n1 = n2)
+ \/ (substTT  n1 t1 (TVar n2) = TVar (n2 - 1) /\ n1 < n2)
+ \/ (substTT  n1 t1 (TVar n2) = TVar n2       /\ n1 > n2).
+Proof.
+ intros.
+ unfold substTT.
+  lift_cases; burn.
+Qed. 
+
+
+Lemma maskOnVar_TBot
+ :  forall d tc n
+ ,  maskOnVar d (TCon1 tc (TVar n)) = TBot KEffect -> d = n.
+Proof.
+ intros.
+ unfold maskOnVar in H.
+ break (beq_nat d n).
+  norm_beq_nat. auto.
+  nope.
+Qed.
+
+
+Lemma maskOnVar_TCon1
+ :   forall d tc t
+ ,   maskOnVar d (TCon1 tc t) = TBot KEffect
+ \/  maskOnVar d (TCon1 tc t) = TCon1 tc (maskOnVar d t).
+Proof.
+ intros. 
+ destruct t; simpl; rip.
+ unfold maskOnVar.
+ split_if; burn.
+Qed.
+
+
+Lemma mask_substTT
+ : forall d d' t1 t2
+ ,   t2 <> TVar d
+ ->  maskOnVar d (substTT (1 + d' + d) t2 t1)
+ =   substTT (1 + d' + d) (maskOnVar d t2) (maskOnVar d t1).
+Proof.
+ intros. gen d d' t2.
+ induction t1; intros; 
+  try (solve [simpl; f_equal; burn]).
+
+  Case "TVar".
+   simpl. split_match; auto.
+
+  Case "TForall".
+   simpl. f_equal.
+   rrwrite (S (S (d' + d)) = 1 + d' + (S d)).
+   rewrite IHt1. f_equal.
+   rrwrite (S d = 1 + d + 0).
+   rewrite mask_liftTT.
+   burn.
+   admit.
+ 
+  Case "TCon1".
+   simpl.
+   destruct t1; try (solve [simpl in *; f_equal; rip; rewritess; f_equal]).
+
+   SCase "TVar".
+     lets D: maskOnVar_TCon1 d t (TVar n).
+     inverts D.
+
+      SSCase "Effect is masked".
+       rewritess.
+       apply maskOnVar_TBot in H0. subst.
+       simpl. 
+        have (nat_compare n (S (d' + n)) = Lt) by admit.
+        rewrite H0.        
+
+        have (n < (S (d' + n))) by admit.
+        unfold maskOnVar. admit. (* ok *)
+
+      SSCase "Effect not masked".
+       rewritess.
+       set (X := maskOnVar d (TVar n)).
+       rrwrite ( substTT (S (d' + d)) (maskOnVar d t2) (TCon1 t X)
+               = TCon1 t (substTT (S (d' + d)) (maskOnVar d t2) X)).
+       subst X.
+       rrwrite (S (d' + d) = 1 + d' + d).
+       rewrite <- IHt1. clear IHt1.
+
+
+       lets F: substTT_TVar (1 + d' + d) n t2.
+        inverts F. rip. rewrite H2. admit.         (* ok, by t <> TVar d *)
+
+        inverts H1. rip. rewrite H1.
+         assert (d <> n - 1). omega. admit.        (* ok, by prev *)
+
+        inverts H2. rip. rewrite H1.
+         rewrite H0. auto. auto.
+Qed.
+
+
+Lemma mask_liftTT_id
+ :  forall d t
+ ,  maskOnVar d (liftTT 1 d t) = liftTT 1 d t.
+Proof. admit. Qed.
+
 
