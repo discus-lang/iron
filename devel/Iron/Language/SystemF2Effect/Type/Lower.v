@@ -59,10 +59,9 @@ Lemma lowerTT_liftTT_some
  = Some (liftTT 1 (d + d') t).
 Proof.
  intros. gen d.
- induction t; intros;
   first 
   [ solve [burn]
-  | solve [snorm; burn; try omega]
+  | solve [snorm; try omega]
   | solve [repeat (snorm; burn; try rewritess; burn)]].
 Qed.
 

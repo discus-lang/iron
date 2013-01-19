@@ -17,6 +17,12 @@ Require Export Coq.Arith.Compare_dec.
 Require Export Coq.Logic.FunctionalExtensionality.
 
 
+(* The norm_beq_nat tactic normalises this,
+   so we never want to unfold it. *)
+Opaque beq_nat.
+
+
+(* Primitive normalisations. *)
 Tactic Notation "norm1"
  := first
     [ split_dec 
@@ -35,6 +41,7 @@ Tactic Notation "norm"
 Tactic Notation "snorm"
  := repeat (rip; simpl in *; try norm1);
     autorewrite with global in *.
+
 
 Tactic Notation "burn0"
  := snorm; eauto; nope.

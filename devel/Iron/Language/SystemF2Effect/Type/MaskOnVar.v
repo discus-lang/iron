@@ -214,7 +214,7 @@ Proof.
      assert (d' + d = n).
       eapply maskOnVar_TBot_cases; eauto.
      repeat rewritess.
-     repeat (simpl; try split_dec; try split_if); snorm; omega.
+     snorm. omega.
 
     SSCase "Effect not masked".
      rewritess.
@@ -223,23 +223,16 @@ Proof.
      subst X.
      rewrite <- IHt. clear IHt.
 
-     simpl. 
-     split_dec.
-      simpl. 
-      unfold maskOnVar. 
-      split_if; auto.
-       norm.
-       have HD: (d' + d = n) by omega.
-       rewrite HD in H.
-       norm. nope.
-      
-      simpl.
-      unfold maskOnVar.
-      split_if; auto.
-       norm.
-       have HD: (d' + d = n) by omega.
-       rewrite HD in H.
-       norm. nope.
+     simpl.
+     unfold maskOnVar. snorm.
+     have HD: (d' + d = n) by omega.
+     rewritess. snorm. nope.
+
+     simpl.
+     unfold maskOnVar. snorm.
+     snorm.
+     have HD: (d' + d = n) by omega.
+     rewritess. norm. nope.
 Qed.
 
 
