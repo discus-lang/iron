@@ -229,6 +229,34 @@ Opaque beq_nat.
 Qed.
 
 
+Lemma liftTT_TVar_exists
+  : forall n d n1
+  , exists n2, liftTT n d (TVar n1) = liftTT n d (TVar n2).
+Proof.
+ intros.
+ unfold liftTT. snorm. 
+  exists n1. snorm. omega.
+  exists n1. snorm. omega.
+Qed.
+   
+
+Lemma liftTT_TVar_not
+  : forall t d
+  ,             t <> TVar d
+  -> liftTT 1 0 t <> TVar (S d).
+Proof.
+ intros. gen d.
+ destruct t; intros;
+   try (solve [simpl; congruence]).
+
+ Case "TVar".
+  unfold liftTT. 
+  snorm.
+  congruence.
+  omega.
+Qed.
+
+
 Lemma mask_substTT
   : forall d d' t1 t2
   ,  t2 <> TVar d
@@ -246,7 +274,7 @@ Proof.
    rrwrite (S d = 1 + d + 0).
    rewrite mask_liftTT.
    burn.
-   admit.                                          (* ok, lift (TVar d) = (TVar (S d)) *)
+   apply liftTT_TVar_not; auto.
 
   Case "TCon1".
    simpl.
