@@ -25,6 +25,12 @@ Fixpoint liftTT (n: nat) (d: nat) (tt: ty) : ty :=
 Hint Unfold liftTT.
 
 
+Ltac burn_liftTT t := 
+  induction t;
+  first [ solve [snorm; f_equal; try omega]
+        | solve [repeat (snorm; f_equal; eauto; rewritess; nope) ]].
+
+
 (********************************************************************)
 (* Lifting and well-formedness *)
 Lemma liftTT_wfT
@@ -46,8 +52,9 @@ Lemma liftTT_zero
  :  forall d t
  ,  liftTT 0 d t = t.
 Proof.
- intros. gen d. lift_burn t.
+ intros. gen d. burn_liftTT t.
 Qed.
+Hint Resolve liftTT_zero.
 Hint Rewrite liftTT_zero : global.
 
 
@@ -56,8 +63,9 @@ Lemma liftTT_comm
  ,  liftTT n d (liftTT m d t)
  =  liftTT m d (liftTT n d t).
 Proof.
- intros. gen d. lift_burn t.
+ intros. gen d. burn_liftTT t.
 Qed.
+Hint Resolve liftTT_comm.
 
 
 Lemma liftTT_succ
@@ -65,24 +73,26 @@ Lemma liftTT_succ
  ,  liftTT (S n) d (liftTT m     d t)
  =  liftTT n     d (liftTT (S m) d t).
 Proof.
- intros. gen d m n. lift_burn t.
+ intros. gen d m n. burn_liftTT t.
 Qed.
+Hint Resolve liftTT_succ.
 Hint Rewrite liftTT_succ : global. 
 
 
 Lemma liftTT_plus
  : forall n m d t
- , liftTT n d (liftTT m d t) = liftTT (n + m) d t.
+ , liftTT (n + m) d t = liftTT n d (liftTT m d t).
 Proof.
  intros. gen n d.
  induction m; intros.
  rewrite liftTT_zero; burn.
  rrwrite (n + S m = S n + m).
- rewrite <- IHm.
+ rewrite IHm.
  rewrite liftTT_succ.
  auto.
 Qed. 
-Hint Rewrite <- liftTT_plus : global.
+Hint Resolve liftTT_plus.
+Hint Rewrite liftTT_plus : global.
 
 
 (******************************************************************************)
@@ -92,18 +102,16 @@ Lemma liftTT_wfT_1
  -> liftTT 1 (n + ix) t = t.
 Proof.
  intros. gen n ix.
- induction t; intros; inverts H; simpl; 
-  try burn;
-  try (solve [repeat (rewritess; burn)]).
-
-  Case "TVar".
-   norm. omega.
+ induction t; intros; inverts H;
+  try 
+  first 
+  [ solve [snorm; omega]
+  | solve [repeat (snorm; rewritess; f_equal)]].
 
   Case "TForall".
-   f_equal. 
-   spec IHt H1.
-   rrwrite (S (n + ix) = S n + ix).
-   burn.
+   repeat (snorm; try rewritess; f_equal).
+   rrwrite (S (n + ix) = S n + ix). 
+   eauto.
 Qed.
 Hint Resolve liftTT_wfT_1.
 
@@ -140,21 +148,18 @@ Hint Resolve liftTT_closedT_10.
 *)
 Lemma liftTT_liftTT_11
  :  forall d d' t
- ,  liftTT 1 d              (liftTT 1 (d + d') t) 
- =  liftTT 1 (1 + (d + d')) (liftTT 1 d t).
+ ,  liftTT 1 (1 + (d + d')) (liftTT 1 d t)
+ =  liftTT 1 d              (liftTT 1 (d + d') t).
 Proof.
  intros. gen d d'.
  induction t; intros;
-  try (solve [snorm; burn]);
-  try (solve [snorm; f_equal; rewritess; burn]).
-
- Case "TVar".
-  repeat (snorm; unfold liftTT); burn; omega.
+  try (solve [ snorm; omega ]);
+  try (solve [ snorm; f_equal; rewritess; auto ]).
 
  Case "TForall". 
   snorm.
   rrwrite (S (d + d') = (S d) + d').
-  f_equal. rewritess. burn.
+  f_equal; rewritess; auto.
 Qed.
 
 
@@ -168,27 +173,26 @@ Proof.
   burn. 
 
   rrwrite (S m1 = 1 + m1).
-  rewrite <- liftTT_plus.
+  rewrite liftTT_plus.
   rewritess.
   rrwrite (m1 + n2 + n1 = n1 + (m1 + n2)) by omega.
-  rewrite liftTT_liftTT_11.
+  rewrite <- liftTT_liftTT_11.
   burn.
 Qed.
 
 
 Lemma liftTT_liftTT
  :  forall m1 n1 m2 n2 t
- ,  liftTT m1 n1 (liftTT m2 (n2 + n1) t)
- =  liftTT m2 (m1 + n2 + n1) (liftTT m1 n1 t).
+ ,  liftTT m2 (m1 + n2 + n1) (liftTT m1 n1 t)
+ =  liftTT m1 n1 (liftTT m2 (n2 + n1) t).
 Proof.
  intros. gen n1 m1 n2 t.
  induction m2; intros.
   burn.
-
   rrwrite (S m2 = 1 + m2).
-  rewrite <- liftTT_plus.
-  rewrite liftTT_liftTT_1.
+  rewrite liftTT_plus.
   rewrite IHm2.
+  rewrite <- liftTT_liftTT_1.
   burn.
 Qed.
 Hint Rewrite liftTT_liftTT : global.
@@ -199,6 +203,6 @@ Lemma liftTT_map_liftTT
  ,  map (liftTT m1 n1) (map (liftTT m2 (n2 + n1)) ts)
  =  map (liftTT m2 (m1 + n2 + n1)) (map (liftTT m1 n1) ts).
 Proof.
- induction ts; simpl; f_equal; burn.
+ induction ts; simpl; f_equal; norm; auto.
 Qed.  
 

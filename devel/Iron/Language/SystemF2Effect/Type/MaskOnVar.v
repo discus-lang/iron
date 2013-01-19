@@ -54,8 +54,7 @@ Lemma maskOnVar_TCon1_cases
 Proof.
  intros. 
  destruct t; simpl; rip.
- unfold maskOnVar.
- split_if; burn.
+ unfold maskOnVar. snorm.
 Qed.
 
 
@@ -86,7 +85,6 @@ Proof.
   eapply KiCon2; eauto.
    destruct tc; destruct t1; norm.
 Qed.
-
 
 
 (********************************************************************)
@@ -191,6 +189,7 @@ Lemma mask_liftTT
   , maskOnVar (1 + d' + d) (liftTT 1 d t) 
   = liftTT 1 d (maskOnVar (d' + d) t).
 Proof. 
+Opaque beq_nat.
  intros. gen d d'.
  induction t; intros;
   try (solve [simpl; f_equal; burn]).
@@ -204,7 +203,8 @@ Proof.
 
   Case "TCon1".
    simpl.
-   destruct t0; try (solve [simpl in *; f_equal; rip; rewritess; f_equal]).
+   destruct t0; 
+    try (solve [simpl in *; f_equal; rip; rewritess; f_equal]).
 
    SCase "TVar". 
     lets D: maskOnVar_TCon1_cases (d' + d) t (TVar n).
@@ -223,16 +223,9 @@ Proof.
      subst X.
      rewrite <- IHt. clear IHt.
 
-     simpl.
-     unfold maskOnVar. snorm.
-     have HD: (d' + d = n) by omega.
-     rewritess. snorm. nope.
-
-     simpl.
-     unfold maskOnVar. snorm.
-     snorm.
-     have HD: (d' + d = n) by omega.
-     rewritess. norm. nope.
+     snorm; 
+      unfold maskOnVar in *; snorm;
+      try rewritess; try nope; omega.
 Qed.
 
 
@@ -243,8 +236,8 @@ Lemma mask_substTT
   =  substTT (1 + d' + d) (maskOnVar d t2) (maskOnVar d t1).
 Proof.
  intros. gen d d' t2.
- induction t1; intros; 
-  try (solve [simpl; f_equal; burn]).
+ induction t1; intros;
+  try (solve [repeat (snorm; f_equal)]).
 
   Case "TForall".
    simpl. f_equal.
@@ -253,45 +246,46 @@ Proof.
    rrwrite (S d = 1 + d + 0).
    rewrite mask_liftTT.
    burn.
-   admit.                 (* ok, lift (TVar d) = (TVar (S d)) *)
- 
+   admit.                                          (* ok, lift (TVar d) = (TVar (S d)) *)
+
   Case "TCon1".
    simpl.
-   destruct t1; try (solve [simpl in *; f_equal; rip; rewritess; f_equal]).
+   destruct t1;
+    try (solve [snorm; f_equal; rip]).
 
    SCase "TVar".
-     lets D: maskOnVar_TCon1_cases d t (TVar n).
-     inverts D.
+    lets D: maskOnVar_TCon1_cases d t (TVar n).
+    inverts D.
 
-      SSCase "Effect is masked".
-       rewritess.
-       apply maskOnVar_TBot_cases in H0. subst.
-       simpl. 
-        have (nat_compare n (S (d' + n)) = Lt) by admit.
-        rewrite H0.        
+    SSCase "Effect is masked".
+     rewritess.
+     apply maskOnVar_TBot_cases in H0. subst.
+     simpl. 
+      have HN: (nat_compare n (S (d' + n)) = Lt) by admit.   (* ok nat_compare *)
+      rewrite HN.
+      have (n < (S (d' + n))) by omega.
+      unfold maskOnVar. 
+      snorm. omega.
 
-        have (n < (S (d' + n))) by admit.
-        unfold maskOnVar. 
-        split_if; norm; omega.
+     SSCase "Effect not masked".
+      rewritess.
+      set     (X := maskOnVar d (TVar n)).
+      rrwrite ( substTT (S (d' + d)) (maskOnVar d t2) (TCon1 t X)
+              = TCon1 t (substTT (S (d' + d)) (maskOnVar d t2) X)).
+      subst X.
+      rrwrite (S (d' + d) = 1 + d' + d).
+      rewrite <- IHt1. clear IHt1.
 
+      lets F: substTT_TVar_cases (1 + d' + d) n t2.
+      inverts F. rip. rewritess. 
+      admit.                                           (* lemma, mask with t2 <> TVar d *)
 
-      SSCase "Effect not masked".
-       rewritess.
-       set (X := maskOnVar d (TVar n)).
-       rrwrite ( substTT (S (d' + d)) (maskOnVar d t2) (TCon1 t X)
-               = TCon1 t (substTT (S (d' + d)) (maskOnVar d t2) X)).
-       subst X.
-       rrwrite (S (d' + d) = 1 + d' + d).
-       rewrite <- IHt1. clear IHt1.
+      inverts H1. rip. rewrite H1.
+      assert (d <> n - 1). omega. 
+      admit.                                           (* lemma, mask with no match *)
 
-       lets F: substTT_TVar_cases (1 + d' + d) n t2.
-        inverts F. rip. rewrite H2. admit.         (* ok, by t2 <> TVar d *)
-
-        inverts H1. rip. rewrite H1.
-         assert (d <> n - 1). omega. admit.        (* ok, by prev *)
-
-        inverts H2. rip. rewrite H1.
-         rewrite H0. auto. auto.
+      rip. rewritess. auto. 
+      auto.
 Qed.
 
 
@@ -299,5 +293,4 @@ Lemma mask_liftTT_id
  :  forall d t
  ,  maskOnVar d (liftTT 1 d t) = liftTT 1 d t.
 Proof. admit. Qed.
-
 

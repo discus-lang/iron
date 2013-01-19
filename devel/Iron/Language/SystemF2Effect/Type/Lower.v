@@ -53,17 +53,21 @@ Fixpoint lowerTT (d: nat) (tt: ty) : option ty
     end.
 
 
+Ltac burn_lowerTT t := 
+  induction t;
+  first [ solve [snorm; f_equal; try omega]
+        | solve [repeat (snorm; f_equal; eauto; rewritess; nope) ]].
+
+
 Lemma lowerTT_liftTT_some
  : forall t d d'
  , lowerTT d (liftTT 1 (1 + d + d') (liftTT 1 d t)) 
  = Some (liftTT 1 (d + d') t).
 Proof.
- intros. gen d.
-  first 
-  [ solve [burn]
-  | solve [snorm; try omega]
-  | solve [repeat (snorm; burn; try rewritess; burn)]].
+ intros. gen d. burn_lowerTT t.
 Qed.
+Hint Resolve lowerTT_liftTT_some.
+Hint Rewrite lowerTT_liftTT_some : global.
 
 
 Lemma lowerTT_some_liftTT
@@ -71,18 +75,10 @@ Lemma lowerTT_some_liftTT
  ,  lowerTT   d t1 = Some t2
  -> liftTT  1 d t2 = t1.
 Proof.
- intros. gen d t2.
- induction t1; intros;
-  try first
-  [ solve [burn]
-  | solve [snorm; f_equal; burn; rewritess; burn]].
-
- Case "TVar".
-  snorm; try omega.
-   destruct n; burn.
+ intros. gen d t2. burn_lowerTT t1.
 Qed.
 Hint Resolve lowerTT_some_liftTT.
-Hint Rewrite lowerTT_some_liftTT.
+Hint Rewrite lowerTT_some_liftTT : global.
 
 
 Lemma lowerTT_liftTT_succ
@@ -91,26 +87,21 @@ Lemma lowerTT_liftTT_succ
  -> lowerTT 0 (liftTT 1 (1 + d) t1) = Some (liftTT 1 d t2).
 Proof.
  intros.
- eapply lowerTT_some_liftTT in H.
- symmetry in H. subst.
+ eapply lowerTT_some_liftTT in H. subst.
  eapply lowerTT_liftTT_some.
 Qed.
 Hint Resolve lowerTT_liftTT_succ.
-Hint Rewrite lowerTT_liftTT_succ.
+Hint Rewrite lowerTT_liftTT_succ : global.
 
 
 Lemma lowerTT_liftTT
  : forall d t
  , lowerTT d (liftTT 1 d t) = Some t.
 Proof.
- intros. gen d.
- lift_burn t.
-
- Case "TVar".
-  snorm; burn; omega.
+ intros. gen d. burn_lowerTT t.
 Qed.
 Hint Resolve lowerTT_liftTT.
-Hint Rewrite lowerTT_liftTT.
+Hint Rewrite lowerTT_liftTT : global.
 
 
 Lemma lowerTT_liftTT_switch
@@ -118,12 +109,8 @@ Lemma lowerTT_liftTT_switch
  , lowerTT d (liftTT 1 (S d) (liftTT 1 d t)) 
  = Some (liftTT 1 d t).
 Proof.
- intros. gen d.
- lift_burn t.
-
- Case "TVar".
-  repeat (snorm; unfold liftTT); burn; omega.
+ intros. gen d. burn_lowerTT t.
 Qed.  
 Hint Resolve lowerTT_liftTT_switch.
-Hint Rewrite lowerTT_liftTT_switch.
+Hint Rewrite lowerTT_liftTT_switch : global.
 

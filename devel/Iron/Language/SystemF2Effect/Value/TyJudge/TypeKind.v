@@ -71,12 +71,10 @@ Proof.
   rip.
   eapply maskOnCap_kind. auto.
 
- Case "XAlloc". 
-  unfold tRef. rip.
-  eapply KiCon2. simpl. eauto.
-  auto. eauto.
-  unfold tAlloc in *.
-  eapply KiCon1. norm. auto.
+ Case "XAlloc".
+  rip.
+   unfold tRef.   eapply KiCon2; eauto. snorm.
+   unfold tAlloc. eapply KiCon1; eauto. snorm.
   
  Case "XRead".
   spec IHv H9.
@@ -88,9 +86,9 @@ Proof.
    eapply KiCon1. simpl in *. eauto. eauto.
 
  Case "XWrite".
-  unfold tUnit. rip. 
-  unfold tWrite. 
-  eapply KiCon1. norm. auto.
+  rip.
+   unfold tUnit. rip.
+   unfold tWrite. eapply KiCon1; eauto. snorm.
 
  Case "XOp1".
   destruct o; simpl in *; inverts H6; 

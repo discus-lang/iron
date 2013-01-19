@@ -29,5 +29,6 @@ Ltac nope1
 
 (* Nope solves the goal completely or does nothing *)
 Ltac nope 
- := first [ rip; solve [repeat nope1] 
+ := first [ solve [false; congruence]
+          | rip; solve [repeat nope1] 
           | idtac ].

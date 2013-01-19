@@ -29,7 +29,7 @@ Proof.
    apply TvVar; auto.
    destruct n.
     burn.
-    down. norm. eapply get_delete_below. omega.
+    down. snorm. eapply get_delete_below. omega.
 
  Case "VLam".
   apply TvLam; auto.

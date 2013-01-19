@@ -104,7 +104,7 @@ Proof.
   eauto using kind_kienv_weaken.
 
  Case "XUse".
-  admit.
+  admit.         (* XUse case *)
   
  Case "XAlloc".
   eapply TxOpAlloc; fold substTT.
@@ -121,7 +121,7 @@ Proof.
  Case "XWrite".
   eapply TxOpWrite; fold substTT.
    eauto using subst_type_type_ix.
-   eapply IHx1 in H12; eauto. norm. eauto.
+   eapply IHx1 in H12; eauto. snorm. eauto.
    eapply IHx0 in H13; eauto.
 
 

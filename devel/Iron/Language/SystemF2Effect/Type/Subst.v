@@ -127,7 +127,7 @@ Proof.
   burn.
 
   rrwrite (S m = 1 + m).
-  rewrite <- liftTT_plus.
+  rewrite liftTT_plus.
   rewritess.
   rrwrite (m + n + n' = n + (m + n')) by omega.
   rewrite liftTT_substTT_1. 
@@ -161,6 +161,20 @@ Proof.
 Qed.
 
 
+Lemma liftTT_liftTT_Sd
+ : forall n d t
+ , liftTT n (S d) (liftTT 1 0 t)
+ = liftTT 1 0     (liftTT n d t).
+Proof.
+ intros.
+ lets D: liftTT_liftTT 1 0 n d t.
+ simpl in D.
+ rrwrite (d + 0 = d) in D.
+ auto.
+Qed.
+Hint Rewrite liftTT_liftTT_Sd : global.
+
+
 (********************************************************************)
 (* What a horrow show *)
 Lemma lowerTT_substTT_liftTT
@@ -171,52 +185,33 @@ Lemma lowerTT_substTT_liftTT
 Proof.
  intros. gen d d' t2 t1'.
  induction t1; intros;
-  try (solve [simpl in *; f_equal; inverts H; burn]).
-
+  try (solve [snorm]).
 
  Case "TVar".
-  repeat (simpl in *; norm1); try nope; try omega. 
+  repeat (simpl in *; norm1); try nope; try omega.
 
  Case "TForall".
   snorm. repeat f_equal. 
 
-   (* Goal 7 *)
-   lets L: liftTT_liftTT 1 0 1 d t2.
-    rrwrite (d + 0 = d) in L.
-    rewrite L in HeqH0.
-    clear L.
-
-   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t0. 
+   (* Goal 10 *)
+   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t0.
    symmetry in HeqH1. rip. clear IHt1. clear HeqH1.
-   snorm.   
-   rewrite D in HeqH0.
-   snorm. 
+   rrwrite (S (S d + d') = S (S (d + d'))) in D.
+   norm. rewrite D in HeqH0. snorm.
 
-   (* Goal 5 *)
-   lets L: liftTT_liftTT 1 0 1 d t2.
-    rrwrite (d + 0 = d) in L.
-    rewrite L in HeqH0. 
-    clear L.
-    snorm.
-    
+   (* Goal 9 *)
+   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. 
    symmetry in HeqH1. rip.
 
+   (* Goal 8 *)
    lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. 
    symmetry in HeqH1. rip. clear IHt1. clear HeqH1.
-   snorm.
-
-   lets Z: liftTT_liftTT 1 0 1 d t2.
-   rrwrite (d = d + 0) in HeqH0.
-   rewrite Z in HeqH0.
-   norm. rrwrite (1 + d = S d).
-   rewrite D in HeqH0.
-    nope.
-
+   rrwrite (S (S d + d') = S (S (d + d'))) in D.
+   norm. rewrite D in HeqH0. nope.
+ 
  Case "TApp".
   snorm; nope.
    repeat (espread; burn); burn.
-   espread. nope.
-   espread. nope.
    erewrite IHt1_1 in *; eauto.
    erewrite IHt1_2 in *; eauto. nope.
    erewrite IHt1_1 in *; eauto. nope.
@@ -224,8 +219,6 @@ Proof.
  Case "TSum".
   snorm; nope.
    repeat (espread; burn); burn.
-   espread. nope.
-   espread. nope.
    erewrite IHt1_1 in *; eauto.
    erewrite IHt1_2 in *; eauto. nope.
    erewrite IHt1_1 in *; eauto. nope.
@@ -233,14 +226,11 @@ Proof.
  Case "TCon1".
   snorm; nope.
    repeat (espread; burn).
-   espread. nope.
    erewrite IHt1 in *; eauto. nope.
 
  Case "TCon2".
   snorm; nope.
    repeat (espread; burn); burn.
-   espread. nope.
-   espread. nope.
    erewrite IHt1_1 in *; eauto.
    erewrite IHt1_2 in *; eauto. nope.
    erewrite IHt1_1 in *; eauto. nope.
@@ -287,8 +277,6 @@ Proof.
    snorm.
    symmetry in HeqH0. spec IHt1 HeqH0.
    repeat rewritess. auto.
-   spec IHt1 H2.
-   repeat rewritess. nope.
 
  Case "TApp".
    snorm; try (solve [espread; nope]).

@@ -150,7 +150,7 @@ Proof.
    inverts_kind.
    rrwrite (length ss = length se). auto.
    unfold tRef in *.
-   eapply KiCon2. norm. auto. 
+   eapply KiCon2. snorm. auto. 
    apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).
    auto.
 

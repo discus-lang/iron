@@ -79,20 +79,16 @@ Proof.
  induction t; intros; 
    try (solve [simpl; f_equal; burn]).
 
- Case "TVar".
-  simpl. split_match. norm. norm.
-
  Case "TCon1".
   simpl. 
   destruct t0;
-   try (solve [simpl in *; try rewritess; burn]).
-
-   SCase "TVar".
-    simpl. split_match. norm. norm.
+   try (solve [simpl in *; try rewritess; snorm]).
 
    SCase "TCap". 
     simpl.
     destruct t0.
-    unfold maskOnCap. 
-    split_match. norm. norm.
+     unfold maskOnCap. 
+     snorm.
 Qed.
+
+

@@ -19,7 +19,7 @@ Require Export Coq.Logic.FunctionalExtensionality.
 
 (* The norm_beq_nat tactic normalises this,
    so we never want to unfold it. *)
-Opaque beq_nat.
+Global Opaque beq_nat.
 
 
 (* Primitive normalisations. *)

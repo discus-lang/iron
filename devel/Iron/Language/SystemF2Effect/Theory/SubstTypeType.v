@@ -72,81 +72,29 @@ Theorem lower_type_type_ix
  -> KIND (delete ix ke) sp t2 k1.
 Proof.
  intros. gen ix ke sp k1 t2.
- induction t1; intros; simpl.
+ induction t1; intros; simpl;
+  try (solve [inverts_kind; snorm; eauto; nope]).
 
  Case "TVar".
-  inverts_kind.
-  simpl in H.
-  remember (nat_compare n ix) as X.
-  destruct X.
-   SCase "n = ix".
-    nope.
-
-   SCase "n < ix".
-    norm. eapply KiVar. burn.
-
+  inverts_kind. snorm.
    SCase "n > ix".
-    norm. eapply KiVar.
+    eapply KiVar.
     rewrite <- H4.
     destruct n.
      simpl. burn.
      simpl. norm. eapply get_delete_below. omega.
 
  Case "TForall".
-  inverts_kind. norm.
-  remember (lowerTT (S ix) t1) as X.
-  destruct X.
-   inverts H.
+  inverts_kind. snorm. 
    eapply KiForall.
-   rewrite delete_rewind. eauto.
-   false.
-
- Case "TApp".
-  inverts_kind. norm.
-  remember (lowerTT ix t1_1) as X1.
-  remember (lowerTT ix t1_2) as X2.
-  destruct X1. destruct X2.
-  inverts H.
-   spec IHt1_1 H6. eauto.
-   nope. nope.
-
- Case "TSum".
-  inverts_kind. norm.
-  remember (lowerTT ix t1_1) as X1.
-  remember (lowerTT ix t1_2) as X2.
-  destruct X1. destruct X2.
-  inverts H.
-   spec IHt1_1 H6. eauto.
-   nope. nope.
-
- Case "TBot".
-  inverts_kind. norm. auto.
-
- Case "TCon0".
-  inverts_kind. norm. 
-  destruct t; burn.
- 
- Case "TCon1".
-  inverts_kind. norm.
-  break (lowerTT ix t1).
-  norm.
-  spec IHt1 H7. eauto.
-  nope.
+   rewrite delete_rewind.
+   eauto. nope.
 
  Case "TCon2".
-  inverts_kind. norm.
-  break (lowerTT ix t1_1).
-  break (lowerTT ix t1_2).
-  norm.
-  spec IHt1_1 H6. symmetry in HeqX.
-  spec IHt1_1 HeqX.
-   eapply KiCon2. eauto.
-   destruct tc; destruct t; eauto. auto. auto.
+  inverts_kind. snorm.
+  eapply KiCon2; eauto.
+   destruct tc; destruct t; eauto.
    nope. nope.
-
- Case "TCap".
-  inverts_kind.
-  norm. burn.
 Qed.
 
 
