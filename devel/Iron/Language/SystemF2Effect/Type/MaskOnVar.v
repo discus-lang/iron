@@ -34,6 +34,8 @@ Fixpoint maskOnVar (r : nat) (e : ty) : ty
 Arguments maskOnVar r e : simpl nomatch.
 
 
+(********************************************************************)
+(* Helper lemmas *)
 Lemma maskOnVar_TBot_cases
  :  forall d tc n
  ,  maskOnVar d (TCon1 tc (TVar n)) = TBot KEffect 
@@ -55,6 +57,32 @@ Proof.
  intros. 
  destruct t; simpl; rip.
  unfold maskOnVar. snorm.
+Qed.
+
+
+Lemma maskOnVar_match
+ : forall n t
+ , maskOnVar n (TCon1 t (TVar n)) = TBot KEffect.
+Proof.
+ intros.
+ unfold maskOnVar.
+ snorm. omega.
+Qed.
+Hint Resolve maskOnVar_match.
+Hint Rewrite maskOnVar_match : global.
+
+
+Lemma maskOnVar_nomatch
+ : forall d tc t2
+ ,  t2 <> TVar d
+ -> maskOnVar d (TCon1 tc t2)    = TCon1 tc (maskOnVar d t2).
+Proof.
+ intros.
+ destruct t2; snorm.
+ 
+ Case "TVar".
+  unfold maskOnVar. 
+  snorm. congruence.
 Qed.
 
 
@@ -171,18 +199,6 @@ Opaque le_gt_dec.
 Qed.
 
 
-Lemma maskOnVar_match
- : forall n t
- , maskOnVar n (TCon1 t (TVar n)) = TBot KEffect.
-Proof.
- intros.
- unfold maskOnVar.
- snorm. omega.
-Qed.
-Hint Resolve maskOnVar_match.
-Hint Rewrite maskOnVar_match : global.
-
-
 (********************************************************************)
 Lemma mask_liftTT
   : forall d d' t
@@ -229,34 +245,6 @@ Opaque beq_nat.
 Qed.
 
 
-Lemma liftTT_TVar_exists
-  : forall n d n1
-  , exists n2, liftTT n d (TVar n1) = liftTT n d (TVar n2).
-Proof.
- intros.
- unfold liftTT. snorm. 
-  exists n1. snorm. omega.
-  exists n1. snorm. omega.
-Qed.
-   
-
-Lemma liftTT_TVar_not
-  : forall t d
-  ,             t <> TVar d
-  -> liftTT 1 0 t <> TVar (S d).
-Proof.
- intros. gen d.
- destruct t; intros;
-   try (solve [simpl; congruence]).
-
- Case "TVar".
-  unfold liftTT. 
-  snorm.
-  congruence.
-  omega.
-Qed.
-
-
 Lemma mask_substTT
   : forall d d' t1 t2
   ,  t2 <> TVar d
@@ -285,40 +273,59 @@ Proof.
     lets D: maskOnVar_TCon1_cases d t (TVar n).
     inverts D.
 
-    SSCase "Effect is masked".
+    SSCase "maskOnVar matches".
      rewritess.
      apply maskOnVar_TBot_cases in H0. subst.
-     simpl. 
-      have HN: (nat_compare n (S (d' + n)) = Lt) by admit.   (* ok nat_compare *)
-      rewrite HN.
+     simpl.
+      assert (nat_compare n (S (d' + n)) = Lt).
+       rewrite <- nat_compare_lt. omega.
+      rewritess.
       have (n < (S (d' + n))) by omega.
       unfold maskOnVar. 
       snorm. omega.
 
-     SSCase "Effect not masked".
+     SSCase "maskOnVar does not match".
       rewritess.
       set     (X := maskOnVar d (TVar n)).
       rrwrite ( substTT (S (d' + d)) (maskOnVar d t2) (TCon1 t X)
               = TCon1 t (substTT (S (d' + d)) (maskOnVar d t2) X)).
       subst X.
       rrwrite (S (d' + d) = 1 + d' + d).
-      rewrite <- IHt1. clear IHt1.
+      rewrite <- IHt1; auto. clear IHt1.
 
       lets F: substTT_TVar_cases (1 + d' + d) n t2.
-      inverts F. rip. rewritess. 
-      admit.                                           (* lemma, mask with t2 <> TVar d *)
+      inverts F.
 
-      inverts H1. rip. rewrite H1.
-      assert (d <> n - 1). omega. 
-      admit.                                           (* lemma, mask with no match *)
+       SSSCase "substTT matches".
+        rip. rewritess.
+        eapply maskOnVar_nomatch; auto.
 
-      rip. rewritess. auto. 
-      auto.
+       inverts H1.
+       SSSCase "substTT lowers var". 
+        rip. rewrite H1.
+        have (d <> n - 1) by omega.
+        have (TVar d <> TVar (n - 1)) by congruence.
+        apply maskOnVar_nomatch; auto.
+
+       SSSCase "substTT preserves var".
+        rip. rewritess. auto. 
 Qed.
 
 
 Lemma mask_liftTT_id
  :  forall d t
  ,  maskOnVar d (liftTT 1 d t) = liftTT 1 d t.
-Proof. admit. Qed.
+Proof.
+ intros. gen d.
+ induction t; 
+  try (solve [repeat (snorm; try rewritess)]).
+
+ Case "TCon1".
+  snorm.
+  destruct t0;
+   try (solve [snorm; rewritess; auto]).
+ 
+   SCase "TVar".
+    repeat (unfold liftTT; unfold maskOnVar; snorm; omega).
+Qed.
 
