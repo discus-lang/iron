@@ -54,7 +54,7 @@ Proof.
 
   SCase "XCase".
    eapply TyCase; eauto. 
-   nforall. intros.
+   repeat nforall. intros.
    apply H2 in H5.
    eauto.
 

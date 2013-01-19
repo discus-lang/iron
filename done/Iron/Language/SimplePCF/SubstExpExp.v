@@ -23,7 +23,7 @@ Proof.
   SCase "n > ix".
    eapply TyVar.
    destruct n; burn.
-    norm. down. apply get_delete_below. omega.
+    norm. nnat. down. apply get_delete_below. omega.
 
  Case "XLam".
   apply TyLam.

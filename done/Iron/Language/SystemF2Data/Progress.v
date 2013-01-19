@@ -15,7 +15,7 @@ Proof.
  intros.
  eapply getAlt_exists.
  inverts_type.
- nforall. eapply H8.
+ repeat nforall. eapply H8.
 
  have (getCtorOfType (TCon tc) = Some tc) as HC.
  erewrite getCtorOfType_makeTApps in H5; eauto.
@@ -99,7 +99,7 @@ Proof.
   inverts_type.
   (* All ctor args are either wnf or can step *)
   assert (Forall (fun x => wnfX x \/ (exists x', STEP x x')) xs) as HWS.
-   nforall. intros.
+   repeat nforall. intros.
    have (exists t, TYPE ds nil nil x t). dest t.
    have (value x \/ (exists x', STEP x x')). intuition.
 

@@ -19,8 +19,8 @@ Require Export Coq.Logic.FunctionalExtensionality.
 
 
 Ltac norm
- := simpl in *; rip;
-    try (repeat (norm_nat; norm_lists)).
+ := simpl in *; 
+    repeat (rip; try norm_nat; try norm_lists).
 
 Ltac tburn0 T
  := norm; eauto using T; nope.

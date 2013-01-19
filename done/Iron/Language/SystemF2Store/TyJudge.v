@@ -196,7 +196,7 @@ Proof.
   have (tObj0 = tObj).
    eauto. subst.
 
-  nforall.
+  repeat nforall.
   assert (length aa > 0).
    lets D: @length_in_in_nonempty H9.
    have (DEFOK ds (DefType tcObj ks dcs)) as HD.
@@ -321,16 +321,16 @@ Proof.
 
  Case "XCon".
   apply WfX_XCon.
-  nforall. intros.
+  repeat nforall. intros.
   have (exists k, KIND ke x k).
   dest k. eauto.
-   nforall. intros.
+   repeat nforall. intros.
    have (exists t, TYPE ds ke te se x t).
    dest t. eauto.
 
  Case "XCase".
   eapply WfX_XCase; eauto.
-  nforall. eauto.
+  repeat nforall. eauto.
 
  Case "XAlt".
   destruct dc.
@@ -448,10 +448,10 @@ Proof.
   eapply TyCase; eauto.
   apply  Forall_map.
   eapply Forall_impl_in; eauto.
-   intros. nforall.
+   intros. repeat nforall.
    eapply H; burn.
     rr. burn.
-    nforall. intros.
+    repeat nforall. intros.
      have (In x (map dcOfAlt aa)).
      rr. auto.
 
@@ -469,7 +469,7 @@ Proof.
     rr. eauto.
     rr.
     rrwrite (length ts = length ks).
-    nforall. eauto.
+    repeat nforall. eauto.
 
  Case "XAlt".
   have (DEFOK ds (DefData dc tsFields tc)).
@@ -559,8 +559,8 @@ Proof.
    apply Forall_map.
    apply (Forall_impl_in 
      (fun a => TYPEA ds ke te se a tObj t1)); eauto.
-   nforall. eauto.
-   nforall.
+   repeat nforall. eauto.
+   repeat nforall.
     intros. lists.
     rename x0 into d.
     eapply map_exists_in.
@@ -638,11 +638,11 @@ Proof.
  Case "XCon".
   eapply TyCon; eauto.
   eapply Forall2_impl_in with (R1 := TYPE ds ke te se); 
-   nforall; eauto.
+   repeat nforall; eauto.
 
  Case "XCase".
   eapply TyCase; 
-   nforall; eauto.
+   repeat nforall; eauto.
 Qed.
 Hint Resolve type_stenv_snoc.
 

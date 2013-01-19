@@ -105,14 +105,14 @@ Proof.
   ; intros; inverts_type; eauto.
 
  Case "XCon".
-  apply WfX_XCon. norm. intros.
+  apply WfX_XCon. repeat nforall. intros.
   have HT: (exists t, TYPE ds te x t).
   spec H H0 ds te.
   destruct HT as [t].
   burn.
 
  Case "XCase".
-  eapply WfX_XCase; burn.
+  eapply WfX_XCase; repeat nforall; burn.
 Qed.
 Hint Resolve type_wfX.
 
@@ -142,15 +142,15 @@ Proof.
 
  Case "XCon".
   eapply TYCon; burn.
-   norm.
    apply (Forall2_map_left (TYPE ds (insert ix t2 te))).
    apply (Forall2_impl_in  (TYPE ds te)); eauto.
+   nforall. eauto.
 
  Case "XCase".
   eapply TYCase; eauto.
    apply Forall_map.
    apply (Forall_impl_in (fun a => TYPEA ds te a (TCon tcPat) t1)); eauto.
-   burn.
+   repeat nforall. burn.
  
   rewrite map_length; auto.
 

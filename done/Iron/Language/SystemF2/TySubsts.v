@@ -274,8 +274,9 @@ Proof.
   eapply WfT_TForall.
   rrwrite (S (tn + n) = tn + (S n)).
   eapply IHt1.
-   eapply Forall_map. 
-    nforall. intros.
+   eapply Forall_map.
+    repeat nforall. 
+     intros.
      have (wfT (tn + n) x).
      rrwrite (tn + S n = S (tn + n)).
      auto.
@@ -350,7 +351,7 @@ Proof.
   nnat.
   rrwrite (1 + (n + n') = S n + n').
   rrwrite (S (0 + (n + n')) = 1 + n + n').
-  rewrite IHt1. nnat. burn.
+  rewrite IHt1. burn.
   lists.
   rrwrite (length ts + S n = S (length ts + n)). auto.
 Qed.

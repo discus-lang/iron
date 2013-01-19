@@ -176,7 +176,7 @@ Lemma liftX_plus
 Proof.
  intros. gen n.
  induction m.
-  intros. rewrite liftX_zero. burn.
+  intros. rewrite liftX_zero. nnat. burn.
   intros.
    rrwrite (n + S m = S n + m). 
    rewrite liftX_comm.

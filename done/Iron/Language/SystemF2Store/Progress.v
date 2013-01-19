@@ -84,7 +84,7 @@ Proof.
   inverts_type.
   (* All ctor args are either wnf or can step *)
   assert (Forall (fun x => wnfX x \/ (exists s' x', STEP s x s' x')) xs) as HWS.
-   nforall. intros.
+   repeat nforall. intros.
    have (exists t, TYPE ds nil nil se x t). dest t.
    have (value x \/ (exists s' x', STEP s x s' x')). intuition.
 
@@ -105,8 +105,8 @@ Proof.
    assert (exists svs, Forall2 svalueOf xs svs).
     eapply (Forall2_exists_right_all value). auto.
     assert (Forall closedX xs).
-     nforall. eauto.
-     nforall. eauto.
+     repeat nforall. eauto.
+     repeat nforall. eauto.
      dest svs.
 
    exists (snoc (SObj dc svs) s).

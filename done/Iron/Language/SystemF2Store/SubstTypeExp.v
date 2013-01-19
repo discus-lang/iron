@@ -77,8 +77,8 @@ Proof.
  Case "XCase".
   eapply TyCase; eauto.
   eapply Forall_map.
-  nforall. intros. eauto.
-  nforall. intros.
+  repeat nforall. intros. eauto.
+  repeat nforall. intros.
    have (In x (map dcOfAlt aa)).
    assert ( map dcOfAlt (map (substTA ix t2) aa)
           = map dcOfAlt aa) as HDC.

@@ -67,14 +67,14 @@ Proof.
      defok ds (DefData     dc tsFields tc).
      defok ds (DefDataType tc ks       dcs).
      rrwrite (length ts = length ks).
-     nforall.
+     repeat nforall.
      have (KIND ks y KStar). eauto.
  
  Case "XCase".
   eapply TYCase; eauto.
   eapply Forall_map.
-  nforall. intros. eauto.
-  nforall. intros.
+  repeat nforall. intros. eauto.
+  repeat nforall. intros.
    have (In x (map dcOfAlt aa)).
    assert ( map dcOfAlt (map (substTA ix t2) aa)
           = map dcOfAlt aa) as HDC.

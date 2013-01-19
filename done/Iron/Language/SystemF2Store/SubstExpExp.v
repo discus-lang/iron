@@ -64,10 +64,10 @@ Proof.
    clear IHx1.
    (* Alts have correct type *)
     eapply Forall_map.
-    nforall. eauto.
+    repeat nforall. eauto.
 
    (* Required datacon is in alts list *)
-   nforall. intros.
+   repeat nforall. intros.
    rename x into d. lists.
    apply in_map_iff.
    have (exists a, dcOfAlt a = d /\ In a aa). 

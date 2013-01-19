@@ -56,7 +56,7 @@ Proof.
    rewrite map_length; burn.
 
    (* Required datacon is in alts list *)
-   nforall. intros.
+   norm.
    rename x into d.
    rewrite map_map. unfold Basics.compose.
    apply in_map_iff.

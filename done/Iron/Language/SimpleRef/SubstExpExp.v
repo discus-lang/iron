@@ -32,7 +32,7 @@ Proof.
    apply TyVar.
    destruct n.
     burn.
-    simpl. norm. down. apply get_delete_below. omega.
+    simpl. nnat. down. apply get_delete_below. omega.
 
  Case "XLam".
   apply TyLam.

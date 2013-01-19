@@ -235,7 +235,7 @@ Proof.
   (* choose the alternative *)
   lets HTCon: preservation_steps H3 Ex1. clear Ex1.
   assert (TYPEA ds nil nil (AAlt dc x2) tObj t1) as TA.
-   nforall. eauto. 
+   repeat nforall. eauto. 
 
   inverts TA. inverts HTCon.
   rewrite H17 in H10. inverts H10.

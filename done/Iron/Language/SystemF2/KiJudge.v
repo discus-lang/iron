@@ -59,7 +59,7 @@ Lemma kind_wfT_Forall
  ,  Forall (fun t => KIND ks t KStar) ts
  -> Forall (wfT (length ks)) ts.
 Proof.
- intros. nforall. eauto.
+ intros. repeat nforall. eauto.
 Qed.
 Hint Resolve kind_wfT_Forall.
 
@@ -101,7 +101,7 @@ Proof.
  induction t; intros; simpl; inverts_kind; eauto.
 
  Case "TVar".
-  lift_cases; intros; nnat; auto.
+  lift_cases; intros; repeat nnat; auto.
 
  Case "TForall".
   apply KIForall.

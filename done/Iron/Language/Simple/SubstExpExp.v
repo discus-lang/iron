@@ -25,7 +25,7 @@ Proof.
   SCase "n > ix".
    eapply TYVar.
     destruct n; burn.
-     norm. down. apply get_delete_below. omega.
+     simpl. nnat. down. apply get_delete_below. omega.
    
  Case "XLam". 
   apply TYLam.

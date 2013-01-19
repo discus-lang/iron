@@ -185,16 +185,16 @@ Proof.
 
  Case "XCon".
   apply WfX_XCon.
-  nforall. intros.
+  repeat nforall. intros.
   have (exists k, KIND ke x k).
   dest k. eauto.
-   nforall. intros.
+   repeat nforall. intros.
    have (exists t, TYPE ds ke te x t).
    dest t. eauto.
 
  Case "XCase".
   eapply WfX_XCase; eauto.
-  nforall. eauto.
+  repeat nforall. eauto.
 
  Case "XAlt".
   destruct dc.
@@ -282,7 +282,7 @@ Proof.
     eapply Forall2_impl_in; eauto.
      simpl. intros.
 
-     nforall.
+     repeat nforall.
      lets D: H ix H2 k2; auto. clear H.
 
      assert ( liftTT 1 ix (substTTs 0 ts y)
@@ -297,7 +297,7 @@ Proof.
        assert (length ts = length ks) as HLts.
         eapply Forall2_length. eauto.
         rewrite HLts.
-        eapply kind_wfT. nforall. eauto.
+        eapply kind_wfT. repeat nforall. eauto.
 
        rr. apply liftTT_wfT_1. auto.
        rewrite <- H. auto.
@@ -306,10 +306,10 @@ Proof.
   eapply TYCase; eauto.
   apply  Forall_map.
   eapply Forall_impl_in; eauto.
-   intros. nforall.
+   intros. repeat nforall.
    eapply H; burn.
     rr. burn.
-    nforall. intros.
+    repeat nforall. intros.
      have (In x (map dcOfAlt aa)).
      rr. auto.
        
@@ -402,8 +402,8 @@ Proof.
    apply Forall_map.
    apply (Forall_impl_in 
      (fun a => TYPEA ds ke te a tObj t1)); eauto.
-   nforall. eauto.
-   nforall.
+   repeat nforall. eauto.
+   repeat nforall.
     intros. lists.
     rename x0 into d.
     eapply map_exists_in.
