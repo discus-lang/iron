@@ -103,7 +103,8 @@ Proof.
   lets D: IHx1 H H1 H11.
   eapply TxUse; eauto.
   rewrite maskOnCap_substTT.
-  admit.         (* XUse case *)
+  admit.         (* need t2 is not region cap being used *)
+  admit.         (* need t2 is not region cap being used *)
   
  Case "XAlloc".
   eapply TxOpAlloc; fold substTT.

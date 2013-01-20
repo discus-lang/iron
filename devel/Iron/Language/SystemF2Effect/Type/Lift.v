@@ -73,6 +73,17 @@ Qed.
 Hint Resolve liftTT_TVar_not_succ.
 
 
+Lemma liftTT_TCap
+ :  forall n d t tc
+ ,  liftTT n d t = TCap tc
+ -> t            = TCap tc.
+Proof.
+ intros.
+ destruct t; simpl in *; nope.
+  split_if; nope.
+Qed.
+
+
 (********************************************************************)
 (* Lifting and well-formedness *)
 Lemma liftTT_wfT

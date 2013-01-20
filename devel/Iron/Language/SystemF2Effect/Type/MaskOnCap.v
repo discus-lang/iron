@@ -61,6 +61,20 @@ Proof.
 Qed.
 
 
+Lemma maskOnCap_nomatch
+ : forall n tc t2
+ ,  t2 <> TCap (TyCapRegion n)
+ -> maskOnCap n (TCon1 tc t2)    = TCon1 tc (maskOnCap n t2).
+Proof.
+ intros.
+ destruct t2; snorm.
+ 
+ Case "TCap".
+  unfold maskOnCap.
+  destruct t. norm. congruence.
+Qed.
+
+
 (********************************************************************)
 Lemma maskOnCap_kind
  :  forall ke sp t k n
@@ -135,7 +149,9 @@ Proof.
   snorm. f_equal. 
   rewritess. 
    rewrite maskOnCap_liftTT. auto.
-   admit.                                (* lift preserves caps *)
+   unfold not in *. intros.
+    eapply H.
+    eapply liftTT_TCap; eauto.
 
  Case "TCon1".
   simpl.
@@ -148,7 +164,7 @@ Proof.
 
     SSSCase "substTT matches".
      rip. rewritess. simpl. norm.
-      admit.                           (* lemma matchOnCap_nomatch *)
+      apply maskOnCap_nomatch. auto.
       omega. omega.
 
     inverts H0.

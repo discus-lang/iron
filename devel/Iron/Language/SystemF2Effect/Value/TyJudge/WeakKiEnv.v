@@ -106,7 +106,7 @@ Proof.
  Case "XUse".
   simpl.
   eapply TxUse.
-  rewrite liftTT_maskOnCap.
+  rewrite maskOnCap_liftTT.
   eauto.
   eauto.
 
