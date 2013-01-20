@@ -1,6 +1,7 @@
 
 Require Import Iron.Language.SystemF2Effect.Type.Ty.
 Require Import Iron.Language.SystemF2Effect.Type.Lift.
+Require Import Iron.Language.SystemF2Effect.Type.Subst.
 Require Import Iron.Language.SystemF2Effect.Type.KiJudge.
 
 
@@ -33,6 +34,34 @@ Fixpoint maskOnCap (r : nat) (e : ty) : ty
 Arguments maskOnCap r e : simpl nomatch.
 
 
+(********************************************************************)
+(* Helper Lemmas *)
+Lemma maskOnCap_TBot_cases
+ :  forall d tc n
+ ,  maskOnCap d (TCon1 tc (TCap (TyCapRegion n))) = TBot KEffect 
+ -> d = n.
+Proof.
+ intros.
+ unfold maskOnCap in H.
+ break (beq_nat d n).
+  norm_beq_nat. auto.
+  nope.
+Qed.
+
+
+Lemma maskOnCap_TCon1_cases
+ :   forall d tc t
+ ,   maskOnCap d (TCon1 tc t) = TBot KEffect
+ \/  maskOnCap d (TCon1 tc t) = TCon1 tc (maskOnCap d t).
+Proof.
+ intros. 
+ destruct t; simpl; rip.
+ unfold maskOnCap.
+  destruct t. snorm.
+Qed.
+
+
+(********************************************************************)
 Lemma maskOnCap_kind
  :  forall ke sp t k n
  ,  KIND ke sp t k 
@@ -71,7 +100,7 @@ Proof.
 Qed.
 
 
-Lemma liftTT_maskOnCap
+Lemma maskOnCap_liftTT
  :  forall r d t
  ,  maskOnCap r (liftTT 1 d t) = liftTT 1 d (maskOnCap r t).
 Proof.
@@ -91,4 +120,58 @@ Proof.
      snorm.
 Qed.
 
+
+Lemma maskOnCap_substTT
+ : forall n d t1 t2
+ ,  t2 <> TCap (TyCapRegion n)
+ -> maskOnCap n (substTT d t2 t1) 
+ =  substTT d (maskOnCap n t2) (maskOnCap n t1).
+Proof. 
+ intros. gen n d t2. 
+ induction t1; intros;
+  try (solve [snorm; f_equal; rewritess; auto]).
+
+ Case "TForall".
+  snorm. f_equal. 
+  rewritess. 
+   rewrite maskOnCap_liftTT. auto.
+   admit.                                (* lift preserves caps *)
+
+ Case "TCon1".
+  simpl.
+  destruct t1;
+   try (solve [snorm; f_equal; rip]).
+
+   SCase "TVar".
+    lets D: substTT_TVar_cases d n0 t2.
+    inverts D. 
+
+    SSSCase "substTT matches".
+     rip. rewritess. simpl. norm.
+      admit.                           (* lemma matchOnCap_nomatch *)
+      omega. omega.
+
+    inverts H0.
+    SSSCase "substTT lowers var".
+     rip. rewritess.
+     simpl. 
+     norm; subst; omega.
+
+    SSSCase "substTT preserves var".
+     rip. rewritess. simpl. 
+     norm; subst; omega.
+
+   SCase "TCap".
+    lets D: maskOnCap_TCon1_cases n t (TCap t0).
+    inverts D.
+
+    SSCase "maskOnCap matches".
+     destruct t0.
+     rewritess.
+     lets D: maskOnCap_TBot_cases n t n0. 
+      rip.
+
+    SSCase "maskOnCap doesn't match".
+     rip. rewritess. eauto.
+Qed.
 

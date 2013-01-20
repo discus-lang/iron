@@ -100,6 +100,9 @@ Proof.
   eauto using kind_kienv_weaken.
 
  Case "XUse".
+  lets D: IHx1 H H1 H11.
+  eapply TxUse; eauto.
+  rewrite maskOnCap_substTT.
   admit.         (* XUse case *)
   
  Case "XAlloc".
