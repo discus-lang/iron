@@ -261,8 +261,7 @@ Proof.
    rewrite IHt1. f_equal.
    rrwrite (S d = 1 + d + 0).
    rewrite mask_liftTT.
-   burn.
-   apply liftTT_TVar_not; auto.
+   burn. burn.
 
   Case "TCon1".
    simpl.

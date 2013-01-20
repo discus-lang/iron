@@ -88,15 +88,11 @@ Proof.
    eapply lowerTT_substTT_liftTT. auto.
 
    rrwrite (S ix = 1 + ix + 0).
-
-   assert (liftTT 1 0 t2 <> TVar 0).
-    admit. (* show that we're not subsing in var that is being masked *)
-
-   rewrite mask_substTT.
-   rrwrite (1 + ix + 0 = 1 + 0 + ix).
-   rewrite mask_liftTT_id.
-   eapply lowerTT_substTT_liftTT.
-   auto. auto.
+   rewrite mask_substTT; auto.
+    rrwrite (1 + ix + 0 = 1 + 0 + ix).
+    rewrite mask_liftTT_id.
+    eapply lowerTT_substTT_liftTT.
+    auto.
 
   rewrite delete_rewind.
   rewrite (liftTE_substTE 0 ix).
@@ -123,7 +119,6 @@ Proof.
    eauto using subst_type_type_ix.
    eapply IHx1 in H12; eauto. snorm. eauto.
    eapply IHx0 in H13; eauto.
-
 
  Case "XOp1".
   eapply TxOpPrim.

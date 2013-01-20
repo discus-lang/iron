@@ -112,7 +112,7 @@ Inductive
     -> TYPEX  ke te se sp (XAPP v1 t2) (substTT 0 t2 t12) (TBot KEffect)
 
   (* Store Operators ******************)
-  (* Create a new location region. *)
+  (* Create a new region. *)
   | TxNew
     :  forall ke te se sp x t tL e eL
     ,  lowerTT 0 t               = Some tL

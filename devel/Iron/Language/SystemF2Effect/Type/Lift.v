@@ -34,20 +34,32 @@ Ltac burn_liftTT t :=
 (********************************************************************)
 (* Helper Lemmas *)
 Lemma liftTT_TVar_exists
-  : forall n d n1
-  , exists n2, liftTT n d (TVar n1) = liftTT n d (TVar n2).
+ : forall n d n1
+ , exists n2, liftTT n d (TVar n1) = liftTT n d (TVar n2).
 Proof.
  intros.
  unfold liftTT. snorm. 
   exists n1. snorm. omega.
   exists n1. snorm. omega.
 Qed.
-   
 
-Lemma liftTT_TVar_not
-  : forall t d
-  ,             t <> TVar d
-  -> liftTT 1 0 t <> TVar (S d).
+
+Lemma liftTT_TVar_not_zero
+ : forall t
+ , liftTT 1 0 t <> TVar 0.
+Proof.
+ intros.
+ destruct t;
+  try (solve [unfold not; snorm; inverts H; omega]);
+  try (solve [unfold not; snorm; nope]).
+Qed.
+Hint Resolve liftTT_TVar_not_zero.
+
+
+Lemma liftTT_TVar_not_succ
+ : forall t d
+ ,             t <> TVar d
+ -> liftTT 1 0 t <> TVar (S d).
 Proof.
  intros. gen d.
  destruct t; intros;
@@ -58,6 +70,7 @@ Proof.
   snorm.
   congruence.
 Qed.
+Hint Resolve liftTT_TVar_not_succ.
 
 
 (********************************************************************)
