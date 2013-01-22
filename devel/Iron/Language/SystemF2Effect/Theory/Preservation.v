@@ -103,10 +103,11 @@ Proof.
   rrwrite (substTE 0 r nil = nil).
   rrwrite (substTE 0 r se  = se).
   rrwrite (substTT 0 r t0 = t) in H5.
-  admit.                                 (* subst into effects under masking *)
-(*  rrwrite (substTT 0 r e0 = e) in H5. *)
-  burn.
-
+  eapply TxUse with (e := substTT 0 r e0).
+   subst.             
+   admit.  (* substituting region handle then masking the handle
+              yields the same as masking the var then lowering the result *)
+   auto.
 
  (* Use Region ************************)
  Case "EsUse".
@@ -114,7 +115,7 @@ Proof.
   shift se'. shift e'.
   rip; inverts H; rip.
   admit.                    (* need SubstT maskOnCap *)
-  admit.
+  admit.                    (* Resulting XUse is well typed *)
 
  Case "EsUsePop".
   exists se.

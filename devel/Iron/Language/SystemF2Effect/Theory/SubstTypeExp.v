@@ -105,7 +105,9 @@ Proof.
   rewrite maskOnCap_substTT.
   admit.         (* need t2 is not region cap being used *)
   admit.         (* need t2 is not region cap being used *)
-  
+  (* add premise to XUse saying region n is not in sp
+     add this handle to env only under XUse *)  
+
  Case "XAlloc".
   eapply TxOpAlloc; fold substTT.
    eauto using subst_type_type_ix.
