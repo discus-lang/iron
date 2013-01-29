@@ -11,7 +11,7 @@ Definition stenv := list ty.
 
 
 (* Types of primops. 
-   We keep this separte from the main typing judgement to make it easy
+   We keep this separate from the main typing judgement to make it easy
    to add new primops. *)
 Fixpoint typeOfOp1 (op : op1) : ty
  := match op with
