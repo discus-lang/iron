@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SimplePCFa.Ty.
+Require Export Iron.Language.SimplePCFa.Type.
 
 
 (* Constants *)

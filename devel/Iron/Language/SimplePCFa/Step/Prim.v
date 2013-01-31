@@ -1,7 +1,5 @@
 
-Require Export Iron.Language.SimplePCFa.Exp.
-Require Export Iron.Language.SimplePCFa.ExpLift.
-Require Export Iron.Language.SimplePCFa.ExpSubst.
+Require Export Iron.Language.SimplePCFa.Value.
 
 
 (******************************************************************************)

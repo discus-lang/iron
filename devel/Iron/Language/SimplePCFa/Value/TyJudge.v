@@ -1,8 +1,8 @@
 
-Require Export Iron.Language.SimplePCFa.ExpLower.
-Require Export Iron.Language.SimplePCFa.ExpRefs.
-Require Export Iron.Language.SimplePCFa.Exp.
-Require Export Iron.Language.SimplePCFa.Ty.
+Require Export Iron.Language.SimplePCFa.Value.Lower.
+Require Export Iron.Language.SimplePCFa.Value.Refs.
+Require Export Iron.Language.SimplePCFa.Value.Exp.
+Require Export Iron.Language.SimplePCFa.Type.
 
 
 Inductive TYPEV : tyenv -> val -> ty -> Prop := 

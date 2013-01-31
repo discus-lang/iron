@@ -123,9 +123,11 @@ Inductive
   (* Evaluation in the context of a local region. *)
   | TxUse
     :  forall ke te se sp n x t e eM
-    ,  maskOnCap n e        = eM
-    -> TYPEX  ke te se sp x t e
-    -> TYPEX  ke te se sp (XUse n x) t eM
+    ,  not (In (SRegion n) sp)
+    -> not (mentionsCapT (TyCapRegion n) t)
+    -> maskOnCap n e             = eM
+    -> TYPEX  ke te se (SRegion n <: sp) x          t e
+    -> TYPEX  ke te se sp                (XUse n x) t eM
 
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
@@ -158,6 +160,12 @@ Inductive
 
 Hint Constructors TYPEV.
 Hint Constructors TYPEX.
+
+
+Inductive 
+ TYPEF : kienv -> tyenv -> stenv -> stack -> Prop :=
+  | Tf
+
 
 
 (* Invert all hypothesis that are compound typing statements. *)

@@ -1,6 +1,6 @@
 
-Require Import Iron.Language.SimplePCFa.Exp.
-Require Import Iron.Language.SimplePCFa.ExpLift.
+Require Export Iron.Language.SimplePCFa.Value.Exp.
+Require Export Iron.Language.SimplePCFa.Value.Lift.
 
 
 (* Lowering of references into the environment *)

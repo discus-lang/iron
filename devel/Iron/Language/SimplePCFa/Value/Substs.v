@@ -1,6 +1,6 @@
 
-Require Import Iron.Language.SimplePCFa.Exp.
-Require Import Iron.Language.SimplePCFa.ExpLift.
+Require Import Iron.Language.SimplePCFa.Value.Exp.
+Require Import Iron.Language.SimplePCFa.Value.Lift.
 
 
 (* Substitution of values in expressions and values *)

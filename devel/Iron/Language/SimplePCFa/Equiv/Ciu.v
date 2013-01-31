@@ -1,14 +1,7 @@
 
 Require Export Iron.Language.SimplePCFa.Eval.
-Require Export Iron.Language.SimplePCFa.StepTerm.
-Require Export Iron.Language.SimplePCFa.StepFrame.
-Require Export Iron.Language.SimplePCFa.StepBase.
-Require Export Iron.Language.SimplePCFa.TyJudge.
-Require Export Iron.Language.SimplePCFa.ExpLower.
-Require Export Iron.Language.SimplePCFa.ExpLift.
-Require Export Iron.Language.SimplePCFa.ExpSwap.
-Require Export Iron.Language.SimplePCFa.ExpRefs.
-Require Export Iron.Language.SimplePCFa.ExpSubsts.
+Require Export Iron.Language.SimplePCFa.Step.
+Require Export Iron.Language.SimplePCFa.Value.
 
 
 (* Expressions are ciu-equivalent at the given type

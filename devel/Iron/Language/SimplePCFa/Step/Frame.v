@@ -1,7 +1,6 @@
 
-Require Import Iron.Language.SimplePCFa.StepBase.
-Require Import Iron.Language.SimplePCFa.ExpSubst.
-Require Import Iron.Language.SimplePCFa.Exp.
+Require Import Iron.Language.SimplePCFa.Step.Prim.
+Require Import Iron.Language.SimplePCFa.Value.
 
 
 (* Frame stacks *)
