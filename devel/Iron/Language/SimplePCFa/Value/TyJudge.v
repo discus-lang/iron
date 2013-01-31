@@ -17,23 +17,23 @@ Inductive TYPEV : tyenv -> val -> ty -> Prop :=
 
  | TvConstNat
    :  forall te n
-   ,  TYPEV te (VConst (CNat n)) tNat
-
- | TvFix
-   :  forall te t1 v2
-   ,  TYPEV (te :> t1) v2 t1
-   -> TYPEV te (VFix t1 v2) t1
+   ,  TYPEV te (VConst (CNat n))  tNat
 
  | TvLam
    :  forall te t1 t2 x2
    ,  TYPEX (te :> t1) x2 t2
    -> TYPEV te (VLam t1 x2) (TFun t1 t2)
 
+ | TvFix
+   :  forall te t1 v2
+   ,  TYPEV (te :> t1) v2 t1
+   -> TYPEV te (VFix t1 v2) t1
+
  with TYPEX : tyenv -> exp -> ty -> Prop :=
  | TxLet
    :  forall te t1 x1 t2 x2
    ,  TYPEX (te :> t1) x2 t2
-   -> TYPEX te        (XLet t1 x1 x2) t2
+   -> TYPEX te (XLet t1 x1 x2) t2
 
  | TxApp
    :  forall te t11 t12 v1 v2

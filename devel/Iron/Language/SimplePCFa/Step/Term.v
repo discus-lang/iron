@@ -110,8 +110,8 @@ Proof.
   try (solve [inverts H; eauto]).
   Case "XVal".
    inverts H.
-    eapply RfLetPop. rewritess. auto. 
     eauto.
+    eapply RfLetPop. rewritess. auto. 
 Qed.
 
 
@@ -190,6 +190,7 @@ Lemma terms_split
 Proof.
  intros. gen x. gen fs1.
  induction fs2; intros.
+
   Case "Nil".
    rrwrite (fs1 >< nil = fs1) in H.
 
@@ -210,10 +211,8 @@ Proof.
      destruct H0 as [v1].
      exists v1. rip.
 
-     assert (STEPLS (fs1 :> F t x0) x (fs1 :> F t x0) (XVal v1)).
-      admit. (* from STEPSLS, reduction in larger stack *)
-
-     eapply terms_stepls_expand_back. eauto. eauto.
+     eapply terms_stepls_expand_back. eauto.
+      eapply RfLetPop. admit. 
  
   Case "Cons".   
    rrwrite (fs1 >< (fs2 :> a) = (fs1 >< fs2) :> a) in H.
@@ -223,6 +222,5 @@ Proof.
    destruct D as [v].
    exists v. rip.
    inverts H1.
-   inverts H0. auto.
-   inverts H1.
+    admit.
 Qed.
