@@ -31,13 +31,8 @@ Proof.
  intros. gen d.
  induction x using exp_mutind with
   (PV := fun v => forall d, swapXV d (swapXV d v) = v);
-  intros; simpl; try burn.
-
-  SCase "VVar".
-    break_beq_nat. simpl.
-    destruct d. 
-     burn.
-     repeat (break_beq_nat; simpl; try burn). 
-     repeat (break_beq_nat; simpl; try burn). 
+  intros; simpl;
+   try (solve [snorm; burn; try omega]);
+   try (solve [snorm; repeat rewritess; auto]).
 Qed.
     

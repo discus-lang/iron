@@ -30,11 +30,13 @@ Proof.
  intros. gen d.
  induction x using exp_mutind with
   (PV := fun v => forall d, lowerXV d (liftXV d v) = v); 
-  intros; simpl; try burn.
+  intros; simpl;
+   try (solve [repeat (snorm; rewritess); auto]).
 
   SCase "VVar".
-    repeat (simpl; lift_cases; try burn).
-   destruct n;
-    repeat (simpl; lift_cases; try burn).
+   snorm. 
+    omega.
+    destruct n; auto.
+     snorm. omega.
 Qed.
     

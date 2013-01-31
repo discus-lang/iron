@@ -105,7 +105,9 @@ Proof.
 
  Case "XIf".
   simpl in H.
-  eapply TxIf; burn.
+  eapply TxIf; snorm.
+   eapply IHx2. eauto. firstorder.
+   eapply IHx3. eauto. firstorder.
 Qed.
 Hint Resolve type_tyenv_delete.
 

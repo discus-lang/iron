@@ -106,15 +106,12 @@ Lemma stepf_terms
  -> TERMS  fs x.
 Proof.
  intros. gen fs v. 
- induction x; intros.
+ induction x; intros;
+  try (solve [inverts H; eauto]).
   Case "XVal".
    inverts H.
-    eapply RfLetPop. rs.
+    eapply RfLetPop. rewritess. auto. 
     eauto.
-  Case "XLet".  nope.
-  Case "XApp".  inverts H. eauto.
-  Case "XOp1".  inverts H. eauto.
-  Case "XIf".   inverts H. eauto.
 Qed.
 
 
@@ -150,9 +147,9 @@ Lemma terms_stepls
 Proof.
  intros.
  induction H.
-  destruct IHTERMS as [v]. eauto.
+  destruct IHTERMS as [v].  eauto.
   destruct IHTERMS as [v0]. eauto.
-  destruct IHTERMS as [v]. eauto.
+  destruct IHTERMS as [v].  eauto.
   eauto.
 Qed.
 Hint Resolve terms_stepls.
@@ -194,7 +191,7 @@ Proof.
  intros. gen x. gen fs1.
  induction fs2; intros.
   Case "Nil".
-   rw (fs1 >< nil = fs1) in H.
+   rrwrite (fs1 >< nil = fs1) in H.
 
    gen x.
    induction fs1; intros.
@@ -219,7 +216,7 @@ Proof.
      eapply terms_stepls_expand_back. eauto. eauto.
  
   Case "Cons".   
-   rw (fs1 >< (fs2 :> a) = (fs1 >< fs2) :> a) in H.
+   rrwrite (fs1 >< (fs2 :> a) = (fs1 >< fs2) :> a) in H.
    destruct a.
    apply RfLetPush in H.
    lets D: IHfs2 H.
