@@ -30,7 +30,7 @@ Proof.
 
  Case "XLet".
   right.
-  exists (fs :> F t x2).
+  exists (fs :> FLet t x2).
   exists x1. 
   auto.
 
@@ -57,24 +57,18 @@ Proof.
      destruct c; nope.
      exists (XVal (VConst (CNat (S n)))).
       auto.
-    SSCase "VFix".
-     admit. (* wrong: fixpoints aren't values. *)
 
    SCase "OPred".
     destruct v; nope.
     SSCase "VConst".
      destruct c; nope.
      destruct n; eauto.
-    SSCase "VFix".
-     admit. (* wrong: fixpoints aren't values *)
      
   SCase "OIsZero".
    destruct v; nope.
    SSCase "VConst".
     destruct c; nope.
     destruct n; eauto.
-   SSCase "VFix".
-    admit. (* wrong: fixpoints aren't values *)
     
  Case "XIf".
   right.
@@ -83,8 +77,6 @@ Proof.
   SSCase "VConst".
    destruct c; nope.
    destruct b; eauto.
-  SSCase "VFix".
-   admit.   (* wrong: fixpoints aren't values. *)
 Qed.
 
 

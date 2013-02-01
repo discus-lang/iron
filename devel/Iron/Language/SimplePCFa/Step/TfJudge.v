@@ -16,7 +16,8 @@ Inductive TYPEF : tyenv -> stack -> ty -> ty -> Prop :=
    :  forall te fs t1 t2 t3 x2
    ,  TYPEX (te :> t1) x2 t2
    -> TYPEF  te fs t2 t3
-   -> TYPEF  te (fs :> F t1 x2) t1 t3.
+   -> TYPEF  te (fs :> FLet t1 x2) t1 t3.
+Hint Constructors TYPEF.
 
 
 (* Type of an expression in a frame context. *)
@@ -26,4 +27,5 @@ Inductive TYPEC : tyenv -> stack -> exp -> ty -> Prop :=
    ,  TYPEF te fs t1 t2
    -> TYPEX te x  t1
    -> TYPEC te fs x t2.
+Hint Constructors TYPEC.
 

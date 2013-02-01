@@ -6,7 +6,7 @@ Require Import Iron.Language.SimplePCFa.Value.
 (* Frame stacks *)
 (* Holds the continuation while a 'let' expression reduces the bound term. *)
 Inductive frame : Type :=
- | F : ty -> exp -> frame.
+ | FLet : ty -> exp -> frame.
 Hint Constructors frame.
 
 Definition stack := list frame.
@@ -22,18 +22,17 @@ Inductive STEPF : stack -> exp -> stack -> exp -> Prop :=
 
  | SfPush
    :  forall fs t x1 x2
-   ,  STEPF fs             (XLet t x1 x2)
-            (fs :> F t x2) x1
+   ,  STEPF fs                (XLet t x1 x2)
+            (fs :> FLet t x2) x1
 
  | SfPop
    :  forall fs x t v
-   ,  STEPF (fs :> F t x)  (XVal v)
-            fs             (substVX 0 v x).
+   ,  STEPF (fs :> FLet t x)  (XVal v)
+            fs                (substVX 0 v x).
 Hint Constructors STEPF.
 
 
-
-(** Multi-step evaluation under a frame stack *)
+(** Left biased multi-step evaluation under a frame stack *)
 Inductive STEPLS : stack -> exp -> stack -> exp -> Prop :=
  | SsNone
    :  forall fs x1
@@ -46,7 +45,7 @@ Inductive STEPLS : stack -> exp -> stack -> exp -> Prop :=
 Hint Constructors STEPLS.
 
 
-(** Multi-step evaluation under a frame stack *)
+(** Right biased multi-step evaluation under a frame stack *)
 Inductive STEPRS : stack -> exp -> stack -> exp -> Prop :=
  | SrNone
    :  forall fs x1

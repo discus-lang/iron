@@ -24,15 +24,25 @@ Inductive TYPEV : tyenv -> val -> ty -> Prop :=
    ,  TYPEX (te :> t1) x2 t2
    -> TYPEV te (VLam t1 x2) (TFun t1 t2)
 
+ (* Require all fixpoints to be functions so that values of type Nat must be 
+    constants. If we didn't do this then with (Succ (fix ...)) the inner
+    fixpoint could be assigned the Nat type, so Succ would need to force
+    evaluation of its body. *)
  | TvFix
-   :  forall te t1 v2
-   ,  TYPEV (te :> t1) v2 t1
-   -> TYPEV te (VFix t1 v2) t1
+   :  forall te t1 t2 v2
+   ,  TYPEV (te :> (TFun t1 t2))  v2  (TFun t1 t2)
+   -> TYPEV te (VFix (TFun t1 t2) v2) (TFun t1 t2)
 
  with TYPEX : tyenv -> exp -> ty -> Prop :=
+ | TxVal
+   :  forall te v t1
+   ,  TYPEV te v t1
+   -> TYPEX te (XVal v) t1
+
  | TxLet
    :  forall te t1 x1 t2 x2
-   ,  TYPEX (te :> t1) x2 t2
+   ,  TYPEX te          x1 t1 
+   -> TYPEX (te :> t1)  x2 t2
    -> TYPEX te (XLet t1 x1 x2) t2
 
  | TxApp
@@ -66,6 +76,22 @@ Hint Constructors TYPEV.
 Hint Constructors TYPEX.
 
 
+(* Invert all hypothesis that are compound typing statements. *)
+Ltac inverts_type :=
+ repeat 
+  (match goal with 
+   | [ H: TYPEV _ (VVar  _)     _    |- _ ] => inverts H
+   | [ H: TYPEV _ (VConst _)    _    |- _ ] => inverts H
+   | [ H: TYPEV _ (VLam _ _)    _    |- _ ] => inverts H
+   | [ H: TYPEV _ (VFix _)      _    |- _ ] => inverts H
+   | [ H: TYPEX _ (XVal _)      _    |- _ ] => inverts H
+   | [ H: TYPEX _ (XLet _ _ _)  _    |- _ ] => inverts H
+   | [ H: TYPEX _ (XApp _ _)    _    |- _ ] => inverts H
+   | [ H: TYPEX _ (XOp1 _ _)    _    |- _ ] => inverts H
+   | [ H: TYPEX _ (XIf  _ _ _)  _    |- _ ] => inverts H
+   end).
+
+
 Lemma type_tyenv_delete
  :  forall te x t ix
  ,  ~(refsXX ix x)
@@ -96,8 +122,11 @@ Proof.
   rewrite delete_rewind. eauto.
 
  Case "XLet".
-  eapply TxLet. simpl in H.
-  rewrite delete_rewind. eauto.
+  eapply TxLet. 
+   simpl in H. eauto.
+   simpl in H. 
+    rewrite delete_rewind. 
+    eapply IHx2; eauto.
 
  Case "XApp".
   simpl in H.

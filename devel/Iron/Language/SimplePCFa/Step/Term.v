@@ -6,22 +6,22 @@ Require Import Iron.Language.SimplePCFa.Step.Frame.
 (******************************************************************************)
 (* Termination of an expression reduction in some context. *)
 Inductive TERMS : stack -> exp -> Prop :=
- (* A value in an empty context has terminated. *)
  | RfLetPush
    :  forall fs t x1 x2
-   ,  TERMS (fs :> F t x2) x1
-   -> TERMS fs             (XLet t x1 x2)
+   ,  TERMS (fs :> FLet t x2) x1
+   -> TERMS fs                (XLet t x1 x2)
 
  | RfLetPop
    :  forall fs t v x
-   ,  TERMS fs             (substVX 0 v x)
-   -> TERMS (fs :> F t x)  (XVal v)
+   ,  TERMS fs                (substVX 0 v x)
+   -> TERMS (fs :> FLet t x)  (XVal v)
 
  | RfStep
    :  forall fs x1 x2
    ,  STEPP x1 x2 -> TERMS fs x2
    -> TERMS fs x1
 
+ (* A value in an empty context has terminated. *)
  | RfDone
    :  forall v
    ,  TERMS nil (XVal v).
@@ -40,8 +40,8 @@ Hint Constructors TERM.
    This converts the frame to its expression form. *)
 Fixpoint wrap (fs: stack) (x1: exp) : exp :=
  match fs with
- | nil           => x1
- | f' :> F t1 x2 => wrap f' (XLet t1 x1 x2)
+ | nil              => x1
+ | f' :> FLet t1 x2 => wrap f' (XLet t1 x1 x2)
  end.
 
 
