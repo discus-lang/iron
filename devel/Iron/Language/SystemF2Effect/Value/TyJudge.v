@@ -162,12 +162,6 @@ Hint Constructors TYPEV.
 Hint Constructors TYPEX.
 
 
-Inductive 
- TYPEF : kienv -> tyenv -> stenv -> stack -> Prop :=
-  | Tf
-
-
-
 (* Invert all hypothesis that are compound typing statements. *)
 Ltac inverts_type :=
  repeat 
