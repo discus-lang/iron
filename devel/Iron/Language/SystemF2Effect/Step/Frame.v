@@ -1,5 +1,4 @@
 
-Require Export Iron.Language.SystemF2Effect.Store.
 Require Export Iron.Language.SystemF2Effect.Type.
 Require Export Iron.Language.SystemF2Effect.Value.
 Require Export Iron.Language.SystemF2Effect.Step.Pure.
@@ -9,11 +8,10 @@ Require Export Iron.Language.SystemF2Effect.Step.Pure.
 Inductive frame : Set :=
  (* Holds the continuation of a let-expression while the right
     of the binding is being evaluated. *)
- | FLet : ty -> exp -> frame
+ | FLet   : ty  -> exp      -> frame
 
- (* Holds the continuation of a use-expression while the body
-    evaluates inside a fresh region *)
- | FUse : nat -> frame.
+ (* Local region. *)
+ | FUse   : nat -> frame.
 Hint Constructors frame.
 
 Definition stack := list frame.
@@ -35,7 +33,7 @@ Inductive
  | SfStep
    :  forall ss fs x x'
    ,  STEPP        x        x'
-   -> STEPF  ss fs x' ss fs x'
+   -> STEPF  ss fs x  ss fs x'
 
  (* Let contexts ********************************)
  (* Push the continuation for a let-expression onto the stack. *)
@@ -84,5 +82,5 @@ Inductive
    ,  STEPF  ss fs                (XWrite (TCap (TyCapRegion r)) (VLoc l) v)
              (update l (StValue r v) ss) fs (XVal (VConst CUnit)).
 
-
+Hint Constructors STEPF.
 
