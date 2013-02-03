@@ -46,12 +46,12 @@ Proof.
   spec IHx H7 H6.
   inverts IHx. auto.
 
+ Case "XOp1".
+  spec IHx H10 H11.
+  subst. rip.
+
  Case "XNew".
   spec IHx H8 H10.
-  rip.
-
- Case "XUse".
-  spec IHx H9 H10.
   rip.
 
  Case "XAlloc".
@@ -61,8 +61,4 @@ Proof.
  Case "XRead".
   spec IHx H10 H11.
   inverts IHx. auto.
-
- Case "XOp1".
-  spec IHx H10 H11.
-  subst. rip.
 Qed.

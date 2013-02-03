@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SystemF2Effect.Type.Lift.
+Require Export Iron.Language.SystemF2Effect.Type.LiftTT.
 Require Export Iron.Language.SystemF2Effect.Type.Wf.
 Require Export Iron.Language.SystemF2Effect.Type.Ty.
 Require Export Iron.Language.SystemF2Effect.Store.Prop.

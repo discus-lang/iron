@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Effect.Store.
 Require Export Iron.Language.SystemF2Effect.Type.
 Require Export Iron.Language.SystemF2Effect.Value.
+Require Export Iron.Language.SystemF2Effect.Step.Pure.
 
 
 (* Frame Stacks *)
@@ -20,34 +21,6 @@ Hint Unfold stack.
 
 Definition allocRegionFs (fs : stack) : nat
  := 0.
-
-(********************************************************************)
-(* Pure reductions that don't depend on the context. *)
-Inductive 
- STEPP : exp -> exp -> Prop :=
- (* Value application. *)
- | SpAppSubst
-   : forall t11 x12 v2
-   , STEPP (XApp (VLam t11 x12) v2)
-           (substVX 0 v2 x12)
-
- (* Type application. *)
- | EpAPPSubst
-   : forall k11 x12 t2      
-   , STEPP (XAPP (VLAM k11 x12) t2)
-           (substTX 0 t2 x12)
-
- (* Take the successor of a natural. *)
- | EpSucc
-   :  forall n
-   ,  STEPP (XOp1 OSucc (VConst (CNat n)))
-            (XVal (VConst (CNat (S n))))
-
- (* Test a natural for zero. *)
- | EsIsZeroTrue 
-   :  forall n
-   ,  STEPP (XOp1 OIsZero (VConst (CNat n)))
-            (XVal (VConst (CBool (beq_nat n 0)))).
 
 
 (********************************************************************)

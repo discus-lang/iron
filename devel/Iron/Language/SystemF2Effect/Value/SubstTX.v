@@ -1,9 +1,37 @@
 
-Require Import Iron.Language.SystemF2Effect.Theory.SubstTypeType.
-Require Import Iron.Language.SystemF2Effect.Type.
-Require Import Iron.Language.SystemF2Effect.Value.
+Require Export Iron.Language.SystemF2Effect.Type.
+Require Export Iron.Language.SystemF2Effect.Value.Exp.
+Require Export Iron.Language.SystemF2Effect.Value.Lift.
+Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
 
 
+(* Substitution of Types in Exps *)
+Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
+  match vv with
+  | VVar _         => vv
+  | VLoc _         => vv
+  | VLam t x       => VLam (substTT d u t) (substTX d u x)
+  | VLAM k x       => VLAM k (substTX (S d) (liftTT 1 0 u) x)
+  | VConst c       => vv
+  end
+ with    substTX (d: nat) (u: ty) (xx: exp) : exp :=
+  match xx with
+  | XVal v         => XVal   (substTV d u v)
+  | XLet t x1 x2   => XLet   (substTT d u t)  (substTX d u x1) (substTX d u x2)
+  | XApp v1 v2     => XApp   (substTV d u v1) (substTV d u v2)
+  | XAPP v1 t2     => XAPP   (substTV d u v1) (substTT d u t2)
+
+  | XOp1 op1 v     => XOp1   op1 (substTV d u v)
+
+  | XNew x         => XNew   (substTX (S d) (liftTT 1 0 u) x)
+  | XAlloc r v     => XAlloc (substTT d u r) (substTV d u v)
+  | XRead  r v     => XRead  (substTT d u r) (substTV d u v)
+  | XWrite r v1 v2 => XWrite (substTT d u r) (substTV d u v1) (substTV d u v2)
+  end.  
+
+
+(******************************************************************************)
+(* Substitution of types in exps. *)
 Theorem subst_type_exp_ix
  :  forall ix ke te se sp x1 t1 e1 t2 k2
  ,  get ix ke = Some k2
@@ -78,6 +106,19 @@ Proof.
    simpl. eapply (IHx1 ix) in H8; eauto.
    simpl. eauto using subst_type_type_ix.
 
+ Case "XOp1".
+  eapply TxOpPrim.
+  destruct o; simpl in *;
+   try (rrwrite (tNat  = substTT ix t2 tNat));
+   try (rrwrite (tBool = substTT ix t2 tBool)); 
+   inverts H8; eauto.
+
+  destruct o; simpl in *; 
+   try (rrwrite (tNat  = substTT ix t2 tNat));
+   try (rrwrite (tBool = substTT ix t2 tBool));
+   inverts H8; eauto;
+   spec IHx1 H11; eauto. 
+
  Case "XNew".
   simpl. 
   apply TxNew 
@@ -99,15 +140,6 @@ Proof.
   rewrite (liftTE_substTE 0 ix).
   eauto using kind_kienv_weaken.
 
- Case "XUse".
-  lets D: IHx1 H H1 H11.
-  eapply TxUse; eauto.
-  rewrite maskOnCap_substTT.
-  admit.         (* need t2 is not region cap being used *)
-  admit.         (* need t2 is not region cap being used *)
-  (* add premise to XUse saying region n is not in sp
-     add this handle to env only under XUse *)  
-
  Case "XAlloc".
   eapply TxOpAlloc; fold substTT.
    eauto using subst_type_type_ix.
@@ -125,19 +157,6 @@ Proof.
    eauto using subst_type_type_ix.
    eapply IHx1 in H12; eauto. snorm. eauto.
    eapply IHx0 in H13; eauto.
-
- Case "XOp1".
-  eapply TxOpPrim.
-  destruct o; simpl in *;
-   try (rrwrite (tNat  = substTT ix t2 tNat));
-   try (rrwrite (tBool = substTT ix t2 tBool)); 
-   inverts H8; eauto.
-
-  destruct o; simpl in *; 
-   try (rrwrite (tNat  = substTT ix t2 tNat));
-   try (rrwrite (tBool = substTT ix t2 tBool));
-   inverts H8; eauto;
-   spec IHx1 H11; eauto. 
 Qed.
 
 
@@ -152,4 +171,5 @@ Proof.
  rrwrite (ke = delete 0 (ke :> k2)).
  eapply subst_type_exp_ix; burn.
 Qed.
+
 

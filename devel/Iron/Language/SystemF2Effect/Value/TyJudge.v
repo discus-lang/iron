@@ -120,15 +120,6 @@ Inductive
     -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x        t  e
     -> TYPEX ke              te             se           sp (XNew x) tL eL
 
-  (* Evaluation in the context of a local region. *)
-  | TxUse
-    :  forall ke te se sp n x t e eM
-    ,  not (In (SRegion n) sp)
-    -> not (mentionsCapT (TyCapRegion n) t)
-    -> maskOnCap n e             = eM
-    -> TYPEX  ke te se (SRegion n <: sp) x          t e
-    -> TYPEX  ke te se sp                (XUse n x) t eM
-
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
     :  forall ke te se sp r1 v2 t2
@@ -176,7 +167,6 @@ Ltac inverts_type :=
    | [ H: TYPEX _ _ _ _ (XApp   _ _)   _ _  |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ _ (XAPP   _ _)   _ _  |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ _ (XNew   _)     _ _  |- _ ] => inverts H
-   | [ H: TYPEX _ _ _ _ (XUse   _ _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XAlloc _ _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XRead  _ _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XWrite _ _ _) _ _  |- _ ] => inverts H

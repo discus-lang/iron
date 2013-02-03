@@ -1,6 +1,4 @@
 
-Require Import Iron.Language.SystemF2Effect.Theory.SubstTypeExp.
-Require Import Iron.Language.SystemF2Effect.Theory.SubstValExp.
 Require Import Iron.Language.SystemF2Effect.Kind.
 Require Import Iron.Language.SystemF2Effect.Type.
 Require Import Iron.Language.SystemF2Effect.Value.

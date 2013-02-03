@@ -1,7 +1,6 @@
 
+Require Import Iron.Language.SystemF2Effect.Type.
 Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
-Require Import Iron.Language.SystemF2Effect.Type.Lower.
-Require Import Iron.Language.SystemF2Effect.Type.MaskOnVar.
 
 
 (* Weakening Kind Env in Type Judgement. *)
@@ -82,6 +81,16 @@ Proof.
   eapply (IHx1 ix) in H6. simpl in H6. eauto.
   auto using kind_kienv_insert.
 
+ Case "XOpPrim".
+  simpl.
+  eapply TxOpPrim.
+  destruct o; simpl in *;
+   inverts H6; simpl; eauto.
+  destruct o; simpl in *;
+   inverts H6; simpl; eauto.
+  rrwrite (tNat = liftTT 1 ix tNat). eauto.
+  rrwrite (tNat = liftTT 1 ix tNat). eauto.  
+
  Case "XNew".
   simpl.
   eapply TxNew
@@ -103,13 +112,6 @@ Proof.
    repeat rewritess.
    auto.
 
- Case "XUse".
-  simpl.
-  eapply TxUse.
-  rewrite maskOnCap_liftTT.
-  eauto.
-  eauto.
-
  Case "XAlloc".
   eapply TxOpAlloc; eauto using kind_kienv_insert.
 
@@ -122,14 +124,6 @@ Proof.
  Case "XWrite".
   eapply TxOpWrite; eauto using kind_kienv_insert.
   eapply IHx1 in H10. simpl in H10. eauto.
-  eapply IHx1 in H9. eauto.
-
- Case "XOpPrim".
-  eapply TxOpPrim.
-  destruct o; simpl in *;
-   inverts H6; simpl; eauto.
-  destruct o; simpl in *;
-   inverts H6; eauto.
 Qed.
 
 

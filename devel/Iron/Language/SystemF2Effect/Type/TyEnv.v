@@ -1,8 +1,8 @@
 
-Require Import Iron.Language.SystemF2Effect.Type.Subst.
-Require Import Iron.Language.SystemF2Effect.Type.Lift.
 Require Import Iron.Language.SystemF2Effect.Type.Wf.
 Require Import Iron.Language.SystemF2Effect.Type.Ty.
+Require Import Iron.Language.SystemF2Effect.Type.SubstTT.
+Require Import Iron.Language.SystemF2Effect.Type.LiftTT.
 
 
 (* Type Enviroments *)

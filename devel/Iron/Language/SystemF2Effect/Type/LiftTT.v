@@ -1,6 +1,6 @@
 
-Require Import Iron.Language.SystemF2Effect.Type.Ty.
-Require Import Iron.Language.SystemF2Effect.Type.Wf.
+Require Export Iron.Language.SystemF2Effect.Type.Ty.
+Require Export Iron.Language.SystemF2Effect.Type.Wf.
 
 
 (*******************************************************************)
@@ -251,6 +251,22 @@ Qed.
 Hint Rewrite liftTT_liftTT : global.
 
 
+(********************************************************************)
+Lemma liftTT_liftTT_Sd
+ : forall n d t
+ , liftTT n (S d) (liftTT 1 0 t)
+ = liftTT 1 0     (liftTT n d t).
+Proof.
+ intros.
+ lets D: liftTT_liftTT 1 0 n d t.
+ simpl in D.
+ rrwrite (d + 0 = d) in D.
+ auto.
+Qed.
+Hint Rewrite liftTT_liftTT_Sd : global.
+
+
+(********************************************************************)
 Lemma liftTT_map_liftTT
  :  forall m1 n1 m2 n2 ts
  ,  map (liftTT m1 n1) (map (liftTT m2 (n2 + n1)) ts)

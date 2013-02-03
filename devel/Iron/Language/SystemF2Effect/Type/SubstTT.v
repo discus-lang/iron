@@ -1,9 +1,37 @@
 
-Require Export Iron.Language.SystemF2Effect.Kind.
-Require Export Iron.Language.SystemF2Effect.Type.
-Require Export Iron.Language.SystemF2Effect.Value.
+Require Export Iron.Language.SystemF2Effect.Type.KiJudge.
+Require Export Iron.Language.SystemF2Effect.Type.LiftTT.
+Require Export Iron.Language.SystemF2Effect.Type.SubstTT.Base.
+Require Export Iron.Language.SystemF2Effect.Type.SubstTT.LemLiftTT.
+Require Export Iron.Language.SystemF2Effect.Type.SubstTT.LemLowerTT.
 
 
+(********************************************************************)
+(* Commuting substitutions. *)
+Lemma substTT_substTT
+ :  forall n m t1 t2 t3
+ ,  substTT (n + m) t3 (substTT n t2 t1)
+ =  substTT n (substTT (n + m) t3 t2)
+              (substTT (1 + n + m) (liftTT 1 n t3) t1).
+Proof.
+ intros. gen n m t2 t3.
+ induction t1; intros;
+  try (solve [simpl; f_equal; rewritess; norm]).
+
+ Case "TVar".
+  repeat (simpl; split_match; repeat norm_nat_compare);
+   first [omega | burn].
+
+ Case "TForall".
+  simpl.
+  rewrite (IHt1 (S n) m). 
+  rewrite (liftTT_substTT_1 0 (n + m)).
+  rewrite (liftTT_liftTT_11 0 n).
+  burn.
+Qed.
+
+
+(********************************************************************)
 (* Substitution of types in types preserves kinding.
    Must also subst new new type into types in env higher than ix
    otherwise indices that reference subst type are broken, and 
@@ -63,6 +91,7 @@ Proof.
 Qed.
 
 
+(********************************************************************)
 (* If we can lower a particular index then the term does not use it, 
    so we can delete the corresponding slot from the enviornment. *)
 Theorem lower_type_type_ix
@@ -98,7 +127,7 @@ Proof.
 Qed.
 
 
-Theorem lower_type_type_snoc
+Theorem lower_type_type
  :  forall t1 t2 ke sp k1 k2
  ,  lowerTT 0 t1 = Some t2
  -> KIND (ke :> k1) sp t1 k2 

@@ -7,26 +7,25 @@ Require Export Iron.Language.SystemF2Effect.Value.Exp.
 (* Lift type indices in expressions. *)
 Fixpoint liftTV (d: nat) (vv: val) : val :=
   match vv with
-  |  VVar _       => vv
-  |  VLoc _       => vv
-  |  VLam t x     => VLam (liftTT 1 d t) (liftTX d x)
-  |  VLAM k x     => VLAM k              (liftTX (S d) x)
-  |  VConst c     => vv
+  |  VVar _          => vv
+  |  VLoc _          => vv
+  |  VLam t x        => VLam (liftTT 1 d t) (liftTX d x)
+  |  VLAM k x        => VLAM k              (liftTX (S d) x)
+  |  VConst c        => vv
   end
  with liftTX (d: nat) (xx: exp) : exp :=
   match xx with
-  |  XVal v       => XVal   (liftTV d v)
-  |  XLet t x1 x2 => XLet   (liftTT 1 d t)  (liftTX d x1) (liftTX d x2)
-  |  XApp x1 x2   => XApp   (liftTV d x1)   (liftTV d x2)
-  |  XAPP x t     => XAPP   (liftTV d x)    (liftTT 1 d t)
+  |  XVal v          => XVal   (liftTV d v)
+  |  XLet t x1 x2    => XLet   (liftTT 1 d t)  (liftTX d x1) (liftTX d x2)
+  |  XApp x1 x2      => XApp   (liftTV d x1)   (liftTV d x2)
+  |  XAPP x t        => XAPP   (liftTV d x)    (liftTT 1 d t)
+
+  |  XOp1   op1 v => XOp1   op1 (liftTV d v)
 
   |  XNew x          => XNew   (liftTX (S d) x)
-  |  XUse n x        => XUse   n (liftTX d x)
   |  XAlloc tR v     => XAlloc (liftTT 1 d tR) (liftTV d v)
   |  XRead  tR v     => XRead  (liftTT 1 d tR) (liftTV d v)
   |  XWrite tR v1 v2 => XWrite (liftTT 1 d tR) (liftTV d v1) (liftTV d v2)
-
-  |  XOp1   op1 v => XOp1   op1 (liftTV d v)
  end.
 
 
@@ -53,13 +52,12 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
   | XApp v1 v2   => XApp   (liftXV n d v1) (liftXV n d v2)
   | XAPP v1 t2   => XAPP   (liftXV n d v1) t2
 
+  | XOp1   op1 v => XOp1   op1 (liftXV n d v)
+
   | XNew x          => XNew   (liftXX n d x)
-  | XUse n2 x       => XUse   n2 (liftXX n d x)
   | XAlloc tR v     => XAlloc tR (liftXV n d v)
   | XRead  tR v     => XRead  tR (liftXV n d v)
   | XWrite tR v1 v2 => XWrite tR (liftXV n d v1) (liftXV n d v2)
-
-  | XOp1   op1 v => XOp1   op1 (liftXV n d v)
   end.
 
 

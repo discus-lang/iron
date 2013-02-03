@@ -1,8 +1,9 @@
 
 Require Export Iron.Language.SystemF2Effect.Value.Exp.
 Require Export Iron.Language.SystemF2Effect.Value.Lift.
-Require Export Iron.Language.SystemF2Effect.Value.Subst.
 Require Export Iron.Language.SystemF2Effect.Value.Wf.
+Require Export Iron.Language.SystemF2Effect.Value.SubstTX.
+Require Export Iron.Language.SystemF2Effect.Value.SubstVX.
 
 Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
 Require Export Iron.Language.SystemF2Effect.Value.TyJudge.Unique.

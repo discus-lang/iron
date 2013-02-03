@@ -1,6 +1,5 @@
 
 Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
-Require Import Iron.Language.SystemF2Effect.Theory.SubstTypeType.
 
 
 Lemma typex_kind_type_effect
@@ -59,17 +58,16 @@ Proof.
   inverts_kind.
   rip.
   eapply subst_type_type; eauto.
- 
+
+ Case "XOp1".
+  destruct o; simpl in *; inverts H6; 
+   unfold tNat; unfold tBool; rip.
+
  Case "XNew".
   spec IHv H7. rip.
-  eapply lower_type_type_snoc; eauto.
-  eapply lower_type_type_snoc; eauto.
+  eapply lower_type_type; eauto.
+  eapply lower_type_type; eauto.
   eapply maskOnVar_kind. eauto.
-
- Case "XUse".
-  eapply IHv in H9.
-  rip.
-  eapply maskOnCap_kind. auto.
 
  Case "XAlloc".
   rip.
@@ -89,10 +87,6 @@ Proof.
   rip.
    unfold tUnit. rip.
    unfold tWrite. eapply KiCon1; eauto. snorm.
-
- Case "XOp1".
-  destruct o; simpl in *; inverts H6; 
-   unfold tNat; unfold tBool; rip.
 Qed.
 Hint Resolve typex_kind_type_effect.
 

@@ -10,12 +10,12 @@ Inductive const : Type :=
   | CBool   : bool  -> const.
 Hint Constructors const.
 
-Fixpoint typeOfConst (c : const) : ty
- := match c with
-    | CUnit     => tUnit
-    | CNat  _   => tNat
-    | CBool _   => tBool
-    end.
+Fixpoint typeOfConst (c : const) : ty := 
+  match c with
+  | CUnit     => tUnit
+  | CNat  _   => tNat
+  | CBool _   => tBool
+  end.
 
 
 (* Primitive Operators *)
@@ -40,15 +40,15 @@ with     exp : Type :=
   | XApp    : val -> val -> exp
   | XAPP    : val -> ty  -> exp
 
+  (* Pure operators *)
+  | XOp1    : op1 -> val -> exp
+
   (* Store operators *)
   | XNew    : exp -> exp
-  | XUse    : nat -> exp -> exp
   | XAlloc  : ty  -> val -> exp
   | XRead   : ty  -> val -> exp
-  | XWrite  : ty  -> val -> val -> exp
+  | XWrite  : ty  -> val -> val -> exp.
 
-  (* Primitive operators *)
-  | XOp1   : op1 -> val -> exp.
 Hint Constructors val.
 Hint Constructors exp.
 
@@ -67,18 +67,17 @@ Lemma exp_mutind : forall
  -> (forall t x1 x2,    PX x1 -> PX x2          -> PX (XLet   t x1 x2))
  -> (forall v1 v2,      PV v1 -> PV v2          -> PX (XApp   v1 v2))
  -> (forall v t,        PV v                    -> PX (XAPP   v  t))
+ -> (forall o v,        PV v                    -> PX (XOp1 o v))
  -> (forall x,          PX x                    -> PX (XNew   x))
- -> (forall n x,        PX x                    -> PX (XUse   n x))
  -> (forall r v,        PV v                    -> PX (XAlloc r v))
  -> (forall r v,        PV v                    -> PX (XRead  r v))
  -> (forall r v1 v2,    PV v1 -> PV v2          -> PX (XWrite r v1 v2))
- -> (forall o v,        PV v                    -> PX (XOp1 o v))
  ->  forall x, PX x.
 Proof. 
  intros PX PV.
- intros hVar hLoc hLam hLAM hConst hVal hLet hApp hAPP 
-        hNew hUse hAlloc hRead hWrite 
-        hOp1.
+ intros hVar hLoc hLam hLAM hConst 
+        hVal hLet hApp hAPP hOp1
+        hNew hAlloc hRead hWrite.
  refine (fix  IHX x : PX x := _
          with IHV v : PV v := _
          for  IHX).
@@ -89,12 +88,11 @@ Proof.
  apply hLet.   apply IHX. apply IHX.
  apply hApp.   apply IHV. apply IHV.
  apply hAPP.   apply IHV.
+ apply hOp1.   apply IHV.
  apply hNew.   apply IHX.
- apply hUse.   apply IHX.
  apply hAlloc. apply IHV.
  apply hRead.  apply IHV.
  apply hWrite. apply IHV. apply IHV.
- apply hOp1.   apply IHV.
 
  (* values *)
  case v; intros.
