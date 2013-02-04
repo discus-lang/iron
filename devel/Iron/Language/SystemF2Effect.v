@@ -12,5 +12,5 @@ Require Export Iron.Language.SystemF2Effect.Value.
 (* Stores and store bindings. *)
 Require Export Iron.Language.SystemF2Effect.Store.
 
-(* Theories *)
-Require Export Iron.Language.SystemF2Effect.Theory.
+(* Evaluation *)
+Require Export Iron.Language.SystemF2Effect.Step.
