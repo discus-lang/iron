@@ -32,6 +32,16 @@ Inductive TYPEF : kienv -> tyenv -> stenv -> stack -> ty -> ty -> ty -> Prop :=
 Hint Constructors TYPEF.
 
 
+(* Invert all hypothesis that are compound typing statements. *)
+Ltac inverts_typef :=
+ repeat 
+  (try (match goal with 
+        | [ H: TYPEF _ _ _ (_ :> FLet _ _) _ _ _ |- _ ] => inverts H
+        | [ H: TYPEF _ _ _ (_ :> FUse _)   _ _ _ |- _ ] => inverts H
+        end);
+   try inverts_type).
+
+
 (* Type of an expression in a frame context. *)
 Inductive TYPEC : kienv -> tyenv -> stenv -> stack -> exp -> ty -> ty -> Prop :=
  | TcExp
@@ -42,6 +52,13 @@ Inductive TYPEC : kienv -> tyenv -> stenv -> stack -> exp -> ty -> ty -> Prop :=
    -> TYPEC  ke te se fs x1 t2 (TSum e1 e2).
 Hint Constructors TYPEC.
 (* TODO: going to need to mask effects involving region handles from e1 *)
+
+Ltac inverts_typec :=
+ repeat
+  (try (match goal with
+        | [H: TYPEC _ _ _ _ _ _ _ |- _ ] => inverts H
+        end);
+   try inverts_typef).
 
 
 

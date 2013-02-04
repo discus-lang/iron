@@ -42,7 +42,7 @@ Proof.
  Case "XApp".
   right.
   exists ss. exists fs.
-  inverts HC.
+  inverts_typec.
   destruct v; nope.
   SCase "v1 = XLam".
    exists (substVX 0 v0 e). eauto.
@@ -52,7 +52,7 @@ Proof.
  Case "XAPP".
   right.  
    exists ss. exists fs.
-   inverts HC.
+   inverts_typec.
    destruct v; nope.
    SCase "v1 = XLAM".
     exists (substTX 0 t e). eauto.
@@ -64,14 +64,14 @@ Proof.
   exists ss. exists fs.
   destruct o.
   SCase "OSucc".
-   inverts HC.
-   inverts H0. snorm. inverts H8.
+   inverts_typec.
+   snorm. inverts H8.
    destruct v; nope.
    destruct c; nope.
    eauto.
  SCase "OIsZero".
-   inverts HC.
-   inverts H0. snorm. inverts H8.
+   inverts_typec.
+   snorm. inverts H8.
    destruct v; nope.
    destruct c; nope.
    eauto.
@@ -83,7 +83,7 @@ Proof.
 
  Case "XAlloc".
   right. 
-  inverts HC. inverts H0. unfold tRef in *.
+  inverts_typec. unfold tRef in *.
   have HR: (exists n, t = TCap (TyCapRegion n)).
   destruct HR as [n].
   exists  (StValue n v <: ss).
@@ -119,8 +119,7 @@ Proof.
 
  Case "XWrite".
   right.
-  inverts HC.
-  inverts_type.
+  inverts_typec.
   have HR: (exists n, t = TCap (TyCapRegion n)).
    destruct HR as [n]. subst.
   destruct v; burn.
