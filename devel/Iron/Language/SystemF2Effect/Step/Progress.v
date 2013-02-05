@@ -12,6 +12,8 @@ Definition WfFS (ss : store) (se : stenv) (fs : stack) (sp : stprops)
  /\ STORET se sp ss.
 
 
+(* Add condition, e1 does not mention handles of any deleted regions.
+   Also add this condition to preservation to get region deallocation. *)
 Lemma progress
  :  forall ss se fs sp x1 t1 e1
  ,  WfFS   ss se fs sp
