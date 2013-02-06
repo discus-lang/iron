@@ -11,7 +11,7 @@ Definition done (fs : stack) (x : exp)
 Lemma progress
  :  forall se ss sp fs x1 t1 e1
  ,  WfFS   se sp ss fs
- -> TYPEC  nil nil se fs x1 t1 e1
+ -> TYPEC  nil nil se sp fs x1 t1 e1
  ->  done fs x1
   \/ (exists ss' fs' x1', STEPF ss fs x1 ss' fs' x1').
 Proof.
@@ -89,7 +89,7 @@ Proof.
 
  Case "XRead".
   right.
-  inverts HC. inverts H0. unfold tRef in *.
+  inverts HC. inverts_type. unfold tRef in *.
   have HR: (exists n, t = TCap (TyCapRegion n)).
   destruct HR as [n]. subst.
 

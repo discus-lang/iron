@@ -7,22 +7,23 @@ Require Export Iron.Language.SystemF2Effect.Step.TfJudge.
 Theorem preservation
  :  forall se sp ss ss' fs fs' x x' t e
  ,  WfFS   se sp ss fs 
- -> TYPEC  nil nil se fs  x   t  e
+ -> TYPEC  nil nil se sp fs  x   t  e
  -> STEPF  ss  fs  x  ss' fs' x'
  -> (exists se' sp' e'
             ,  extends se' se
             /\ WfFS  se' sp' ss' fs'
             /\ SubsT e e'
-            /\ TYPEC nil nil se' fs' x' t e').
+            /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp ss ss' fs fs' x x' t e HH HC HS. gen sp t e.
- induction HS; intros; inverts_typec; rip.
+ induction HS; intros.
 
  (* Pure evaluation. *)
  Case "SfStep". 
- { exists se. 
+ { inverts_typec. 
+   exists se. 
    exists sp. 
-   exists (TSum e1 e2).
+   exists e.
    rip.
    eapply TcExp; eauto.
    eapply stepp_preservation; eauto.
@@ -39,19 +40,25 @@ Proof.
 
  (* Create a new region. *)
  Case "SfRegionNew".
- { set (r := TCap (TyCapRegion p)).
+ { inverts_typec.
+   set (r := TCap (TyCapRegion p)).
    exists se.
    exists (sp :> SRegion p).
-   exists (TSum (substTT 0 r e) e2).
+   exists (substTT 0 r e).
    rip.
-   admit.   (* NO PRES OF EFFECTS
-               We get phase-changed effects for regions in current stack
-               because we're inside the use context *)
+
+   admit. (* ok, e2 has no vars because it's typed under empty kienv
+                 e1 has no vars because it comes from  masked e0 
+                    and there was only one possible var in e0 (which was masked) *)
 
    (* Result is well typed. *)
    + eapply TcExp 
-       with (sp := sp0 :> SRegion p) 
-            (t1 := substTT 0 r t0); auto.
+       with (sp := sp :> SRegion p) 
+            (t1 := substTT 0 r t0)
+            (e1 := substTT 0 r e0)
+            (e2 := substTT 0 r e2); auto.
+
+      admit. (* ok, equiv preserved by subst *) 
 
      (* Type is preserved after substituting region handle. *)
      - have HTE: (nil = substTE 0 r nil).
@@ -75,37 +82,42 @@ Proof.
 
  (* Pop a region from ths stack. *)
  Case "SfRegionPop".
- { destruct sp.
-   false. admit.
-   destruct s.
-    have (n = p) by admit. subst. (* ok from WfSS *)
-  exists se.
-  exists sp.
-  exists e2.
-  rip.
-   admit. (* ok, store well formed under reduced props *)
-   admit. (* ok, effect subs, bot *)
-   
-   destruct sp0.
-    false. admit.
-    destruct s.
-     have (n = p) by admit. subst. (* ok, from WfSS *)
+ { inverts_typec.
 
-   rrwrite (e2 = TSum (TBot KEffect) e2) by admit.
-   eapply TcExp with (t1 := t1).
-    have (STOREP sp0 fs) by admit. (* ok, from WfSS *)
-    eauto.
-    eapply TxVal.
-     admit. (* ok, get p notin t1 from TYPEF, maybe add premise to TYPEF *)
-     rrwrite (TSum (TBot KEffect) e2 = e2) by admit.
-      auto.
+   (* We can only pop if there is at least on region in the store. *)
+   destruct sp.
+   (* No regions in store. *)
+   + inverts HH. rip. 
+     unfold STOREP in *.
+     spec H4 p.
+     have (In (FUse p) (fs :> FUse p)).
+      inverts H4. rip. nope.
+
+   (* At least one region in store. *)
+   + destruct s.
+     exists se.
+     exists (sp :> SRegion n).
+     exists e2.
+     rip.
+     - admit.  (* CHANGE to allow store well formed under smaller frame stack *)
+     - admit.  (* ok, effect subst, bot *)
+
+     (* Resulting configuation is well typed. *)
+     - eapply TcExp 
+         with (sp := sp :> SRegion n)
+              (e1 := TBot KEffect)
+              (e2 := e2).
+       admit.         (* ok, effect equiv *)
+       eapply TxVal.
+        eauto.
+       eauto.
  }
+
 
  (* Allocate a reference. *)
  Case "SfStoreAlloc".
   admit.
  
-
  (* Read from a reference. *)
  Case "SfStoreRead".
   admit.

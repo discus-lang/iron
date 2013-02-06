@@ -3,6 +3,7 @@ Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
 Require Export Iron.Language.SystemF2Effect.Step.Frame.
 Require Export Iron.Language.SystemF2Effect.Store.
 
+
 (* Type of a frame stack.
    The frame stack is like a continuation that takes an expression of a certain
    type and produces a new expression. *)
@@ -38,20 +39,25 @@ Ltac inverts_typef :=
 
 
 (* Type of an expression in a frame context. *)
-Inductive TYPEC : kienv -> tyenv -> stenv -> stack -> exp -> ty -> ty -> Prop :=
+Inductive TYPEC 
+   :  kienv -> tyenv 
+   -> stenv -> stprops 
+   -> stack -> exp 
+   -> ty    -> ty -> Prop :=
  | TcExp
-   :  forall ke te se sp fs x1 t1 e1 t2 e2
-   ,  STOREP sp fs
+   :  forall ke te se sp fs x1 t1 e1 t2 e2 e3
+   ,  EquivT (TSum e1 e2) e3
    -> TYPEX  ke te se sp x1 t1 e1
    -> TYPEF  ke te se fs t1 t2 e2
-   -> TYPEC  ke te se fs x1 t2 (TSum e1 e2).
+   -> TYPEC  ke te se sp fs x1 t2 e3.
+
 Hint Constructors TYPEC.
 
 
 Ltac inverts_typec :=
  repeat
   (try (match goal with
-        | [H: TYPEC _ _ _ _ _ _ _ |- _ ] => inverts H
+        | [H: TYPEC _ _ _ _ _ _ _ _ |- _ ] => inverts H
         end);
    try inverts_typef).
 
