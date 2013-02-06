@@ -37,9 +37,7 @@ Proof.
   simpl in H.
   breaka (datacon_beq dc dc').
    inverts H.
-    apply datacon_beq_eq in HeqX. subst.
-    simpl. auto.
-   simpl. right. auto.
+    apply datacon_beq_eq in HeqX; auto.
 Qed.
 Hint Resolve getAlt_in.
 
