@@ -32,6 +32,37 @@ Qed.
 Hint Resolve typev_stprops_snoc.
 
 
+(********************************************************************)
+Lemma typex_stprops_cons
+ :  forall ke te se sp x t e p
+ ,  TYPEX  ke te se sp        x t e
+ -> TYPEX  ke te se (sp :> p) x t e.
+Proof.
+ intros. gen ke te se sp t e p.
+ induction x using exp_mutind with 
+  (PV := fun v => forall ke te se sp t p
+      ,  TYPEV ke te se sp v t
+      -> TYPEV ke te se (sp :> p) v t);
+  intros; inverts_type; 
+  eauto using kind_stprops_cons.
+Qed.
+Hint Resolve typex_stprops_cons.
+
+
+Lemma typev_stprops_cons
+ :  forall ke te se sp v t p
+ ,  TYPEV  ke te se sp v t
+ -> TYPEV  ke te se (sp :> p) v t.
+Proof.
+ intros.
+ have HX: (TYPEX ke te se (sp :> p) (XVal v) t (TBot KEffect)).
+ inverts HX.
+ trivial.
+Qed.
+Hint Resolve typev_stprops_cons.
+
+
+(********************************************************************)
 Lemma typex_stprops_weaken
  :  forall ke te se sp1 sp2 x t e
  ,  TYPEX  ke te se sp1          x t e

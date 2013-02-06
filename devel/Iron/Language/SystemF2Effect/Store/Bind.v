@@ -10,7 +10,11 @@ Inductive stbind :=
  | StValue : nat -> val -> stbind.
 Hint Constructors stbind.
 
+(* A store is a list of store bindings. *)
+Definition store := list stbind.
 
+
+(******************************************************************************)
 (* Types of store bindings. *)
 Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop := 
  | TbValue
@@ -41,4 +45,15 @@ Proof.
  intros. inverts H. eauto.
 Qed.
 Hint Resolve typeb_stprops_snoc.
+
+
+Lemma typeb_stprops_cons
+ :  forall ke te se sp v t p
+ ,  TYPEB  ke te se sp v t
+ -> TYPEB  ke te se (sp :> p) v t.
+Proof. 
+ intros. inverts H. eauto.
+Qed.
+Hint Resolve typeb_stprops_snoc.
+
 

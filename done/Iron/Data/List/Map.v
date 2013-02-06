@@ -118,8 +118,8 @@ Proof.
    simpl. exists a. eauto.
    apply IHys in H0.
    destruct H0.
-   exists x0. inverts H. split. auto. eauto.
-   simpl. eauto.
+   exists x0. inverts H. 
+   split; auto.
 Qed.
 Hint Resolve map_in_exists.
 

@@ -4,6 +4,13 @@
 Require Import Iron.Tactics.
 
 
+Lemma nat_eq_cases
+ :  forall (n m : nat) 
+ ,  n = m \/ ~(n = m).
+Proof. intros. omega. Qed.
+Hint Resolve nat_eq_cases.
+
+
 Lemma nat_zero_le_all
  : forall n, 0 <= n.
 Proof.

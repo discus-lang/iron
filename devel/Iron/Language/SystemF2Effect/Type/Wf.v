@@ -50,12 +50,25 @@ Inductive wfT (kn: nat) : ty -> Prop :=
 Hint Constructors wfT.
 
 
+(******************************************************************************)
 (* Closed types are well formed under an empty environment. *)
 Definition closedT : ty -> Prop
  := wfT O.
 Hint Unfold closedT.
 
 
+Lemma closedT_tRef
+ :  forall r1 t2
+ ,  closedT t2
+ -> closedT (tRef (TCap (TyCapRegion r1)) t2).
+Proof. 
+ intros.
+ unfold tRef. auto.
+Qed.
+Hint Resolve closedT_tRef.
+
+
+(******************************************************************************)
 (* Type is well formed under an environment one element larger. *)
 Lemma wfT_succ
  :  forall tn t1

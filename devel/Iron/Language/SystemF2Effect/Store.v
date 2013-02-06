@@ -8,10 +8,7 @@ Require Import Iron.Language.SystemF2Effect.Value.TyJudge.TypeKind.
 Require Import Iron.Language.SystemF2Effect.Value.TyJudge.WeakStEnv.
 Require Import Iron.Language.SystemF2Effect.Value.Exp.
 Require Export Iron.Language.SystemF2Effect.Store.Bind.
-
-
-(* A store is a list of store bindings. *)
-Definition store := list stbind.
+Require Export Iron.Language.SystemF2Effect.Step.Frame.
 
 
 (* Store typing models the store.
@@ -28,23 +25,92 @@ Definition STORET (se: stenv) (sp: stprops) (ss: store)
 Hint Unfold STORET.
 
 
+(* Store properties model use frames on stack. *)
+Definition STOREP  (sp : stprops) (fs : stack)
+ := forall n, In (SRegion n) sp <-> In (FUse n) fs.
+
+
+(******************************************************************************)
 (* Well formed store. *)
-Definition WfS (se: stenv) (sp: stprops) (ss: store)
+Definition WfS  (se: stenv) (sp: stprops)  (ss: store)
  := Forall closedT se
  /\ STOREM se    ss
  /\ STORET se sp ss.
 Hint Unfold WfS.
 
 
-Lemma closedT_tRef
- :  forall r1 t2
- ,  closedT t2
- -> closedT (tRef (TCap (TyCapRegion r1)) t2).
+(* Well formed store and frame stack. *)
+Definition WfFS (se : stenv) (sp : stprops) (ss : store) (fs : stack) 
+ := Forall closedT se
+ /\ STOREM se ss
+ /\ STORET se sp ss
+ /\ STOREP sp fs.
+
+
+Lemma wfFS_wfS 
+ :  forall se sp ss fs
+ ,  WfFS   se sp ss fs
+ -> WfS    se sp ss.
+Proof. firstorder. Qed.
+
+
+Lemma storep_cons
+ :  forall sp fs p
+ ,  STOREP sp fs
+ -> STOREP (sp :> SRegion p) (fs :> FUse p).
+Proof.
+ unfold STOREP in *.
+ intros. split.
+ - intros.
+   have HN: (n = p \/ ~(n = p)).
+   inverts HN.
+   + simpl. auto.
+   + assert (In (FUse n) fs).
+      eapply H.
+      eapply in_tail. 
+      have (SRegion n <> SRegion p) by congruence.
+      eauto. eauto. 
+     eapply in_split; burn.
+
+ - intros.
+   have HN: (n = p \/ ~(n = p)).
+   inverts HN.
+   + simpl. auto.
+   + assert (In (FUse n) fs).
+      eapply in_tail.
+      have (FUse n <> FUse p) by congruence.
+      eauto. auto.
+     eapply in_split.
+      left. eapply H. auto.
+Qed.
+Hint Resolve storep_cons.
+
+
+Lemma storet_weak_stprops
+ :  forall se sp ss p
+ ,  STORET se sp ss
+ -> STORET se (sp :> SRegion p) ss.
+Proof.
+ intros.
+ unfold STORET in *.
+ eapply Forall2_impl.
+  intros. eapply typeb_stprops_cons. eauto.
+ auto.
+Qed.
+Hint Resolve storet_weak_stprops.
+
+
+Lemma wffs_sregion_cons
+ :  forall se sp ss fs p
+ ,  WfFS se sp ss fs
+ -> WfFS se (sp :> SRegion p) ss (fs :> FUse p).
 Proof. 
  intros.
- unfold tRef. auto.
+ unfold WfFS. 
+ inverts H. inverts H1. inverts H2.
+ auto.
 Qed.
-Hint Resolve closedT_tRef.
+Hint Resolve wffs_sregion_cons.
 
 
 (* Extending the store ********************************************************)
@@ -134,4 +200,3 @@ Proof.
   unfold STORET.
    eapply Forall2_update_right; eauto.
 Qed.
-

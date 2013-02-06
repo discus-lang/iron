@@ -513,3 +513,58 @@ Proof.
 Qed.
 Hint Resolve get_same_length.
 
+
+Lemma get_in_exists
+ :  forall {A} (x : A) (xs : list A)
+ ,  In x xs -> exists n, get n xs = Some x.
+Proof.
+ intros.
+ induction xs.
+  nope.
+  simpl in H. inverts H.
+   exists 0. simpl. auto.
+   spec IHxs H0.
+   destruct IHxs as [n].
+   exists (S n).
+   simpl. auto.
+Qed.
+Hint Resolve get_in_exists.
+
+
+(********************************************************************)
+(** Lemmas: in *)
+Lemma in_head
+ :  forall {A} (x : A) xs
+ ,  In x (x :: xs).
+Proof. firstorder. Qed.
+Hint Resolve in_head.
+
+
+Lemma in_tail
+ :  forall {A} (a : A) b xs
+ ,  a <> b
+ -> In a (b :: xs) -> In a xs.
+Proof.
+ intros.
+ apply get_in_exists in H0.
+ destruct H0 as [n].
+  destruct n.
+  simpl in H0. inverts H0. tauto.
+  simpl in H0. eapply get_in. eauto.
+Qed. 
+Hint Resolve in_tail.
+
+
+Lemma in_split
+ :  forall {A} (x y : A) (xs : list A)
+ ,  In x xs \/ x = y -> In x (y :: xs).
+Proof.
+ intros. inverts H.
+  apply get_in_exists in H0.
+  destruct H0 as [n]. 
+  apply get_in with (n := S n).
+  simpl. auto.
+  firstorder.
+Qed.
+Hint Resolve in_split.
+

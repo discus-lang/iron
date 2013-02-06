@@ -6,22 +6,16 @@ Definition done (fs : stack) (x : exp)
  := fs = nil /\ (exists v, x = XVal v).
 
 
-Definition WfFS (ss : store) (se : stenv) (fs : stack) (sp : stprops) 
- := STOREP fs sp
- /\ STOREM se ss
- /\ STORET se sp ss.
-
-
 (* Add condition, e1 does not mention handles of any deleted regions.
    Also add this condition to preservation to get region deallocation. *)
 Lemma progress
- :  forall ss se fs sp x1 t1 e1
- ,  WfFS   ss se fs sp
+ :  forall se ss sp fs x1 t1 e1
+ ,  WfFS   se sp ss fs
  -> TYPEC  nil nil se fs x1 t1 e1
  ->  done fs x1
   \/ (exists ss' fs' x1', STEPF ss fs x1 ss' fs' x1').
 Proof.
- intros ss se fs sp x1 t1 e1 HW HC.
+ intros se ss sp fs x1 t1 e1 HW HC.
  gen t1 e1.
  induction x1; intros; eauto.
  
@@ -127,3 +121,5 @@ Proof.
   destruct v; burn.
   destruct c; nope.
 Qed.
+
+
