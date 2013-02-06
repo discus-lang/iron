@@ -41,7 +41,7 @@ proof: $(root_devel)
 # Start the Coq ide
 .PHONY: start
 start: 
-	coqide -R done/Iron Iron -R devel/Iron Iron &
+	coqide -R done/Iron -as Iron -R devel/Iron -as Iron &
 
 # Build dependencies for Coq proof scripts.
 .PHONY: deps
@@ -57,7 +57,7 @@ src_coq_vo	= $(patsubst %.v,%.vo,$(src_coq_v))
 	
 make/proof.deps : $(src_coq_v)
 	@echo "* Building proof dependencies"
-	@$(COQDEP) -R done/Iron Iron -R devel/Iron Iron $(src_coq_v) > make/proof.deps
+	@$(COQDEP) -R done/Iron -as Iron -R devel/Iron -as Iron $(src_coq_v) > make/proof.deps
 	@cp make/proof.deps make/proof.deps.inc
 
 
