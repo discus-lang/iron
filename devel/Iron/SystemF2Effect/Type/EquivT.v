@@ -38,7 +38,7 @@ Inductive EquivT : ty -> ty -> Prop :=
 Hint Constructors EquivT.
 
 
-Lemma equivT_TSumBot_left
+Lemma equivT_sum_left
  :  forall t k
  ,  EquivT t (TSum (TBot k) t).
 Proof.
@@ -47,4 +47,4 @@ Proof.
   eapply EqSumBot.
   eauto.
 Qed.
-Hint Resolve equivT_TSumBot_left.
+Hint Resolve equivT_sum_left.

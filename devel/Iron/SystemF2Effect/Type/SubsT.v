@@ -85,10 +85,24 @@ Hint Resolve subsT_sum_left.
 Lemma subsT_sum_right
  : forall t1 t2 t2'
  , SubsT  t2 t2'
--> SubsT (TSum t1 t2') (TSum t1 t2').
+-> SubsT (TSum t1 t2) (TSum t1 t2').
 Proof.
  intros.
  eapply SbSumAbove; eauto.
 Qed.
 Hint Resolve subsT_sum_right.
+
+
+Lemma subsT_sum_merge
+ :  forall t1 t1' t2 t2'
+ ,  SubsT t1 t1'
+ -> SubsT t2 t2'
+ -> SubsT (TSum t1 t2) (TSum t1' t2').
+Proof.
+ intros.
+ eapply SbTrans.
+  eapply subsT_sum_left.  eauto.
+  eapply subsT_sum_right. eauto.
+Qed.
+
 

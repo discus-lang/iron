@@ -44,12 +44,19 @@ Proof.
    set (r := TCap (TyCapRegion p)).
    exists se.
    exists (sp :> SRegion p).
-   exists (substTT 0 r e).
+   exists (TSum (substTT 0 r e0) (substTT 0 r e2)).
    rip.
 
-   admit. (* ok, e2 has no vars because it's typed under empty kienv
-                 e1 has no vars because it comes from  masked e0 
-                    and there was only one possible var in e0 (which was masked) *)
+   (* Effect of result is subsumed by previous. *)
+   eapply SbTrans.
+    eapply SbEquiv.
+    eapply EqSym. eauto.
+    eapply subsT_sum_merge.
+
+     admit. (* TODO: handle phase change *)
+
+     have HE2: (substTT 0 r e2 = e2) by admit.  (* e2 has no vars as uner empty kienv *)
+      rewrite HE2. auto.
 
    (* Result is well typed. *)
    + eapply TcExp 
@@ -57,8 +64,6 @@ Proof.
             (t1 := substTT 0 r t0)
             (e1 := substTT 0 r e0)
             (e2 := substTT 0 r e2); auto.
-
-      admit. (* ok, equiv preserved by subst *) 
 
      (* Type is preserved after substituting region handle. *)
      - have HTE: (nil = substTE 0 r nil).
@@ -76,8 +81,8 @@ Proof.
 
      (* New frame stack is well typed. *)
      - eapply TfConsUse.
-       admit.                  (* ok, region handle is fresh, goodness of allocRegionFs *)
-       admit.                  (* ok, t0 doesn't mention ^0 by lowerTT *)
+       admit.            (* ok, region handle is fresh, goodness of allocRegionFs *)
+       admit.            (* ok, t0 doesn't mention ^0 by lowerTT *)
  }
 
  (* Pop a region from ths stack. *)
@@ -100,17 +105,15 @@ Proof.
      exists e2.
      rip.
      - admit.  (* CHANGE to allow store well formed under smaller frame stack *)
-     - admit.  (* ok, effect subst, bot *)
+
+     (* New effect subsumes old one. *)
+     - eauto. 
 
      (* Resulting configuation is well typed. *)
      - eapply TcExp 
          with (sp := sp :> SRegion n)
               (e1 := TBot KEffect)
-              (e2 := e2).
-       admit.         (* ok, effect equiv *)
-       eapply TxVal.
-        eauto.
-       eauto.
+              (e2 := e2); eauto.
  }
 
 

@@ -4,6 +4,7 @@ Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.Base.
 Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemLiftTT.
 Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemLowerTT.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemEquivT.
 
 
 (********************************************************************)
