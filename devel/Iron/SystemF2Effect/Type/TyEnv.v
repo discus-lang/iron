@@ -1,8 +1,7 @@
 
-Require Import Iron.SystemF2Effect.Type.Wf.
-Require Import Iron.SystemF2Effect.Type.Ty.
-Require Import Iron.SystemF2Effect.Type.SubstTT.
-Require Import Iron.SystemF2Effect.Type.LiftTT.
+Require Import Iron.SystemF2Effect.Type.Operator.SubstTT.
+Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
+Require Import Iron.SystemF2Effect.Type.Predicate.Wf.
 
 
 (* Type Enviroments *)

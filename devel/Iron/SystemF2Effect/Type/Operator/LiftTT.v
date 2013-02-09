@@ -1,6 +1,6 @@
 
-Require Export Iron.SystemF2Effect.Type.Ty.
-Require Export Iron.SystemF2Effect.Type.Wf.
+Require Export Iron.SystemF2Effect.Type.Predicate.Wf.
+Require Export Iron.SystemF2Effect.Type.Exp.
 
 
 (*******************************************************************)

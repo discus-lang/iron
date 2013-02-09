@@ -1,5 +1,5 @@
 
-Require Export Iron.SystemF2Effect.Type.Ty.
+Require Export Iron.SystemF2Effect.Type.Exp.
 
 
 Fixpoint mentionsCapT (tc : tycap) (tt : ty) : Prop :=

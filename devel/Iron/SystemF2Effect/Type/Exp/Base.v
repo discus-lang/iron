@@ -1,7 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Kind.
-Require Export Iron.SystemF2Effect.Type.TyCon.
-Require Export Iron.SystemF2Effect.Type.TyCap.
+Require Export Iron.SystemF2Effect.Type.Exp.TyCon.
+Require Export Iron.SystemF2Effect.Type.Exp.TyCap.
 
 
 (********************************************************************)

@@ -1,6 +1,6 @@
 
-Require Export Iron.SystemF2Effect.Type.LiftTT.
-Require Export Iron.SystemF2Effect.Type.SubstTT.Base.
+Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.Base.
 
 
 (********************************************************************)

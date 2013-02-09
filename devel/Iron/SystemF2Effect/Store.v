@@ -1,8 +1,8 @@
 
 Require Import Iron.SystemF2Effect.Kind.
 Require Import Iron.SystemF2Effect.Type.KiJudge.
-Require Import Iron.SystemF2Effect.Type.Ty.
-Require Import Iron.SystemF2Effect.Type.Wf.
+Require Import Iron.SystemF2Effect.Type.Exp.
+Require Import Iron.SystemF2Effect.Type.Predicate.Wf.
 Require Import Iron.SystemF2Effect.Value.TyJudge.
 Require Import Iron.SystemF2Effect.Value.TyJudge.TypeKind.
 Require Import Iron.SystemF2Effect.Value.TyJudge.WeakStEnv.

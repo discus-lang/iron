@@ -1,8 +1,8 @@
 
-Require Export Iron.SystemF2Effect.Type.Ty.
-Require Export Iron.SystemF2Effect.Type.Wf.
-Require Export Iron.SystemF2Effect.Type.LiftTT.
-Require Export Iron.SystemF2Effect.Type.LowerTT.
+Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
+Require Export Iron.SystemF2Effect.Type.Operator.LowerTT.
+Require Export Iron.SystemF2Effect.Type.Predicate.Wf.
+Require Export Iron.SystemF2Effect.Type.Exp.
 
 
 (********************************************************************)

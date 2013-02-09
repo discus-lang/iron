@@ -1,7 +1,7 @@
 
-Require Import Iron.SystemF2Effect.Type.Ty.
-Require Import Iron.SystemF2Effect.Type.Wf.
-Require Import Iron.SystemF2Effect.Type.LiftTT.
+Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
+Require Import Iron.SystemF2Effect.Type.Predicate.Wf.
+Require Import Iron.SystemF2Effect.Type.Exp.
 
 
 (* Lowering of indices in types. *)

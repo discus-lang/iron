@@ -1,9 +1,9 @@
 
 Require Export Iron.SystemF2Effect.Type.KiJudge.
-Require Export Iron.SystemF2Effect.Type.LiftTT.
-Require Export Iron.SystemF2Effect.Type.SubstTT.Base.
-Require Export Iron.SystemF2Effect.Type.SubstTT.LemLiftTT.
-Require Export Iron.SystemF2Effect.Type.SubstTT.LemLowerTT.
+Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.Base.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemLiftTT.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemLowerTT.
 
 
 (********************************************************************)

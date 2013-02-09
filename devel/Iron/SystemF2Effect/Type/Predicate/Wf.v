@@ -1,6 +1,6 @@
 
+Require Export Iron.SystemF2Effect.Type.Exp.
 Require Export Iron.SystemF2Effect.Kind.
-Require Export Iron.SystemF2Effect.Type.Ty.
 
 
 (* Well formed types are closed under the given kind environment. *)
