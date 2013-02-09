@@ -18,7 +18,7 @@ root_done \
  	done/Iron/Language/SystemF2Store.vo 
 
 root_devel \
- =	devel/Iron/Language/SystemF2Effect.vo
+ =	devel/Iron/SystemF2Effect.vo
 
 
 # -------------------------------------------------------------------
