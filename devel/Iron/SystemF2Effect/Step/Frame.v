@@ -17,70 +17,70 @@ Hint Constructors frame.
 Definition stack := list frame.
 Hint Unfold stack.
 
-Definition allocRegionFs (fs : stack) : nat
+Definition allocRegionFs (sp : stprops) : nat
  := 0.
 
 
 (********************************************************************)
 (* Context sensitive reductions. *)
 Inductive 
- STEPF :  store -> stack -> exp 
-       -> store -> stack -> exp 
+ STEPF :  store -> stprops -> stack -> exp 
+       -> store -> stprops -> stack -> exp 
        -> Prop :=
 
  (* Pure evaluation *****************************)
  (* Pure evaluation in a context. *)
  | SfStep
-   :  forall ss fs x x'
-   ,  STEPP        x        x'
-   -> STEPF  ss fs x  ss fs x'
+   :  forall ss sp fs x x'
+   ,  STEPP           x           x'
+   -> STEPF  ss sp fs x  ss sp fs x'
 
  (* Let contexts ********************************)
  (* Push the continuation for a let-expression onto the stack. *)
  | SfLetPush
-   :  forall ss fs t x1 x2
-   ,  STEPF  ss  fs               (XLet t x1 x2)
-             ss (fs :> FLet t x2) x1
+   :  forall ss sp fs t x1 x2
+   ,  STEPF  ss sp  fs               (XLet t x1 x2)
+             ss sp (fs :> FLet t x2)  x1
 
  (* Substitute value of the bound variable into the let body. *)
  | SfLetPop
-   :  forall ss  fs t v1 x2
-   ,  STEPF  ss (fs :> FLet t x2)  (XVal v1)
-             ss  fs                (substVX 0 v1 x2)
+   :  forall ss sp  fs t v1 x2
+   ,  STEPF  ss sp (fs :> FLet t x2) (XVal v1)
+             ss sp  fs               (substVX 0 v1 x2)
 
  (* Region operators ****************************)
  (* Create a new region. *)
  | SfRegionNew
-   :  forall ss  fs x p
-   ,  p = allocRegionFs fs 
-   -> STEPF  ss  fs                (XNew x)
-             ss (fs :> FUse p)     (substTX 0 (TCap (TyCapRegion p)) x)
+   :  forall ss sp fs x p
+   ,  p = allocRegionFs sp
+   -> STEPF  ss sp                 fs            (XNew x)
+             ss (sp :> SRegion p) (fs :> FUse p) (substTX 0 (TCap (TyCapRegion p)) x)
 
  (* Pop a region from the stack. *)
  | SfRegionPop
-   :  forall ss  fs v1 p
-   ,  STEPF  ss (fs :> FUse p)     (XVal v1)
-             ss  fs                (XVal v1)
+   :  forall ss sp  fs v1 p
+   ,  STEPF  ss sp (fs :> FUse p)    (XVal v1)
+             ss sp  fs               (XVal v1)
 
  (* Store operators *****************************)
  (* Allocate a reference. *) 
  | SfStoreAlloc
-   :  forall ss fs r1 v1
-   ,  STEPF  ss                    fs (XAlloc (TCap (TyCapRegion r1)) v1)
-             (StValue r1 v1 <: ss) fs (XVal (VLoc (length ss)))
+   :  forall ss sp fs r1 v1
+   ,  STEPF  ss                    sp fs (XAlloc (TCap (TyCapRegion r1)) v1)
+             (StValue r1 v1 <: ss) sp fs (XVal (VLoc (length ss)))
 
  (* Read from a reference. *)
  | SfStoreRead
-   :  forall ss fs l v r
+   :  forall ss sp fs l v r
    ,  get l ss = Some (StValue r v)
-   -> STEPF ss fs                 (XRead (TCap (TyCapRegion r))  (VLoc l)) 
-            ss fs                 (XVal v)
+   -> STEPF ss                     sp fs (XRead (TCap (TyCapRegion r))  (VLoc l)) 
+            ss                     sp fs (XVal v)
 
  (* Write to a reference. *)
  | SfStoreWrite
-   :  forall ss fs l r v
-   ,  STEPF  ss fs                (XWrite (TCap (TyCapRegion r)) (VLoc l) v)
-             (update l (StValue r v) ss) fs (XVal (VConst CUnit)).
+   :  forall ss sp fs l r v
+   ,  STEPF  ss sp fs                 (XWrite (TCap (TyCapRegion r)) (VLoc l) v)
+             (update l (StValue r v) ss) sp fs (XVal (VConst CUnit)).
 
 Hint Constructors STEPF.
 

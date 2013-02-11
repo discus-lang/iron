@@ -14,7 +14,7 @@ Inductive TYPEF : kienv -> tyenv -> stenv -> stack -> ty -> ty -> ty -> Prop :=
 
  | TfConsLet
    :  forall ke te se fs sp t1 x2 t2 e2 t3 e3
-   ,  STOREP sp fs
+   ,  STOREP sp fs      (** WRONG, sp does not need to match fs *)
    -> TYPEX  ke (te :> t1) se sp                 x2 t2 e2
    -> TYPEF  ke te         se fs                 t2 t3 e3
    -> TYPEF  ke te         se (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)

@@ -13,7 +13,7 @@ Lemma progress
  ,  WfFS   se sp ss fs
  -> TYPEC  nil nil se sp fs x1 t1 e1
  ->  done fs x1
-  \/ (exists ss' fs' x1', STEPF ss fs x1 ss' fs' x1').
+  \/ (exists ss' sp' fs' x1', STEPF ss sp fs x1 ss' sp' fs' x1').
 Proof.
  intros se ss sp fs x1 t1 e1 HW HC.
  gen t1 e1.
@@ -29,15 +29,20 @@ Proof.
    right.
    destruct a as [t x | n].
    SSCase "FLet".
-    exists ss. exists fs. exists (substVX 0 v x).
+    exists ss. exists sp. exists fs. exists (substVX 0 v x).
     eauto.
    SSCase "FUse".
-    exists ss. exists fs. exists (XVal v).
+    exists ss. exists sp. exists fs. exists (XVal v).
     eauto.
+
+ Case "XLet".
+  right.
+  exists ss. exists sp. exists (fs :> FLet t x1_2). exists x1_1.
+  eauto.
 
  Case "XApp".
   right.
-  exists ss. exists fs.
+  exists ss. exists sp. exists fs.
   inverts_typec.
   destruct v; nope.
   SCase "v1 = XLam".
@@ -47,7 +52,7 @@ Proof.
 
  Case "XAPP".
   right.  
-   exists ss. exists fs.
+   exists ss. exists sp. exists fs.
    inverts_typec.
    destruct v; nope.
    SCase "v1 = XLAM".
@@ -57,7 +62,7 @@ Proof.
 
  Case "XOp1".
   right.
-  exists ss. exists fs.
+  exists ss. exists sp. exists fs.
   destruct o.
   SCase "OSucc".
    inverts_typec.
@@ -74,7 +79,9 @@ Proof.
 
  Case "XNew".
   right.
-  exists ss. exists (fs :> FUse (allocRegionFs fs)).
+  exists ss. 
+  exists (sp :> SRegion (allocRegionFs sp)). 
+  exists (fs :> FUse (allocRegionFs sp)).
   eauto.
 
  Case "XAlloc".
@@ -82,9 +89,10 @@ Proof.
   inverts_typec. unfold tRef in *.
   have HR: (exists n, t = TCap (TyCapRegion n)).
   destruct HR as [n].
-  exists  (StValue n v <: ss).
-  exists  fs.
-  exists  (XVal (VLoc (length ss))).
+  exists (StValue n v <: ss).
+  exists sp.
+  exists fs.
+  exists (XVal (VLoc (length ss))).
   subst. auto.
 
  Case "XRead".
@@ -100,6 +108,7 @@ Proof.
 
   inverts_type. 
   exists ss.
+  exists sp.
   exists fs.
   inverts HW. rip.
   have (exists v, get l ss = Some v).
@@ -121,5 +130,4 @@ Proof.
   destruct v; burn.
   destruct c; nope.
 Qed.
-
 
