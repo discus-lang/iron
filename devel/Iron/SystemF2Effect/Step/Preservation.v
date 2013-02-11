@@ -52,10 +52,15 @@ Proof.
     eapply SbEquiv.
     eapply EqSym. eauto.
     eapply subsT_sum_merge.
+     
+     admit. (* TODO: handle phase change
+                     say result effect can't have any more actions on existing regions,
+                      but allow it to have effects on new regions.
+                     Get this by masking effects on fresh regions in result effect, 
+                      then checking that the original subsumes it.
+                    Change maskOnCap to take a predicate for this. *)
 
-     admit. (* TODO: handle phase change *)
-
-     have HE2: (substTT 0 r e2 = e2) by admit.  (* e2 has no vars as uner empty kienv *)
+     have HE2: (substTT 0 r e2 = e2) by admit.  (* e2 has no vars as under empty kienv *)
       rewrite HE2. auto.
 
    (* Result is well typed. *)
