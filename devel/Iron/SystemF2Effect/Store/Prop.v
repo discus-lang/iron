@@ -1,141 +1,28 @@
 
 Require Import Iron.SystemF2Effect.Base.
 
+(* Store Property *)
 Inductive stprop :=
  (* A region descriptor.
     One of these exists in the store for every live region in the store. *)
  | SRegion : nat -> stprop.
 
 
+(* Store Properties *)
 Definition stprops 
  := list stprop.
 
 
-
-Fixpoint max_list (xs : list nat) :=
- match xs with
- |  nil     => 0
- |  x :: xs => max x (max_list xs)
- end.
-
-
-Lemma max_ge_left1
- : forall a b
- , max a b >= a.
-Proof.
- intros. gen b.
- induction a; intros.
-  omega.
-  simpl. break b.
-   omega.
-   cut (max a X >= a). 
-    snorm. omega.
-   eauto.
-Qed.
-
-
-Lemma max_ge_above
- : forall a b c
- ,  a >= b
- -> max c a >= b.
-Proof.
- intros. gen a b.
- induction c; intros. 
-  snorm.
-  snorm. break a.
-   omega.
-   subst.
-   destruct b.   
-    omega.   
-    have (X >= b) by omega.
-    spec IHc H0. omega.
-Qed. 
-
-
-Lemma max_ge_left
- : forall a b c
- , c >= max a b -> c >= a.
-Proof.
- intros. gen b c.
- induction a; intros.
-  snorm.
-   snorm. break b.
-   subst. auto.
-   destruct c.
-    nope.
-    have (c >= max a X) by omega.
-    lets D: IHa H0. omega.
-Qed.
-Hint Resolve max_ge_left.
-
-
-Lemma max_ge_right
- : forall a b c
- , c >= max a b -> c >= b.
-Proof.
- intros. gen b c.
- induction a; intros.
-  snorm. subst. auto.
-  simpl in H.
-  destruct b.
-   simpl in H. subst. auto.
-   destruct c.
-    nope.
-    have (c >= max a b) by omega.
-    lets D: IHa H0. omega.
-Qed.
-Hint Resolve max_ge_right.
-
-
-Lemma max_list_above
- :  forall xs
- ,  Forall (fun x => max_list xs >= x) xs.
-Proof.
- intros.
- induction xs; unfold not; intros.
-  snorm.
-  eapply Forall_cons.
-   snorm. eauto.
-   eapply Forall_impl
-    with (P := (fun x => max_list xs >= x)); eauto.
-   intros.
-   simpl.
-   remember (max_list xs) as mx.
-   eapply max_ge_above. auto.
-Qed.
-
-
-Lemma max_list_succ_not_in
- :  forall xs
- ,  not (In (S (max_list xs)) xs).
-Proof.
- intros.
- unfold not. intros.
- lets D1: max_list_above xs.
- norm.
- spec D1 H. omega.
-Qed.
-
-
-Lemma list_in_map
- :  forall {A B} (x : A) (xs : list A) (f : A -> B)
- ,  In x xs -> In (f x) (map f xs).
-Proof.
- intros. gen x f.
- induction xs; intros.
-  simpl. auto.
-  simpl. simpl in H.
-   inverts H.
-    left.  auto.
-    right. auto.
-Qed.
-
-
+(********************************************************************)
+(* Take a region back from a store property *)
 Fixpoint regionOfStProp (s : stprop) : option nat :=
  match s with
  | SRegion n       => Some n
  end.
 
+
+(********************************************************************)
+(* Allocate a fresh region. *)
 
 Fixpoint catOptions {A} (xs : list (option A)) : list A
  := match xs with
@@ -147,23 +34,6 @@ Fixpoint catOptions {A} (xs : list (option A)) : list A
 
 Definition allocRegion (sp : stprops) : nat 
  := S (max_list (catOptions (map regionOfStProp sp))).
-
-
-Lemma max_weaken_left
- :  forall a b c
- ,        a >= b
- -> max c a >= b.
-Proof.
- intros. gen a b.
- induction c; intros.
-  snorm.
-  simpl. destruct a.
-   omega.
-   destruct b.
-    omega.
-    cut (max c a >= b). intros. omega.
-     eapply IHc. omega.
-Qed.
 
 
 Lemma allocRegion_weaken
@@ -184,6 +54,8 @@ Proof.
 Qed.
  
 
+(* A freshly allocated region is greater than all regions already
+   in the store properties. *)
 Lemma allocRegion_above
  : forall sp
  , Forall (fun s => match regionOfStProp s with
@@ -224,4 +96,4 @@ Proof.
  spec D H.
   snorm. omega.
 Qed.
- 
+

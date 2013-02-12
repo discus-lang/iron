@@ -161,3 +161,17 @@ Proof.
    simpl in H. simpl in H0; eauto.
 Qed.
 
+
+Lemma in_mapped
+ :  forall {A B} (x : A) (xs : list A) (f : A -> B)
+ ,  In x xs -> In (f x) (map f xs).
+Proof.
+ intros. gen x f.
+ induction xs; intros.
+  simpl. auto.
+  simpl. simpl in H.
+   inverts H.
+    left.  auto.
+    right. auto.
+Qed.
+Hint Resolve in_mapped.

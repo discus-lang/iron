@@ -14,6 +14,7 @@ Require Export Iron.Data.List.Replace.
 Require Export Iron.Data.List.Delete.
 Require Export Iron.Data.List.Update.
 Require Export Iron.Data.List.Extends.
+Require Export Iron.Data.List.Max.
 Require Export Iron.Data.List.Program.
 Require Import Iron.Data.Nat.
 Require Import Iron.Tactics.
