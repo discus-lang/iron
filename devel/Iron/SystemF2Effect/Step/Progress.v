@@ -80,8 +80,8 @@ Proof.
  Case "XNew".
   right.
   exists ss. 
-  exists (sp :> SRegion (allocRegionFs sp)). 
-  exists (fs :> FUse (allocRegionFs sp)).
+  exists (sp :> SRegion (allocRegion sp)). 
+  exists (fs :> FUse    (allocRegion sp)).
   eauto.
 
  Case "XAlloc".
