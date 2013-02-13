@@ -5,87 +5,156 @@ Require Export Iron.SystemF2Effect.Type.EquivT.
 
 (* Type subsumptinon.
    The interesting cases all concern sums. *)
-Inductive SubsT : ki -> ty -> ty -> Prop :=
+Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
  | SbEquiv
-   :  forall k t1 t2
-   ,  EquivT k t1 t2
-   -> SubsT  k t1 t2
+   :  forall ke sp t1 t2 k
+   ,  EquivT ke sp t1 t2 k
+   -> SubsT  ke sp t1 t2 k
 
  | SbTrans
-   :  forall k t1 t2 t3
-   ,  SubsT  k t1 t2 -> SubsT k t2 t3
-   -> SubsT  k t1 t3
+   :  forall ke sp t1 t2 t3 k
+   ,  KIND   ke sp t1 k
+   -> KIND   ke sp t2 k
+   -> KIND   ke sp t3 k
+   -> SubsT  ke sp t1 t2 k -> SubsT  ke sp t2 t3 k
+   -> SubsT  ke sp t1 t3 k
 
  | SbBot
-   :  forall k t
-   ,  SubsT  k t (TBot k)
+   :  forall ke sp t k
+   ,  sumkind k
+   -> KIND   ke sp t k
+   -> SubsT  ke sp t (TBot k) k
 
  | SbSumAbove
-   :  forall k t1 t2 t3
-   ,  SubsT  k t1 t2
-   -> SubsT  k t1 t3
-   -> SubsT  k t1 (TSum t2 t3)
+   :  forall ke sp t1 t2 t3 k
+   ,  sumkind k
+   -> SubsT  ke sp t1 t2 k -> SubsT  ke sp t1 t3 k
+   -> SubsT  ke sp t1 (TSum t2 t3) k
 
  | SbSumBelow
-   :  forall k t1 t2 t3
-   ,  SubsT  k t1 t2
-   -> SubsT  k (TSum t1 t3) t2.
+   :  forall ke sp t1 t2 t3 k
+   ,  sumkind k
+   -> KIND   ke sp t1 k
+   -> KIND   ke sp t2 k
+   -> KIND   ke sp t3 k
+   -> SubsT  ke sp t1 t2 k
+   -> SubsT  ke sp (TSum t1 t3) t2 k.
 
 Hint Constructors SubsT.
 
 
-Lemma substT_equiv_above
- :  forall k t1 t1' t2
- ,  EquivT k t1 t1' 
- -> SubsT  k t1 t2  -> SubsT k t1' t2.
-Proof. eauto. Qed.
+Lemma subsT_kind_left
+ :  forall ke sp t1 t2 k
+ ,  SubsT  ke sp t1 t2 k
+ -> KIND   ke sp t1 k.
+Proof.
+ intros.
+ induction H; eauto.
+Qed.
+Hint Resolve subsT_kind_left.
 
 
-Lemma substT_equiv_below
- :  forall k t1 t2 t2'
- ,  EquivT k t2 t2' 
- -> SubsT  k t1 t2  -> SubsT k t1 t2'.
-Proof. eauto. Qed.
+Lemma subsT_kind_right
+ :  forall ke sp t1 t2 k
+ ,  SubsT  ke sp t1 t2 k
+ -> KIND   ke sp t2 k.
+Proof.
+ intros.
+ induction H; eauto.
+Qed.
+Hint Resolve subsT_kind_right.
+
+
+Lemma subsT_sumkind_left
+ :  forall ke sp t1 t2 t3 k
+ ,  SubsT  ke sp (TSum t1 t2) t3 k
+ -> sumkind k.
+Proof.
+ intros.
+ inverts H; eauto.
+Qed.
+
+
+Lemma subsT_sumkind_right
+ :  forall ke sp t1 t2 t3 k
+ ,  SubsT  ke sp t1 (TSum t2 t3) k
+ -> sumkind k.
+Proof.
+ intros.
+ inverts H; eauto.
+Qed.
+
+
+Lemma subsT_equiv_above
+ :  forall ke sp t1 t1' t2 k
+ ,  EquivT ke sp t1  t1' k
+ -> SubsT  ke sp t1  t2  k 
+ -> SubsT  ke sp t1' t2  k.
+Proof.
+ intros. 
+ eapply SbTrans with (t2 := t1); eauto.
+Qed.
+
+
+Lemma subsT_equiv_below
+ :  forall ke sp t1 t2 t2' k
+ ,  EquivT ke sp t2 t2' k
+ -> SubsT  ke sp t1 t2  k
+ -> SubsT  ke sp t1 t2' k.
+Proof.
+ intros.
+ eapply SbTrans with (t1 := t1); eauto.
+Qed.
 
 
 Lemma subsT_sum_comm_below
- :  forall k t1 t2 t3
- ,  SubsT  k t1 (TSum t2 t3)
- -> SubsT  k t1 (TSum t3 t2).
-Proof. eauto. Qed.
+ :  forall ke sp t1 t2 t3 k
+ ,  SubsT  ke sp t1 (TSum t2 t3) k
+ -> SubsT  ke sp t1 (TSum t3 t2) k.
+Proof.
+ intros.
+ eapply subsT_equiv_below with (t2 := TSum t2 t3).
+  have HK: (KIND ke sp (TSum t2 t3) k). inverts HK.
+  eapply EqSumComm; eauto.
+  auto.
+Qed.
 Hint Resolve subsT_sum_comm_below.
 
 
 Lemma subsT_sum_comm_above
- :  forall k t1 t2 t3
- ,  SubsT  k (TSum t1 t2) t3
- -> SubsT  k (TSum t2 t1) t3.
-Proof. eauto. Qed.
+ :  forall ke sp t1 t2 t3 k
+ ,  SubsT  ke sp (TSum t1 t2) t3 k
+ -> SubsT  ke sp (TSum t2 t1) t3 k.
+Proof.
+ intros.
+ eapply subsT_equiv_above with (t1 := TSum t1 t2).
+  have HK: (KIND ke sp (TSum t1 t2) k). inverts HK.
+  eapply EqSumComm; eauto.
+  auto.
+Qed.
 Hint Resolve subsT_sum_comm_above.
 
 
 Lemma subsT_sum_left
- : forall k t1 t1' t2
- , SubsT  k t1 t1'
--> SubsT  k (TSum t1 t2) (TSum t1' t2).
+ : forall ke sp t1 t1' t2 k
+ ,  sumkind k
+ -> KIND   ke sp t2 k
+ -> SubsT  ke sp t1 t1' k
+ -> SubsT  ke sp (TSum t1 t2) (TSum t1' t2) k.
 Proof.
  intros.
- eapply SbSumAbove. 
-  eapply SbSumBelow. trivial.
-  eapply SbTrans.
-   eapply SbEquiv. 
-    eapply EqSumComm.
-   eapply SbSumBelow.
-    eapply SbEquiv.
-    eapply EqRefl.
+ eapply SbSumAbove; eauto.
+  eapply SbTrans with (t2 := TSum t2 t1); eauto.
 Qed.
 Hint Resolve subsT_sum_left.
 
 
 Lemma subsT_sum_right
- : forall k t1 t2 t2'
- , SubsT  k t2 t2'
--> SubsT  k (TSum t1 t2) (TSum t1 t2').
+ :  forall ke sp t1 t2 t2' k
+ ,  sumkind k
+ -> KIND   ke sp t1 k
+ -> SubsT  ke sp t2 t2' k
+ -> SubsT  ke sp (TSum t1 t2) (TSum t1 t2') k.
 Proof.
  intros.
  eapply SbSumAbove; eauto.
@@ -94,14 +163,14 @@ Hint Resolve subsT_sum_right.
 
 
 Lemma subsT_sum_merge
- :  forall k t1 t1' t2 t2'
- ,  SubsT  k t1 t1'
- -> SubsT  k t2 t2'
- -> SubsT  k (TSum t1 t2) (TSum t1' t2').
+ :  forall ke sp t1 t1' t2 t2' k
+ ,  sumkind k
+ -> SubsT  ke sp t1 t1' k
+ -> SubsT  ke sp t2 t2' k
+ -> SubsT  ke sp (TSum t1 t2) (TSum t1' t2') k.
 Proof.
  intros.
- eapply SbTrans.
-  eapply subsT_sum_left.  eauto.
-  eapply subsT_sum_right. eauto.
+ eapply SbTrans with (t2 := TSum t1' t2); eauto.
 Qed.
+Hint Resolve subsT_sum_merge.
 

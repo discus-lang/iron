@@ -71,7 +71,7 @@ Inductive TYPEC
    -> ty    -> ty -> Prop :=
  | TcExp
    :  forall ke te se sp fs x1 t1 e1 t2 e2 e3
-   ,  EquivT KEffect (TSum e1 e2) e3
+   ,  EquivT ke sp (TSum e1 e2) e3 KEffect
    -> TYPEX  ke te se sp x1 t1 e1
    -> TYPEF  ke te se sp fs t1 t2 e2
    -> TYPEC  ke te se sp fs x1 t2 e3.
@@ -94,10 +94,5 @@ Lemma typec_kind_effect
 Proof.
  intros.
  induction H; eauto.
-  admit.                   (* TODO: need kind trans under EquivT *)
 Qed.
-
-
-
-
 

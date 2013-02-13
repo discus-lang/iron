@@ -92,6 +92,58 @@ Proof.
 Qed.
 
 
+Lemma substTT_EquivT
+ :  forall  ke sp t1 t2 t3 k3 k
+ ,  KIND    ke sp t3 k3
+ -> EquivT (ke :> k3) sp t1 t2 k
+ -> EquivT  ke sp (substTT 0 t3 t1) (substTT 0 t3 t2) k.
+Proof.
+ intros ke sp t1 t2 t3 k3 k HK HE.
+ have HK1: (KIND (ke :> k3) sp t1 k).
+ have HK2: (KIND (ke :> k3) sp t2 k).
+ remember (ke :> k3) as X.
+ induction HE; subst.
+
+ Case "EqRefl".
+ { eapply EqRefl; 
+    eauto using subst_type_type.
+ }
+
+ Case "EqSym".
+ { eapply EqSym;
+    eauto using subst_type_type.
+ }
+
+ Case "EqTrans".
+ { eapply EqTrans with (t2 := substTT 0 t3 t2); eauto.
+ }
+
+ Case "EqSumBot".
+ { apply EqSumBot; fold substTT. auto.
+   eauto using subst_type_type.
+ }
+
+ Case "EqSumIdemp".
+ { eapply EqSumIdemp. auto.
+   eauto using subst_type_type.
+ }
+
+ Case "EqSumComm".
+ { eapply EqSumComm; fold substTT. auto.
+   eauto using subst_type_type.
+   eauto using subst_type_type. 
+   eauto.
+ }
+
+ Case "EqSumAssoc".
+ { eapply EqSumAssoc; fold substTT. auto.
+   eauto using subst_type_type.
+   eauto using subst_type_type. 
+   eauto using subst_type_type. 
+ }
+Qed.   
+
+
 (********************************************************************)
 (* If we can lower a particular index then the term does not use it, 
    so we can delete the corresponding slot from the enviornment. *)

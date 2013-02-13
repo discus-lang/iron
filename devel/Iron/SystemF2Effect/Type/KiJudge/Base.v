@@ -120,3 +120,17 @@ Proof.
    exists n. auto.
 Qed.
 Hint Resolve kind_region.
+
+
+(********************************************************************)
+(* Well kinded sums have sumkind *)
+Lemma kind_sumkind
+ :  forall ke sp t1 t2 k
+ ,  KIND ke sp (TSum t1 t2) k
+ -> sumkind k.
+Proof.
+ intros.
+ inverts H. auto.
+Qed.
+Hint Resolve kind_sumkind.
+

@@ -2,20 +2,23 @@
 Require Export Iron.SystemF2Effect.Step.TfJudge.
 
 
-Definition subsT_visible sp e e'
- := SubsT KEffect e (maskOnCap (fun r => negb (hasSRegion r sp)) e').
+Definition subsT_visible ke sp e e'
+ := SubsT ke sp 
+          e (maskOnCap (fun r => negb (hasSRegion r sp)) e') 
+          KEffect.
 
 
 Lemma subsT_maskOnCap
- :  forall p e1 e2
- ,  SubsT  KEffect e1 e2
- -> SubsT  KEffect e1 (maskOnCap p e2).
+ :  forall ke sp p e1 e2
+ ,  SubsT  ke sp e1 e2 KEffect
+ -> SubsT  ke sp e1 (maskOnCap p e2) KEffect.
 Proof. admit. Qed.
 
 
 Lemma subsT_visible_refl
- :  forall sp e
- ,  subsT_visible sp e e.
+ :  forall ke sp e
+ ,  KIND ke sp e KEffect
+ -> subsT_visible ke sp e e.
 Proof.
  intros.
  unfold subsT_visible.
@@ -25,9 +28,9 @@ Qed.
 
 
 Lemma subsT_visible_equiv
- :  forall sp e1 e2
- ,  SubsT KEffect e1 e2
- -> subsT_visible sp e1 e2.
+ :  forall ke sp e1 e2
+ ,  SubsT ke sp e1 e2 KEffect
+ -> subsT_visible ke sp e1 e2.
 Proof.
  intros.
  unfold subsT_visible.
@@ -37,11 +40,11 @@ Qed.
 
 
 Lemma subsT_phase_change
- :  forall sp p r e1 e2
+ :  forall ke sp p r e1 e2
  ,  hasSRegion p sp = false
  -> r               = TCap (TyCapRegion p)
- -> SubsT KEffect e1 e2
- -> subsT_visible sp e1 (liftTT 1 0 (substTT 0 r e2)).
+ -> SubsT ke sp e1 e2 KEffect
+ -> subsT_visible ke sp e1 (liftTT 1 0 (substTT 0 r e2)).
 Proof.
  admit.
 Qed.
@@ -58,7 +61,7 @@ Theorem preservation
  -> (exists se' e'
             ,  extends se' se
             /\ WfFS  se' sp' ss' fs'
-            /\ subsT_visible sp e e'
+            /\ subsT_visible nil sp e e'
             /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp sp' ss ss' fs fs' x x' t e.
@@ -73,6 +76,7 @@ Proof.
    exists e.
    rip.
    - apply subsT_visible_refl.
+     eauto.
    - eapply TcExp; eauto.
      eapply stepp_preservation; eauto.
      inverts HH. rip.
@@ -95,11 +99,22 @@ Proof.
    rip.
 
    (* Effect of result is subsumed by previous. *)
-   - eapply SbTrans.
+   - eapply SbTrans
+      with (t2 := TSum (substTT 0 r e1) (substTT 0 r e2)).
+     + eauto.
+     + eapply KiSum.
+        eauto.
+        admit. (* ok, e1 closed *)
+        admit. (* ok, e2 closed *)
+     + simpl. 
+        admit. (* ok, maskOnCap preserves kind. *)
      + eapply SbEquiv.
-       eapply EqSym. eauto.
-     + simpl.
-       eapply subsT_sum_merge.
+        eapply EqSym.
+         admit. (* ok, e1 e2 closed *)
+         eauto.
+         admit. (* ok, e1 e2 closed *)
+     + eapply subsT_sum_merge; fold maskOnCap.
+       * eauto.
 
        (* Push e0 through region phase change relation. *)  
        * assert (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) as HS.
@@ -110,18 +125,13 @@ Proof.
              simpl in HE.
              trivial.
            }
-           have (closedT r) 
-             by (subst r; eauto).
-
-           have (closedT (substTT 0 r e0)) 
-             by (eapply substTT_closing; eauto).
-
+           have (closedT r)                by (subst r; eauto).
+           have (closedT (substTT 0 r e0)) by (eapply substTT_closing; eauto).
            eapply substTT_liftTT_wfT1; eauto.
-          }
-          rewrite HS. clear HS.
-
+         }
+         rewrite HS. clear HS.
          eapply subsT_phase_change with (p := p); auto.
-          admit.                                          (* ok, e1 has no free vars *)
+         admit.                                                   (* ok, e1 e0 closed *)
 
        (* Push e2 though region phase change relation. *)
        * assert (substTT 0 r e2 = liftTT 1 0 (substTT 0 r e2)) as HS.
@@ -131,8 +141,8 @@ Proof.
            eapply substTT_liftTT_wfT1; eauto.
          }
          rewrite HS. clear HS.
-
          eapply subsT_phase_change with (p := p); auto.
+         admit.                                                   (* ok, e2 closed *)
 
    (* Result expression is well typed. *)
    -  have HW: (wfT (@length ki nil) e2) by eauto.
@@ -147,7 +157,9 @@ Proof.
             (e2 := substTT 0 r e2); auto.
 
      (* Type of result is equivlent to before *)
-     + rewrite HE2. auto.
+     + rewrite HE2.
+       eapply EqRefl.
+        admit.                                                   (* ok e0 e2 well kinded. *)
 
      (* Type is preserved after substituting region handle. *)
      + have HTE: (nil = substTE 0 r nil).
@@ -202,13 +214,16 @@ Proof.
      + eapply wfFS_stack_pop; eauto.
 
      (* New effect subsumes old one. *)
-     + eapply subsT_visible_equiv. eauto. 
+     + eapply subsT_visible_equiv.
+       admit.                                               (* ok e2 well kinded *)
 
      (* Resulting configuation is well typed. *)
      + eapply TcExp 
          with (sp := sp :> SRegion n)
               (e1 := TBot KEffect)
               (e2 := e2); eauto.
+
+       admit.                                               (* ok equiv TBot *)
  }
 
 

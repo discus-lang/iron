@@ -1,62 +1,105 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
 Require Export Iron.SystemF2Effect.Type.KiJudge.
+Require Export Iron.SystemF2Effect.Store.Prop.
 
 
 (* Type equivalence.
    The interesting cases all concern sums. *)
-Inductive EquivT : ki -> ty -> ty -> Prop :=
+Inductive EquivT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
  | EqRefl
-   :  forall k t
-   ,  EquivT k t t
+   :  forall ke sp t k
+   ,  KIND   ke sp t k
+   -> EquivT ke sp t t k
 
  | EqSym
-   :  forall k t1 t2
-   ,  EquivT k t1 t2 -> EquivT k t2 t1
+   :  forall ke sp t1 t2 k
+   ,  KIND   ke sp t1 k
+   -> KIND   ke sp t2 k
+   -> EquivT ke sp t1 t2 k
+   -> EquivT ke sp t2 t1 k
 
  | EqTrans
-   :  forall k t1 t2 t3
-   ,  EquivT k t1 t2 -> EquivT k t2 t3
-   -> EquivT k t1 t3
+   :  forall ke sp t1 t2 t3 k
+   ,  EquivT ke sp t1 t2 k
+   -> EquivT ke sp t2 t3 k
+   -> EquivT ke sp t1 t3 k
 
  | EqSumBot
-   : forall k t
-   , EquivT k t             (TSum t (TBot k))
+   :  forall ke sp t k
+   ,  sumkind k
+   -> KIND   ke sp t k
+   -> EquivT ke sp t (TSum t (TBot k)) k
 
  | EqSumIdemp
-   : forall k t
-   , EquivT k t             (TSum t t)
+   :  forall ke sp t k
+   ,  sumkind k
+   -> KIND   ke sp t k
+   -> EquivT ke sp t (TSum t t) k
 
  | EqSumComm
-   : forall k t1 t2
-   , EquivT k (TSum t1 t2)  (TSum t2 t1)
+   :  forall ke sp t1 t2 t3 k
+   ,  sumkind k
+   -> KIND   ke sp t1 k
+   -> KIND   ke sp t2 k
+   -> KIND   ke sp t3 k
+   -> EquivT ke sp (TSum t1 t2)  (TSum t2 t1) k
 
  | EqSumAssoc
-   : forall k t1 t2 t3
-   , EquivT k (TSum t1 (TSum t2 t3))
-              (TSum (TSum t1 t2) t3).
+   :  forall ke sp t1 t2 t3 k
+   ,  sumkind k
+   -> KIND   ke sp t1 k
+   -> KIND   ke sp t2 k
+   -> KIND   ke sp t3 k
+   -> EquivT ke sp (TSum t1 (TSum t2 t3))
+                   (TSum (TSum t1 t2) t3) k.
 
 Hint Constructors EquivT.
 
 
 Lemma equivT_sum_left
- :  forall t k
- ,  EquivT k t (TSum (TBot k) t).
+ :  forall ke sp t k
+ ,  sumkind k
+ -> KIND   ke sp t k
+ -> EquivT ke sp t (TSum (TBot k) t) k.
 Proof.
  intros.
  eapply EqTrans.
-  eapply EqSumBot.
+  eapply EqSumBot; eauto.
   eauto.
 Qed.
 Hint Resolve equivT_sum_left.
 
 
-Lemma equivT_kind
+Lemma equivT_kind_trans
  :  forall ke sp t1 t2 k
- ,  EquivT k t1 t2
+ ,  EquivT ke sp t1 t2 k
  -> KIND   ke sp t1 k
  -> KIND   ke sp t2 k.
 Proof.
- admit.      (* Broken, will need to add KIND judge to EqRefl *)
-Qed. 
+ intros.
+ induction H; eauto.
+Qed.
+
+
+Lemma equivT_kind_left
+ :  forall ke sp t1 t2 k
+ ,  EquivT ke sp t1 t2 k
+ -> KIND   ke sp t1 k.
+Proof.
+ intros. 
+ induction H; eauto.
+Qed.
+Hint Resolve equivT_kind_left.
+
+
+Lemma equivT_kind_right
+ :  forall ke sp t1 t2 k
+ ,  EquivT ke sp t1 t2 k
+ -> KIND   ke sp t2 k.
+Proof.
+ intros. 
+ induction H; eauto.
+Qed.  
+Hint Resolve equivT_kind_right.
 
