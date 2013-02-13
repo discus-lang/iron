@@ -3,13 +3,13 @@ Require Export Iron.SystemF2Effect.Step.TfJudge.
 
 
 Definition subsT_visible sp e e'
- := SubsT e (maskOnCap (fun r => negb (hasSRegion r sp)) e').
+ := SubsT KEffect e (maskOnCap (fun r => negb (hasSRegion r sp)) e').
 
 
 Lemma subsT_maskOnCap
  :  forall p e1 e2
- ,  SubsT e1 e2
- -> SubsT e1 (maskOnCap p e2).
+ ,  SubsT  KEffect e1 e2
+ -> SubsT  KEffect e1 (maskOnCap p e2).
 Proof. admit. Qed.
 
 
@@ -26,7 +26,7 @@ Qed.
 
 Lemma subsT_visible_equiv
  :  forall sp e1 e2
- ,  SubsT e1 e2
+ ,  SubsT KEffect e1 e2
  -> subsT_visible sp e1 e2.
 Proof.
  intros.
@@ -40,11 +40,12 @@ Lemma subsT_phase_change
  :  forall sp p r e1 e2
  ,  hasSRegion p sp = false
  -> r               = TCap (TyCapRegion p)
- -> SubsT e1 e2
+ -> SubsT KEffect e1 e2
  -> subsT_visible sp e1 (liftTT 1 0 (substTT 0 r e2)).
 Proof.
  admit.
 Qed.
+
 
 
 (* When a well typed expression transitions to the next state
@@ -99,19 +100,46 @@ Proof.
        eapply EqSym. eauto.
      + simpl.
        eapply subsT_sum_merge.
-       * have (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) by admit. (* no vars in subst result *)
-          rewrite H1. clear H1.
-         eapply subsT_phase_change with (p := p); auto.
-          admit.                   (* ok, e1 has no free vars *)
 
-       * have (substTT 0 r e2 = liftTT 1 0 (substTT 0 r e2)) by admit. (* no vars in subst result *)
-          rewrite H1. clear H1.
-         eapply subsT_phase_change with (p := p); auto.
-          
-   -  have HE2: (substTT 0 r e2 = e2) by admit.  (* e2 has no vars as under empty kienv *)
-      rewrite HE2. auto.
+       (* Push e0 through region phase change relation. *)  
+       * assert (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) as HS.
+         { assert (wfT 1 e0).
+           { have HK: (KIND (nil :> KRegion) sp e0 KEffect).
+             have HE: (wfT  (length (nil :> KRegion)) e0) 
+              by (eapply kind_wfT; eauto).
+             simpl in HE.
+             trivial.
+           }
+           have (closedT r) 
+             by (subst r; eauto).
 
-   (* Result is well typed. *)
+           have (closedT (substTT 0 r e0)) 
+             by (eapply substTT_closing; eauto).
+
+           eapply substTT_liftTT_wfT1; eauto.
+          }
+          rewrite HS. clear HS.
+
+         eapply subsT_phase_change with (p := p); auto.
+          admit.                                          (* ok, e1 has no free vars *)
+
+       (* Push e2 though region phase change relation. *)
+       * assert (substTT 0 r e2 = liftTT 1 0 (substTT 0 r e2)) as HS.
+         { have (wfT (@length ki nil) e2)  by eauto.
+           have (closedT r)                by (subst r; eauto).
+           have (closedT (substTT 0 r e2)) by (eapply substTT_closing; eauto).
+           eapply substTT_liftTT_wfT1; eauto.
+         }
+         rewrite HS. clear HS.
+
+         eapply subsT_phase_change with (p := p); auto.
+
+   (* Result expression is well typed. *)
+   -  have HW: (wfT (@length ki nil) e2) by eauto.
+       simpl in HW.
+      have HE2: (substTT 0 r e2 = e2).
+      rewrite HE2.
+
      eapply TcExp 
        with (sp := sp :> SRegion p) 
             (t1 := substTT 0 r t0)
@@ -148,7 +176,7 @@ Proof.
          have (In (SRegion p) sp).
          rewrite H in H7. tauto.
 
-       * admit.         (* ok, t0 doesn't mention ^0 by lowerTT *)
+       * admit.                                      (* ok, t0 doesn't mention ^0 by lowerTT *)
  }
 
  (* Pop a region from ths stack. *)

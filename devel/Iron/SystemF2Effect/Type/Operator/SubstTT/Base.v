@@ -43,7 +43,7 @@ Qed.
 
 
 (********************************************************************)
-Lemma substTT_wfT
+Lemma substTT_wfT_above
  :  forall d ix t t2
  ,  wfT d t
  -> substTT (d + ix) t2 t = t.
@@ -55,7 +55,43 @@ Proof.
   norm; omega.
   lets D: IHt H1. burn.
 Qed.
+Hint Resolve substTT_wfT_above.
+
+
+Lemma substTT_wfT
+ :  forall d ix t1 t2
+ ,  ix <= d
+ -> wfT (S d) t1
+ -> wfT d     t2
+ -> wfT d (substTT ix t2 t1).
+Proof.
+ intros. gen d ix t2.
+ induction t1; rip; inverts H0; simpl; snorm.
+
+ Case "TVar".
+  eapply WfT_TVar. omega.
+  eapply WfT_TVar. omega.
+
+ Case "TForall".
+  eapply WfT_TForall.
+  eapply IHt1; eauto.
+   omega.
+Qed.
 Hint Resolve substTT_wfT.
+
+
+(* Closing substitution of types in types *)
+Lemma substTT_closing
+ :  forall t1 t2
+ ,  wfT 1 t1
+ -> closedT t2
+ -> closedT (substTT 0 t2 t1).
+Proof.
+ intros.
+ unfold closedT in *.
+ eauto.
+Qed.
+Hint Resolve substTT_closing.
 
 
 Lemma substTT_closedT_id
@@ -68,6 +104,20 @@ Qed.
 Hint Resolve substTT_closedT_id.
 
 
+Lemma substTT_liftTT_wfT1
+ :  forall t1 t2
+ ,  wfT 1 t1
+ -> closedT t2
+ -> substTT 0 t2 t1 = liftTT 1 0 (substTT 0 t2 t1).
+Proof.
+ intros.
+ have    (closedT (substTT 0 t2 t1)).
+ rrwrite (liftTT 1 0 (substTT 0 t2 t1) = substTT 0 t2 t1).
+ trivial.
+Qed.
+Hint Resolve substTT_liftTT_wfT1.
+
+
 (* Substituting into TBot is still TBot. *)
 Lemma substTT_TBot
  : forall d t2 k
@@ -75,5 +125,4 @@ Lemma substTT_TBot
 Proof. burn. Qed.
 Hint Resolve substTT_TBot.
 Hint Rewrite substTT_TBot : global.
-
 
