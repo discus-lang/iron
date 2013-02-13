@@ -163,14 +163,15 @@ Proof.
      unfold STOREP in *.
      spec H4 p.
      have (In (FUse p) (fs :> FUse p)).
-      inverts H4. rip. nope.
+      rip. nope.
 
    (* At least one region in store. *)
    - destruct s.
      exists se.
      exists e2.
      rip.
-     + admit.  (* CHANGE to allow store well formed under smaller frame stack *)
+     (* Frame stack is still well formed after popping the top FUse frame *)
+     + eapply wfFS_stack_pop; eauto.
 
      (* New effect subsumes old one. *)
      + eapply subsT_visible_equiv. eauto. 

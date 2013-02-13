@@ -94,7 +94,7 @@ Proof. firstorder. Qed.
 
 
 (* Weaken frame stack in WfFS *)
-Lemma wffs_sregion_cons
+Lemma wfFS_sregion_cons
  :  forall se sp ss fs p
  ,  WfFS se sp ss fs
  -> WfFS se (sp :> SRegion p) ss (fs :> FUse p).
@@ -104,5 +104,18 @@ Proof.
  inverts H. inverts H1. inverts H2.
  auto.
 Qed.
-Hint Resolve wffs_sregion_cons.
+Hint Resolve wfFS_sregion_cons.
+
+
+(* Popping a frame from the stack preserves well formedness. *)
+Lemma wfFS_stack_pop
+ :  forall se sp ss fs p
+ ,  WfFS se sp ss (fs :> FUse p)
+ -> WfFS se sp ss fs.
+Proof.
+ intros.
+ unfold WfFS in *. rip. 
+ unfold STOREP in *.
+  eauto.
+Qed.
 
