@@ -1,23 +1,6 @@
 
 Require Export Iron.SystemF2Effect.Step.TfJudge.
 
-Fixpoint elem {A} (p : A -> bool) (xx : list A)
- := match xx with
-    | nil      => false
-    | x :: xs  => if p x then true else elem p xs
-    end.
-
-
-Definition isSRegion (r : nat) (pp : stprop) : bool
- := match pp with
-    | SRegion r' => beq_nat r r'
-    end.
-
-
-Definition hasSRegion (r : nat) (sp : stprops) 
- := elem (isSRegion r) sp.
-
-
 Definition subsT_visible sp e e'
  := SubsT e (maskOnCap (fun r => negb (hasSRegion r sp)) e').
 

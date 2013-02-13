@@ -13,12 +13,37 @@ Definition stprops
  := list stprop.
 
 
+(* TODO: shift this into base library *)
+Fixpoint elem {A} (p : A -> bool) (xx : list A)
+ := match xx with
+    | nil      => false
+    | x :: xs  => if p x then true else elem p xs
+    end.
+
+
+Lemma elem_get_not
+ :  forall {A} (p : A -> bool) (xx : list A) 
+ ,  not (exists ix x, get ix xx = Some x /\ p x = true)
+ -> elem p xx = false.
+Proof. admit. Qed.
+
+
 (********************************************************************)
 (* Take a region back from a store property *)
 Fixpoint regionOfStProp (s : stprop) : option nat :=
  match s with
  | SRegion n       => Some n
  end.
+
+
+Definition isSRegion (r : nat) (pp : stprop) : bool
+ := match pp with
+    | SRegion r' => beq_nat r r'
+    end.
+
+
+Definition hasSRegion (r : nat) (sp : stprops) 
+ := elem (isSRegion r) sp.
 
 
 (********************************************************************)
@@ -95,5 +120,28 @@ Proof.
   snorm.
  spec D H.
   snorm. omega.
+Qed.
+
+
+(* Old store properties do not contain allocated region. *)
+Lemma allocRegion_fresh_has
+ :  forall p sp
+ ,  p = allocRegion sp
+ -> hasSRegion p sp = false.
+Proof.
+ intros.
+ subst.
+  unfold hasSRegion.
+  eapply elem_get_not.
+  unfold not. intros.
+   destruct H as [ix].
+   destruct H as [x].
+   rip.
+   destruct x.
+    simpl in H1.
+    snorm. symmetry in H1. subst.
+    apply get_in in H0.
+    have (not (In (SRegion (allocRegion sp)) sp)) by apply allocRegion_fresh.
+    tauto.
 Qed.
 

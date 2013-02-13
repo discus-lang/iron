@@ -2,6 +2,7 @@
 Require Export Iron.SystemF2Effect.Type.
 Require Export Iron.SystemF2Effect.Value.
 Require Export Iron.SystemF2Effect.Step.Pure.
+Require Export Iron.SystemF2Effect.Store.Prop.
 
 
 (* Frame Stacks *)
@@ -16,9 +17,6 @@ Hint Constructors frame.
 
 Definition stack := list frame.
 Hint Unfold stack.
-
-Definition allocRegionFs (sp : stprops) : nat
- := 0.
 
 
 (********************************************************************)
@@ -52,7 +50,7 @@ Inductive
  (* Create a new region. *)
  | SfRegionNew
    :  forall ss sp fs x p
-   ,  p = allocRegionFs sp
+   ,  p = allocRegion sp
    -> STEPF  ss sp                 fs            (XNew x)
              ss (sp :> SRegion p) (fs :> FUse p) (substTX 0 (TCap (TyCapRegion p)) x)
 
