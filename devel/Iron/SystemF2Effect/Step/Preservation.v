@@ -1,6 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Step.TfJudge.
 
+
 Definition subsT_visible sp e e'
  := SubsT e (maskOnCap (fun r => negb (hasSRegion r sp)) e').
 
@@ -100,17 +101,12 @@ Proof.
        eapply subsT_sum_merge.
        * have (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) by admit. (* no vars in subst result *)
           rewrite H1. clear H1.
-         eapply subsT_phase_change with (p := p).
-          admit.                   (* ok, p not in sp, by goodness of allocRegionFs *)
-          subst r. auto.
+         eapply subsT_phase_change with (p := p); auto.
           admit.                   (* ok, e1 has no free vars *)
 
        * have (substTT 0 r e2 = liftTT 1 0 (substTT 0 r e2)) by admit. (* no vars in subst result *)
           rewrite H1. clear H1.
-         eapply subsT_phase_change with (p := p).
-          admit.                   (* ok, p not in sp, by goodness of allocRegionFs *)      
-          subst r.  auto.
-          auto.
+         eapply subsT_phase_change with (p := p); auto.
           
    -  have HE2: (substTT 0 r e2 = e2) by admit.  (* e2 has no vars as under empty kienv *)
       rewrite HE2. auto.
@@ -141,8 +137,18 @@ Proof.
 
      (* New frame stack is well typed. *)
      + eapply TfConsUse.
-       admit.            (* ok, region handle is fresh, goodness of allocRegionFs *)
-       admit.            (* ok, t0 doesn't mention ^0 by lowerTT *)
+
+       (* New region handle is not in the existing frame stack. *)
+       * unfold not. intros.
+
+         have (In (SRegion p) sp)
+          by (eapply wfFS_fuse_sregion; eauto).
+
+         have (not (In (SRegion (allocRegion sp)) sp)).
+         have (In (SRegion p) sp).
+         rewrite H in H7. tauto.
+
+       * admit.         (* ok, t0 doesn't mention ^0 by lowerTT *)
  }
 
  (* Pop a region from ths stack. *)

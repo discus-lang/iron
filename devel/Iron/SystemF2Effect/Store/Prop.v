@@ -77,7 +77,8 @@ Proof.
     apply max_weaken_left. 
     auto.
 Qed.
- 
+Hint Resolve allocRegion_weaken.
+
 
 (* A freshly allocated region is greater than all regions already
    in the store properties. *)
@@ -121,6 +122,7 @@ Proof.
  spec D H.
   snorm. omega.
 Qed.
+Hint Resolve allocRegion_fresh.
 
 
 (* Old store properties do not contain allocated region. *)
@@ -144,4 +146,5 @@ Proof.
     have (not (In (SRegion (allocRegion sp)) sp)) by apply allocRegion_fresh.
     tauto.
 Qed.
+Hint Resolve allocRegion_fresh_has.
 

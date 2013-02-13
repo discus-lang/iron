@@ -25,9 +25,15 @@ Definition STORET (se: stenv) (sp: stprops) (ss: store)
 Hint Unfold STORET.
 
 
-(* Store properties model use frames on stack. *)
+(* All region handles on frame stack are in store properties.
+
+   We don't require the other way, forcing all store properties to be in 
+   the frame stack. We need to be able to pop a Use frame and still have 
+   any region handles in the expression being well typed, along with dangling
+   references into that region. *)
+
 Definition STOREP  (sp : stprops) (fs : stack)
- := forall n, In (SRegion n) sp <-> In (FUse n) fs.
+ := forall n, In (FUse n) fs -> In (SRegion n) sp.
 
 
 (******************************************************************************)
@@ -54,24 +60,22 @@ Lemma wfFS_wfS
 Proof. firstorder. Qed.
 
 
+Lemma wfFS_fuse_sregion
+ :  forall se sp ss fs p
+ ,  WfFS se sp ss fs
+ -> In (FUse p)    fs
+ -> In (SRegion p) sp.
+Proof. firstorder. Qed.
+
+
+(******************************************************************************)
+(* STOREP Weakening *)
 Lemma storep_cons
  :  forall sp fs p
  ,  STOREP sp fs
  -> STOREP (sp :> SRegion p) (fs :> FUse p).
 Proof.
  unfold STOREP in *.
- intros. split.
- - intros.
-   have HN: (n = p \/ ~(n = p)).
-   inverts HN.
-   + simpl. auto.
-   + assert (In (FUse n) fs).
-      eapply H.
-      eapply in_tail. 
-      have (SRegion n <> SRegion p) by congruence.
-      eauto. eauto. 
-     eapply in_split; burn.
-
  - intros.
    have HN: (n = p \/ ~(n = p)).
    inverts HN.
@@ -86,6 +90,7 @@ Qed.
 Hint Resolve storep_cons.
 
 
+(* STORET weakening *)
 Lemma storet_weak_stprops
  :  forall se sp ss p
  ,  STORET se sp ss
@@ -100,6 +105,7 @@ Qed.
 Hint Resolve storet_weak_stprops.
 
 
+(* WfFS weakening *)
 Lemma wffs_sregion_cons
  :  forall se sp ss fs p
  ,  WfFS se sp ss fs
@@ -165,7 +171,7 @@ Qed.
 Hint Resolve storet_snoc.
 
 
-(* Reading bindings ***********************************************************)
+(* Reading bindings **********************************************************)
 (* Values read from the store have the types predicted by
    the store environment *)
 Lemma storet_get_typev
@@ -182,7 +188,7 @@ Proof.
 Qed.
 
 
-(* Updating bindings **********************************************************)
+(* Updating bindings *********************************************************)
 (* Store with an updated binding is still well formed. *)
 Lemma store_update_wf
  :  forall se sp ss l r v t
@@ -200,3 +206,4 @@ Proof.
   unfold STORET.
    eapply Forall2_update_right; eauto.
 Qed.
+
