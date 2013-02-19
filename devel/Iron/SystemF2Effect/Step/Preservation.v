@@ -10,6 +10,7 @@ Definition subsT_visible ke sp e e'
           KEffect.
 
 
+(* TODO: probably need to go via list of effects for this one *)
 Lemma subsT_maskOnCap
  :  forall ke sp p e1 e2
  ,  SubsT  ke sp e1 e2 KEffect
@@ -150,8 +151,7 @@ Proof.
          }
          rewrite HS. clear HS.
          rrwrite (substTT 0 r e1 = e1).
-         eapply subsT_phase_change with (p := p); auto.
-         admit.                                                   (* ok, e1 e0 closed *)
+         admit.                                         (* need maskOnCap makes eff smaller *)
 
        (* Push e2 though region phase change relation. *)
        * assert (substTT 0 r e2 = liftTT 1 0 (substTT 0 r e2)) as HS.
@@ -161,10 +161,7 @@ Proof.
            eapply substTT_liftTT_wfT1; eauto.
          }
          rewrite HS. clear HS.
-         eapply subsT_phase_change with (p := p); auto.
-          rrwrite (substTT 0 r e2 = e2). 
-          rrwrite (liftTT  1 0 e2 = e2).
-          auto.
+         admit.                                        (* broken *)
 
    (* Result expression is well typed. *)
    -  have HW: (wfT (@length ki nil) e2) by eauto.
@@ -211,7 +208,7 @@ Proof.
 
          have (not (In (SRegion (allocRegion sp)) sp)).
          have (In (SRegion p) sp).
-         rewrite H in H7. tauto.
+         rewrite H in H14. tauto.
 
        * admit.                                      (* ok, t0 doesn't mention ^0 by lowerTT *)
  }

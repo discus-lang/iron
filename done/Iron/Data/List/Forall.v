@@ -21,6 +21,28 @@ Qed.
 Hint Resolve in_snoc.
 
 
+Lemma in_app_split
+ :  forall {A} (x : A) xs ys
+ ,  In x (xs ++ ys)
+ -> In x xs \/ In x ys.
+Proof.
+ intros.
+ induction xs.
+  - simpl.
+    right. simpl in H. auto.
+  - rrwrite ((ys >< (xs :> a)) = (ys >< xs) :> a) in H.
+    simpl in H.
+    inverts H. 
+    + left. auto.
+    + rip.
+      inverts IHxs.
+      * left.
+        auto.
+      * rip.
+Qed.
+Hint Resolve in_app_split.
+
+
 Lemma in_app_right
  :  forall {A} x (xs ys: list A)
  ,  In x ys
@@ -101,6 +123,21 @@ Proof.
     inverts H0. auto. auto.
 Qed.
 Hint Resolve Forall_snoc.
+
+
+Lemma Forall_app
+ :  forall {A} (P: A -> Prop) xs ys
+ ,  Forall P xs
+ -> Forall P ys
+ -> Forall P (xs ++ ys).
+Proof.
+ intros. 
+ rewrite Forall_forall in *.
+ intros.
+ apply in_app_split in H1.
+  firstorder.
+Qed.
+Hint Resolve Forall_app.
 
 
 Lemma Forall_app_left

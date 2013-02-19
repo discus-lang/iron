@@ -43,6 +43,7 @@ Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
 Hint Constructors SubsT.
 
 
+
 Lemma subsT_kind_left
  :  forall ke sp t1 t2 k
  ,  SubsT  ke sp t1 t2 k
