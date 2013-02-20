@@ -45,24 +45,6 @@ Proof.
 Qed. 
 
 
-Lemma in_app_comm
- :  forall {A} (x : A) xs ys
- ,  In x (xs ++ ys)
- -> In x (ys ++ xs).
-Proof.
- intros. gen ys.
- induction xs; intros.
-  norm.
-  simpl in H. inverts H.
-   auto.
-   spec IHxs H0.
-    eapply in_app_split in IHxs.
-    inverts IHxs.
-     apply in_app_left. auto.
-     apply in_app_right. simpl. right. auto.
-Qed.
-
-
 Lemma equivT_equivTs 
  :  forall  ke sp t1 t2 k
  ,  sumkind k
@@ -73,27 +55,31 @@ Proof.
  induction H0.
   eapply equivTs_refl; auto.
   eapply equivTs_sym;  auto.
+
   admit.                                         (* ok, need EquivTs trans *)
 
   Case "EqSumBot".
-   simpl. norm. 
-   apply equivTs_refl; auto.
+  { simpl. norm. 
+    apply equivTs_refl; auto.
+  }
 
   Case "EqSumIdemp".
-   simpl.
-   eapply EqsSum; norm; auto.
-   eapply in_app_split in H2.
-    inverts H2; auto.
+  { simpl.
+    eapply EqsSum; norm; auto.
+    eapply in_app_split in H2.
+     inverts H2; auto.
+  }
 
   Case "EqSumComm".
-   simpl.
-   eapply EqsSum; auto.
-    norm. eapply in_app_comm. auto.
-    norm. eapply in_app_comm. auto.
+  { simpl.
+    eapply EqsSum; auto.
+     norm.
+     norm.
+  }
 
   Case "EqSumAssoc".
-   simpl.
-   eapply EqsSum; auto.
+  { simpl.
+    eapply EqsSum; auto.
     - norm. 
       eapply in_app_split in H4. inverts H4.
       eapply in_app_split in H5. inverts H5.
@@ -102,4 +88,5 @@ Proof.
       eapply in_app_split in H4. inverts H4. auto.
       eapply in_app_split in H5. inverts H5. 
       auto. auto.
+  }
 Qed.

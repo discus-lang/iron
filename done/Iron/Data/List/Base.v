@@ -568,3 +568,91 @@ Proof.
 Qed.
 Hint Resolve in_split.
 
+
+Lemma in_snoc 
+ :  forall {A} x a (xs: list A)
+ ,  In x xs 
+ -> In x (a <: xs).
+Proof.
+ intros.
+ induction xs.
+  nope.
+  simpl in H.
+   inverts H.
+   simpl. auto.
+   simpl. eauto.
+Qed.
+Hint Resolve in_snoc.
+
+
+Lemma in_app_split
+ :  forall {A} (x : A) xs ys
+ ,  In x (xs ++ ys)
+ -> In x xs \/ In x ys.
+Proof.
+ intros.
+ induction xs.
+  - simpl.
+    right. simpl in H. auto.
+  - rrwrite ((ys >< (xs :> a)) = (ys >< xs) :> a) in H.
+    simpl in H.
+    inverts H. 
+    + left. auto.
+    + rip.
+      inverts IHxs.
+      * left.
+        auto.
+      * rip.
+Qed.
+Hint Resolve in_app_split.
+
+
+Lemma in_app_left
+ :  forall {A} x (xs ys: list A)
+ ,  In x xs
+ -> In x (xs ++ ys).
+Proof.
+ intros.
+ eapply (@rev_ind A (fun ys => In x (xs ++ ys))); intros.
+  rr. auto.
+  rr. rrwrite ((x0 <: l) >< xs = (x0 <: (l >< xs))). eauto.
+Qed.
+Hint Resolve in_app_left.
+
+
+Lemma in_app_right
+ :  forall {A} x (xs ys: list A)
+ ,  In x ys
+ -> In x (xs ++ ys).
+Proof.
+ intros.
+ induction xs.
+  rr. auto.
+  rrwrite ((a :: xs) ++ ys = a :: (xs ++ ys)).
+  apply in_cons. auto.
+Qed.
+Hint Resolve in_app_right.
+
+
+Lemma in_app_comm
+ :  forall {A} (x : A) xs ys
+ ,  In x (xs ++ ys)
+ -> In x (ys ++ xs).
+Proof.
+ intros. gen ys.
+ induction xs; intros.
+  - rewrite app_nil_left in H.
+    rewrite app_nil_right.
+    auto.
+  - simpl in H.
+    inverts H.
+    + rrwrite ((xs :> x) >< ys = xs >< (x <: ys)).
+      eapply IHxs. eauto.
+    + rrwrite ((xs :> a) >< ys = xs >< (a <: ys)).
+      eapply in_app_split in H0.
+      inverts H0.
+      * apply in_app_right. auto.
+      * apply in_app_left. auto.
+Qed.
+Hint Resolve in_app_comm.
+

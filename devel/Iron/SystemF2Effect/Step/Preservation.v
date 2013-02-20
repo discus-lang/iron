@@ -10,7 +10,6 @@ Definition subsT_visible ke sp e e'
           KEffect.
 
 
-(* TODO: probably need to go via list of effects for this one *)
 Lemma subsT_maskOnCap
  :  forall ke sp p e1 e2
  ,  SubsT  ke sp e1 e2 KEffect

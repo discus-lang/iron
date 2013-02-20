@@ -4,75 +4,7 @@ Require Import Iron.Tactics.
 
 
 (********************************************************************)
-(* Lemmas: in *)
-Lemma in_snoc 
- :  forall {A} x a (xs: list A)
- ,  In x xs 
- -> In x (a <: xs).
-Proof.
- intros.
- induction xs.
-  nope.
-  simpl in H.
-   inverts H.
-   simpl. auto.
-   simpl. eauto.
-Qed.
-Hint Resolve in_snoc.
-
-
-Lemma in_app_split
- :  forall {A} (x : A) xs ys
- ,  In x (xs ++ ys)
- -> In x xs \/ In x ys.
-Proof.
- intros.
- induction xs.
-  - simpl.
-    right. simpl in H. auto.
-  - rrwrite ((ys >< (xs :> a)) = (ys >< xs) :> a) in H.
-    simpl in H.
-    inverts H. 
-    + left. auto.
-    + rip.
-      inverts IHxs.
-      * left.
-        auto.
-      * rip.
-Qed.
-Hint Resolve in_app_split.
-
-
-Lemma in_app_right
- :  forall {A} x (xs ys: list A)
- ,  In x ys
- -> In x (xs ++ ys).
-Proof.
- intros.
- induction xs.
-  rr. auto.
-  rrwrite ((a :: xs) ++ ys = a :: (xs ++ ys)).
-  apply in_cons. auto.
-Qed.
-Hint Resolve in_app_right.
-
-
-Lemma in_app_left
- :  forall {A} x (xs ys: list A)
- ,  In x xs
- -> In x (xs ++ ys).
-Proof.
- intros.
- eapply (@rev_ind A (fun ys => In x (xs ++ ys))); intros.
-  rr. auto.
-  rr. rrwrite ((x0 <: l) >< xs = (x0 <: (l >< xs))). eauto.
-Qed.
-Hint Resolve in_app_left.
-
-
-(********************************************************************)
 (* Lemmas: Forall *)
-
 Lemma Forall_impl_in
  : forall {A}
           (P1: A -> Prop) (P2: A -> Prop)
