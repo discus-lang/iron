@@ -10,13 +10,6 @@ Definition subsT_visible ke sp e e'
           KEffect.
 
 
-Lemma subsT_maskOnCap
- :  forall ke sp p e1 e2
- ,  SubsT  ke sp e1 e2 KEffect
- -> SubsT  ke sp e1 (maskOnCap p e2) KEffect.
-Proof. admit. Qed.
-
-
 Lemma subsT_visible_refl
  :  forall ke sp e
  ,  KIND ke sp e KEffect

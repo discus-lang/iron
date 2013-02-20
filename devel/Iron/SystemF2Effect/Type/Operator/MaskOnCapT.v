@@ -7,12 +7,12 @@ Require Import Iron.SystemF2Effect.Type.Exp.
 
 (* Mask effects on the given region, 
    replacing with the bottom effect. *)
-Fixpoint maskOnCap (p : nat -> bool) (e : ty) : ty
+Fixpoint maskOnCapT (p : nat -> bool) (e : ty) : ty
  := match e with
     |  TVar tc       => TVar tc
-    |  TForall k t1  => TForall k (maskOnCap p t1)
-    |  TApp t1 t2    => TApp (maskOnCap p t1) (maskOnCap p t2)
-    |  TSum t1 t2    => TSum (maskOnCap p t1) (maskOnCap p t2)
+    |  TForall k t1  => TForall k (maskOnCapT p t1)
+    |  TApp t1 t2    => TApp (maskOnCapT p t1) (maskOnCapT p t2)
+    |  TSum t1 t2    => TSum (maskOnCapT p t1) (maskOnCapT p t2)
     |  TBot k        => TBot k
 
     |  TCon0 tc      => TCon0 tc
@@ -22,54 +22,54 @@ Fixpoint maskOnCap (p : nat -> bool) (e : ty) : ty
        | TCap (TyCapRegion n) 
        => if p n
              then TBot KEffect 
-             else TCon1 tc (maskOnCap p t1)
+             else TCon1 tc (maskOnCapT p t1)
 
-       | _ =>     TCon1 tc (maskOnCap p t1)
+       | _ =>     TCon1 tc (maskOnCapT p t1)
        end
     
-    | TCon2 tc t1 t2 => TCon2 tc (maskOnCap p t1) (maskOnCap p t2)
+    | TCon2 tc t1 t2 => TCon2 tc (maskOnCapT p t1) (maskOnCapT p t2)
 
     | TCap  tc       => TCap tc
     end.
-Arguments maskOnCap p e : simpl nomatch.
+Arguments maskOnCapT p e : simpl nomatch.
 
 
 (********************************************************************)
 (* Helper Lemmas *)
-Lemma maskOnCap_TBot_cases
+Lemma maskOnCapT_TBot_cases
  :  forall p tc n
- ,  maskOnCap p (TCon1 tc (TCap (TyCapRegion n))) = TBot KEffect 
+ ,  maskOnCapT p (TCon1 tc (TCap (TyCapRegion n))) = TBot KEffect 
  -> p n = true.
 Proof.
  intros.
- unfold maskOnCap in H.
+ unfold maskOnCapT in H.
  break (p n).
   auto. nope.
 Qed.
 
 
-Lemma maskOnCap_TCon1_cases
+Lemma maskOnCapT_TCon1_cases
  :   forall p tc t
- ,   maskOnCap p (TCon1 tc t) = TBot KEffect
- \/  maskOnCap p (TCon1 tc t) = TCon1 tc (maskOnCap p t).
+ ,   maskOnCapT p (TCon1 tc t) = TBot KEffect
+ \/  maskOnCapT p (TCon1 tc t) = TCon1 tc (maskOnCapT p t).
 Proof.
  intros. 
  destruct t; simpl; rip.
- unfold maskOnCap.
+ unfold maskOnCapT.
   destruct t. snorm.
 Qed.
 
 
-Lemma maskOnCap_nomatch
+Lemma maskOnCapT_nomatch
  : forall p tc t2
  ,  (forall n, t2 = TCap (TyCapRegion n) -> p n = false)
- -> maskOnCap p (TCon1 tc t2)    = TCon1 tc (maskOnCap p t2).
+ -> maskOnCapT p (TCon1 tc t2)    = TCon1 tc (maskOnCapT p t2).
 Proof.
  intros.
  destruct t2; snorm.
  
  Case "TCap".
-  unfold maskOnCap.
+  unfold maskOnCapT.
   destruct t.
   break (p n).
    spec H n. 
@@ -80,10 +80,10 @@ Qed.
 
 
 (********************************************************************)
-Lemma maskOnCap_kind
+Lemma maskOnCapT_kind
  :  forall ke sp t k p
  ,  KIND ke sp t k 
- -> KIND ke sp (maskOnCap p t) k.
+ -> KIND ke sp (maskOnCapT p t) k.
 Proof.
  intros. gen ke sp k.
  induction t; intros; inverts_kind; simpl; auto.
@@ -99,7 +99,7 @@ Proof.
 
   SCase "TCap".
    destruct t0. 
-    unfold maskOnCap. 
+    unfold maskOnCapT. 
     split_if.
      destruct t; simpl in *.
       inverts H4. auto.
@@ -117,9 +117,9 @@ Proof.
 Qed.
 
 
-Lemma maskOnCap_liftTT
+Lemma maskOnCapT_liftTT
  :  forall r d t
- ,  maskOnCap r (liftTT 1 d t) = liftTT 1 d (maskOnCap r t).
+ ,  maskOnCapT r (liftTT 1 d t) = liftTT 1 d (maskOnCapT r t).
 Proof.
  intros. gen r d.
  induction t; intros; 
@@ -133,16 +133,16 @@ Proof.
    SCase "TCap". 
     simpl.
     destruct t0.
-     unfold maskOnCap. 
+     unfold maskOnCapT. 
      snorm.
 Qed.
 
 
-Lemma maskOnCap_substTT
+Lemma maskOnCapT_substTT
  : forall p d t1 t2
  ,  (forall n, t2 = TCap (TyCapRegion n) -> p n = false)
- -> maskOnCap p (substTT d t2 t1) 
- =  substTT   d (maskOnCap p t2) (maskOnCap p t1).
+ -> maskOnCapT p (substTT d t2 t1) 
+ =  substTT    d (maskOnCapT p t2) (maskOnCapT p t1).
 Proof. 
  intros. gen p d t2. 
  induction t1; intros;
@@ -151,7 +151,7 @@ Proof.
  Case "TForall".
   snorm. f_equal. 
   rewritess. 
-   rewrite maskOnCap_liftTT. auto.
+   rewrite maskOnCapT_liftTT. auto.
    unfold not in *. intros.
     eapply H.
     eapply liftTT_TCap; eauto.
@@ -167,7 +167,7 @@ Proof.
 
     SSSCase "substTT matches".
      rip. rewritess. simpl. norm.
-      apply maskOnCap_nomatch. auto.
+      apply maskOnCapT_nomatch. auto.
       omega. omega.
 
     inverts H0.
@@ -181,16 +181,16 @@ Proof.
      norm; subst; omega.
 
    SCase "TCap".
-    lets D: maskOnCap_TCon1_cases p t (TCap t0).
+    lets D: maskOnCapT_TCon1_cases p t (TCap t0).
     inverts D.
 
-    SSCase "maskOnCap matches".
+    SSCase "maskOnCapT matches".
      destruct t0.
      rewritess.
-     lets D: maskOnCap_TBot_cases p t n. 
+     lets D: maskOnCapT_TBot_cases p t n. 
       rip.
 
-    SSCase "maskOnCap doesn't match".
+    SSCase "maskOnCapT doesn't match".
      rip. rewritess. eauto.
 Qed.
 

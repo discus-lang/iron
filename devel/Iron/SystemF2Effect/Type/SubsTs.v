@@ -3,6 +3,7 @@ Require Export Iron.SystemF2Effect.Type.Exp.Base.
 Require Export Iron.SystemF2Effect.Type.EquivT.
 Require Export Iron.SystemF2Effect.Type.SubsT.
 Require Export Iron.SystemF2Effect.Type.EquivTs.
+Require Export Iron.SystemF2Effect.Type.Operator.BunchT.
 
 
 Inductive SubsTs  : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
@@ -73,3 +74,84 @@ Proof.
  }
 Qed.
 
+
+Lemma bunchT_singleton
+ :  forall ke sp t k
+ ,  sumkind k
+ -> KIND ke sp t k
+ -> EquivT ke sp (bunchT k (t :: nil)) t k.
+Proof.
+ intros.
+ simpl.
+ eapply EqSym. 
+  auto.
+  auto.
+  eapply EqSumBot; auto.
+Qed.
+
+
+Lemma subsTs_single_cases
+ :  forall ke sp ts1 t1 t2 k
+ ,  SubsTs ke sp (ts1 :> t1) (nil :> t2) k
+ -> SubsTs ke sp ts1 (nil :> t2) k
+ \/ t1 = t2.
+Proof.
+ admit.
+Qed.
+
+
+Lemma subsTs_subsT_1
+ :  forall ke sp ts1 t2 k
+ ,  SubsTs ke sp ts1 (t2 :: nil) k
+ -> SubsT  ke sp (bunchT k ts1) t2 k.
+Proof.
+ intros.
+ induction ts1.
+ - nope.
+ - have (sumkind k)       by inverts H; auto.
+   have (KIND ke sp a  k) by inverts H; norm.
+   have (KIND ke sp t2 k) by inverts H; norm.
+   simpl.
+
+   lets D: subsTs_single_cases H.
+   inverts D.
+
+   SCase "a = t2".
+    rip.
+    eapply subsT_sum_comm_above.
+    eapply SbSumBelow; auto.
+     eauto.
+
+   SCase "subs".
+    eapply SbSumBelow; auto.
+     eapply bunchT_kind. auto.
+      inverts H. norm.
+Qed.
+
+
+Lemma subsTs_subsT
+ :  forall ke sp ts1 ts2 k
+ ,  SubsTs ke sp ts1 ts2 k
+ -> SubsT  ke sp (bunchT k ts1) (bunchT k ts2) k.
+Proof.
+ intros. gen ke sp ts1.
+ induction ts2; intros.
+  - have (sumkind k)   by inverts H; auto.
+    simpl.
+    eapply SbBot; auto.
+     eapply bunchT_kind; auto.
+      inverts H. norm.
+
+  - have (sumkind k)   by inverts H; auto.
+    simpl.
+    eapply SbSumAbove; auto.
+    + eapply subsTs_subsT_1; auto.
+      inverts H.
+      eapply SbsSum; rip.
+      norm. norm.
+
+    + eapply IHts2.
+      inverts H.
+      eapply SbsSum; rip.
+      norm. norm.
+Qed.  
