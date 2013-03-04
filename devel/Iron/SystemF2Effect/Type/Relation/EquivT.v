@@ -25,6 +25,13 @@ Inductive EquivT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
    -> EquivT ke sp t2 t3 k
    -> EquivT ke sp t1 t3 k
 
+ | EqSumCong
+   :  forall ke sp t1 t1' t2 t2' k
+   ,  sumkind k
+   -> EquivT ke sp t1 t1' k
+   -> EquivT ke sp t2 t2' k
+   -> EquivT ke sp (TSum t1 t2) (TSum t1' t2') k
+
  | EqSumBot
    :  forall ke sp t k
    ,  sumkind k
@@ -79,6 +86,7 @@ Lemma equivT_kind_trans
 Proof.
  intros.
  induction H; eauto.
+ inverts H0. eauto.
 Qed.
 
 

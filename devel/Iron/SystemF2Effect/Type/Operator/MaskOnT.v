@@ -108,7 +108,8 @@ Lemma maskOnVarT_substTT
 Proof.
  admit.
 
- (* broken. Change first premise so that t2 does not contain (TVar d) *)
+ (* broken. Change first premise so that t2 does not contain (TVar d)
+    define freeT for this *)
 
  (*
  intros. gen d d' t2.

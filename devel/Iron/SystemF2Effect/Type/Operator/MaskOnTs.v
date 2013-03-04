@@ -7,13 +7,13 @@ Require Import Iron.SystemF2Effect.Type.Operator.MaskOnT.
 Require Import Iron.SystemF2Effect.Type.Relation.SubsTs.
 
 
-Fixpoint maskOnTs (p : tycon1 -> ty -> bool) (tt : list ty) : list ty
+Fixpoint maskOnTs (p : ty -> bool) (tt : list ty) : list ty
  := match tt with
     | nil            => nil
 
     | TCon1 tc t1   :: ts 
-    => if p tc t1 then nil
-                  else TCon1 tc t1 :: maskOnTs p ts
+    => if p (TCon1 tc t1) then nil
+                          else TCon1 tc t1 :: maskOnTs p ts
 
     | t :: ts
     => t :: maskOnTs p ts
@@ -27,15 +27,6 @@ Lemma subsTs_maskOnTs
 Proof.
  admit.
 Qed.
-
-
-Lemma bunchT_flattenT
- :  forall k t
- ,  bunchT k (flattenT t) = t.
-Proof.
- admit.
-Qed.
-Hint Resolve bunchT_flattenT.
 
 
 Lemma flattenT_maskOnTs

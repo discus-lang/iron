@@ -104,43 +104,41 @@ Proof.
  remember (ke :> k3) as X.
  induction HE; subst.
 
- Case "EqRefl".
- { eapply EqRefl; 
+ - Case "EqRefl".
+   eapply EqRefl; 
     eauto using subst_type_type.
- }
-
- Case "EqSym".
- { eapply EqSym;
+  
+ - Case "EqSym".
+   eapply EqSym;
     eauto using subst_type_type.
- }
 
- Case "EqTrans".
- { eapply EqTrans with (t2 := substTT 0 t3 t2); eauto.
- }
+ - Case "EqTrans".
+   eapply EqTrans with (t2 := substTT 0 t3 t2); eauto.
 
- Case "EqSumBot".
- { apply EqSumBot; fold substTT. auto.
+ - Case "EqSumCong".
+   eapply EqSumCong; fold substTT. auto.
    eauto using subst_type_type.
- }
-
- Case "EqSumIdemp".
- { eapply EqSumIdemp. auto.
    eauto using subst_type_type.
- }
 
- Case "EqSumComm".
- { eapply EqSumComm; fold substTT. auto.
+ - Case "EqSumBot".
+   apply EqSumBot; fold substTT. auto.
+   eauto using subst_type_type.
+
+ - Case "EqSumIdemp".
+   eapply EqSumIdemp. auto.
+   eauto using subst_type_type.
+
+ - Case "EqSumComm".
+   eapply EqSumComm; fold substTT. auto.
    eauto using subst_type_type.
    eauto using subst_type_type. 
    eauto.
- }
 
- Case "EqSumAssoc".
- { eapply EqSumAssoc; fold substTT. auto.
+ - Case "EqSumAssoc".
+   eapply EqSumAssoc; fold substTT. auto.
    eauto using subst_type_type.
    eauto using subst_type_type. 
    eauto using subst_type_type. 
- }
 Qed.   
 
 

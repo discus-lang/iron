@@ -45,6 +45,35 @@ Proof.
 Qed. 
 
 
+Lemma equivTs_trans
+ :  forall ke sp ts1 ts2 ts3 k
+ ,  EquivTs ke sp ts1 ts2 k
+ -> EquivTs ke sp ts2 ts3 k
+ -> EquivTs ke sp ts1 ts3 k.
+Proof.
+ intros.
+ inverts H. inverts H0.
+ eapply EqsSum; snorm.
+Qed.
+
+
+Lemma equivTs_app
+ :  forall ke sp ts1 ts1' ts2 ts2' k
+ ,  EquivTs ke sp ts1 ts1' k
+ -> EquivTs ke sp ts2 ts2' k
+ -> EquivTs ke sp (ts1 ++ ts2) (ts1' ++ ts2') k.
+Proof.
+ intros.
+ inverts H. inverts H0.
+ eapply EqsSum; snorm.
+  eapply in_app_split in H0. inverts H0.
+   eauto. eauto.
+  eapply in_app_split in H0. inverts H0.
+   eauto. eauto.
+Qed.
+Hint Resolve equivTs_app.
+
+
 Lemma equivT_equivTs 
  :  forall  ke sp t1 t2 k
  ,  sumkind k
@@ -53,40 +82,42 @@ Lemma equivT_equivTs
 Proof.
  intros.
  induction H0.
-  eapply equivTs_refl; auto.
-  eapply equivTs_sym;  auto.
+  eapply equivTs_refl;  auto.
+  eapply equivTs_sym;   auto.
+  eapply equivTs_trans; auto.
 
-  admit.                                         (* ok, need EquivTs trans *)
+ - Case "EqSumCong".
+   simpl.
+   spec IHEquivT1 H0.
+   spec IHEquivT2 H0.
+   eauto.
 
-  Case "EqSumBot".
-  { simpl. norm. 
-    apply equivTs_refl; auto.
-  }
+ - Case "EqSumBot".
+   simpl. norm. 
+   apply equivTs_refl; auto.
+   
+ - Case "EqSumIdemp".
+   simpl.
+   eapply EqsSum; norm; auto.
+   eapply in_app_split in H2.
+    inverts H2; auto.
 
-  Case "EqSumIdemp".
-  { simpl.
-    eapply EqsSum; norm; auto.
-    eapply in_app_split in H2.
-     inverts H2; auto.
-  }
-
-  Case "EqSumComm".
-  { simpl.
-    eapply EqsSum; auto.
-     norm.
-     norm.
-  }
-
-  Case "EqSumAssoc".
-  { simpl.
-    eapply EqsSum; auto.
-    - norm. 
-      eapply in_app_split in H4. inverts H4.
-      eapply in_app_split in H5. inverts H5.
-      auto. auto. auto.
-    - norm.
-      eapply in_app_split in H4. inverts H4. auto.
-      eapply in_app_split in H5. inverts H5. 
-      auto. auto.
-  }
+ - Case "EqSumComm".
+   simpl.
+   eapply EqsSum; auto.
+    norm.
+    norm.
+  
+ - Case "EqSumAssoc".
+   simpl.
+   eapply EqsSum; auto.
+   + norm. 
+     eapply in_app_split in H4. inverts H4.
+     eapply in_app_split in H5. inverts H5.
+     auto. auto. auto.
+   + norm.
+     eapply in_app_split in H4. inverts H4. auto.
+     eapply in_app_split in H5. inverts H5. 
+     auto. auto.
 Qed.
+
