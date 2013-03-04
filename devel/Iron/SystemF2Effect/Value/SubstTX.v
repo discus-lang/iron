@@ -127,13 +127,8 @@ Proof.
 
    rrwrite (ix = 0 + ix).
    eapply lowerTT_substTT_liftTT. auto.
-
-   rrwrite (S ix = 1 + ix + 0).
-   rewrite mask_substTT; auto.
-    rrwrite (1 + ix + 0 = 1 + 0 + ix).
-    rewrite mask_liftTT_id.
-    eapply lowerTT_substTT_liftTT.
-    auto.
+    admit. (* fixme: t2 does not contain TVar 0 as we've lifted it, 
+              use mask_substTT, mask_liftTT_id, lowerTT_substTT_liftTT *)
 
   rewrite delete_rewind.
   rewrite (liftTE_substTE 0 ix).

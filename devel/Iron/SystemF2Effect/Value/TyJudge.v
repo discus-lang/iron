@@ -116,7 +116,7 @@ Inductive
   | TxNew
     :  forall ke te se sp x t tL e eL
     ,  lowerTT 0 t               = Some tL
-    -> lowerTT 0 (maskOnVar 0 e) = Some eL
+    -> lowerTT 0 (maskOnT (isEffectOnVar 0) e) = Some eL
     -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x        t  e
     -> TYPEX ke              te             se           sp (XNew x) tL eL
 
