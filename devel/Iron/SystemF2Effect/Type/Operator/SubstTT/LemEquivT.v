@@ -1,5 +1,5 @@
 
 Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.Base.
-Require Export Iron.SystemF2Effect.Type.EquivT.
+Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
 
 

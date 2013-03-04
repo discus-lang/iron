@@ -1,6 +1,6 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
-Require Export Iron.SystemF2Effect.Type.EquivT.
+Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
 
 
 (* Type subsumptinon.

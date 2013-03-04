@@ -1,8 +1,8 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
-Require Export Iron.SystemF2Effect.Type.EquivT.
-Require Export Iron.SystemF2Effect.Type.SubsT.
-Require Export Iron.SystemF2Effect.Type.EquivTs.
+Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
+Require Export Iron.SystemF2Effect.Type.Relation.SubsT.
+Require Export Iron.SystemF2Effect.Type.Relation.EquivTs.
 Require Export Iron.SystemF2Effect.Type.Operator.BunchT.
 
 

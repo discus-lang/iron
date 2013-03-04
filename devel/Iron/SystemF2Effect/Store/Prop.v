@@ -25,7 +25,7 @@ Lemma elem_get_not
  :  forall {A} (p : A -> bool) (xx : list A) 
  ,  not (exists ix x, get ix xx = Some x /\ p x = true)
  -> elem p xx = false.
-Proof. admit. Qed.
+Proof. admit. Qed.          (* prob ok, elem_get_not *)
 
 
 (********************************************************************)

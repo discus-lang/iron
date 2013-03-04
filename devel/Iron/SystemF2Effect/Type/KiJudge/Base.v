@@ -1,7 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Store.Prop.
 Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
-Require Export Iron.SystemF2Effect.Type.Predicate.Wf.
+Require Export Iron.SystemF2Effect.Type.Relation.WfT.
 Require Export Iron.SystemF2Effect.Type.Exp.
 
 

@@ -2,7 +2,7 @@
 Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Import Iron.SystemF2Effect.Type.Operator.SubstTT.
 Require Import Iron.SystemF2Effect.Type.Operator.MaskOnCapT.
-Require Import Iron.SystemF2Effect.Type.SubsTs.
+Require Import Iron.SystemF2Effect.Type.Relation.SubsTs.
 Require Import Iron.SystemF2Effect.Type.KiJudge.
 Require Import Iron.SystemF2Effect.Type.Exp.
 
