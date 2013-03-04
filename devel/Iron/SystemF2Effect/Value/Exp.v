@@ -10,11 +10,12 @@ Inductive const : Type :=
   | CBool   : bool  -> const.
 Hint Constructors const.
 
+
 Fixpoint typeOfConst (c : const) : ty := 
   match c with
-  | CUnit     => tUnit
-  | CNat  _   => tNat
-  | CBool _   => tBool
+  | CUnit     => TUnit
+  | CNat  _   => TNat
+  | CBool _   => TBool
   end.
 
 

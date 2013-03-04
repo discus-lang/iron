@@ -23,103 +23,22 @@ Inductive ty  : Type :=
 Hint Constructors ty.
 
 
-(* Synonyms for baked in types. *****)
+(********************************************************************)
+(* Notations for baked in types *)
+(* Effect types *)
+Notation TRead  R    := (TCon1 TyConRead  R).
+Notation TWrite R    := (TCon1 TyConWrite R).
+Notation TAlloc R    := (TCon1 TyConAlloc R).
 
 (* Function type. *)
-Definition tFun   t1 eff t2     := TApp (TApp (TApp (TCon0 TyConFun) t1) eff) t2.
+Notation TFun A E B  := (TApp (TApp (TApp (TCon0 TyConFun) A) E) B).
 
-(* Primitive value types. *)
-Definition tUnit                := TCon0 TyConUnit.
-Definition tBool                := TCon0 TyConBool.
-Definition tNat                 := TCon0 TyConNat.
+(* Primitive data types. *)
+Notation TUnit       := (TCon0 TyConUnit).
+Notation TBool       := (TCon0 TyConBool).
+Notation TNat        := (TCon0 TyConNat).
 
 (* Reference to a value in some region. *)
-Definition tRef   r1 t2         := TCon2 TyConRef r1 t2.
+Notation TRef R T    := (TCon2 TyConRef R T).
 
-(* Effect types. *)
-Definition tRead    r1          := TCon1 TyConRead  r1.
-Definition tWrite   r1          := TCon1 TyConWrite r1.
-Definition tAlloc   r1          := TCon1 TyConAlloc r1.
-
-
-(********************************************************************)
-(* Type Utils *)
-
-(* Construct a type application from a constructor type
-   and a list of argument types. *)
-Fixpoint makeTApps (t1: ty) (tt: list ty) : ty :=
- match tt with
- | nil     => t1
- | t :: ts => makeTApps (TApp t1 t) ts
- end.
-
-
-Fixpoint takeTCon (tt: ty) : ty :=
- match tt with 
- | TApp t1 t2 => takeTCon t1
- | _          => tt
- end.
-
-Fixpoint takeTArgs (tt: ty) : list ty :=
- match tt with 
- | TApp t1 t2 => snoc t2 (takeTArgs t1)
- | _          => cons tt nil
- end.
-
-
-(* Break apart a type application into the constructor type
-   and a list of argument types. *)
-Definition takeTApps (tt: ty) : (ty * list ty) 
- := (takeTCon tt, takeTArgs tt).
-
-
-
-Lemma makeTApps_snoc
- : forall t1 t2 t3 ts
- , makeTApps (TApp t1 t2) (snoc t3 ts) 
- = TApp (makeTApps t1 (cons t2 ts)) t3.
-Proof.
- intros. gen t1 t2.
- induction ts; burn.
-Qed.
-
-
-Lemma makeTApps_snoc'
- :  forall t1 t2 ts
- ,  makeTApps t1 (snoc t2 ts)
- =  TApp (makeTApps t1 ts) t2.
-Proof.
- intros. gen t1 t2.
- induction ts; burn.
-Qed.
-
-
-Lemma takeTCon_makeTApps
- :  forall t1 ts
- ,  takeTCon (makeTApps t1 ts) = takeTCon t1.
-Proof.
- intros. gen t1.
- induction ts; rip; burn.
- simpl. rewritess. burn.
-Qed.    
-Hint Resolve takeTCon_makeTApps.
-
-
-Lemma makeTApps_takeTCon
- :  forall t1 t2 ts  
- ,  makeTApps t1 ts = t2
- -> takeTCon t1     = takeTCon t2.
-Proof.
- intros. gen t1 t2.
- induction ts; intros.
-  simpl in H. subst. auto.
-  eapply IHts in H. simpl in H. auto.
-Qed.
-Hint Resolve makeTApps_takeTCon.
-
-
-Lemma makeTApps_rewind
- :  forall t1 t2 ts
- ,  makeTApps (TApp t1 t2) ts = makeTApps t1 (t2 :: ts).
-Proof. burn. Qed.
 

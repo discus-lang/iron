@@ -45,7 +45,7 @@ Qed.
 (********************************************************************)
 Lemma substTT_wfT_above
  :  forall d ix t t2
- ,  wfT d t
+ ,  WfT d t
  -> substTT (d + ix) t2 t = t.
 Proof.
  intros. gen d ix t2.
@@ -61,9 +61,9 @@ Hint Resolve substTT_wfT_above.
 Lemma substTT_wfT
  :  forall d ix t1 t2
  ,  ix <= d
- -> wfT (S d) t1
- -> wfT d     t2
- -> wfT d (substTT ix t2 t1).
+ -> WfT (S d) t1
+ -> WfT d     t2
+ -> WfT d (substTT ix t2 t1).
 Proof.
  intros. gen d ix t2.
  induction t1; rip; inverts H0; simpl; snorm.
@@ -83,20 +83,16 @@ Hint Resolve substTT_wfT.
 (* Closing substitution of types in types *)
 Lemma substTT_closing
  :  forall t1 t2
- ,  wfT 1 t1
- -> closedT t2
- -> closedT (substTT 0 t2 t1).
-Proof.
- intros.
- unfold closedT in *.
- eauto.
-Qed.
+ ,  WfT 1 t1
+ -> ClosedT t2
+ -> ClosedT (substTT 0 t2 t1).
+Proof. eauto. Qed.
 Hint Resolve substTT_closing.
 
 
 Lemma substTT_closedT_id
  :  forall d t t2
- ,  closedT t
+ ,  ClosedT t
  -> substTT d t2 t = t.
 Proof.
  intros. rrwrite (d = d + 0). eauto.
@@ -106,12 +102,12 @@ Hint Resolve substTT_closedT_id.
 
 Lemma substTT_liftTT_wfT1
  :  forall t1 t2
- ,  wfT 1 t1
- -> closedT t2
+ ,  WfT 1 t1
+ -> ClosedT t2
  -> substTT 0 t2 t1 = liftTT 1 0 (substTT 0 t2 t1).
 Proof.
  intros.
- have    (closedT (substTT 0 t2 t1)).
+ have    (ClosedT (substTT 0 t2 t1)).
  rrwrite (liftTT 1 0 (substTT 0 t2 t1) = substTT 0 t2 t1).
  trivial.
 Qed.

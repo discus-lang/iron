@@ -21,7 +21,7 @@ Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
  | TbValue
    :  forall ke te se sp n v t
    ,  TYPEV  ke te se sp v t
-   -> TYPEB  ke te se sp (StValue n v) (tRef (TCap (TyCapRegion n)) t).
+   -> TYPEB  ke te se sp (StValue n v) (TRef (TCap (TyCapRegion n)) t).
 Hint Constructors TYPEB.
 
 
@@ -29,7 +29,7 @@ Hint Constructors TYPEB.
 Lemma typeb_stenv_snoc 
  :  forall ke te se sp v t1 t2 
  ,  TYPEB  ke te se sp v t1
- -> closedT t2
+ -> ClosedT t2
  -> TYPEB  ke te (t2 <: se) sp v t1.
 Proof.
  intros. inverts H. eauto.
@@ -86,17 +86,16 @@ Lemma storet_snoc
  :  forall se sp ss r1 v1 t2
  ,  TYPEV  nil nil se sp v1 t2
  -> STORET                                     se  sp                   ss
- -> STORET (tRef (TCap (TyCapRegion r1)) t2 <: se) sp (StValue r1 v1 <: ss).
+ -> STORET (TRef (TCap (TyCapRegion r1)) t2 <: se) sp (StValue r1 v1 <: ss).
 Proof.
  intros.
- set (tRef' := tRef (TCap (TyCapRegion r1)) t2).
+ set (tRef' := TRef (TCap (TyCapRegion r1)) t2).
 
  assert (TYPEB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
   apply TbValue.
    apply typev_stenv_snoc.
     subst tRef'.
-    assert (closedT t2).
-     unfold closedT.
+    assert (ClosedT t2).
      rrwrite (0 = @length ki nil).
      apply (kind_wfT nil sp t2 KData).
 

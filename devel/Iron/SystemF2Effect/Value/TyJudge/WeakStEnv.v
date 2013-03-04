@@ -5,14 +5,14 @@ Require Import Iron.SystemF2Effect.Value.TyJudge.
 (* Weakening Store Typing in Type Judgement. *)
 Lemma typex_stenv_snoc 
  :  forall ke te se sp t2 x t1 e1
- ,  closedT t2
+ ,  ClosedT t2
  -> TYPEX  ke te se         sp x t1 e1
  -> TYPEX  ke te (t2 <: se) sp x t1 e1.
 Proof.
  intros. gen ke te se sp t1 e1 t2.
  induction x using exp_mutind with 
   (PV := fun v => forall ke te se sp t1 t2
-      ,  closedT t2
+      ,  ClosedT t2
       -> TYPEV ke te se         sp v t1
       -> TYPEV ke te (t2 <: se) sp v t1)
   ; intros; inverts_type; eauto.
@@ -38,7 +38,7 @@ Hint Resolve typex_stenv_snoc.
 
 Lemma typev_stenv_snoc
  :  forall ke te se sp t2 v t1
- ,  closedT t2
+ ,  ClosedT t2
  -> TYPEV ke te se         sp v t1
  -> TYPEV ke te (t2 <: se) sp v t1.
 Proof.
@@ -53,7 +53,7 @@ Hint Resolve typev_stenv_snoc.
 
 Lemma typex_stenv_weaken
  :  forall ke te se1 se2 sp x t1 e1
- ,  Forall closedT se2
+ ,  Forall ClosedT se2
  -> TYPEX  ke te  se1         sp x t1 e1
  -> TYPEX  ke te (se2 >< se1) sp x t1 e1.
 Proof.
@@ -68,7 +68,7 @@ Hint Resolve typex_stenv_weaken.
 
 Lemma typex_stenv_extends
  :  forall ke te se1 se2 sp x t1 e1
- ,  Forall closedT se2
+ ,  Forall ClosedT se2
  -> extends se2 se1
  -> TYPEX ke te se1 sp x t1 e1
  -> TYPEX ke te se2 sp x t1 e1.
@@ -84,7 +84,7 @@ Hint Resolve typex_stenv_extends.
 
 Lemma typev_stenv_extends
  :  forall ke te sp se1 se2 v t1
- ,  Forall closedT se2
+ ,  Forall ClosedT se2
  -> extends se2 se1
  -> TYPEV ke te se1 sp v t1
  -> TYPEV ke te se2 sp v t1.

@@ -86,7 +86,7 @@ Proof.
 
  Case "XAlloc".
   right. 
-  inverts_typec. unfold tRef in *.
+  inverts_typec. 
   have HR: (exists n, t = TCap (TyCapRegion n)).
   destruct HR as [n].
   exists (StValue n v <: ss).
@@ -97,7 +97,7 @@ Proof.
 
  Case "XRead".
   right.
-  inverts HC. inverts_type. unfold tRef in *.
+  inverts HC. inverts_type.
   have HR: (exists n, t = TCap (TyCapRegion n)).
   destruct HR as [n]. subst.
 
@@ -116,7 +116,7 @@ Proof.
 
   unfold STORET in *.
   destruct v.
-  have HB: (TYPEB nil nil se sp (StValue n0 v) (tRef (TCap (TyCapRegion n)) t0))
+  have HB: (TYPEB nil nil se sp (StValue n0 v) (TRef (TCap (TyCapRegion n)) t0))
    by (eapply Forall2_get_get_same; eauto).
   inverts HB.
   exists (XVal v).

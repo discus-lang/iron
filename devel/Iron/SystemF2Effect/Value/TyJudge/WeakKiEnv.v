@@ -27,8 +27,8 @@ Proof.
  Case "VLoc".
   simpl.
   eapply TvLoc; eauto;
-   rrwrite ( tRef (liftTT 1 ix r) (liftTT 1 ix t)
-           = liftTT 1 ix (tRef r t)).
+   rrwrite ( TRef (liftTT 1 ix r) (liftTT 1 ix t)
+           = liftTT 1 ix (TRef r t)).
   apply get_map; auto.
   eauto using kind_kienv_insert.
 
@@ -83,13 +83,13 @@ Proof.
 
  Case "XOpPrim".
   simpl.
-  eapply TxOpPrim.
-  destruct o; simpl in *;
-   inverts H6; simpl; eauto.
-  destruct o; simpl in *;
-   inverts H6; simpl; eauto.
-  rrwrite (tNat = liftTT 1 ix tNat). eauto.
-  rrwrite (tNat = liftTT 1 ix tNat). eauto.  
+  destruct o; simpl in *.
+   inverts H6.
+    eapply TxOpPrim. simpl. eauto.
+    rrwrite (TNat = liftTT 1 ix TNat). eauto.
+   inverts H6.
+    eapply TxOpPrim. simpl. eauto.
+    rrwrite (TNat = liftTT 1 ix TNat). eauto.
 
  Case "XNew".
   simpl.
@@ -117,8 +117,8 @@ Proof.
 
  Case "XRead".
   eapply TxOpRead;  eauto using kind_kienv_insert.
-  rrwrite ( tRef (liftTT 1 ix r) (liftTT 1 ix t1)
-          = liftTT 1 ix (tRef r t1)).
+  rrwrite ( TRef (liftTT 1 ix r) (liftTT 1 ix t1)
+          = liftTT 1 ix (TRef r t1)).
   eauto.
 
  Case "XWrite".

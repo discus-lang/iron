@@ -64,7 +64,7 @@ Hint Resolve storep_cons.
 (******************************************************************************)
 (* Well formed store. *)
 Definition WfS  (se: stenv) (sp: stprops)  (ss: store)
- := Forall closedT se
+ := Forall ClosedT se
  /\ STOREM se    ss
  /\ STORET se sp ss.
 Hint Unfold WfS.
@@ -72,7 +72,7 @@ Hint Unfold WfS.
 
 (* Well formed store and frame stack. *)
 Definition WfFS (se : stenv) (sp : stprops) (ss : store) (fs : stack) 
- := Forall closedT se
+ := Forall ClosedT se
  /\ STOREM se ss
  /\ STORET se sp ss
  /\ STOREP sp fs.

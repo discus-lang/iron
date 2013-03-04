@@ -7,7 +7,7 @@ Require Export Iron.SystemF2Effect.Type.KiJudge.Base.
 Lemma kind_wfT
  :  forall ke sp t k
  ,  KIND   ke sp t k
- -> wfT (length ke) t.
+ -> WfT (length ke) t.
 Proof.
  intros ke sp t k HK. gen ke sp k.
  induction t; intros; inverts_kind; burn.
@@ -19,7 +19,7 @@ Hint Resolve kind_wfT.
 Lemma kind_wfT_Forall
  :  forall ks sp k ts
  ,  Forall (fun t => KIND ks sp t k) ts
- -> Forall (wfT (length ks)) ts.
+ -> Forall (WfT (length ks)) ts.
 Proof.
  intros. norm. eauto.
 Qed.
@@ -29,7 +29,7 @@ Hint Resolve kind_wfT_Forall.
 Lemma kind_wfT_Forall2
  :  forall  (ke: kienv) (sp: stprops) ts ks
  ,  Forall2 (KIND ke sp) ts ks
- -> Forall  (wfT (length ke)) ts.
+ -> Forall  (WfT (length ke)) ts.
 Proof.
  intros.
  eapply (Forall2_Forall_left (KIND ke sp)); burn.
@@ -43,9 +43,9 @@ Hint Resolve kind_wfT_Forall2.
 Lemma kind_empty_is_closed
  :  forall sp t k
  ,  KIND   nil sp t k 
- -> closedT t.
+ -> ClosedT t.
 Proof.
- intros. unfold closedT.
+ intros.
  have (@length ki nil = 0).
   rewrite <- H0.
   eapply kind_wfT. eauto.

@@ -38,7 +38,7 @@ Hint Constructors STEPP.
 Lemma stepp_preservation
  :  forall se sp x x' t e
  ,  STEPP  x x'
- -> Forall closedT se
+ -> Forall ClosedT se
  -> TYPEX  nil nil se sp x  t e
  -> TYPEX  nil nil se sp x' t e.
 Proof.

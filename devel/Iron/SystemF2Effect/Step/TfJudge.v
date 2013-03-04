@@ -57,7 +57,7 @@ Hint Resolve typef_kind_effect.
 Lemma typef_kind_wfT
  :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
- -> wfT (length ke) e.
+ -> WfT (length ke) e.
 Proof. eauto. Qed.
 Hint Resolve typef_kind_wfT.
 

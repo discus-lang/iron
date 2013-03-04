@@ -8,7 +8,7 @@ Require Export Iron.SystemF2Effect.Store.Wf.
 Lemma storet_get_typev
  :  forall se sp ss ix r v t
  ,  STORET se sp ss
- -> get ix se = Some (tRef (TCap (TyCapRegion r)) t)
+ -> get ix se = Some (TRef (TCap (TyCapRegion r)) t)
  -> get ix ss = Some (StValue r v)
  -> TYPEV nil nil se sp v t.
 Proof.
@@ -24,7 +24,7 @@ Qed.
 Lemma store_update_wf
  :  forall se sp ss l r v t
  ,  WfS se sp ss
- -> get l se = Some (tRef (TCap (TyCapRegion r)) t)
+ -> get l se = Some (TRef (TCap (TyCapRegion r)) t)
  -> TYPEV nil nil se sp v t
  -> WfS se sp (update l (StValue r v) ss).
 Proof.

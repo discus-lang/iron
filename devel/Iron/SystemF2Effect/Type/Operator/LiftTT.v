@@ -88,8 +88,8 @@ Qed.
 (* Lifting and well-formedness *)
 Lemma liftTT_wfT
  :  forall kn t d
- ,  wfT kn t
- -> wfT (S kn) (liftTT 1 d t).
+ ,  WfT kn t
+ -> WfT (S kn) (liftTT 1 d t).
 Proof.
  intros. gen kn d.
  induction t; intros; inverts H; snorm.
@@ -151,7 +151,7 @@ Hint Rewrite liftTT_plus : global.
 (******************************************************************************)
 Lemma liftTT_wfT_1
  :  forall t n ix
- ,  wfT n t
+ ,  WfT n t
  -> liftTT 1 (n + ix) t = t.
 Proof.
  intros. gen n ix.
@@ -171,7 +171,7 @@ Hint Resolve liftTT_wfT_1.
 
 Lemma liftTT_closedT_id_1
  :  forall t d
- ,  closedT t
+ ,  ClosedT t
  -> liftTT 1 d t = t.
 Proof.
  intros.
@@ -182,10 +182,10 @@ Hint Resolve liftTT_closedT_id_1.
 
 Lemma liftTT_closedT_10
  :  forall t
- ,  closedT t
- -> closedT (liftTT 1 0 t).
+ ,  ClosedT t
+ -> ClosedT (liftTT 1 0 t).
 Proof.
- intros. red.
+ intros. 
  rrwrite (0 = 0 + 0).
  rewrite liftTT_wfT_1; auto.
 Qed.

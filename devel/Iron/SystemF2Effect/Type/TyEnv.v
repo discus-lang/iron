@@ -67,7 +67,7 @@ Qed.
 
 Lemma liftTE_closedT_id
  :  forall n se
- ,  Forall closedT se
+ ,  Forall ClosedT se
  -> liftTE n se = se.
 Proof.
  intros.
@@ -83,7 +83,7 @@ Hint Resolve liftTE_closedT_id.
 
 Lemma substTE_closedT_id
  :  forall n t2 se
- ,  Forall closedT se
+ ,  Forall ClosedT se
  -> substTE n t2 se = se.
 Proof.
  intros.

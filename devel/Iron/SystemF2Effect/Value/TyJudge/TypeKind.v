@@ -15,14 +15,13 @@ Proof.
    intros; inverts_type; eauto 1.
 
  Case "VLam".
-  unfold tFun.
   lets D: IHv H8. rip.
    eapply KiApp.
-    unfold appkind. burn.
+    unfold appkind. congruence.
     eapply KiApp.
-    unfold appkind. burn.
+    unfold appkind. congruence.
     eapply KiApp.
-    unfold appkind. burn.
+    unfold appkind. congruence.
     eapply KiCon0. simpl. eauto.
   auto. auto. auto.
 
@@ -30,10 +29,7 @@ Proof.
   spec IHv H7. rip.
 
  Case "XConst".
-  destruct c; simpl.
-  unfold tUnit; burn.
-  unfold tNat;  burn.
-  unfold tBool; burn.
+  destruct c; snorm.
 
  Case "XVar".
   burn.
@@ -44,7 +40,6 @@ Proof.
   rip.
 
  Case "XLet".
-  unfold tFun in *.
   lets D1: IHv H6.
   inverts D1.
   inverts H4.
@@ -60,8 +55,8 @@ Proof.
   eapply subst_type_type; eauto.
 
  Case "XOp1".
-  destruct o; simpl in *; inverts H6; 
-   unfold tNat; unfold tBool; rip.
+  destruct o; simpl in *; inverts H6;
+   rip.
 
  Case "XNew".
   spec IHv H7. rip.
@@ -71,22 +66,18 @@ Proof.
 
  Case "XAlloc".
   rip.
-   unfold tRef.   eapply KiCon2; eauto. snorm.
-   unfold tAlloc. eapply KiCon1; eauto. snorm.
+   eapply KiCon2; eauto. snorm.
+   eapply KiCon1; eauto. snorm.
   
  Case "XRead".
   spec IHv H9.
-  unfold tRef in *.
   inverts_kind; rip.
    destruct tc. norm. inverts H1. auto. 
-   unfold tRead in *.
    destruct tc. norm. inverts H1.
    eapply KiCon1. simpl in *. eauto. eauto.
 
  Case "XWrite".
-  rip.
-   unfold tUnit. rip.
-   unfold tWrite. eapply KiCon1; eauto. snorm.
+  rip. eapply KiCon1; eauto. snorm.
 Qed.
 Hint Resolve typex_kind_type_effect.
 

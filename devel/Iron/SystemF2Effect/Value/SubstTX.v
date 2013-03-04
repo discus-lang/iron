@@ -57,8 +57,8 @@ Proof.
 
  Case "VLoc".
   eapply TvLoc; fold substTT;
-  rrwrite ( tRef (substTT ix t2 r) (substTT ix t2 t)
-          = substTT ix t2 (tRef r t)).
+  rrwrite ( TRef (substTT ix t2 r) (substTT ix t2 t)
+          = substTT ix t2 (TRef r t)).
   unfold substTE; eauto.
   eauto using subst_type_type_ix.
 
@@ -108,16 +108,16 @@ Proof.
 
  Case "XOp1".
   eapply TxOpPrim.
-  destruct o; simpl in *;
-   try (rrwrite (tNat  = substTT ix t2 tNat));
-   try (rrwrite (tBool = substTT ix t2 tBool)); 
-   inverts H8; eauto.
+  destruct o; simpl in *.
+   inverts H8. rrwrite (TNat  = substTT ix t2 TNat); eauto.
+   inverts H8. rrwrite (TNat  = substTT ix t2 TNat); eauto.
 
-  destruct o; simpl in *; 
-   try (rrwrite (tNat  = substTT ix t2 tNat));
-   try (rrwrite (tBool = substTT ix t2 tBool));
-   inverts H8; eauto;
-   spec IHx1 H11; eauto. 
+  destruct o; simpl in *.
+   inverts H8.
+   spec IHx1 H11; eauto.
+   spec IHx1 H11; eauto.
+   inverts H8. 
+   spec IHx1 H1; eauto.
 
  Case "XNew".
   simpl. 
@@ -148,15 +148,14 @@ Proof.
  Case "XRead".
   eapply TxOpRead; fold substTT.
    eauto using subst_type_type_ix.
-   rrwrite ( tRef (substTT ix t2 r) (substTT ix t2 t1)
-           = substTT ix t2 (tRef r t1)).
+   rrwrite ( TRef (substTT ix t2 r) (substTT ix t2 t1)
+           = substTT ix t2 (TRef r t1)).
    eauto.
 
  Case "XWrite".
   eapply TxOpWrite; fold substTT.
    eauto using subst_type_type_ix.
    eapply IHx1 in H12; eauto. snorm. eauto.
-   eapply IHx0 in H13; eauto.
 Qed.
 
 

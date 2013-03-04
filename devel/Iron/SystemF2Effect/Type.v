@@ -1,5 +1,6 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.
+Require Export Iron.SystemF2Effect.Type.Util.
 
 Require Export Iron.SystemF2Effect.Type.EquivT.
 Require Export Iron.SystemF2Effect.Type.SubsT.

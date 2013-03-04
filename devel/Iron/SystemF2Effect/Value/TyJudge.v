@@ -15,8 +15,8 @@ Definition stenv := list ty.
    to add new primops. *)
 Fixpoint typeOfOp1 (op : op1) : ty
  := match op with
-    | OSucc    => tFun tNat tNat  (TBot KEffect)
-    | OIsZero  => tFun tNat tBool (TBot KEffect)
+    | OSucc    => TFun TNat TNat  (TBot KEffect)
+    | OIsZero  => TFun TNat TBool (TBot KEffect)
     end.
 
 
@@ -41,9 +41,9 @@ Inductive
      annotations themselves. *)
   | TvLoc 
     :  forall ke te se sp i r t
-    ,  get i se = Some (tRef r t)
-    -> KIND   ke sp       (tRef r t) KData       
-    -> TYPEV  ke te se sp (VLoc i)   (tRef r t)
+    ,  get i se = Some (TRef r t)
+    -> KIND   ke sp       (TRef r t) KData       
+    -> TYPEV  ke te se sp (VLoc i)   (TRef r t)
 
   (* Value abstraction.
      The body is checked in an environment extended with the type of
@@ -52,7 +52,7 @@ Inductive
     :  forall ke te se sp t1 t2 x2 e2
     ,  KIND   ke sp t1 KData
     -> TYPEX  ke (te :> t1) se sp x2 t2 e2
-    -> TYPEV  ke te         se sp (VLam t1 x2) (tFun t1 e2 t2)
+    -> TYPEV  ke te         se sp (VLam t1 x2) (TFun t1 e2 t2)
 
   (* Type abstraction.
      The body is checked in an environemnt extended with the kind of
@@ -100,7 +100,7 @@ Inductive
   (* Value application. *)
   | TxApp
     :  forall ke te se sp t11 t12 v1 v2 e1
-    ,  TYPEV  ke te se sp v1 (tFun t11 e1 t12) 
+    ,  TYPEV  ke te se sp v1 (TFun t11 e1 t12) 
     -> TYPEV  ke te se sp v2 t11
     -> TYPEX  ke te se sp (XApp v1 v2) t12 e1
 
@@ -125,27 +125,27 @@ Inductive
     :  forall ke te se sp r1 v2 t2
     ,  KIND   ke sp r1 KRegion
     -> TYPEV  ke te se sp v2 t2
-    -> TYPEX  ke te se sp (XAlloc r1 v2) (tRef r1 t2) (tAlloc r1)
+    -> TYPEX  ke te se sp (XAlloc r1 v2) (TRef r1 t2) (TAlloc r1)
 
   (* Read a value from a heap binding. *)
   | TxOpRead
     :  forall ke te se sp v1 r1 t2
     ,  KIND   ke sp r1 KRegion
-    -> TYPEV  ke te se sp v1 (tRef r1 t2)
-    -> TYPEX  ke te se sp (XRead r1 v1)     t2    (tRead r1)
+    -> TYPEV  ke te se sp v1 (TRef r1 t2)
+    -> TYPEX  ke te se sp (XRead r1 v1)     t2    (TRead r1)
 
   (* Write a value to a heap binding. *)
   | TxOpWrite
     :  forall ke te se sp v1 v2 r1 t2
     ,  KIND   ke sp r1 KRegion
-    -> TYPEV  ke te se sp v1 (tRef r1 t2)
+    -> TYPEV  ke te se sp v1 (TRef r1 t2)
     -> TYPEV  ke te se sp v2 t2
-    -> TYPEX  ke te se sp (XWrite r1 v1 v2) tUnit (tWrite r1)
+    -> TYPEX  ke te se sp (XWrite r1 v1 v2) TUnit (TWrite r1)
 
   (* Primtive Operators ***************)
   | TxOpPrim
     :  forall ke te se sp op v1 t11 t12 e
-    ,  typeOfOp1 op = tFun t11 t12 e
+    ,  typeOfOp1 op = TFun t11 t12 e
     -> TYPEV  ke te se sp v1 t11
     -> TYPEX  ke te se sp (XOp1 op v1) t12 e.
 
