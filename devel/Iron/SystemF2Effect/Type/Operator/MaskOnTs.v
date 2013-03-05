@@ -1,10 +1,10 @@
 
 Require Import Iron.SystemF2Effect.Type.Exp.
-Require Import Iron.SystemF2Effect.Type.KiJudge.
+Require Import Iron.SystemF2Effect.Type.Relation.KindT.
+Require Import Iron.SystemF2Effect.Type.Relation.SubsTs.
 Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Import Iron.SystemF2Effect.Type.Operator.SubstTT.
 Require Import Iron.SystemF2Effect.Type.Operator.MaskOnT.
-Require Import Iron.SystemF2Effect.Type.Relation.SubsTs.
 
 
 Fixpoint maskOnTs (p : ty -> bool) (tt : list ty) : list ty

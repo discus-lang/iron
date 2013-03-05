@@ -1,7 +1,7 @@
 
+Require Import Iron.SystemF2Effect.Type.Relation.KindT.
 Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Import Iron.SystemF2Effect.Type.Operator.SubstTT.
-Require Import Iron.SystemF2Effect.Type.KiJudge.
 Require Import Iron.SystemF2Effect.Type.Exp.
 
 

@@ -1,7 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
-Require Export Iron.SystemF2Effect.Type.KiJudge.
 Require Export Iron.SystemF2Effect.Type.Operator.FlattenT.
+Require Export Iron.SystemF2Effect.Type.Relation.KindT.
 Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
 Require Export Iron.SystemF2Effect.Type.Relation.EquivTs.
 

@@ -1,6 +1,6 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
-Require Export Iron.SystemF2Effect.Type.KiJudge.
+Require Export Iron.SystemF2Effect.Type.Relation.KindT.
 Require Export Iron.SystemF2Effect.Store.Prop.
 
 

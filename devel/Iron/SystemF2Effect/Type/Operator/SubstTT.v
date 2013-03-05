@@ -1,5 +1,5 @@
 
-Require Export Iron.SystemF2Effect.Type.KiJudge.
+Require Export Iron.SystemF2Effect.Type.Relation.KindT.
 Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.Base.
 Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemLiftTT.

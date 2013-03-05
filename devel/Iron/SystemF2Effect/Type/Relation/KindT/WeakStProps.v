@@ -1,5 +1,5 @@
 
-Require Export Iron.SystemF2Effect.Type.KiJudge.Base.
+Require Export Iron.SystemF2Effect.Type.Relation.KindT.Base.
 
 
 (* Weaken store properties in kind judgement. *)
