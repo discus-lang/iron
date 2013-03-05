@@ -44,10 +44,10 @@ Lemma subsT_maskOnTs
  -> SubsT  ke sp e1 (maskOnT p e2) KEffect.
 Proof.
  intros.
- have HE1: (e1 = bunchT KEffect (flattenT e1)). 
- rewrite HE1.
+ have HE1: (EquivT ke sp (bunchT KEffect (flattenT e1)) e1 KEffect).
+ eapply subsT_equiv_above. eauto.
 
- rrwrite (maskOnT p e2 = bunchT KEffect (flattenT (maskOnT p e2))).
+ rrwrite (maskOnT p e2 = bunchT KEffect (flattenT (maskOnT p e2))) by admit.
  eapply subsTs_subsT.
 
  rrwrite (flattenT (maskOnT p e2) = maskOnTs p (flattenT e2)).

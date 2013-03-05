@@ -43,7 +43,8 @@ Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
 Hint Constructors SubsT.
 
 
-
+(********************************************************************)
+(* Kind projection *)
 Lemma subsT_kind_left
  :  forall ke sp t1 t2 k
  ,  SubsT  ke sp t1 t2 k
@@ -66,6 +67,8 @@ Qed.
 Hint Resolve subsT_kind_right.
 
 
+(********************************************************************)
+(* Sumkind projection *)
 Lemma subsT_sumkind_left
  :  forall ke sp t1 t2 t3 k
  ,  SubsT  ke sp (TSum t1 t2) t3 k
@@ -86,6 +89,8 @@ Proof.
 Qed.
 
 
+(********************************************************************)
+(* Subs/Equiv *)
 Lemma subsT_equiv_above
  :  forall ke sp t1 t1' t2 k
  ,  EquivT ke sp t1  t1' k
@@ -108,6 +113,8 @@ Proof.
 Qed.
 
 
+(********************************************************************)
+(* Subs sum lemmas *)
 Lemma subsT_sum_comm_below
  :  forall ke sp t1 t2 t3 k
  ,  SubsT  ke sp t1 (TSum t2 t3) k
