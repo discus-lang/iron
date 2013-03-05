@@ -2,6 +2,7 @@
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
 Require Export Iron.SystemF2Effect.Type.Operator.FlattenT.
 Require Export Iron.SystemF2Effect.Type.Relation.KindT.
+Require Export Iron.SystemF2Effect.Type.Relation.KindTs.
 Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
 Require Export Iron.SystemF2Effect.Type.Relation.EquivTs.
 
@@ -13,25 +14,37 @@ Fixpoint bunchT (k : ki) (tt : list ty) : ty
     end.
 
 
-Lemma bunchT_kind
+Lemma bunchT_kindT
  :  forall ke sp ts k
  ,  sumkind k
- -> Forall (fun t => KindT ke sp t k) ts
- -> KindT ke sp (bunchT k ts) k.
+ -> KindTs ke sp ts k
+ -> KindT  ke sp (bunchT k ts) k.
 Proof.
  intros.
  induction ts.
-  simpl. eauto.
-  eapply KiSum; eauto.
-   norm.
-   eapply IHts.
-    inverts H0. auto.
+ - simpl. eauto.
+ - inverts H0.
+   eapply KiSum; eauto.
 Qed.
-Hint Resolve bunchT_kind.
+Hint Resolve bunchT_kindT.
 
 
-Definition KINDS (ke : kienv) (sp : stprops) (ts : list ty) k
- := Forall (fun t => KindT ke sp t k) ts.
+Lemma bunchT_kindTs
+ :  forall ke sp ts k
+ ,  KindT  ke sp (bunchT k ts) k
+ -> KindTs ke sp ts k.
+Proof.
+ intros.
+ induction ts.
+ - auto.
+ - unfold KindTs.
+   snorm.
+   inverts H0.
+   + inverts H. auto.
+   + inverts H. rip.
+     unfold KindTs in *. snorm.
+Qed.     
+Hint Resolve bunchT_kindTs.
 
 
 Lemma bunchT_singleton
@@ -52,28 +65,24 @@ Qed.
 Lemma bunchT_sum
  :  forall ke sp ts1 ts2 k
  ,  sumkind k
- -> KINDS ke sp ts1 k
- -> KINDS ke sp ts2 k
+ -> KindTs ke sp ts1 k
+ -> KindTs ke sp ts2 k
  -> EquivT ke sp (bunchT k (ts2 >< ts1)) 
                  (TSum (bunchT k ts1) (bunchT k ts2)) k.
 Proof.
  intros. 
- induction ts1. simpl.
-  eapply EqSym; auto.
-  have (KINDS ke sp ts1 k) by admit. rip.
-  simpl.
-  eapply EqTrans 
-   with (t2 := TSum a (TSum (bunchT k ts1) (bunchT k ts2))).
-  eapply EqSumCong.
-   auto. 
-   admit.   (* ok kind *)
-   auto.
-  eapply EqSumAssoc.
-   auto.
-   admit.   (* ok kind *)
-   admit.   (* ok kind *)
-   admit.   (* ok kind *)
+ induction ts1. 
+ - simpl.
+   eapply EqSym; auto.
+ - have (KindTs ke sp ts1 k). rip.
+   have (KindT  ke sp a   k).
+   simpl.
+   eapply EqTrans 
+    with (t2 := TSum a (TSum (bunchT k ts1) (bunchT k ts2))).
+   + eapply EqSumCong; auto.
+   + eapply EqSumAssoc; auto.
 Qed.
+Hint Resolve bunchT_sum.
 
 
 Lemma bunchT_flattenT_sum
@@ -85,11 +94,8 @@ Lemma bunchT_flattenT_sum
 Proof.
  intros.
  eapply EqTrans.
-  eapply bunchT_sum.
-  auto.
-  admit.  (* ok kind *)
-  admit.  (* ok kind *)
- eapply EqSumCong; eauto.
+ - eapply bunchT_sum; eauto.
+ - eapply EqSumCong; eauto.
 Qed.
 
 
@@ -99,7 +105,7 @@ Lemma bunchT_flattenT
  -> KindT   ke sp t k
  -> EquivT ke sp (bunchT k (flattenT t)) t k.
 Proof.
- induction t; intros; simpl; eauto.
+ induction t; intros; simpl; snorm.
 
  - Case "TSum".
    inverts H0.

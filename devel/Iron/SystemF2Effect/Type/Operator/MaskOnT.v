@@ -122,9 +122,9 @@ Proof.
    split_if. 
    + split_if.
      * simpl. auto.
-     * snorm. admit. (* ok, true /= false *)
+     * snorm. admit.         (* ok, true /= false *)
    + split_if.
-     * simpl. admit. (* ok, true /= false *)
+     * simpl. admit.         (* ok, true /= false *)
      * simpl. auto.
 Qed.
 Hint Resolve maskOnVarT_liftTT.
@@ -136,7 +136,7 @@ Lemma maskOnVarT_substTT
  -> maskOnVarT d (substTT (1 + d' + d) t2 t1)
  =  substTT (1 + d' + d) (maskOnVarT d t2) (maskOnVarT d t1).
 Proof.
- admit.
+ admit.                      (* maskOnVarT_substTT broken *)
 
  (* broken. Change first premise so that t2 does not contain (TVar d)
     define freeT for this *)

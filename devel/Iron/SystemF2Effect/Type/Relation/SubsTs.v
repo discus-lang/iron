@@ -140,8 +140,9 @@ Proof.
 
    SCase "subs".
     eapply SbSumBelow; auto.
-     eapply bunchT_kind. auto.
-      inverts H. norm.
+     eapply bunchT_kindT. auto.
+      inverts H.
+      unfold KindTs. snorm.
 Qed.
 
 
@@ -155,7 +156,7 @@ Proof.
   - have (sumkind k)   by inverts H; auto.
     simpl.
     eapply SbBot; auto.
-     eapply bunchT_kind; auto.
+     eapply bunchT_kindT; auto.
       inverts H. norm.
 
   - have (sumkind k)   by inverts H; auto.

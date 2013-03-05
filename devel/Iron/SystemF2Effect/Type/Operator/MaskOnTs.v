@@ -25,7 +25,7 @@ Lemma subsTs_maskOnTs
  ,  SubsTs ke sp ts1 ts2 k
  -> SubsTs ke sp ts1 (maskOnTs p ts2) k.
 Proof.
- admit.
+ admit.                      (* need substTs_maskOnTs *)
 Qed.
 
 
@@ -33,7 +33,7 @@ Lemma flattenT_maskOnTs
  :  forall p t
  ,  flattenT (maskOnT p t) = maskOnTs p (flattenT t).
 Proof.
- admit.
+ admit.                      (* need flattenT_maskOnTs *)
 Qed.
 Hint Resolve flattenT_maskOnTs.
 
