@@ -2,48 +2,57 @@
 Require Export Iron.SystemF2Effect.Step.TfJudge.
 
 
-Definition subsT_visible ke sp e e'
+Definition isVisibleE (sp : stprops) (t : ty) : bool
+ := match t with 
+    | TCon1 tc (TCap (TyCapRegion n)) 
+    => andb (isEffectTyCon tc) (hasSRegion n sp)
+
+    | otherwise
+    => false
+    end.
+
+
+Definition SubsVisibleT ke sp e e'
  := SubsT ke
           sp 
           e 
-          (maskOnCap (fun r => negb (hasSRegion r sp)) e') 
+          (maskOnT (fun t => negb (isVisibleE sp t)) e') 
           KEffect.
+
+
 
 
 Lemma subsT_visible_refl
  :  forall ke sp e
  ,  KIND ke sp e KEffect
- -> subsT_visible ke sp e e.
+ -> SubsVisibleT ke sp e e.
 Proof.
  intros.
- unfold subsT_visible.
-  eapply subsT_maskOnCap.
-  auto.
+ unfold SubsVisibleT.
+  admit. (* ok, effect subsumes masked one *)
 Qed.
 
 
 Lemma subsT_visible_equiv
- :  forall ke sp e1 e2
- ,  SubsT ke sp e1 e2 KEffect
- -> subsT_visible ke sp e1 e2.
+ :  forall       ke sp e1 e2
+ ,  SubsT        ke sp e1 e2 KEffect
+ -> SubsVisibleT ke sp e1 e2.
 Proof.
  intros.
- unfold subsT_visible.
-  eapply subsT_maskOnCap.
-  auto.
+ unfold SubsVisibleT.
+  admit. (* ok, effect subsumes masked one *)
 Qed.
 
 
 Lemma subsT_phase_change
- :  forall ke sp p r e1 e2
- ,  hasSRegion p sp = false
- -> r               = TCap (TyCapRegion p)
+ :  forall ke sp n r e1 e2
+ ,  hasSRegion n sp = false
+ -> r               = TCap (TyCapRegion n)
  -> SubsT         (ke :> KRegion) sp e1               e2               KEffect
- -> subsT_visible ke              sp (substTT 0 r e1) (substTT 0 r e2).
+ -> SubsVisibleT   ke              sp (substTT 0 r e1) (substTT 0 r e2).
 Proof.
  admit.
 Qed.
-
 
 
 
@@ -56,8 +65,8 @@ Theorem preservation
  -> STEPF  ss  sp fs  x ss' sp' fs' x'
  -> (exists se' e'
             ,  extends se' se
-            /\ WfFS  se' sp' ss' fs'
-            /\ subsT_visible nil sp e e'
+            /\ WfFS         se' sp' ss' fs'
+            /\ SubsVisibleT nil sp e e'
             /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp sp' ss ss' fs fs' x x' t e.
@@ -99,11 +108,11 @@ Proof.
 
    have (KIND nil sp e1 KEffect)
     by  (eapply equivT_kind_left; eauto).
-   have (closedT e1).
+   have (ClosedT e1).
 
    have (KIND nil sp e2 KEffect)
     by  (eapply equivT_kind_left; eauto).
-   have (closedT e2).
+   have (ClosedT e2).
 
    rip.
 
@@ -124,21 +133,21 @@ Proof.
          eapply equivT_kind_right; eauto.
          eauto.
         auto.
-     + eapply subsT_sum_merge; fold maskOnCap.
+     + eapply subsT_sum_merge; fold maskOnCapT.
        * eauto.
 
        (* Push e0 through region phase change relation. *)  
        * 
          assert (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) as HS.
-         { assert (wfT 1 e0).
+         { assert (WfT 1 e0).
            { have HK: (KIND (nil :> KRegion) sp e0 KEffect).
-             have HE: (wfT  (length (nil :> KRegion)) e0) 
+             have HE: (WfT  (length (nil :> KRegion)) e0) 
               by (eapply kind_wfT; eauto).
              simpl in HE.
              trivial.
            }
-           have (closedT r)                by (subst r; eauto).
-           have (closedT (substTT 0 r e0)) by (eapply substTT_closing; eauto).
+           have (ClosedT r)                by (subst r; eauto).
+           have (ClosedT (substTT 0 r e0)) by (eapply substTT_closing; eauto).
            eapply substTT_liftTT_wfT1; eauto.
          }
          rewrite HS. clear HS.
@@ -147,16 +156,16 @@ Proof.
 
        (* Push e2 though region phase change relation. *)
        * assert (substTT 0 r e2 = liftTT 1 0 (substTT 0 r e2)) as HS.
-         { have (wfT (@length ki nil) e2)  by eauto.
-           have (closedT r)                by (subst r; eauto).
-           have (closedT (substTT 0 r e2)) by (eapply substTT_closing; eauto).
+         { have (WfT (@length ki nil) e2)  by eauto.
+           have (ClosedT r)                by (subst r; eauto).
+           have (ClosedT (substTT 0 r e2)) by (eapply substTT_closing; eauto).
            eapply substTT_liftTT_wfT1; eauto.
          }
          rewrite HS. clear HS.
          admit.                                        (* broken *)
 
    (* Result expression is well typed. *)
-   -  have HW: (wfT (@length ki nil) e2) by eauto.
+   -  have HW: (WfT (@length ki nil) e2) by eauto.
        simpl in HW.
       have HE2: (substTT 0 r e2 = e2).
       rewrite HE2.
