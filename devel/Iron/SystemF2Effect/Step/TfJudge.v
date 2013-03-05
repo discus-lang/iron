@@ -46,7 +46,7 @@ Ltac inverts_typef :=
 Lemma typef_kind_effect
  :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
- -> KIND   ke sp e KEffect.
+ -> KindT  ke sp e KEffect.
 Proof.
  intros.
  induction H; eauto.
@@ -90,7 +90,7 @@ Ltac inverts_typec :=
 Lemma typec_kind_effect
  :  forall ke te se sp fs x t e
  ,  TYPEC  ke te se sp fs x t e
- -> KIND   ke sp e KEffect.
+ -> KindT  ke sp e KEffect.
 Proof.
  intros.
  induction H; eauto.

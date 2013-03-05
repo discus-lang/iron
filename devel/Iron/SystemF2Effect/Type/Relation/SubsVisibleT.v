@@ -23,7 +23,7 @@ Definition SubsVisibleT ke sp e e'
 
 Lemma subsT_visible_refl
  :  forall ke sp e
- ,  KIND ke sp e KEffect
+ ,  KindT ke sp e KEffect
  -> SubsVisibleT ke sp e e.
 Proof.
  intros.

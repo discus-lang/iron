@@ -19,8 +19,8 @@ Fixpoint flattenT (tt : ty) : list ty
 
 Lemma flattenT_kind
  :  forall ke sp t1 k
- ,  KIND ke sp t1 k
- -> Forall (fun t => KIND ke sp t k) (flattenT t1).
+ ,  KindT ke sp t1 k
+ -> Forall (fun t => KindT ke sp t k) (flattenT t1).
 Proof.
  intros. gen ke sp.
  induction t1; intros; simpl; eauto.

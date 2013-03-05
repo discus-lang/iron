@@ -10,8 +10,8 @@ Inductive SubsTs  : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
  | SbsSum 
    :  forall ke sp ts1 ts2 k
    ,  sumkind k
-   -> Forall (fun t1 => KIND ke sp t1 k) ts1
-   -> Forall (fun t2 => KIND ke sp t2 k) ts2
+   -> Forall (fun t1 => KindT ke sp t1 k) ts1
+   -> Forall (fun t2 => KindT ke sp t2 k) ts2
    -> Forall (fun t2 => In t2 ts1) ts2
    -> SubsTs ke sp ts1 ts2 k.
 
@@ -80,7 +80,7 @@ Proof.
 
  - Case "SbSumAbove".
    eapply SbsSum; rip.
-    + have (KIND ke sp t1 k). 
+    + have (KindT ke sp t1 k). 
       eapply flattenT_kind. 
       auto.
     + simpl. eapply Forall_app; eauto.
@@ -125,8 +125,8 @@ Proof.
  induction ts1.
  - nope.
  - have (sumkind k)       by inverts H; auto.
-   have (KIND ke sp a  k) by inverts H; norm.
-   have (KIND ke sp t2 k) by inverts H; norm.
+   have (KindT ke sp a  k) by inverts H; norm.
+   have (KindT ke sp t2 k) by inverts H; norm.
    simpl.
 
    lets D: subsTs_single_cases H.

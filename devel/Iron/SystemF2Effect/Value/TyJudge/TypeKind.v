@@ -5,13 +5,13 @@ Require Import Iron.SystemF2Effect.Value.TyJudge.
 Lemma typex_kind_type_effect
  :  forall ke te se sp v t e
  ,  TYPEX  ke te se sp v t e
- -> (KIND  ke sp t KData /\ KIND ke sp e KEffect).
+ -> (KindT ke sp t KData /\ KindT ke sp e KEffect).
 Proof.
  intros. gen ke te se sp t e. 
  induction v using exp_mutind with
   (PV := fun v => forall ke te se sp t
       ,  TYPEV  ke te se sp v t
-      -> KIND   ke sp t KData);
+      -> KindT  ke sp t KData);
    intros; inverts_type; eauto 1.
 
  Case "VLam".
@@ -85,7 +85,7 @@ Hint Resolve typex_kind_type_effect.
 Lemma typex_kind_type
  :  forall ke te se sp v t e
  ,  TYPEX  ke te se sp v t e
- -> KIND   ke sp t KData.
+ -> KindT  ke sp t KData.
 Proof. 
  intros. 
  lets D: typex_kind_type_effect H. rip.
@@ -96,7 +96,7 @@ Hint Resolve typex_kind_type.
 Lemma typex_kind_effect
  :  forall ke te se sp v t e
  ,  TYPEX  ke te se sp v t e
- -> KIND   ke sp e KEffect.
+ -> KindT  ke sp e KEffect.
 Proof. 
  intros. 
  lets D: typex_kind_type_effect H. rip.

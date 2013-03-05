@@ -74,8 +74,8 @@ Hint Unfold maskOnCapT.
 (********************************************************************)
 Lemma maskOnT_kind
  :  forall ke sp t k p
- ,  KIND ke sp t k 
- -> KIND ke sp (maskOnT p t) k.
+ ,  KindT ke sp t k 
+ -> KindT ke sp (maskOnT p t) k.
 Proof.
  intros. gen ke sp k.
  induction t; intros; inverts_kind; simpl; eauto.

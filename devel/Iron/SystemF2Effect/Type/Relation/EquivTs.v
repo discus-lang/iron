@@ -9,8 +9,8 @@ Inductive EquivTs : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
  | EqsSum
    :  forall ke sp ts1 ts2 k
    ,  sumkind k
-   -> Forall (fun t1 => KIND ke sp t1 k) ts1
-   -> Forall (fun t2 => KIND ke sp t2 k) ts2
+   -> Forall (fun t1 => KindT ke sp t1 k) ts1
+   -> Forall (fun t2 => KindT ke sp t2 k) ts2
    -> Forall (fun t2 => In t2 ts1) ts2
    -> Forall (fun t1 => In t1 ts2) ts1
    -> EquivTs ke sp ts1 ts2 k.
@@ -21,7 +21,7 @@ Hint Constructors EquivTs.
 Lemma equivTs_refl
  :  forall  ke sp ts k
  ,  sumkind k
- -> Forall (fun t => KIND ke sp t k) ts
+ -> Forall (fun t => KindT ke sp t k) ts
  -> EquivTs ke sp ts ts k.
 Proof.
  intros.
@@ -35,8 +35,8 @@ Qed.
 Lemma equivTs_sym
  :  forall ke sp ts1 ts2 k
  ,  sumkind k
- -> Forall (fun t => KIND ke sp t k) ts1
- -> Forall (fun t => KIND ke sp t k) ts2
+ -> Forall (fun t => KindT ke sp t k) ts1
+ -> Forall (fun t => KindT ke sp t k) ts2
  -> EquivTs ke sp ts1 ts2 k
  -> EquivTs ke sp ts2 ts1 k.
 Proof.

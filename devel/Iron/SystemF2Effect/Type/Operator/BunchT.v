@@ -16,8 +16,8 @@ Fixpoint bunchT (k : ki) (tt : list ty) : ty
 Lemma bunchT_kind
  :  forall ke sp ts k
  ,  sumkind k
- -> Forall (fun t => KIND ke sp t k) ts
- -> KIND ke sp (bunchT k ts) k.
+ -> Forall (fun t => KindT ke sp t k) ts
+ -> KindT ke sp (bunchT k ts) k.
 Proof.
  intros.
  induction ts.
@@ -31,13 +31,13 @@ Hint Resolve bunchT_kind.
 
 
 Definition KINDS (ke : kienv) (sp : stprops) (ts : list ty) k
- := Forall (fun t => KIND ke sp t k) ts.
+ := Forall (fun t => KindT ke sp t k) ts.
 
 
 Lemma bunchT_singleton
  :  forall ke sp t k
  ,  sumkind k
- -> KIND ke sp t k
+ -> KindT ke sp t k
  -> EquivT ke sp (bunchT k (t :: nil)) t k.
 Proof.
  intros.
@@ -96,7 +96,7 @@ Qed.
 Lemma bunchT_flattenT
  :  forall ke sp t k
  ,  sumkind k
- -> KIND   ke sp t k
+ -> KindT   ke sp t k
  -> EquivT ke sp (bunchT k (flattenT t)) t k.
 Proof.
  induction t; intros; simpl; eauto.

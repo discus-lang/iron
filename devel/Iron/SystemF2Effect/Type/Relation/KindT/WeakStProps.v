@@ -5,8 +5,8 @@ Require Export Iron.SystemF2Effect.Type.Relation.KindT.Base.
 (* Weaken store properties in kind judgement. *)
 Lemma kind_stprops_snoc
  : forall ke sp p t k
- ,  KIND ke sp        t k
- -> KIND ke (p <: sp) t k.
+ ,  KindT ke sp        t k
+ -> KindT ke (p <: sp) t k.
 Proof.
  intros. gen ke k.
  induction t; intros; inverts_kind; burn.
@@ -21,8 +21,8 @@ Qed.
 
 Lemma kind_stprops_cons
  :  forall ke sp p t k
- ,  KIND ke sp t k
- -> KIND ke (sp :> p) t k.
+ ,  KindT ke sp t k
+ -> KindT ke (sp :> p) t k.
 Proof.
  intros. gen ke k.
  induction t; intros; inverts_kind; burn.

@@ -40,9 +40,9 @@ Qed.
 Theorem subst_type_type_ix
  :  forall ix ke sp t1 k1 t2 k2
  ,  get ix ke = Some k2
- -> KIND ke sp t1 k1
- -> KIND (delete ix ke) sp t2 k2
- -> KIND (delete ix ke) sp (substTT ix t2 t1) k1.
+ -> KindT ke sp t1 k1
+ -> KindT (delete ix ke) sp t2 k2
+ -> KindT (delete ix ke) sp (substTT ix t2 t1) k1.
 Proof.
  intros. gen ix ke sp t2 k1 k2.
  induction t1; intros; simpl; inverts_kind; eauto.
@@ -81,9 +81,9 @@ Qed.
 
 Theorem subst_type_type
  :  forall ke sp t1 k1 t2 k2
- ,  KIND (ke :> k2) sp t1 k1
- -> KIND ke         sp t2 k2
- -> KIND ke sp (substTT 0 t2 t1) k1.
+ ,  KindT (ke :> k2) sp t1 k1
+ -> KindT ke         sp t2 k2
+ -> KindT ke sp (substTT 0 t2 t1) k1.
 Proof.
  intros.
  unfold substTT.
@@ -94,13 +94,13 @@ Qed.
 
 Lemma substTT_EquivT
  :  forall  ke sp t1 t2 t3 k3 k
- ,  KIND    ke sp t3 k3
+ ,  KindT    ke sp t3 k3
  -> EquivT (ke :> k3) sp t1 t2 k
  -> EquivT  ke sp (substTT 0 t3 t1) (substTT 0 t3 t2) k.
 Proof.
  intros ke sp t1 t2 t3 k3 k HK HE.
- have HK1: (KIND (ke :> k3) sp t1 k).
- have HK2: (KIND (ke :> k3) sp t2 k).
+ have HK1: (KindT (ke :> k3) sp t1 k).
+ have HK2: (KindT (ke :> k3) sp t2 k).
  remember (ke :> k3) as X.
  induction HE; subst.
 
@@ -148,8 +148,8 @@ Qed.
 Theorem lower_type_type_ix
  :  forall ix ke sp t1 k1 t2
  ,  lowerTT ix t1 = Some t2
- -> KIND ke sp t1 k1
- -> KIND (delete ix ke) sp t2 k1.
+ -> KindT ke sp t1 k1
+ -> KindT (delete ix ke) sp t2 k1.
 Proof.
  intros. gen ix ke sp k1 t2.
  induction t1; intros; simpl;
@@ -181,8 +181,8 @@ Qed.
 Theorem lower_type_type
  :  forall t1 t2 ke sp k1 k2
  ,  lowerTT 0 t1 = Some t2
- -> KIND (ke :> k1) sp t1 k2 
- -> KIND ke         sp t2 k2.
+ -> KindT (ke :> k1) sp t1 k2 
+ -> KindT ke         sp t2 k2.
 Proof.
  intros.
  lets D: lower_type_type_ix H H0.

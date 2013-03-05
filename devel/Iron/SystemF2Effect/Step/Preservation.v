@@ -50,13 +50,13 @@ Proof.
 
    have (sumkind KEffect).
 
-   have (KIND (nil :> KRegion) sp e0 KEffect).
+   have (KindT (nil :> KRegion) sp e0 KEffect).
 
-   have (KIND nil sp e1 KEffect)
+   have (KindT nil sp e1 KEffect)
     by  (eapply equivT_kind_left; eauto).
    have (ClosedT e1).
 
-   have (KIND nil sp e2 KEffect)
+   have (KindT nil sp e2 KEffect)
     by  (eapply equivT_kind_left; eauto).
    have (ClosedT e2).
 
@@ -86,7 +86,7 @@ Proof.
        * 
          assert (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) as HS.
          { assert (WfT 1 e0).
-           { have HK: (KIND (nil :> KRegion) sp e0 KEffect).
+           { have HK: (KindT (nil :> KRegion) sp e0 KEffect).
              have HE: (WfT  (length (nil :> KRegion)) e0) 
               by (eapply kind_wfT; eauto).
              simpl in HE.

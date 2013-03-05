@@ -13,16 +13,16 @@ Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
 
  | SbTrans
    :  forall ke sp t1 t2 t3 k
-   ,  KIND   ke sp t1 k
-   -> KIND   ke sp t2 k
-   -> KIND   ke sp t3 k
+   ,  KindT   ke sp t1 k
+   -> KindT   ke sp t2 k
+   -> KindT   ke sp t3 k
    -> SubsT  ke sp t1 t2 k -> SubsT  ke sp t2 t3 k
    -> SubsT  ke sp t1 t3 k
 
  | SbBot
    :  forall ke sp t k
    ,  sumkind k
-   -> KIND   ke sp t k
+   -> KindT   ke sp t k
    -> SubsT  ke sp t (TBot k) k
 
  | SbSumAbove
@@ -34,9 +34,9 @@ Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
  | SbSumBelow
    :  forall ke sp t1 t2 t3 k
    ,  sumkind k
-   -> KIND   ke sp t1 k
-   -> KIND   ke sp t2 k
-   -> KIND   ke sp t3 k
+   -> KindT   ke sp t1 k
+   -> KindT   ke sp t2 k
+   -> KindT   ke sp t3 k
    -> SubsT  ke sp t1 t2 k
    -> SubsT  ke sp (TSum t1 t3) t2 k.
 
@@ -48,7 +48,7 @@ Hint Constructors SubsT.
 Lemma subsT_kind_left
  :  forall ke sp t1 t2 k
  ,  SubsT  ke sp t1 t2 k
- -> KIND   ke sp t1 k.
+ -> KindT   ke sp t1 k.
 Proof.
  intros.
  induction H; eauto.
@@ -59,7 +59,7 @@ Hint Resolve subsT_kind_left.
 Lemma subsT_kind_right
  :  forall ke sp t1 t2 k
  ,  SubsT  ke sp t1 t2 k
- -> KIND   ke sp t2 k.
+ -> KindT   ke sp t2 k.
 Proof.
  intros.
  induction H; eauto.
@@ -122,7 +122,7 @@ Lemma subsT_sum_comm_below
 Proof.
  intros.
  eapply subsT_equiv_below with (t2 := TSum t2 t3).
-  have HK: (KIND ke sp (TSum t2 t3) k). inverts HK.
+  have HK: (KindT ke sp (TSum t2 t3) k). inverts HK.
   eapply EqSumComm; eauto.
   auto.
 Qed.
@@ -136,7 +136,7 @@ Lemma subsT_sum_comm_above
 Proof.
  intros.
  eapply subsT_equiv_above with (t1 := TSum t1 t2).
-  have HK: (KIND ke sp (TSum t1 t2) k). inverts HK.
+  have HK: (KindT ke sp (TSum t1 t2) k). inverts HK.
   eapply EqSumComm; eauto.
   auto.
 Qed.
@@ -146,7 +146,7 @@ Hint Resolve subsT_sum_comm_above.
 Lemma subsT_sum_left
  : forall ke sp t1 t1' t2 k
  ,  sumkind k
- -> KIND   ke sp t2 k
+ -> KindT   ke sp t2 k
  -> SubsT  ke sp t1 t1' k
  -> SubsT  ke sp (TSum t1 t2) (TSum t1' t2) k.
 Proof.
@@ -160,7 +160,7 @@ Hint Resolve subsT_sum_left.
 Lemma subsT_sum_right
  :  forall ke sp t1 t2 t2' k
  ,  sumkind k
- -> KIND   ke sp t1 k
+ -> KindT   ke sp t1 k
  -> SubsT  ke sp t2 t2' k
  -> SubsT  ke sp (TSum t1 t2) (TSum t1 t2') k.
 Proof.

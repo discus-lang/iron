@@ -18,59 +18,59 @@ Hint Unfold appkind.
 
 
 (* Kinds judgement assigns a kind to a type *)
-Inductive KIND : kienv -> stprops -> ty -> ki -> Prop :=
+Inductive KindT : kienv -> stprops -> ty -> ki -> Prop :=
   | KiVar
     :  forall ke sp i k
     ,  get i ke = Some k
-    -> KIND ke sp (TVar i) k
+    -> KindT ke sp (TVar i) k
 
   | KiForall
     :  forall ke sp k t
-    ,  KIND (ke :> k) sp t KData
-    -> KIND ke        sp (TForall k t) KData
+    ,  KindT (ke :> k) sp t KData
+    -> KindT ke        sp (TForall k t) KData
 
   | KiApp 
     :  forall ke sp t1 t2 k11 k12
     ,  appkind k12
-    -> KIND ke sp t1 (KFun k11 k12)
-    -> KIND ke sp t2 k11
-    -> KIND ke sp (TApp t1 t2) k12
+    -> KindT ke sp t1 (KFun k11 k12)
+    -> KindT ke sp t2 k11
+    -> KindT ke sp (TApp t1 t2) k12
 
   | KiSum
     :  forall ke sp k t1 t2
     ,  sumkind k
-    -> KIND ke sp t1 k -> KIND ke sp t2 k
-    -> KIND ke sp (TSum t1 t2) k
+    -> KindT ke sp t1 k -> KindT ke sp t2 k
+    -> KindT ke sp (TSum t1 t2) k
 
   | KiBot
     :  forall ke sp k
     ,  sumkind k
-    -> KIND ke sp (TBot k) k
+    -> KindT ke sp (TBot k) k
 
   | KiCon0
     :  forall ke sp tc k
     ,  k = kindOfTyCon0 tc
-    -> KIND ke sp (TCon0 tc) k
+    -> KindT ke sp (TCon0 tc) k
 
   | KiCon1 
     :  forall ke sp tc t1 k1 k
     ,  KFun k1 k = kindOfTyCon1 tc
-    -> KIND ke sp t1 k1
-    -> KIND ke sp (TCon1 tc t1) k
+    -> KindT ke sp t1 k1
+    -> KindT ke sp (TCon1 tc t1) k
 
   | KiCon2 
     :  forall ke sp tc t1 t2 k1 k2 k
     ,  KFun k1 (KFun k2 k) = kindOfTyCon2 tc
-    -> KIND ke sp t1 k1
-    -> KIND ke sp t2 k2
-    -> KIND ke sp (TCon2 tc t1 t2) k
+    -> KindT ke sp t1 k1
+    -> KindT ke sp t2 k2
+    -> KindT ke sp (TCon2 tc t1 t2) k
 
   | KiCap
     :  forall ke sp n
     ,  In (SRegion n) sp
-    -> KIND ke sp (TCap (TyCapRegion n)) KRegion.
+    -> KindT ke sp (TCap (TyCapRegion n)) KRegion.
 
-Hint Constructors KIND.
+Hint Constructors KindT.
 
 
 (********************************************************************)
@@ -78,15 +78,15 @@ Hint Constructors KIND.
 Ltac inverts_kind :=
  repeat 
   (match goal with 
-   | [ H: KIND _ _ (TVar _)      _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TForall _ _) _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TApp _ _)    _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TSum _ _)    _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TBot _ )     _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TCon0 _)     _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TCon1 _ _)   _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TCon2 _ _ _) _  |- _ ] => inverts H
-   | [ H: KIND _ _ (TCap _)      _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TVar _)      _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TForall _ _) _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TApp _ _)    _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TSum _ _)    _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TBot _ )     _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TCon0 _)     _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TCon1 _ _)   _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TCon2 _ _ _) _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TCap _)      _  |- _ ] => inverts H
    end).
 
 
@@ -94,7 +94,7 @@ Ltac inverts_kind :=
 (* Forms of types *)
 Lemma kind_region
  :  forall t sp
- ,  KIND nil sp t KRegion
+ ,  KindT nil sp t KRegion
  -> (exists n, t = TCap (TyCapRegion n)).
 Proof.
  intros.
@@ -126,7 +126,7 @@ Hint Resolve kind_region.
 (* Well kinded sums have sumkind *)
 Lemma kind_sumkind
  :  forall ke sp t1 t2 k
- ,  KIND ke sp (TSum t1 t2) k
+ ,  KindT ke sp (TSum t1 t2) k
  -> sumkind k.
 Proof.
  intros.
