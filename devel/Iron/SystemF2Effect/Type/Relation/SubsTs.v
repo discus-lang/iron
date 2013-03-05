@@ -16,6 +16,20 @@ Inductive SubsTs  : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
    -> SubsTs ke sp ts1 ts2 k.
 
 
+(********************************************************************)
+Lemma subsTs_trans
+ :  forall ke sp ts1 ts2 ts3 k
+ ,  SubsTs ke sp ts1 ts2 k
+ -> SubsTs ke sp ts2 ts3 k
+ -> SubsTs ke sp ts1 ts3 k.
+Proof.
+ intros.
+ inverts H. inverts H0.
+ eapply SbsSum; snorm.
+Qed.
+
+
+(********************************************************************)
 Lemma equivTs_subsTs
  :  forall ke sp t1 t2 k
  ,  sumkind k
@@ -40,6 +54,7 @@ Proof.
 Qed.
 
 
+(********************************************************************)
 Lemma subsT_subsTs 
  :  forall ke sp t1 t2 k
  ,  sumkind k
@@ -48,55 +63,56 @@ Lemma subsT_subsTs
 Proof.
  intros ke sp t1 t2 k HS HT.
  induction HT.
-  Case "SbSumEquiv".
+
+ - Case "SbEquiv".
    eapply equivT_subsTs; auto.
 
-  admit.                                   (* ok, need SubsTs trans *)
-  admit.                                   (* ok, need SubsTs nil *)
+ - Case "SbTrans".
+   eapply subsTs_trans. 
+    eauto.
+    rip.
+    inverts IHHT1. inverts IHHT2.
+    snorm.
 
-  Case "SbSumAbove".
-  { eapply SbsSum; rip.
-    - have (KIND ke sp t1 k). 
+ - Case "SbBot".
+   simpl.
+   eapply SbsSum; snorm.
+
+ - Case "SbSumAbove".
+   eapply SbsSum; rip.
+    + have (KIND ke sp t1 k). 
       eapply flattenT_kind. 
       auto.
-    - simpl. eapply Forall_app; eauto.
-    - simpl. eapply Forall_app.
+    + simpl. eapply Forall_app; eauto.
+    + simpl. eapply Forall_app.
       inverts IHHT1. auto.
       inverts IHHT2. auto.
-  }
 
- Case "SbSumBelow".
- { eapply SbsSum; rip.
+ - Case "SbSumBelow".
+   eapply SbsSum; rip.
    norm.
    simpl.
    inverts IHHT.
    norm.
- }
 Qed.
+Hint Resolve subsT_subsTs.
 
 
-Lemma bunchT_singleton
- :  forall ke sp t k
- ,  sumkind k
- -> KIND ke sp t k
- -> EquivT ke sp (bunchT k (t :: nil)) t k.
-Proof.
- intros.
- simpl.
- eapply EqSym. 
-  auto.
-  auto.
-  eapply EqSumBot; auto.
-Qed.
-
-
+(********************************************************************)
 Lemma subsTs_single_cases
  :  forall ke sp ts1 t1 t2 k
  ,  SubsTs ke sp (ts1 :> t1) (nil :> t2) k
  -> SubsTs ke sp ts1 (nil :> t2) k
  \/ t1 = t2.
 Proof.
- admit.
+ intros.
+ inverts H.
+ simpl in H3.
+ eapply Forall_forall with (x := t2) in H3.
+ - inverts H3.
+   + tauto.
+   + left. eapply SbsSum; snorm.
+ - auto.
 Qed.
 
 
@@ -155,3 +171,5 @@ Proof.
       eapply SbsSum; rip.
       norm. norm.
 Qed.  
+Hint Resolve subsTs_subsT.
+

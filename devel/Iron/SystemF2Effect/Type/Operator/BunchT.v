@@ -34,6 +34,21 @@ Definition KINDS (ke : kienv) (sp : stprops) (ts : list ty) k
  := Forall (fun t => KIND ke sp t k) ts.
 
 
+Lemma bunchT_singleton
+ :  forall ke sp t k
+ ,  sumkind k
+ -> KIND ke sp t k
+ -> EquivT ke sp (bunchT k (t :: nil)) t k.
+Proof.
+ intros.
+ simpl.
+ eapply EqSym. 
+  auto.
+  auto.
+  eapply EqSumBot; auto.
+Qed.
+
+
 Lemma bunchT_sum
  :  forall ke sp ts1 ts2 k
  ,  sumkind k
