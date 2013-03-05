@@ -184,7 +184,8 @@ Proof.
 
      (* New effect subsumes old one. *)
      + eapply subsT_visible_equiv.
-       admit.                                               (* ok e2 well kinded *)
+       have HE: (EquivT nil (sp :> SRegion n) e2 e KEffect).
+       eauto.
 
      (* Resulting configuation is well typed. *)
      + eapply TcExp 
@@ -192,7 +193,7 @@ Proof.
               (e1 := TBot KEffect)
               (e2 := e2); eauto.
 
-       admit.                                               (* ok equiv TBot *)
+       eapply EqSym; eauto.
  }
 
 
