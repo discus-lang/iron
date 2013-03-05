@@ -100,6 +100,36 @@ Proof.
 Qed.
 
 
+Lemma maskOnVarT_liftTT
+ :  forall r d e
+ ,  maskOnVarT r (liftTT 1 (1 + (r + d)) e) 
+ =  liftTT 1 (1 + (r + d)) (maskOnVarT r e).
+Proof.
+ intros. gen r d.
+ induction e; intros; 
+  try (solve [simpl; burn]);
+  try (solve [simpl; f_equal; rewritess; auto]).
+
+ - Case "TSum".
+   simpl.
+   unfold maskOnVarT in *.
+   simpl. f_equal. eauto. eauto.
+
+ - Case "TCon1".
+   unfold maskOnVarT in *.
+   simpl.
+   unfold maskOnT. 
+   split_if. 
+   + split_if.
+     * simpl. auto.
+     * snorm. admit. (* ok, true /= false *)
+   + split_if.
+     * simpl. admit. (* ok, true /= false *)
+     * simpl. auto.
+Qed.
+Hint Resolve maskOnVarT_liftTT.
+
+
 Lemma maskOnVarT_substTT
  :  forall d d' t1 t2
  ,  isEffectOnVar d t2 = false

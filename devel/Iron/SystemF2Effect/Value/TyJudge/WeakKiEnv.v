@@ -99,8 +99,9 @@ Proof.
 
    eapply lowerTT_liftTT_succ. auto.
 
-   rrwrite (S ix = 1 + (0 + ix)).   
-   rewrite liftTT_maskOnVar.
+   rrwrite (S ix = 1 + (0 + ix)).
+   lets D: maskOnVarT_liftTT. unfold maskOnVarT in D.
+   rewrite D. clear D.
    eapply lowerTT_liftTT_succ. auto.  
 
    rewrite insert_rewind.
@@ -108,7 +109,7 @@ Proof.
    rewrite (liftTE_liftTE 0 ix).
    eapply IHx1.
    have (liftTT 1 0 t1 = t).
-   have (liftTT 1 0 e1 = maskOnVar 0 e).
+   have (liftTT 1 0 e1 = maskOnVarT 0 e).
    repeat rewritess.
    auto.
 

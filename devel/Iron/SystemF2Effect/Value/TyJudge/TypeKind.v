@@ -62,7 +62,7 @@ Proof.
   spec IHv H7. rip.
   eapply lower_type_type; eauto.
   eapply lower_type_type; eauto.
-  eapply maskOnVar_kind. eauto.
+  eapply maskOnT_kind. eauto.
 
  Case "XAlloc".
   rip.
