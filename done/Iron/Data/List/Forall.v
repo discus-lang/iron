@@ -57,6 +57,20 @@ Qed.
 Hint Resolve Forall_snoc.
 
 
+
+Lemma Forall_split_cons
+ :  forall {A} P (x : A) xs
+ ,  Forall P (x :: xs)
+ -> P x /\ Forall P xs.
+Proof.
+ intros.
+  rewrite Forall_forall in H.
+  rewrite Forall_forall.
+  split; eauto.
+Qed.
+Hint Resolve Forall_split_cons.
+
+
 Lemma Forall_app
  :  forall {A} (P: A -> Prop) xs ys
  ,  Forall P xs

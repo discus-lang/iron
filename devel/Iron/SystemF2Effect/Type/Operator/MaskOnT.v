@@ -1,5 +1,7 @@
 
 Require Import Iron.SystemF2Effect.Type.Relation.KindT.
+Require Import Iron.SystemF2Effect.Type.Relation.SubsT.
+Require Import Iron.SystemF2Effect.Type.Relation.SubsTs.
 Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Import Iron.SystemF2Effect.Type.Operator.SubstTT.
 Require Import Iron.SystemF2Effect.Type.Exp.
@@ -41,8 +43,8 @@ Hint Unfold maskOnCapT.
 (********************************************************************)
 Lemma maskOnT_kind
  :  forall ke sp t k p
- ,  KindT ke sp t k 
- -> KindT ke sp (maskOnT p t) k.
+ ,  KindT  ke sp t k 
+ -> KindT  ke sp (maskOnT p t) k.
 Proof.
  intros. gen ke sp k.
  induction t; intros; inverts_kind; simpl; eauto.
@@ -66,8 +68,44 @@ Proof.
     destruct t1. snorm.
     eauto. eauto.
 Qed.
+Hint Resolve maskOnT_kind.
 
 
+Lemma maskOnVarT_kind
+ :  forall ke sp t k n
+ ,  KindT  ke sp t k
+ -> KindT  ke sp (maskOnVarT n t) k.
+Proof.
+ intros. 
+ unfold maskOnVarT. 
+ eapply maskOnT_kind; auto.
+Qed.
+Hint Resolve maskOnVarT_kind.
+
+
+Lemma maskOnCapT_kind
+ :  forall ke sp t k n
+ ,  KindT  ke sp t k
+ -> KindT  ke sp (maskOnCapT n t) k.
+Proof.
+ intros.
+ unfold maskOnVarT.
+ eapply maskOnT_kind; auto.
+Qed.
+Hint Resolve maskOnCapT_kind.
+
+
+(********************************************************************)
+Lemma maskOnT_subsT
+ :  forall ke sp t1 t2 p k
+ ,  SubsT  ke sp t1 t2 k
+ -> SubsT  ke sp t1 (maskOnT p t2) k.
+Proof.
+ admit.
+Qed.
+
+
+(********************************************************************)
 Lemma maskOnVarT_liftTT
  :  forall r d e
  ,  maskOnVarT r (liftTT 1 (1 + (r + d)) e) 
@@ -119,6 +157,7 @@ Lemma maskOnVarT_substTT
  -> maskOnVarT d (substTT (1 + d' + d) t2 t1)
  =  substTT (1 + d' + d) (maskOnVarT d t2) (maskOnVarT d t1).
 Proof.
+ 
  admit.                      (* maskOnVarT_substTT broken *)
 
  (* broken. Change first premise so that t2 does not contain (TVar d)

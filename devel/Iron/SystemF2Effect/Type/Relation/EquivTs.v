@@ -30,6 +30,7 @@ Proof.
   eapply EqsSum; auto.
    norm. norm.
 Qed.
+Hint Resolve equivTs_refl.
 
 
 Lemma equivTs_sym

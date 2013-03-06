@@ -3,6 +3,7 @@ Require Export Iron.SystemF2Effect.Type.Exp.Base.
 Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
 Require Export Iron.SystemF2Effect.Type.Relation.SubsT.
 Require Export Iron.SystemF2Effect.Type.Relation.EquivTs.
+Require Export Iron.SystemF2Effect.Type.Relation.KindTs.
 Require Export Iron.SystemF2Effect.Type.Operator.BunchT.
 
 
@@ -10,8 +11,8 @@ Inductive SubsTs  : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
  | SbsSum 
    :  forall ke sp ts1 ts2 k
    ,  sumkind k
-   -> Forall (fun t1 => KindT ke sp t1 k) ts1
-   -> Forall (fun t2 => KindT ke sp t2 k) ts2
+   -> KindTs ke sp ts1 k
+   -> KindTs ke sp ts2 k
    -> Forall (fun t2 => In t2 ts1) ts2
    -> SubsTs ke sp ts1 ts2 k.
 
@@ -111,7 +112,7 @@ Proof.
  eapply Forall_forall with (x := t2) in H3.
  - inverts H3.
    + tauto.
-   + left. eapply SbsSum; snorm.
+   + left. eapply SbsSum; snorm. eauto.
  - auto.
 Qed.
 
@@ -124,9 +125,9 @@ Proof.
  intros.
  induction ts1.
  - nope.
- - have (sumkind k)       by inverts H; auto.
-   have (KindT ke sp a  k) by inverts H; norm.
-   have (KindT ke sp t2 k) by inverts H; norm.
+ - have (sumkind k)        by inverts H; auto.
+   have (KindT ke sp a  k) by inverts H; eauto.
+   have (KindT ke sp t2 k) by inverts H; eauto.
    simpl.
 
    lets D: subsTs_single_cases H.
@@ -141,8 +142,7 @@ Proof.
    SCase "subs".
     eapply SbSumBelow; auto.
      eapply bunchT_kindT. auto.
-      inverts H.
-      unfold KindTs. snorm.
+      inverts H; eauto.
 Qed.
 
 
@@ -164,13 +164,13 @@ Proof.
     eapply SbSumAbove; auto.
     + eapply subsTs_subsT_1; auto.
       inverts H.
-      eapply SbsSum; rip.
-      norm. norm.
+      eapply SbsSum; rip. 
+       eauto. snorm.
 
     + eapply IHts2.
       inverts H.
       eapply SbsSum; rip.
-      norm. norm.
+       eauto. snorm.
 Qed.  
 Hint Resolve subsTs_subsT.
 
