@@ -55,10 +55,18 @@ Fixpoint kindOfTyCon1 (tc : tycon1) :=
 
 Fixpoint tycon1_beq tc1 tc2 :=
   match tc1, tc2 with
-  | TyConRead,      TyConRead      => true
-  | TyConWrite,     TyConWrite     => true
-  | TyConAlloc,     TyConAlloc     => true
-  | _,              _              => false
+  | TyConRead,   TyConRead   => true
+  | TyConWrite,  TyConWrite  => true
+  | TyConAlloc,  TyConAlloc  => true
+  | _,           _           => false
+  end.
+
+
+Definition isEffectTyCon (tc : tycon1) : bool :=
+  match tc with
+  | TyConRead              => true
+  | TyConWrite             => true
+  | TyConAlloc             => true
   end.
 
 

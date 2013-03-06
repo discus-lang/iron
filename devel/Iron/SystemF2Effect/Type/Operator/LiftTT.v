@@ -73,6 +73,35 @@ Qed.
 Hint Resolve liftTT_TVar_not_succ.
 
 
+Lemma liftTT_TVar_above
+ :  forall n i d
+ ,  d > i 
+ -> liftTT n d (TVar i) = TVar i.
+Proof.
+ intros. snorm. omega.
+Qed.
+Hint Resolve liftTT_TVar_above.
+
+
+Lemma liftTT_isTVar_true
+ :  forall n i t d
+ ,  d > i
+ -> true = isTVar i (liftTT n d t)
+ -> true = isTVar i t.
+Proof.
+ intros.
+  destruct t; 
+   try (solve [simpl; auto]).
+ 
+  apply isTVar_form in H0.
+  simpl in H0. split_if.
+   inverts H0. omega.
+   inverts H0. simpl. 
+   eapply beq_nat_refl.
+Qed.
+Hint Resolve liftTT_isTVar_true.
+
+
 Lemma liftTT_TCap
  :  forall n d t tc
  ,  liftTT n d t = TCap tc

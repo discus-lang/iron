@@ -28,43 +28,10 @@ Fixpoint maskOnT (p : ty -> bool) (e : ty) : ty
 Arguments maskOnT p e : simpl nomatch.
 
 
-Definition isEffectTyCon (tc : tycon1) : bool
- := match tc with
-    | TyConRead             => true
-    | TyConWrite            => true
-    | TyConAlloc            => true
-    end.
-
-
-Definition isTVar        (n : nat) (t : ty) : bool
- := match t with
-    | TVar n'               => beq_nat n n'
-    | _                     => false
-    end.
-
-Definition isTCapRegion  (n : nat) (t : ty) : bool
- := match t with
-    | TCap (TyCapRegion n') => beq_nat n n'
-    | _                     => false
-    end.
-
-
-Definition isEffectOnVar (n : nat) (t : ty) : bool
- := match t with
-    | TCon1 tc t1 => andb (isEffectTyCon tc) (isTVar n t1)
-    | _           => false
-    end.
-
-Definition isEffectOnCap (n : nat) (t : ty) : bool
- := match t with 
-    | TCon1 tc t1 => andb (isEffectTyCon tc) (isTCapRegion n t1)
-    | _           => false
-    end.
-
-
 Definition maskOnVarT    (n : nat) (e : ty) : ty
  := maskOnT (isEffectOnVar n) e.
 Hint Unfold maskOnVarT.
+
 
 Definition maskOnCapT    (n : nat) (e : ty) : ty
  := maskOnT (isEffectOnCap n) e.
@@ -96,7 +63,8 @@ Proof.
    spec IHt1 H5.
    spec IHt2 H7.
    eapply KiCon2. 
-    destruct t1. snorm. eauto. eauto.
+    destruct t1. snorm.
+    eauto. eauto.
 Qed.
 
 
@@ -122,9 +90,24 @@ Proof.
    split_if. 
    + split_if.
      * simpl. auto.
-     * snorm. admit.         (* ok, true /= false *)
+     * snorm.
+       apply beq_true_split  in HeqH. rip.
+       apply beq_false_split in HeqH0.
+       inverts HeqH0.
+        congruence.
+        eapply liftTT_isTVar_true in H0. 
+         congruence. omega.
    + split_if.
-     * simpl. admit.         (* ok, true /= false *)
+     * snorm.
+       apply beq_true_split  in HeqH0. rip.
+       apply beq_false_split in HeqH.
+       inverts HeqH.
+        congruence.
+        apply isTVar_form in H0. subst.
+        rewrite liftTT_TVar_above in H1.
+        simpl in H1. 
+        rewrite <- beq_nat_refl in H1. 
+         nope. omega.
      * simpl. auto.
 Qed.
 Hint Resolve maskOnVarT_liftTT.

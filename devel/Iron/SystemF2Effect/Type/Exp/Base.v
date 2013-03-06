@@ -42,3 +42,52 @@ Notation TNat        := (TCon0 TyConNat).
 Notation TRef R T    := (TCon2 TyConRef R T).
 
 
+(********************************************************************)
+(* Predicates *)
+Definition isTVar        (n : nat) (t : ty) : bool
+ := match t with
+    | TVar n'               => beq_nat n n'
+    | _                     => false
+    end.
+
+Lemma isTVar_form
+ :  forall i t
+ ,  true = isTVar i t
+ -> t    = TVar i.
+Proof.
+ intros.
+ destruct t; snorm; try nope.
+Qed.
+Hint Resolve isTVar_form.
+
+
+
+Definition isTCapRegion  (n : nat) (t : ty) : bool
+ := match t with
+    | TCap (TyCapRegion n') => beq_nat n n'
+    | _                     => false
+    end.
+
+Lemma isTCapRegion_form
+ :  forall i t
+ ,  true = isTCapRegion i t
+ -> t    = TCap (TyCapRegion i).
+Proof.
+ intros.
+ destruct t; snorm; try nope.
+  destruct t. snorm. subst. auto.
+Qed.
+Hint Resolve isTCapRegion_form.
+
+
+Definition isEffectOnVar (n : nat) (t : ty) : bool
+ := match t with
+    | TCon1 tc t1 => andb (isEffectTyCon tc) (isTVar n t1)
+    | _           => false
+    end.
+
+Definition isEffectOnCap (n : nat) (t : ty) : bool
+ := match t with 
+    | TCon1 tc t1 => andb (isEffectTyCon tc) (isTCapRegion n t1)
+    | _           => false
+    end.
