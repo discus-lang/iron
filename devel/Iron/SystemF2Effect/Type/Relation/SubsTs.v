@@ -81,13 +81,11 @@ Proof.
 
  - Case "SbSumAbove".
    eapply SbsSum; rip.
-    + have (KindT ke sp t1 k). 
-      eapply flattenT_kind. 
-      auto.
+    + have (KindT ke sp t1 k). auto.
+    + simpl. eapply kindTs_app; eauto.
     + simpl. eapply Forall_app; eauto.
-    + simpl. eapply Forall_app.
-      inverts IHHT1. auto.
-      inverts IHHT2. auto.
+      inverts IHHT1; auto.
+      inverts IHHT2; auto.
 
  - Case "SbSumBelow".
    eapply SbsSum; rip.
@@ -141,8 +139,8 @@ Proof.
 
    SCase "subs".
     eapply SbSumBelow; auto.
-     eapply bunchT_kindT. auto.
-      inverts H; eauto.
+    eapply bunchT_kindT. auto.
+     inverts H; eauto.
 Qed.
 
 

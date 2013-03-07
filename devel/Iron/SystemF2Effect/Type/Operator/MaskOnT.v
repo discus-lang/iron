@@ -95,15 +95,6 @@ Qed.
 Hint Resolve maskOnCapT_kind.
 
 
-(********************************************************************)
-Lemma maskOnT_subsT
- :  forall ke sp t1 t2 p k
- ,  SubsT  ke sp t1 t2 k
- -> SubsT  ke sp t1 (maskOnT p t2) k.
-Proof.
- admit.
-Qed.
-
 
 (********************************************************************)
 Lemma maskOnVarT_liftTT
@@ -158,7 +149,7 @@ Lemma maskOnVarT_substTT
  =  substTT (1 + d' + d) (maskOnVarT d t2) (maskOnVarT d t1).
 Proof.
  
- admit.                      (* maskOnVarT_substTT broken *)
+ admit.                      (* maskOnVarT_substTT broken, NOT NEEDED? *)
 
  (* broken. Change first premise so that t2 does not contain (TVar d)
     define freeT for this *)

@@ -33,3 +33,15 @@ Lemma kindTs_snoc
  /\ KindT  ke sp t k.
 Proof. eauto. Qed.
 Hint Resolve kindTs_snoc.
+
+
+Lemma kindTs_app
+ :  forall ke sp ts1 ts2 k
+ ,  KindTs ke sp ts1 k
+ -> KindTs ke sp ts2 k
+ -> KindTs ke sp (ts1 ++ ts2) k.
+Proof.
+ intros.
+ unfold KindTs in *. snorm.
+Qed.
+Hint Resolve kindTs_app.

@@ -5,6 +5,8 @@ Require Import Iron.SystemF2Effect.Type.Relation.SubsTs.
 Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Import Iron.SystemF2Effect.Type.Operator.SubstTT.
 Require Import Iron.SystemF2Effect.Type.Operator.MaskOnT.
+Require Import Iron.SystemF2Effect.Type.Operator.BunchT. 
+Require Import Iron.SystemF2Effect.Type.Operator.FlattenT.
 
 
 Fixpoint maskOnTs (p : ty -> bool) (tt : list ty) : list ty
@@ -109,23 +111,33 @@ Qed.
 Hint Resolve maskOnTs_flattenT.
 
 
-Lemma maskOnT_substT
+Lemma maskOnT_subsT
  :  forall ke sp p e1 e2
- ,  SubsT  ke sp e1 e2 KEffect
+ ,  SubsT  ke sp e1 e2             KEffect
  -> SubsT  ke sp e1 (maskOnT p e2) KEffect.
 Proof.
  intros.
- have HE1: (EquivT ke sp (bunchT KEffect (flattenT e1)) e1 KEffect).
- eapply subsT_equiv_above. eauto.
 
- rrwrite (maskOnT p e2 = bunchT KEffect (flattenT (maskOnT p e2))) by admit.
+ have  HE1: (EquivT ke sp (bunchT KEffect (flattenT e1)) 
+                          e1                                         KEffect).
+ eapply subsT_equiv_above; eauto.
+ clear HE1.
+
+ have  HE2: (EquivT ke sp (maskOnT p e2) 
+                          (bunchT KEffect (flattenT (maskOnT p e2))) KEffect)
+  by (eapply EqSym; [eapply bunchT_kindT; eauto | eauto | eauto]).
+ eapply subsT_equiv_below.
+  eapply EqSym in HE2; eauto.
+ clear HE2.
+
  eapply subsTs_subsT.
 
  rrwrite (flattenT (maskOnT p e2) = maskOnTs p (flattenT e2)).
  eapply maskOnTs_subsTs.
 
- eapply subsT_subsTs in H; auto.
+ eapply subsT_subsTs; eauto.
 Qed.
+Hint Resolve maskOnT_subsT.
 
 
 Lemma maskOnTs_maskOnT_equivTs
@@ -158,5 +170,3 @@ Proof.
 Qed.     
 Hint Resolve maskOnTs_maskOnT_equivTs.
 
-
- 

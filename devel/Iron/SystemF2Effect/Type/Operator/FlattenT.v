@@ -1,6 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
 Require Export Iron.SystemF2Effect.Type.Relation.KindT.
+Require Export Iron.SystemF2Effect.Type.Relation.KindTs.
 
 
 Fixpoint flattenT (tt : ty) : list ty
@@ -17,17 +18,18 @@ Fixpoint flattenT (tt : ty) : list ty
     end.
 
 
-Lemma flattenT_kind
+Lemma flattenT_kindTs
  :  forall ke sp t1 k
- ,  KindT ke sp t1 k
- -> Forall (fun t => KindT ke sp t k) (flattenT t1).
+ ,  KindT  ke sp t1 k
+ -> KindTs ke sp (flattenT t1) k.
 Proof.
  intros. gen ke sp.
  induction t1; intros; simpl; eauto.
 
  Case "TSum". 
   inverts H.
-  eapply Forall_app; eauto.
+  unfold KindTs in *.
+   eapply Forall_app; eauto.
 Qed.
-Hint Resolve flattenT_kind.
+Hint Resolve flattenT_kindTs.
 

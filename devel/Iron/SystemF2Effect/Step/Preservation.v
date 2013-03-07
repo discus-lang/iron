@@ -35,11 +35,11 @@ Proof.
 
  (* Push let context. *)
  Case "SfLetPush".
-  admit.
+  admit.                                                   (* Case SfLetPush *)
 
  (* Pop let context and substitute. *)
  Case "SfLetPop".
-  admit.
+  admit.                                                   (* Case SfLetPop *)
 
  (* Create a new region. *)
  Case "SfRegionNew".
@@ -66,12 +66,19 @@ Proof.
    - eapply SbTrans
       with (t2 := TSum (substTT 0 r e1) (substTT 0 r e2)).
      + eauto.
+
      + eapply KiSum.
         eauto.
         rrwrite (substTT 0 r e1 = e1); auto.
         rrwrite (substTT 0 r e2 = e2); auto.
-     + simpl. 
-        admit.                                          (* ok, maskOnCap preserves kind. *)
+
+     + simpl.
+       eapply KiSum.
+       * eauto.
+       * eapply maskOnT_kind. admit.                       (* ok, substTT_kind *)
+       * eapply maskOnT_kind.
+         rrwrite (substTT 0 r e2 = e2); auto.
+
      + eapply SbEquiv.
         rrwrite (substTT 0 r e1 = e1); auto.
         rrwrite (substTT 0 r e2 = e2); auto.
@@ -79,11 +86,17 @@ Proof.
          eapply equivT_kind_right; eauto.
          eauto.
         auto.
-     + eapply subsT_sum_merge; fold maskOnCapT.
+
+     + eapply subsT_sum_merge; fold maskOnT.
        * eauto.
 
        (* Push e0 through region phase change relation. *)  
-       * 
+       * have    (ClosedT r) by (subst r; eauto).
+         rrwrite (substTT 0 r e1 = e1).
+
+         admit.                                            (* need maskOnVar/maskOnCap link *)
+
+(*       Probably don't need this stuff.
          assert (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) as HS.
          { assert (WfT 1 e0).
            { have HK: (KindT (nil :> KRegion) sp e0 KEffect).
@@ -92,30 +105,19 @@ Proof.
              simpl in HE.
              trivial.
            }
-           have (ClosedT r)                by (subst r; eauto).
            have (ClosedT (substTT 0 r e0)) by (eapply substTT_closing; eauto).
            eapply substTT_liftTT_wfT1; eauto.
          }
          rewrite HS. clear HS.
-         rrwrite (substTT 0 r e1 = e1).
-         admit.                                         (* need maskOnCap makes eff smaller *)
+*)        
 
        (* Push e2 though region phase change relation. *)
-       * assert (substTT 0 r e2 = liftTT 1 0 (substTT 0 r e2)) as HS.
-         { have (WfT (@length ki nil) e2)  by eauto.
-           have (ClosedT r)                by (subst r; eauto).
-           have (ClosedT (substTT 0 r e2)) by (eapply substTT_closing; eauto).
-           eapply substTT_liftTT_wfT1; eauto.
-         }
-         rewrite HS. clear HS.
-         admit.                                        (* broken *)
+       * have    (ClosedT r)  by (subst r; eauto).
+         rrwrite (substTT 0 r e2 = e2).
+         eapply maskOnT_subsT. eauto.
 
    (* Result expression is well typed. *)
-   -  have HW: (WfT (@length ki nil) e2) by eauto.
-       simpl in HW.
-      have HE2: (substTT 0 r e2 = e2).
-      rewrite HE2.
-
+   - rrwrite (substTT 0 r e2 = e2).
      eapply TcExp 
        with (sp := sp :> SRegion p) 
             (t1 := substTT 0 r t0)
@@ -123,7 +125,7 @@ Proof.
             (e2 := substTT 0 r e2); auto.
 
      (* Type of result is equivlent to before *)
-     + rewrite HE2.
+     + rrwrite (substTT 0 r e2 = e2).
        eapply EqRefl.
         eapply KiSum; auto.
          * eapply subst_type_type. eauto.
@@ -139,8 +141,8 @@ Proof.
        rewrite HSE.
 
        eapply subst_type_exp with (k2 := KRegion).
-       * rrwrite (liftTE 0 nil    = nil).
-         rrwrite (liftTE 0 se = se) by (inverts HH; auto).
+       * rrwrite (liftTE 0 nil = nil).
+         rrwrite (liftTE 0 se  = se) by (inverts HH; auto).
          auto.
        * subst r. auto.
 
@@ -157,7 +159,11 @@ Proof.
          have (In (SRegion p) sp).
          rewrite H in H14. tauto.
 
-       * admit.                                      (* ok, t0 doesn't mention ^0 by lowerTT *)
+       * rrwrite (substTT 0 r e2 = e2).
+         have    (ClosedT t0)           by admit.          (* ok, t0 does not mention ^0 via lowerTT *)
+         rrwrite (substTT 0 r t0 = t0).
+         rrwrite (t0 = t1)              by admit.          (* ok, lowering closed type is identity *)
+         admit.                                            (* need weaken stprops in typef *)
  }
 
  (* Pop a region from ths stack. *)
@@ -199,14 +205,14 @@ Proof.
 
  (* Allocate a reference. *)
  Case "SfStoreAlloc".
-  admit.
+  admit.                                                   (* Case SfStoreAlloc *)
  
  (* Read from a reference. *)
  Case "SfStoreRead".
-  admit.
+  admit.                                                   (* Case SfStoreRead *)
 
  (* Write to a reference. *)
  Case "SfStoreWrite".
-  admit.
+  admit.                                                   (* Case SfStoreWrite *)
 Qed.
 
