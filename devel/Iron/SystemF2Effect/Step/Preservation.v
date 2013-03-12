@@ -75,7 +75,7 @@ Proof.
      + simpl.
        eapply KiSum.
        * eauto.
-       * eapply maskOnT_kind. admit.                       (* ok, substTT_kind *)
+       * admit.               (* ok, not visible *)
        * eapply maskOnT_kind.
          rrwrite (substTT 0 r e2 = e2); auto.
 
