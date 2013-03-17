@@ -30,6 +30,7 @@ Proof.
  unfold SubsVisibleT.
   eapply maskOnT_subsT. auto.
 Qed.
+Hint Resolve subsT_visible_refl.
 
 
 Lemma subsT_visible_equiv

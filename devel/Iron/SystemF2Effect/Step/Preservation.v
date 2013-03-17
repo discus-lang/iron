@@ -35,8 +35,29 @@ Proof.
 
  (* Push let context. *)
  Case "SfLetPush".
-  admit.                                                   (* Case SfLetPush *)
-
+ { exists se.
+   exists e.
+   rip. 
+   - unfold WfFS in *. rip.
+     unfold STOREP in *. rip.
+     eapply H3.
+     inverts H2.
+     + nope.
+     + auto.
+   - eapply subsT_visible_refl. 
+     inverts HC. eauto.
+   - inverts HC.
+     inverts H0.
+     eapply TcExp 
+      with (t1 := t) (e1 := e0) (e2 := TSum e3 e2).
+      + eapply EqTrans.
+         eapply EqSumAssoc; eauto.
+         auto.
+      + auto.
+      + eapply TfConsLet; eauto.
+        * inverts HH. rip.
+ }
+            
  (* Pop let context and substitute. *)
  Case "SfLetPop".
   admit.                                                   (* Case SfLetPop *)
