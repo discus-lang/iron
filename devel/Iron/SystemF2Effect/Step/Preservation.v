@@ -246,11 +246,36 @@ Proof.
        eapply EqSym; eauto.
  }
 
-
  (* Allocate a reference. *)
  Case "SfStoreAlloc".
-  admit.                                                   (* Case SfStoreAlloc *)
- 
+ { inverts HC.
+   inverts H0.
+   exists (TRef   (TCap (TyCapRegion r1)) t2 <: se).
+   exists e2.
+   rip.
+   - unfold WfFS in *.
+     rip. eauto.
+   - eapply EqSym in H.
+      eapply SbEquiv in H; auto.
+      have (SubsT nil sp e (TAlloc (TCap (TyCapRegion r1))) KEffect) by admit. (* ok, from H *)
+       admit.                                             (* need SubsT -> SubsVisibleT *)
+      eauto.
+      eauto.
+   - eapply TcExp
+      with (t1 := TRef (TCap (TyCapRegion r1)) t2)
+           (e1 := TBot KEffect)
+           (e2 := e2).
+     + eapply EqSym.
+        * eauto. 
+        * eapply KiSum; eauto.
+        * eapply equivT_sum_left; eauto.
+     + eapply TxVal.
+       eapply TvLoc.
+        rrwrite (length ss = length se) by admit.
+        eauto. eauto.
+     + admit.                                              (* need weak stenv in TYPEF *)
+ }
+      
  (* Read from a reference. *)
  Case "SfStoreRead".
   admit.                                                   (* Case SfStoreRead *)
