@@ -45,7 +45,7 @@ Proof.
      + nope.
      + auto.
    - eapply subsT_visible_refl. 
-     inverts HC. eauto.
+     inverts HC; eauto.
    - inverts HC.
      inverts H0.
      eapply TcExp 
@@ -57,10 +57,33 @@ Proof.
       + eapply TfConsLet; eauto.
         * inverts HH. rip.
  }
-            
+
  (* Pop let context and substitute. *)
  Case "SfLetPop".
-  admit.                                                   (* Case SfLetPop *)
+ { exists se.
+   exists e.
+   rip.
+   - unfold WfFS in *. rip.
+     unfold STOREP in *. rip.
+   - eapply subsT_visible_refl.
+     inverts HC; eauto.
+   - inverts HC.
+     inverts H1.
+     eapply TcExp  
+      with (t1 := t3) (e1 := e0) (e2 := e3).
+      + have (e1 = TBot KEffect) by admit.
+        subst.
+        eapply EqTrans.
+        * eapply equivT_sum_left. eauto.
+          have (KindT nil sp e0 KEffect).
+          have (KindT nil sp e3 KEffect).
+          eauto.
+        * auto.
+      + eapply subst_val_exp. 
+        * eauto.
+        * inverts H0. auto.
+      + eauto.
+ } 
 
  (* Create a new region. *)
  Case "SfRegionNew".
