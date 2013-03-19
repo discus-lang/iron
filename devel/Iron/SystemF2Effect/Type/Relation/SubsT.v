@@ -13,16 +13,13 @@ Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
 
  | SbTrans
    :  forall ke sp t1 t2 t3 k
-   ,  KindT   ke sp t1 k
-   -> KindT   ke sp t2 k
-   -> KindT   ke sp t3 k
-   -> SubsT  ke sp t1 t2 k -> SubsT  ke sp t2 t3 k
+   ,  SubsT  ke sp t1 t2 k -> SubsT  ke sp t2 t3 k
    -> SubsT  ke sp t1 t3 k
 
  | SbBot
    :  forall ke sp t k
    ,  sumkind k
-   -> KindT   ke sp t k
+   -> KindT  ke sp t k
    -> SubsT  ke sp t (TBot k) k
 
  | SbSumAbove
@@ -34,11 +31,19 @@ Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
  | SbSumBelow
    :  forall ke sp t1 t2 t3 k
    ,  sumkind k
-   -> KindT   ke sp t1 k
-   -> KindT   ke sp t2 k
-   -> KindT   ke sp t3 k
+   -> KindT  ke sp t3 k
    -> SubsT  ke sp t1 t2 k
-   -> SubsT  ke sp (TSum t1 t3) t2 k.
+   -> SubsT  ke sp (TSum t1 t3) t2 k
+
+ | SbSumAboveLeft
+   :  forall ke sp t1 t2 t3 k
+   ,  SubsT  ke sp t1 (TSum t2 t3) k
+   -> SubsT  ke sp t1 t2 k
+
+ | SbSumAboveRight
+   :  forall ke sp t1 t2 t3 k
+   ,  SubsT  ke sp t1 (TSum t2 t3) k
+   -> SubsT  ke sp t1 t3 k.
 
 Hint Constructors SubsT.
 
@@ -48,7 +53,7 @@ Hint Constructors SubsT.
 Lemma subsT_kind_left
  :  forall ke sp t1 t2 k
  ,  SubsT  ke sp t1 t2 k
- -> KindT   ke sp t1 k.
+ -> KindT  ke sp t1 k.
 Proof.
  intros.
  induction H; eauto.
@@ -59,10 +64,12 @@ Hint Resolve subsT_kind_left.
 Lemma subsT_kind_right
  :  forall ke sp t1 t2 k
  ,  SubsT  ke sp t1 t2 k
- -> KindT   ke sp t2 k.
+ -> KindT  ke sp t2 k.
 Proof.
  intros.
  induction H; eauto.
+  inverts IHSubsT. eauto.
+  inverts IHSubsT. eauto.
 Qed.
 Hint Resolve subsT_kind_right.
 
@@ -146,13 +153,12 @@ Hint Resolve subsT_sum_comm_above.
 Lemma subsT_sum_left
  : forall ke sp t1 t1' t2 k
  ,  sumkind k
- -> KindT   ke sp t2 k
+ -> KindT  ke sp t2 k
  -> SubsT  ke sp t1 t1' k
  -> SubsT  ke sp (TSum t1 t2) (TSum t1' t2) k.
 Proof.
  intros.
  eapply SbSumAbove; eauto.
-  eapply SbTrans with (t2 := TSum t2 t1); eauto.
 Qed.
 Hint Resolve subsT_sum_left.
 

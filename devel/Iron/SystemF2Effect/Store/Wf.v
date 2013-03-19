@@ -93,6 +93,17 @@ Lemma wfFS_fuse_sregion
 Proof. firstorder. Qed.
 
 
+Lemma wfFS_storem_length
+ :  forall se sp ss fs
+ ,  WfFS   se sp ss fs
+ -> length se = length ss.
+Proof.
+ intros.
+ inverts H. rip.
+Qed.
+Hint Resolve wfFS_storem_length.
+
+
 (* Weaken frame stack in WfFS *)
 Lemma wfFS_sregion_cons
  :  forall se sp ss fs p

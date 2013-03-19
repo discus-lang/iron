@@ -71,9 +71,9 @@ Proof.
  - Case "SbTrans".
    eapply subsTs_trans. 
     eauto.
-    rip.
-    inverts IHHT1. inverts IHHT2.
-    snorm.
+    spec IHHT1 HS.
+    spec IHHT2 HS.
+    auto.
 
  - Case "SbBot".
    simpl.
@@ -88,11 +88,18 @@ Proof.
       inverts IHHT2; auto.
 
  - Case "SbSumBelow".
-   eapply SbsSum; rip.
-   norm.
-   simpl.
+   spec IHHT HS.
+   eapply SbsSum; eauto.
    inverts IHHT.
-   norm.
+   snorm.
+
+ - Case "SbSumAboveLeft".
+   spec IHHT HS.
+   admit. (* ok *)
+
+ - Case "SbSumAboveRight".
+   spec IHHT HS.
+   admit. (* ok *)
 Qed.
 Hint Resolve subsT_subsTs.
 
@@ -135,12 +142,16 @@ Proof.
     rip.
     eapply subsT_sum_comm_above.
     eapply SbSumBelow; auto.
+     eapply IHts1.
+     admit.  (* fark *)
+(*
      eauto.
 
    SCase "subs".
     eapply SbSumBelow; auto.
     eapply bunchT_kindT. auto.
      inverts H; eauto.
+*)
 Qed.
 
 

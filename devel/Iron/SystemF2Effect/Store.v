@@ -21,14 +21,14 @@ Qed.
 
 (* Updating bindings *********************************************************)
 (* Store with an updated binding is still well formed. *)
-Lemma store_update_wf
- :  forall se sp ss l r v t
- ,  WfS se sp ss
+Lemma store_update_wffs
+ :  forall se sp ss fs l r v t
+ ,  WfFS se sp ss fs
  -> get l se = Some (TRef (TCap (TyCapRegion r)) t)
  -> TYPEV nil nil se sp v t
- -> WfS se sp (update l (StValue r v) ss).
+ -> WfFS se sp (update l (StValue r v) ss) fs.
 Proof.
- intros se sp ss l r v t HWF1 HG HV.
+ intros se sp ss fs l r v t HWF1 HG HV.
  inverts HWF1. rip.
   have (length se = length ss).
    unfold STOREM.

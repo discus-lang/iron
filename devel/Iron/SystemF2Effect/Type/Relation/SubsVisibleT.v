@@ -33,7 +33,7 @@ Qed.
 Hint Resolve subsT_visible_refl.
 
 
-Lemma subsT_visible_equiv
+Lemma subsT_subsVisibleT
  :  forall       ke sp e1 e2
  ,  SubsT        ke sp e1 e2 KEffect
  -> SubsVisibleT ke sp e1 e2.

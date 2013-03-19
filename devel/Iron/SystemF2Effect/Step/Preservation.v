@@ -71,7 +71,7 @@ Proof.
      inverts H1.
      eapply TcExp  
       with (t1 := t3) (e1 := e0) (e2 := e3).
-      + have (e1 = TBot KEffect) by admit.
+      + inverts H0.
         subst.
         eapply EqTrans.
         * eapply equivT_sum_left. eauto.
@@ -109,19 +109,6 @@ Proof.
    (* Effect of result is subsumed by previous. *)
    - eapply SbTrans
       with (t2 := TSum (substTT 0 r e1) (substTT 0 r e2)).
-     + eauto.
-
-     + eapply KiSum.
-        eauto.
-        rrwrite (substTT 0 r e1 = e1); auto.
-        rrwrite (substTT 0 r e2 = e2); auto.
-
-     + simpl.
-       eapply KiSum.
-       * eauto.
-       * admit.               (* ok, not visible *)
-       * eapply maskOnT_kind.
-         rrwrite (substTT 0 r e2 = e2); auto.
 
      + eapply SbEquiv.
         rrwrite (substTT 0 r e1 = e1); auto.
@@ -207,7 +194,7 @@ Proof.
          have    (ClosedT t0)           by admit.          (* ok, t0 does not mention ^0 via lowerTT *)
          rrwrite (substTT 0 r t0 = t0).
          rrwrite (t0 = t1)              by admit.          (* ok, lowering closed type is identity *)
-         admit.                                            (* need weaken stprops in typef *)
+         admit.                                            (* need weaken stprops in TYPEF *)
  }
 
  (* Pop a region from ths stack. *)
@@ -233,7 +220,7 @@ Proof.
      + eapply wfFS_stack_pop; eauto.
 
      (* New effect subsumes old one. *)
-     + eapply subsT_visible_equiv.
+     + eapply subsT_subsVisibleT.
        have HE: (EquivT nil (sp :> SRegion n) e2 e KEffect).
        eauto.
 
@@ -256,11 +243,8 @@ Proof.
    - unfold WfFS in *.
      rip. eauto.
    - eapply EqSym in H.
-      eapply SbEquiv in H; auto.
-      have (SubsT nil sp e (TAlloc (TCap (TyCapRegion r1))) KEffect) by admit. (* ok, from H *)
-       admit.                                             (* need SubsT -> SubsVisibleT *)
-      eauto.
-      eauto.
+      eapply subsT_subsVisibleT; eauto.
+      eauto. eauto.
    - eapply TcExp
       with (t1 := TRef (TCap (TyCapRegion r1)) t2)
            (e1 := TBot KEffect)
@@ -271,17 +255,54 @@ Proof.
         * eapply equivT_sum_left; eauto.
      + eapply TxVal.
        eapply TvLoc.
-        rrwrite (length ss = length se) by admit.
+        have    (length se = length ss) as HL.
+        rrwrite (length ss = length se).
         eauto. eauto.
-     + admit.                                              (* need weak stenv in TYPEF *)
+     + admit.                                              (* need weaken stenv in TYPEF *)
  }
       
  (* Read from a reference. *)
  Case "SfStoreRead".
-  admit.                                                   (* Case SfStoreRead *)
+ { inverts HC.
+   exists se.
+   exists e2. 
+   rip.
+   - eapply EqSym in H0.
+      eapply subsT_subsVisibleT; eauto.
+      eauto. eauto.
+   - eapply TcExp
+      with (t1 := t1)
+           (e1 := TBot KEffect)
+           (e2 := e2).
+     + eapply EqSym; eauto.
+     + inverts H1.
+       inverts H12.
+       eapply TxVal.
+        inverts HH. rip.
+        eapply storet_get_typev; eauto.
+     + auto.
+ }
 
  (* Write to a reference. *)
  Case "SfStoreWrite".
-  admit.                                                   (* Case SfStoreWrite *)
+ { inverts HC.
+   exists se.
+   exists e2.
+   rip.
+   - inverts_type.
+     eapply store_update_wffs; eauto.
+   - eapply EqSym in H.
+      eapply subsT_subsVisibleT; eauto.
+       eauto. eauto.
+   - eapply TcExp
+      with (t1 := t1)
+           (e1 := TBot KEffect)
+           (e2 := e2).
+     + eapply EqSym; eauto.
+     + inverts_type.
+       eapply TxVal.
+        inverts HH. rip.
+     + eauto.
+ }
 Qed.
 
