@@ -114,3 +114,83 @@ Qed.
 Hint Resolve lowerTT_liftTT_switch.
 Hint Rewrite lowerTT_liftTT_switch : global.
 
+
+Lemma lowerTT_wfT
+ :  forall  n d t1 t2 
+ ,  n <= d
+ -> WfT     n t1
+ -> lowerTT d t1 = Some t2
+ -> t2 = t1.
+Proof.
+ intros. gen n d t2.
+ induction t1; intros.
+ - Case "TVar".
+   inverts H0.
+   snorm. omega.
+
+ - Case "TForall".
+   snorm.
+   + inverts H0.
+     assert (t = t1).
+     eapply IHt1 with (n := (S n)) (d := (S d)).
+      eauto.
+      omega.
+      auto. 
+      subst. auto.
+   + congruence.
+
+ - Case "TApp".
+   inverts H0.
+   snorm. 
+   + assert (t  = t1_1). eauto.
+     assert (t0 = t1_2). eauto. 
+     subst. auto.
+   + congruence.
+   + congruence.
+    
+ - Case "TSum".
+   inverts H0.
+   snorm. 
+   + assert (t  = t1_1). eauto.
+     assert (t0 = t1_2). eauto. 
+     subst. auto.
+   + congruence.
+   + congruence.
+
+ - Case "TBot". 
+   snorm.
+
+ - Case "TCon0". 
+   snorm. 
+
+ - Case "TCon1". 
+   inverts H0.
+   snorm.
+   + assert (t0 = t1). eauto.
+     subst. auto.
+   + congruence.
+
+ - Case "TCon2".
+   inverts H0.
+   snorm.
+   + assert (t0 = t1_1). eauto.
+     assert (t1 = t1_2). eauto.
+     subst. auto.
+   + congruence.
+   + congruence.
+
+ - Case "TCap".
+   snorm.
+Qed.
+
+
+Lemma lowerTT_closedT
+ :  forall t1 t2
+ ,  ClosedT t1
+ -> lowerTT 0 t1 = Some t2
+ -> t2 = t1.
+Proof.
+ intros.
+ eapply lowerTT_wfT with (n := 0) (d := 0); eauto.
+Qed.
+ 

@@ -193,7 +193,7 @@ Proof.
        * rrwrite (substTT 0 r e2 = e2).
          have    (ClosedT t0)           by admit.          (* ok, t0 does not mention ^0 via lowerTT *)
          rrwrite (substTT 0 r t0 = t0).
-         rrwrite (t0 = t1)              by admit.          (* ok, lowering closed type is identity *)
+         rrwrite (t1 = t0) by (eapply lowerTT_closedT; eauto).
          eauto.
  }
 
