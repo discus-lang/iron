@@ -1,5 +1,5 @@
 
-Require Export Iron.SystemF2Effect.Step.TfJudge.
+Require Export Iron.SystemF2Effect.Step.TypeC.
 
 
 (* When a well typed expression transitions to the next state
@@ -194,7 +194,7 @@ Proof.
          have    (ClosedT t0)           by admit.          (* ok, t0 does not mention ^0 via lowerTT *)
          rrwrite (substTT 0 r t0 = t0).
          rrwrite (t0 = t1)              by admit.          (* ok, lowering closed type is identity *)
-         admit.                                            (* need weaken stprops in TYPEF *)
+         eauto.
  }
 
  (* Pop a region from ths stack. *)
@@ -258,7 +258,7 @@ Proof.
         have    (length se = length ss) as HL.
         rrwrite (length ss = length se).
         eauto. eauto.
-     + admit.                                              (* need weaken stenv in TYPEF *)
+     + eauto.
  }
       
  (* Read from a reference. *)
@@ -280,7 +280,7 @@ Proof.
        eapply TxVal.
         inverts HH. rip.
         eapply storet_get_typev; eauto.
-     + auto.
+     + eauto.
  }
 
  (* Write to a reference. *)

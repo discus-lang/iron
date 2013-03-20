@@ -61,6 +61,17 @@ Qed.
 Hint Resolve storep_cons.
 
 
+Lemma storep_stprops_cons
+ :  forall sp fs p
+ ,  STOREP sp fs
+ -> STOREP (sp :> p) fs.
+Proof.
+ unfold STOREP in *.
+ snorm.
+Qed.
+Hint Resolve storep_stprops_cons.
+
+
 (******************************************************************************)
 (* Well formed store. *)
 Definition WfS  (se: stenv) (sp: stprops)  (ss: store)

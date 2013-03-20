@@ -4,7 +4,6 @@ Require Export Iron.SystemF2Effect.Step.Frame.
 Require Export Iron.SystemF2Effect.Store.
 
 
-(******************************************************************************)
 (* Type of a frame stack.
    The frame stack is like a continuation that takes an expression of a certain
    type and produces a new expression. *)
@@ -62,37 +61,23 @@ Proof. eauto. Qed.
 Hint Resolve typef_kind_wfT.
 
 
-(*****************************************************************************)
-(* Type of an expression in a frame context. *)
-Inductive TYPEC 
-   :  kienv -> tyenv 
-   -> stenv -> stprops 
-   -> stack -> exp 
-   -> ty    -> ty -> Prop :=
- | TcExp
-   :  forall ke te se sp fs x1 t1 e1 t2 e2 e3
-   ,  EquivT ke sp (TSum e1 e2) e3 KEffect
-   -> TYPEX  ke te se sp x1 t1 e1
-   -> TYPEF  ke te se sp fs t1 t2 e2
-   -> TYPEC  ke te se sp fs x1 t2 e3.
-
-Hint Constructors TYPEC.
-
-
-Ltac inverts_typec :=
- repeat
-  (try (match goal with
-        | [H: TYPEC _ _ _ _ _ _ _ _ |- _ ] => inverts H
-        end);
-   try inverts_typef).
-
-
-Lemma typec_kind_effect
- :  forall ke te se sp fs x t e
- ,  TYPEC  ke te se sp fs x t e
- -> KindT  ke sp e KEffect.
+Lemma typef_stenv_snoc
+ :  forall ke te se sp fs t1 t2 t3 e
+ ,  ClosedT t3
+ -> TYPEF ke te se         sp fs t1 t2 e
+ -> TYPEF ke te (t3 <: se) sp fs t1 t2 e.
 Proof.
- intros.
- induction H; eauto.
+ intros. induction H0; eauto.
 Qed.
+Hint Resolve typef_stenv_snoc.
+
+
+Lemma typef_stprops_cons
+ :  forall ke te se sp fs t1 t2 p e
+ ,  TYPEF  ke te se sp        fs t1 t2 e
+ -> TYPEF  ke te se (sp :> p) fs t1 t2 e.
+Proof.
+ intros. induction H; eauto.
+Qed.
+Hint Resolve typef_stprops_cons.   
 
