@@ -95,11 +95,14 @@ Proof.
 
  - Case "SbSumAboveLeft".
    spec IHHT HS.
-   admit. (* ok *)
+   simpl in IHHT.
+   inverts IHHT.
+   eapply SbsSum; eauto.
 
  - Case "SbSumAboveRight".
    spec IHHT HS.
-   admit. (* ok *)
+   inverts IHHT.
+   eapply SbsSum; eauto.
 Qed.
 Hint Resolve subsT_subsTs.
 
@@ -138,20 +141,13 @@ Proof.
    lets D: subsTs_single_cases H.
    inverts D.
 
-   SCase "a = t2".
-    rip.
-    eapply subsT_sum_comm_above.
-    eapply SbSumBelow; auto.
-     eapply IHts1.
-     admit.  (* fark *)
-(*
-     eauto.
-
-   SCase "subs".
-    eapply SbSumBelow; auto.
-    eapply bunchT_kindT. auto.
-     inverts H; eauto.
-*)
+   + SCase "subs". 
+     rip.
+ 
+   + SCase "a = t2".
+     eapply SbSumBelow; auto.
+     eapply bunchT_kindT. auto. 
+      inverts H; eauto.
 Qed.
 
 
