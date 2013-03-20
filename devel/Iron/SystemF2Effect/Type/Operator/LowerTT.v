@@ -1,5 +1,6 @@
 
 Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
+Require Import Iron.SystemF2Effect.Type.Operator.FreeTT.
 Require Import Iron.SystemF2Effect.Type.Relation.WfT.
 Require Import Iron.SystemF2Effect.Type.Exp.
 
@@ -115,6 +116,44 @@ Hint Resolve lowerTT_liftTT_switch.
 Hint Rewrite lowerTT_liftTT_switch : global.
 
 
+Lemma lowerTT_wfT_down
+ :  forall n d t1 t2
+ ,  d < S n
+ -> WfT (S n) t1
+ -> lowerTT d t1 = Some t2
+ -> WfT n     t2.
+Proof.
+ intros. gen n d t2.
+ induction t1; intros;
+  try (solve [inverts H0; snorm; eauto]).
+
+ - Case "TVar".
+   snorm.
+   eapply WfT_TVar. omega.
+   eapply WfT_TVar. inverts H0. omega.
+
+ - Case "TForall".
+   snorm.
+   + eapply WfT_TForall.
+     inverts H0.
+     eapply IHt1 with (n := S n) (d := S d).
+      auto. omega. auto.
+   + congruence.
+Qed.
+
+
+Lemma lowerTT_closing
+ :  forall t1 t2
+ ,  WfT 1 t1
+ -> lowerTT 0 t1 = Some t2
+ -> ClosedT t2.
+Proof.
+ intros.
+ eapply lowerTT_wfT_down
+  with (t1 := t1) (n := 0) (d := 0); eauto.
+Qed.
+
+
 Lemma lowerTT_wfT
  :  forall  n d t1 t2 
  ,  n <= d
@@ -193,4 +232,45 @@ Proof.
  intros.
  eapply lowerTT_wfT with (n := 0) (d := 0); eauto.
 Qed.
+
+
+Lemma lowerTT_freeT
+ :  forall n t1 t2
+ ,  lowerTT n t1 = Some t2
+ -> freeTT n t1  = false.
+Proof.
+ intros. gen n t2.
+ induction t1; intros; eauto.
+ - Case "TVar".
+   snorm. 
+    eapply beq_nat_false_iff. omega.
+    eapply beq_nat_false_iff. omega.
+
+ - Case "TForall".
+   snorm. eauto. congruence. 
+
+ - Case "TApp".
+   snorm.
+   erewrite IHt1_1; eauto.
+   erewrite IHt1_2; eauto.
+   congruence. congruence.
+
+ - Case "TSum".
+   snorm.
+   erewrite IHt1_1; eauto.
+   erewrite IHt1_2; eauto.
+   congruence. congruence.
+
+ - Case "TCon1".
+   snorm.
+   erewrite IHt1; eauto.
+   congruence.
  
+ - Case "TCon2".
+   snorm.
+   erewrite IHt1_1; eauto.
+   erewrite IHt1_2; eauto.
+   congruence. congruence.
+Qed.
+Hint Resolve lowerTT_freeT.   
+

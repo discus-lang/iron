@@ -14,11 +14,13 @@ Inductive
        -> ty -> Prop := 
  | TfNil 
    :  forall ke te se sp t
-   ,  TYPEF  ke te se sp nil t t (TBot KEffect)
+   ,  KindT  ke sp t KData
+   -> TYPEF  ke te se sp nil t t (TBot KEffect)
 
  | TfConsLet
    :  forall ke te se sp fs t1 x2 t2 e2 t3 e3
    ,  STOREP sp fs
+   -> KindT  ke sp t1 KData
    -> TYPEX  ke (te :> t1) se sp                    x2 t2 e2
    -> TYPEF  ke te         se sp fs                 t2 t3 e3
    -> TYPEF  ke te         se sp (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)
@@ -61,6 +63,28 @@ Proof. eauto. Qed.
 Hint Resolve typef_kind_wfT.
 
 
+Lemma typef_kind_t1
+ :  forall ke te se sp fs t1 t2 e
+ ,  TYPEF  ke te se sp fs t1 t2 e
+ -> KindT  ke sp t1 KData.
+Proof. 
+ intros.
+ induction H; auto.
+Qed.
+Hint Resolve typef_kind_t1.
+
+
+Lemma typef_kind_t2
+ :  forall ke te se sp fs t1 t2 e
+ ,  TYPEF  ke te se sp fs t1 t2 e
+ -> KindT  ke sp t2 KData.
+Proof. 
+ intros.
+ induction H; auto.
+Qed.
+Hint Resolve typef_kind_t2.
+
+
 Lemma typef_stenv_snoc
  :  forall ke te se sp fs t1 t2 t3 e
  ,  ClosedT t3
@@ -77,7 +101,16 @@ Lemma typef_stprops_cons
  ,  TYPEF  ke te se sp        fs t1 t2 e
  -> TYPEF  ke te se (sp :> p) fs t1 t2 e.
 Proof.
- intros. induction H; eauto.
+ intros. 
+ induction H; eauto.
+ + eapply TfNil.
+   eapply kind_stprops_cons. auto.
+ + eapply TfConsLet.
+   eauto.
+   eapply kind_stprops_cons. auto.
+   eauto. eauto.
 Qed.
 Hint Resolve typef_stprops_cons.   
+
+
 

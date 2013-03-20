@@ -1,5 +1,6 @@
 
 Require Export Iron.SystemF2Effect.Step.TypeC.
+Require Export Iron.SystemF2Effect.Type.Operator.FreeTT.
 
 
 (* When a well typed expression transitions to the next state
@@ -190,9 +191,20 @@ Proof.
          have (In (SRegion p) sp).
          rewrite H in H14. tauto.
 
-       * rrwrite (substTT 0 r e2 = e2).
-         have    (ClosedT t0)           by admit.          (* ok, t0 does not mention ^0 via lowerTT *)
+       (* The initial type and effect are closed, so substituting
+          the region handle into them doesn't do anything. *)
+       * assert (ClosedT t0).
+         { have HK: (KindT  (nil :> KRegion) sp t0 KData).
+           eapply kind_wfT in HK.
+           simpl in HK.
+
+           have (freeTT 0 t0 = false) by (eapply lowerTT_freeT; eauto).
+           eapply freeTT_wfT_drop; eauto.
+         }
          rrwrite (substTT 0 r t0 = t0).
+
+         rrwrite (substTT 0 r e2 = e2).
+
          rrwrite (t1 = t0) by (eapply lowerTT_closedT; eauto).
          eauto.
  }
