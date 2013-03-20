@@ -100,9 +100,8 @@ Proof.
    eapply lowerTT_liftTT_succ. auto.
 
    rrwrite (S ix = 1 + (0 + ix)).
-   lets D: maskOnVarT_liftTT. unfold maskOnVarT in D.
-   rewrite D. clear D.
-   eapply lowerTT_liftTT_succ. auto.  
+   rewrite maskOnVarT_liftTT.
+   eapply lowerTT_liftTT_succ. auto.
 
    rewrite insert_rewind.
    rewrite (liftTE_liftTE 0 ix).

@@ -2,9 +2,11 @@
 Require Import Iron.SystemF2Effect.Type.Relation.KindT.
 Require Import Iron.SystemF2Effect.Type.Relation.SubsT.
 Require Import Iron.SystemF2Effect.Type.Relation.SubsTs.
+Require Import Iron.SystemF2Effect.Type.Operator.FreeTT.
 Require Import Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Import Iron.SystemF2Effect.Type.Operator.SubstTT.
 Require Import Iron.SystemF2Effect.Type.Exp.
+Require Import Coq.Bool.Bool.
 
 
 (* Mask effects on the given region, 
@@ -32,12 +34,25 @@ Arguments maskOnT p e : simpl nomatch.
 
 Definition maskOnVarT    (n : nat) (e : ty) : ty
  := maskOnT (isEffectOnVar n) e.
-Hint Unfold maskOnVarT.
-
 
 Definition maskOnCapT    (n : nat) (e : ty) : ty
  := maskOnT (isEffectOnCap n) e.
-Hint Unfold maskOnCapT.
+
+
+(********************************************************************)
+Lemma isEffectOnVar_freeTT_false
+ :  forall d t
+ ,  freeTT d t = false
+ -> isEffectOnVar d t = false.
+Proof.
+ intros. 
+ destruct t; snorm.
+  destruct t0; snorm; 
+   try rewrite andb_false_iff; rip.
+  right.
+  rewrite beq_nat_false_iff. auto.
+Qed.
+Hint Resolve isEffectOnVar_freeTT_false.
 
 
 (********************************************************************)
@@ -95,6 +110,40 @@ Qed.
 Hint Resolve maskOnCapT_kind.
 
 
+(********************************************************************)
+Lemma maskOnVarT_freeTT_id
+ :  forall d t 
+ ,  freeTT d t = false 
+ -> maskOnVarT d t = t.
+Proof.
+ intros. gen d.
+ induction t; intros; 
+  try (solve [unfold maskOnVarT; snorm]).
+
+ - Case "TSum".
+   unfold maskOnVarT in *.
+   snorm.
+   apply orb_false_iff in H. rip.
+   repeat rewritess; auto.
+
+ - Case "TCon1".
+   unfold maskOnVarT in *.
+   snorm.
+   unfold maskOnT.
+   split_if.
+   + destruct t0; 
+      try (solve [snorm;
+                  symmetry in HeqH0; 
+                  rewrite andb_true_iff in HeqH0; rip; nope]).
+      * SCase "TVar".
+        simpl in H.
+        snorm.
+        symmetry in HeqH0.        
+        rewrite andb_true_iff in HeqH0. rip.
+        snorm. subst. nope.
+   +  auto. 
+Qed.
+
 
 (********************************************************************)
 Lemma maskOnVarT_liftTT
@@ -148,9 +197,7 @@ Lemma maskOnVarT_substTT
  -> maskOnVarT d (substTT (1 + d' + d) t2 t1)
  =  substTT (1 + d' + d) (maskOnVarT d t2) (maskOnVarT d t1).
 Proof.
- 
- admit.                      (* maskOnVarT_substTT broken, NOT NEEDED? *)
-
+ admit.                      (* maskOnVarT_substTT broken *)
  (* broken. Change first premise so that t2 does not contain (TVar d)
     define freeT for this *)
 

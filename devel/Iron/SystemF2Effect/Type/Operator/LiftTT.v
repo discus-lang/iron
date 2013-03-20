@@ -1,6 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Type.Exp.
 Require Export Iron.SystemF2Effect.Type.Relation.WfT.
+Require Export Iron.SystemF2Effect.Type.Operator.FreeTT.
 
 
 (*******************************************************************)
@@ -303,4 +304,22 @@ Lemma liftTT_map_liftTT
 Proof.
  induction ts; simpl; f_equal; norm; auto.
 Qed.  
+
+
+(********************************************************************)
+Lemma liftTT_freeTT
+ :  forall d t
+ ,  freeTT d (liftTT 1 d t) = false.
+Proof.
+ intros. gen d.
+ induction t; intros; 
+   try (solve [snorm]);
+   try (solve [snorm; repeat rewritess; auto]).
+
+ - Case "TVar".
+   snorm.
+   apply beq_nat_false_iff. omega.
+   apply beq_nat_false_iff. omega.
+Qed.
+Hint Resolve liftTT_freeTT.
 

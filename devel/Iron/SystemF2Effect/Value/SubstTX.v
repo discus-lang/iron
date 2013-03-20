@@ -50,107 +50,115 @@ Proof.
                (substTV ix t2 v)(substTT ix t2 t1));
   intros; simpl; inverts_type; eauto.
 
- Case "VVar".
-  apply TvVar; auto.
-  unfold substTE. auto.
-  eauto using subst_type_type_ix.
+ - Case "VVar".
+   apply TvVar; auto.
+   unfold substTE. auto.
+   eauto using subst_type_type_ix.
 
- Case "VLoc".
-  eapply TvLoc; fold substTT;
-  rrwrite ( TRef (substTT ix t2 r) (substTT ix t2 t)
-          = substTT ix t2 (TRef r t)).
-  unfold substTE; eauto.
-  eauto using subst_type_type_ix.
+ - Case "VLoc".
+   eapply TvLoc; fold substTT;
+   rrwrite ( TRef (substTT ix t2 r) (substTT ix t2 t)
+           = substTT ix t2 (TRef r t)).
+   unfold substTE; eauto.
+   eauto using subst_type_type_ix.
 
- Case "VLam".
-  simpl. apply TvLam.
-  eapply subst_type_type_ix; eauto.
-  unfold substTE at 1. rewrite map_rewind.
-  rrwrite ( map (substTT ix t2) (te :> t)
-          = substTE ix t2 (te :> t)).
-  eauto.
-
- Case "VLAM".
-  simpl. apply TvLAM.
-  rewrite delete_rewind.
-  rewrite (liftTE_substTE 0 ix).
-  rewrite (liftTE_substTE 0 ix).
-  rrwrite ( TBot KEffect 
-          = substTT (S ix) (liftTT 1 0 t2) (TBot KEffect)).
-  eauto using kind_kienv_weaken.
-
- Case "VConst".
-  destruct c; burn.
- 
- Case "XLet".
-  simpl. apply TxLet.
+ - Case "VLam".
+   simpl. apply TvLam.
    eapply subst_type_type_ix; eauto.
-   eauto.
    unfold substTE at 1. rewrite map_rewind.
-    rrwrite ( map (substTT ix t2) (te :> t)
-            = substTE ix t2 (te :> t)).
+   rrwrite ( map (substTT ix t2) (te :> t)
+           = substTE ix t2 (te :> t)).
    eauto.
 
- Case "XApp".
-  eapply TxApp.
-   eapply IHx1 in H8; eauto.
-    simpl in H8. burn.
-   eapply IHx0 in H11; eauto.
+ - Case "VLAM".
+   simpl. apply TvLAM.
+   rewrite delete_rewind.
+   rewrite (liftTE_substTE 0 ix).
+   rewrite (liftTE_substTE 0 ix).
+   rrwrite ( TBot KEffect 
+           = substTT (S ix) (liftTT 1 0 t2) (TBot KEffect)).
+   eauto using kind_kienv_weaken.
 
- Case "XAPP".
-  rrwrite ( TBot KEffect
-          = substTT 0 t (TBot KEffect)).
-  rewrite (substTT_substTT 0 ix).
-  rewrite (substTT_substTT 0 ix).
-  eapply TvAPP.
-   simpl. eapply (IHx1 ix) in H8; eauto.
-   simpl. eauto using subst_type_type_ix.
+ - Case "VConst".
+   destruct c; burn.
+ 
+ - Case "XLet".
+   simpl. apply TxLet.
+    eapply subst_type_type_ix; eauto.
+    eauto.
+    unfold substTE at 1. rewrite map_rewind.
+     rrwrite ( map (substTT ix t2) (te :> t)
+             = substTE ix t2 (te :> t)).
+    eauto.
 
- Case "XOp1".
-  eapply TxOpPrim.
-  destruct o; simpl in *.
-   inverts H8. rrwrite (TNat  = substTT ix t2 TNat); eauto.
-   inverts H8. rrwrite (TNat  = substTT ix t2 TNat); eauto.
+ - Case "XApp".
+   eapply TxApp.
+    eapply IHx1 in H8; eauto.
+     simpl in H8. burn.
+    eapply IHx0 in H11; eauto.
 
-  destruct o; simpl in *.
-   inverts H8.
-   spec IHx1 H11; eauto.
-   spec IHx1 H11; eauto.
-   inverts H8. 
-   spec IHx1 H1; eauto.
+ - Case "XAPP".
+   rrwrite ( TBot KEffect
+           = substTT 0 t (TBot KEffect)).
+   rewrite (substTT_substTT 0 ix).
+   rewrite (substTT_substTT 0 ix).
+   eapply TvAPP.
+    simpl. eapply (IHx1 ix) in H8; eauto.
+    simpl. eauto using subst_type_type_ix.
 
- Case "XNew".
-  simpl. 
-  apply TxNew 
-   with (t := substTT (S ix) (liftTT 1 0 t2) t)
-        (e := substTT (S ix) (liftTT 1 0 t2) e).
+ - Case "XOp1".
+   eapply TxOpPrim.
+   destruct o; simpl in *.
+    inverts H8. rrwrite (TNat  = substTT ix t2 TNat); eauto.
+    inverts H8. rrwrite (TNat  = substTT ix t2 TNat); eauto. 
 
-   rrwrite (ix = 0 + ix).
-   eapply lowerTT_substTT_liftTT. auto.
-    admit.                   (* fixme: t2 does not contain TVar 0 as we've lifted it, 
-                                 use mask_substTT, mask_liftTT_id, lowerTT_substTT_liftTT *)
+   destruct o; simpl in *.
+    inverts H8.
+    spec IHx1 H11; eauto.
+    spec IHx1 H11; eauto.
+    inverts H8. 
+    spec IHx1 H1; eauto.
 
-  rewrite delete_rewind.
-  rewrite (liftTE_substTE 0 ix).
-  rewrite (liftTE_substTE 0 ix).
-  eauto using kind_kienv_weaken.
+ - Case "XNew".
+   apply TxNew 
+    with (t := substTT (S ix) (liftTT 1 0 t2) t)
+         (e := substTT (S ix) (liftTT 1 0 t2) e).
+   + rrwrite (ix = 0 + ix).
+     eapply lowerTT_substTT_liftTT. auto.
 
- Case "XAlloc".
-  eapply TxOpAlloc; fold substTT.
-   eauto using subst_type_type_ix.
-   eauto.
+   + rrwrite (S ix = 1 + ix + 0).
+     erewrite maskOnVarT_substTT.
 
- Case "XRead".
-  eapply TxOpRead; fold substTT.
-   eauto using subst_type_type_ix.
-   rrwrite ( TRef (substTT ix t2 r) (substTT ix t2 t1)
-           = substTT ix t2 (TRef r t1)).
-   eauto.
+     * have    (freeTT 0 (liftTT 1 0 t2) = false).
+       rrwrite (maskOnVarT 0 (liftTT 1 0 t2) = liftTT 1 0 t2)
+        by (apply maskOnVarT_freeTT_id; eauto).
+       rrwrite (1 + ix + 0 = 1 + 0 + ix).
+       erewrite lowerTT_substTT_liftTT; eauto.
 
- Case "XWrite".
-  eapply TxOpWrite; fold substTT.
-   eauto using subst_type_type_ix.
-   eapply IHx1 in H12; eauto. snorm. eauto.
+     * have    (freeTT 0 (liftTT 1 0 t2) = false).
+       eapply isEffectOnVar_freeTT_false. auto.
+
+   + rewrite delete_rewind.
+     rewrite (liftTE_substTE 0 ix).
+     rewrite (liftTE_substTE 0 ix).
+     eauto using kind_kienv_weaken.
+
+ - Case "XAlloc".
+   eapply TxOpAlloc; fold substTT.
+    eauto using subst_type_type_ix.
+    eauto.
+
+ - Case "XRead".
+   eapply TxOpRead; fold substTT.
+    eauto using subst_type_type_ix.
+    rrwrite ( TRef (substTT ix t2 r) (substTT ix t2 t1)
+            = substTT ix t2 (TRef r t1)).
+    eauto.
+
+ - Case "XWrite".
+   eapply TxOpWrite; fold substTT.
+    eauto using subst_type_type_ix.
+    eapply IHx1 in H12; eauto. snorm. eauto.
 Qed.
 
 
@@ -165,5 +173,4 @@ Proof.
  rrwrite (ke = delete 0 (ke :> k2)).
  eapply subst_type_exp_ix; burn.
 Qed.
-
 
