@@ -108,46 +108,19 @@ Proof.
    rip.
 
    (* Effect of result is subsumed by previous. *)
-   - eapply SbTrans
-      with (t2 := TSum (substTT 0 r e1) (substTT 0 r e2)).
+   - rrwrite ( TSum (substTT 0 r e0) (substTT 0 r e2)
+             = substTT 0 r (TSum e0 e2)).
+     have (ClosedT e).
+     have HE: (substTT 0 r e = e). rewrite <- HE. clear HE.
 
-     + eapply SbEquiv.
-        rrwrite (substTT 0 r e1 = e1); auto.
-        rrwrite (substTT 0 r e2 = e2); auto.
-        eapply EqSym.
-         eapply equivT_kind_right; eauto.
-         eauto.
-        auto.
+     unfold SubsVisibleT.
+      simpl.
+      eapply SbSumAbove. auto.
+       admit. (* erewrite maskOnVarT_substTT. *)
 
-     + eapply subsT_sum_merge; fold maskOnT.
-       * eauto.
-
-       (* Push e0 through region phase change relation. *)  
-       * have    (ClosedT r) by (subst r; eauto).
-         rrwrite (substTT 0 r e1 = e1).
-
-         admit.                                            (* need maskOnVar/maskOnCap link *)
-
-(*       Probably don't need this stuff.
-         assert (substTT 0 r e0 = liftTT 1 0 (substTT 0 r e0)) as HS.
-         { assert (WfT 1 e0).
-           { have HK: (KindT (nil :> KRegion) sp e0 KEffect).
-             have HE: (WfT  (length (nil :> KRegion)) e0) 
-              by (eapply kind_wfT; eauto).
-             simpl in HE.
-             trivial.
-           }
-           have (ClosedT (substTT 0 r e0)) by (eapply substTT_closing; eauto).
-           eapply substTT_liftTT_wfT1; eauto.
-         }
-         rewrite HS. clear HS.
-*)        
-
-       (* Push e2 though region phase change relation. *)
-       * have    (ClosedT r)  by (subst r; eauto).
-         rrwrite (substTT 0 r e2 = e2).
-         eapply maskOnT_subsT. eauto.
-
+       eapply subsT_phase_change; eauto.
+       admit. (* ok, subs *)
+        
    (* Result expression is well typed. *)
    - rrwrite (substTT 0 r e2 = e2).
      eapply TcExp 
