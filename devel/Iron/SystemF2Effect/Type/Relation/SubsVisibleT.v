@@ -9,8 +9,28 @@ Definition isVisibleE (sp : stprops) (t : ty) : bool
     => andb (isEffectTyCon tc) (hasSRegion n sp)
 
     | otherwise
-    => false
+    => true
     end.
+
+
+Lemma isVisibleE_TCon1_false
+ :  forall sp t1
+ ,  false = isVisibleE sp t1
+ -> (exists tc n
+      ,  t1    = TCon1 tc (TCap (TyCapRegion n))
+     /\ (false = isEffectTyCon tc \/ false = (hasSRegion n sp))).
+Proof.
+ destruct t1; try nope.
+
+ Case "TCon1".
+  intros.
+  exists t. 
+  destruct t1; snorm; try nope.
+   destruct t0.
+   apply beq_false_split in H.
+   exists n. rip.
+Qed.
+
 
 
 Definition SubsVisibleT ke sp e e'

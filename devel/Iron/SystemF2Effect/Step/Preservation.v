@@ -3,6 +3,138 @@ Require Export Iron.SystemF2Effect.Step.TypeC.
 Require Export Iron.SystemF2Effect.Type.Operator.FreeTT.
 
 
+Lemma negb_true_elim
+ :  forall x
+ ,  true   = negb x
+ -> false  = x.
+Proof. destruct x; auto. Qed.
+
+
+Lemma negb_false_elim
+ :  forall x
+ ,  false  = negb x
+ -> true   = x.
+Proof. destruct x; auto. Qed.
+
+
+Lemma subsVisibleT_sum_above
+ :  forall ke sp e1 e2 e3
+ ,  SubsVisibleT ke sp e1 e2
+ -> SubsVisibleT ke sp e1 e3
+ -> SubsVisibleT ke sp e1 (TSum e2 e3).
+Proof. admit. Qed.
+Hint Resolve subsVisibleT_sum_above.
+
+
+Lemma subsVisibleT_sum_above_left
+ :  forall ke sp e1 e2 e3
+ ,  SubsVisibleT ke sp e1 (TSum e2 e3)
+ -> SubsVisibleT ke sp e1 e2.
+Proof. admit. Qed.
+Hint Resolve subsVisibleT_sum_above_left.
+
+
+Lemma subsVisibleT_sum_above_right
+ :  forall ke sp e1 e2 e3
+ ,  SubsVisibleT ke sp e1 (TSum e2 e3)
+ -> SubsVisibleT ke sp e1 e3.
+Proof. admit. Qed.
+Hint Resolve subsVisibleT_sum_above_right.
+
+
+Lemma subsVisibleT_mask
+ :  forall sp r n e1 e2
+ ,  hasSRegion n sp = false
+ -> r = TCap (TyCapRegion n)
+ -> SubsVisibleT nil sp e1 (maskOnT (isEffectOnVar 0) e2)
+ -> SubsVisibleT nil sp e1 (substTT 0 r e2).
+Proof.
+ intros.
+ induction e2.
+
+ - Case "TVar".
+   snorm.
+   subst.
+   have (ClosedT (TVar  0)). nope.
+   have (ClosedT (TVar n0)). nope.
+
+ - Case "TForall".
+   simpl in H1.
+   have (ClosedT (TForall k e2)).
+   rrwrite ( substTT 0 r (TForall k e2) 
+           = TForall k e2).
+   auto.
+  
+ - Case "TApp".
+   simpl in H1.
+   have (ClosedT (TApp e2_1 e2_2)).
+   rrwrite ( substTT 0 r (TApp e2_1 e2_2) 
+           = TApp e2_1 e2_2).
+   auto.
+
+ - Case "TSum".
+   snorm.
+   simpl.
+   eapply subsVisibleT_sum_above; eauto.
+ 
+ - Case "TBot".
+   snorm.
+
+ - Case "TCon0".
+   snorm.
+  
+ - Case "TCon1".
+   snorm.
+   unfold SubsVisibleT in *.
+   unfold maskOnT at 2 in H1.
+   split_if.
+   + snorm.
+     unfold maskOnT.
+     split_if.
+     * auto.
+     * apply beq_true_split in HeqH2. rip.
+       apply isTVar_form in H3. subst.
+       snorm.
+       apply negb_false_elim in HeqH0.
+       apply beq_true_split in HeqH0. rip.
+       congruence.
+
+   + snorm.
+     unfold maskOnT.
+     split_if.
+     * eauto.
+     * unfold maskOnT in *.
+       apply beq_false_split in HeqH2.
+       apply negb_false_elim in HeqH0.
+
+       split_if. 
+       { apply negb_true_elim in HeqH1.
+         eapply isVisibleE_TCon1_false in HeqH1.
+         destruct HeqH1 as [tc].
+         destruct H2    as [n2]. rip.
+         inverts H3.
+         snorm.
+         apply beq_true_split in HeqH0. rip.
+         inverts H4; congruence.
+       }
+       { have HC: (ClosedT (TCon1 t e2)).
+         inverts HC.
+         rrwrite (substTT 0 r e2 = e2).
+         auto.
+       }
+
+ - Case "TCon2".
+   simpl in H1.
+   have (ClosedT (TCon2 t e2_1 e2_2)).
+   rrwrite ( substTT 0 r (TCon2 t e2_1 e2_2)
+           = TCon2 t e2_1 e2_2).
+   snorm.
+     
+ - Case "TCap".
+   snorm.
+Qed.
+
+
 (* When a well typed expression transitions to the next state
    then its type is preserved. *)
 Theorem preservation
@@ -113,14 +245,34 @@ Proof.
      have (ClosedT e).
      have HE: (substTT 0 r e = e). rewrite <- HE. clear HE.
 
+     simpl.
+     assert (SubsVisibleT nil sp (substTT 0 r e) (substTT 0 r e0)).
+     { have HE: (EquivT       nil sp e (TSum e1 e2) KEffect).
+       have HS: (SubsT        nil sp e e1 KEffect).
+      
+       apply lowerTT_some_liftTT in H5.
+
+       have HL: (SubsVisibleT nil sp (liftTT 1 0 e) (liftTT 1 0 e1)) 
+        by admit.   (* ok, lift both sides of SubsT *)
+       rewrite H5 in HL.
+
+       rrwrite (liftTT 1 0 e = e) in HL.
+       rrwrite (substTT 0 r e = e).
+       eapply subsVisibleT_mask; eauto.
+     }
+
+     assert (SubsVisibleT nil sp (substTT 0 r e) (substTT 0 r e2)).
+     { eapply subsT_phase_change; eauto.
+       have HE: (EquivT nil sp e (TSum e1 e2) KEffect).
+       eapply SbEquiv in HE.
+       eapply SbSumAboveRight in HE.
+       admit.      (* ok, SubsT_kenv_cons *)
+     }
+ 
      unfold SubsVisibleT.
       simpl.
-      eapply SbSumAbove. auto.
-       admit. (* erewrite maskOnVarT_substTT. *)
-
-       eapply subsT_phase_change; eauto.
-       admit. (* ok, subs *)
-        
+      apply SbSumAbove; auto.
+                  
    (* Result expression is well typed. *)
    - rrwrite (substTT 0 r e2 = e2).
      eapply TcExp 
