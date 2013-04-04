@@ -188,3 +188,30 @@ Proof.
 Qed.
 Hint Resolve subsT_sum_merge.
 
+
+(********************************************************************)
+Lemma subsT_closed_kenv_cons
+ :  forall sp t1 t2 k1 k2
+ ,  SubsT nil sp t1 t2 k1
+ -> SubsT (nil :> k2) sp t1 t2 k1.
+Proof.
+ intros. 
+ remember nil as KE.
+ induction H; subst; eauto 4.
+
+ - Case "SbBot".
+   eapply SbBot; auto.
+   have (ClosedT t).
+   eapply kind_kienv_weaken in H0.
+   rrwrite (liftTT 1 0 t = t).
+   eauto.
+
+ - Case "SbSumAbove".
+   eapply SbSumBelow; auto.
+   have (ClosedT t3).
+   eapply kind_kienv_weaken in H0.
+   rrwrite (liftTT 1 0 t3 = t3).
+   eauto.
+Qed.
+Hint Resolve subsT_closed_kenv_cons.
+

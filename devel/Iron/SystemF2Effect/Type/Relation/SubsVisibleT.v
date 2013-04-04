@@ -64,6 +64,138 @@ Proof.
 Qed.
 
 
+Lemma subsVisibleT_sum_above
+ :  forall ke sp e1 e2 e3
+ ,  SubsVisibleT ke sp e1 e2
+ -> SubsVisibleT ke sp e1 e3
+ -> SubsVisibleT ke sp e1 (TSum e2 e3).
+Proof. 
+ intros.
+ unfold SubsVisibleT in *.
+ simpl.
+ eapply SbSumAbove; auto.
+Qed.
+Hint Resolve subsVisibleT_sum_above.
+
+
+Lemma subsVisibleT_sum_above_left
+ :  forall ke sp e1 e2 e3
+ ,  SubsVisibleT ke sp e1 (TSum e2 e3)
+ -> SubsVisibleT ke sp e1 e2.
+Proof. 
+ intros.
+ unfold SubsVisibleT in *.
+ eapply SbSumAboveLeft. eauto.
+Qed.
+Hint Resolve subsVisibleT_sum_above_left.
+
+
+Lemma subsVisibleT_sum_above_right
+ :  forall ke sp e1 e2 e3
+ ,  SubsVisibleT ke sp e1 (TSum e2 e3)
+ -> SubsVisibleT ke sp e1 e3.
+Proof. 
+ intros.
+ unfold SubsVisibleT in *.
+ eapply SbSumAboveRight. eauto.
+Qed.
+Hint Resolve subsVisibleT_sum_above_right.
+
+
+(********************************************************************)
+Lemma subsVisibleT_mask
+ :  forall sp r n e1 e2
+ ,  hasSRegion n sp = false
+ -> r = TCap (TyCapRegion n)
+ -> SubsVisibleT nil sp e1 (maskOnT (isEffectOnVar 0) e2)
+ -> SubsVisibleT nil sp e1 (substTT 0 r e2).
+Proof.
+ intros.
+ induction e2.
+
+ - Case "TVar".
+   snorm.
+   subst.
+   have (ClosedT (TVar  0)). nope.
+   have (ClosedT (TVar n0)). nope.
+
+ - Case "TForall".
+   simpl in H1.
+   have (ClosedT (TForall k e2)).
+   rrwrite ( substTT 0 r (TForall k e2) 
+           = TForall k e2).
+   auto.
+  
+ - Case "TApp".
+   simpl in H1.
+   have (ClosedT (TApp e2_1 e2_2)).
+   rrwrite ( substTT 0 r (TApp e2_1 e2_2) 
+           = TApp e2_1 e2_2).
+   auto.
+
+ - Case "TSum".
+   snorm.
+   simpl.
+   eapply subsVisibleT_sum_above; eauto.
+ 
+ - Case "TBot".
+   snorm.
+
+ - Case "TCon0".
+   snorm.
+  
+ - Case "TCon1".
+   snorm.
+   unfold SubsVisibleT in *.
+   unfold maskOnT at 2 in H1.
+   split_if.
+   + snorm.
+     unfold maskOnT.
+     split_if.
+     * auto.
+     * apply beq_true_split in HeqH2. rip.
+       apply isTVar_form in H3. subst.
+       snorm.
+       apply negb_false_elim in HeqH0.
+       apply beq_true_split in HeqH0. rip.
+       congruence.
+
+   + snorm.
+     unfold maskOnT.
+     split_if.
+     * eauto.
+     * unfold maskOnT in *.
+       apply beq_false_split in HeqH2.
+       apply negb_false_elim in HeqH0.
+
+       split_if. 
+       { apply negb_true_elim in HeqH1.
+         eapply isVisibleE_TCon1_false in HeqH1.
+         destruct HeqH1 as [tc].
+         destruct H2    as [n2]. rip.
+         inverts H3.
+         snorm.
+         apply beq_true_split in HeqH0. rip.
+         inverts H4; congruence.
+       }
+       { have HC: (ClosedT (TCon1 t e2)).
+         inverts HC.
+         rrwrite (substTT 0 r e2 = e2).
+         auto.
+       }
+
+ - Case "TCon2".
+   simpl in H1.
+   have (ClosedT (TCon2 t e2_1 e2_2)).
+   rrwrite ( substTT 0 r (TCon2 t e2_1 e2_2)
+           = TCon2 t e2_1 e2_2).
+   snorm.
+     
+ - Case "TCap".
+   snorm.
+Qed.
+
+
 Lemma subsT_phase_change
  :  forall ke sp n r e1 e2
  ,  hasSRegion n sp = false
@@ -71,5 +203,5 @@ Lemma subsT_phase_change
  -> SubsT         (ke :> KRegion) sp e1               e2               KEffect
  -> SubsVisibleT   ke              sp (substTT 0 r e1) (substTT 0 r e2).
 Proof.
- admit.                                                    (* need substT_phase_change *)
+ admit.                  (* need substT_phase_change *)
 Qed.

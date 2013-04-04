@@ -1,5 +1,19 @@
 
 
+Lemma negb_true_elim
+ :  forall x
+ ,  true   = negb x
+ -> false  = x.
+Proof. destruct x; auto. Qed.
+
+
+Lemma negb_false_elim
+ :  forall x
+ ,  false  = negb x
+ -> true   = x.
+Proof. destruct x; auto. Qed.
+
+
 Lemma beq_true_split
  :  forall A B
  ,  true = andb A B

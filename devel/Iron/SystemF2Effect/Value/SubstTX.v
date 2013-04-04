@@ -136,7 +136,7 @@ Proof.
        erewrite lowerTT_substTT_liftTT; eauto.
 
      * have    (freeTT 0 (liftTT 1 0 t2) = false).
-       eapply isEffectOnVar_freeTT_false. auto.
+       auto.
 
    + rewrite delete_rewind.
      rewrite (liftTE_substTE 0 ix).

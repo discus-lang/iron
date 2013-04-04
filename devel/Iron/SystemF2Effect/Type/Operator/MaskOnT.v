@@ -191,21 +191,93 @@ Qed.
 Hint Resolve maskOnVarT_liftTT.
 
 
+(********************************************************************)
 Lemma maskOnVarT_substTT
  :  forall d d' t1 t2
- ,  isEffectOnVar d t2 = false
+ ,  freeTT d t2 = false
  -> maskOnVarT d (substTT (1 + d' + d) t2 t1)
  =  substTT (1 + d' + d) (maskOnVarT d t2) (maskOnVarT d t1).
 Proof.
- admit.                      (* maskOnVarT_substTT broken *)
- (* broken. Change first premise so that t2 does not contain (TVar d)
-    define freeT for this *)
+ intros. gen d t2.
+ induction t1; intros; 
+   try (solve [simpl; burn]).
 
- (*
- intros. gen d d' t2.
- induction t1; intros;
-  try (solve [repeat snorm; f_equal]).
- *)
+ - Case "TForall".
+   unfold maskOnVarT in *.
+   snorm.
+   f_equal. f_equal.
+   lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+   rewritess; auto.
+ 
+ - Case "TApp".
+   unfold maskOnVarT in *.
+   snorm.
+   f_equal. 
+   + f_equal. 
+     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     rewritess; auto.
+   + f_equal.
+     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     rewritess; auto.
+
+ - Case "TSum".
+   unfold maskOnVarT in *.
+   snorm.
+   f_equal.
+   + rewritess; auto.
+   + rewritess; auto.
+
+ - Case "TCon1".
+   unfold maskOnVarT.
+   unfold maskOnT; split_if; fold maskOnT.
+   + simpl.
+     snorm. 
+     apply beq_true_split in HeqH0. rip.
+     apply isTVar_form in H1. subst.
+     spec IHt1 d t2. rip.
+     snorm.
+     * omega.
+     * unfold maskOnT.
+       split_if; auto.
+       eapply beq_false_split in HeqH0. 
+       inverts HeqH0.
+        congruence.
+        snorm. nope.
+     * unfold maskOnT.
+       split_if; auto.
+       unfold isEffectOnVar in HeqH0.
+       eapply beq_false_split in HeqH0.
+       inverts HeqH0.
+        congruence.
+        snorm. omega.
+
+   + simpl. 
+     unfold maskOnT; split_if; fold maskOnT.
+
+     * unfold isEffectOnVar in HeqH0.
+       unfold isEffectOnVar in HeqH1.
+       apply beq_false_split in HeqH0.
+       apply beq_true_split in HeqH1. 
+       rip. 
+       inverts HeqH0. 
+        congruence.
+        apply isTVar_form in H1.
+        destruct t1; snorm; try congruence.
+         subst. snorm. nope.
+         inverts H1. omega.
+
+     * repeat f_equal.
+       lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+       erewrite D; auto.
+  
+ - Case "TCon2".
+   unfold maskOnVarT in *.
+   snorm. 
+   f_equal.
+   + f_equal.
+     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     rewritess; auto.
+   + f_equal.
+     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     rewritess; auto.
 Qed.
-
-

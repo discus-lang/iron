@@ -110,4 +110,68 @@ Proof.
  induction H; eauto.
 Qed.  
 Hint Resolve equivT_kind_right.
+ 
+
+(********************************************************************)
+Lemma equivT_closed_kenv_cons
+ :  forall sp t1 t2 k1 k2
+ ,  EquivT nil sp t1 t2 k1
+ -> EquivT (nil :> k2) sp t1 t2 k1.
+Proof.
+ intros.
+ remember nil as ke.
+ induction H; subst; eauto 4.
+
+ - Case "EqRefl".
+   have (ClosedT t).
+   eapply kind_kienv_weaken in H.
+   rrwrite (liftTT 1 0 t = t).
+   eauto.
+
+ - Case "EqSym".
+   have (nil = @nil (list ki)).
+   eapply EqSym.
+    + have (ClosedT t1).
+      eapply kind_kienv_weaken in H.
+      rrwrite (liftTT 1 0 t1 = t1). eauto.
+    + have (ClosedT t2).
+      eapply kind_kienv_weaken in H0.
+      rrwrite (liftTT 1 0 t2 = t2). eauto.
+    + auto.
+
+ - Case "EqSumBot".
+   eapply EqSumBot; auto.
+   have (ClosedT t).
+   eapply kind_kienv_weaken in H0.
+   rrwrite (liftTT 1 0 t = t). eauto.
+
+ - Case "EqSumIdemp".
+   eapply EqSumIdemp; auto.
+   have (ClosedT t).
+   eapply kind_kienv_weaken in H0.
+   rrwrite (liftTT 1 0 t = t). eauto.
+
+ - Case "EqSumComm".
+   eapply EqSumComm; auto.
+   have (ClosedT t1).
+    eapply kind_kienv_weaken in H0.
+    rrwrite (liftTT 1 0 t1 = t1). eauto.
+   have (ClosedT t2).
+    eapply kind_kienv_weaken in H1.
+    rrwrite (liftTT 1 0 t2 = t2). eauto.
+
+ - Case "EqSumAssoc".
+   eapply EqSumAssoc; auto.
+   have (ClosedT t1).
+    eapply kind_kienv_weaken in H0.
+    rrwrite (liftTT 1 0 t1 = t1). eauto.
+   have (ClosedT t2).
+    eapply kind_kienv_weaken in H1.
+    rrwrite (liftTT 1 0 t2 = t2). eauto.
+   have (ClosedT t3).
+    eapply kind_kienv_weaken in H2.
+    rrwrite (liftTT 1 0 t3 = t3). eauto.
+Qed.
+Hint Resolve equivT_closed_kenv_cons.
+
 
