@@ -194,14 +194,3 @@ Proof.
  - Case "TCap".
    snorm.
 Qed.
-
-
-Lemma subsT_phase_change
- :  forall ke sp n r e1 e2
- ,  hasSRegion n sp = false
- -> r               = TCap (TyCapRegion n)
- -> SubsT         (ke :> KRegion) sp e1               e2               KEffect
- -> SubsVisibleT   ke              sp (substTT 0 r e1) (substTT 0 r e2).
-Proof.
- admit.                  (* need substT_phase_change *)
-Qed.

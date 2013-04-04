@@ -142,11 +142,13 @@ Proof.
      }
 
      assert (SubsVisibleT nil sp (substTT 0 r e) (substTT 0 r e2)).
-     { eapply subsT_phase_change; eauto.
+     { rrwrite (substTT 0 r e  = e).
+       rrwrite (substTT 0 r e2 = e2).
+
        have HE: (EquivT nil sp e (TSum e1 e2) KEffect).
        eapply SbEquiv in HE.
        eapply SbSumAboveRight in HE.
-       eapply subsT_closed_kenv_cons. auto.
+       eapply subsT_subsVisibleT. auto.
      }
  
      unfold SubsVisibleT.
