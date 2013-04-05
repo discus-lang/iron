@@ -43,14 +43,17 @@ Notation TRef R T    := (TCon2 TyConRef R T).
 
 
 (********************************************************************)
-(* Predicates *)
-Definition isTVar        (n : nat) (t : ty) : bool
+(* Predicates to test whether types have specific forms. *)
+
+(* Check whether a type is a variable with the given index. *)
+Definition isTVar (n : nat) (t : ty) : bool
  := match t with
     | TVar n'               => beq_nat n n'
     | _                     => false
     end.
 
 
+(* If we know a type is a variable, then it is one.. *)
 Lemma isTVar_form
  :  forall i t
  ,  true = isTVar i t
@@ -62,12 +65,15 @@ Qed.
 Hint Resolve isTVar_form.
 
 
+(* Check whether a type is a region handle with the given index. *)
 Definition isTCapRegion  (n : nat) (t : ty) : bool
  := match t with
     | TCap (TyCapRegion n') => beq_nat n n'
     | _                     => false
     end.
 
+
+(* If we know a tpye is a region handle, then it is one.. *)
 Lemma isTCapRegion_form
  :  forall i t
  ,  true = isTCapRegion i t
@@ -80,14 +86,18 @@ Qed.
 Hint Resolve isTCapRegion_form.
 
 
+(* Check whether a type is an effect on the given region variable. *)
 Definition isEffectOnVar (n : nat) (t : ty) : bool
  := match t with
     | TCon1 tc t1 => andb (isEffectTyCon tc) (isTVar n t1)
     | _           => false
     end.
 
+
+(* Check whether a type is an effect on the given region handle. *)
 Definition isEffectOnCap (n : nat) (t : ty) : bool
  := match t with 
     | TCon1 tc t1 => andb (isEffectTyCon tc) (isTCapRegion n t1)
     | _           => false
     end.
+

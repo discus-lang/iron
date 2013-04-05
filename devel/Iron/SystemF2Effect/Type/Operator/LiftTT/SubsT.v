@@ -3,6 +3,12 @@ Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Export Iron.SystemF2Effect.Type.Relation.SubsT.
 
 
+(* If one type subsumes another, and we substitute some third
+   type into both, then the results are also subsumptive.
+
+   NOTE: The more general form where t1 and t2 are open should also
+         be true, but we don't need it for the main proofs.
+*)
 Lemma subsT_closed_liftT_liftT
  :  forall sp t1 t2 k d
  ,  SubsT nil sp t1 t2 k

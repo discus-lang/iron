@@ -9,6 +9,8 @@ Require Import Iron.SystemF2Effect.Type.Operator.BunchT.
 Require Import Iron.SystemF2Effect.Type.Operator.FlattenT.
 
 
+(* Like maskOnT, but work with a list of types instead of a 
+   bunched type with TSum constructors. *)
 Fixpoint maskOnTs (p : ty -> bool) (tt : list ty) : list ty
  := match tt with
     | nil            => nil

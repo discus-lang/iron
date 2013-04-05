@@ -5,7 +5,13 @@ Require Import Iron.SystemF2Effect.Type.Relation.WfT.
 Require Import Iron.SystemF2Effect.Type.Exp.
 
 
-(* Lowering of indices in types. *)
+(* Lowering of indices in types.
+   If a variable with the given index is not used in a type, 
+   then we can lower all variables which have higher indices. 
+
+   If we find a variable with the provided index, then we can't
+   perform the lowering, so return None. 
+*) 
 Fixpoint lowerTT (d: nat) (tt: ty) : option ty 
  := match tt with
     |  TVar ix
@@ -154,6 +160,8 @@ Proof.
 Qed.
 
 
+(* Lowering a type at an index higher than any index being used
+   is identity. *)
 Lemma lowerTT_wfT
  :  forall  n d t1 t2 
  ,  n <= d
@@ -223,6 +231,7 @@ Proof.
 Qed.
 
 
+(* Lowering a closed type is identity. *)
 Lemma lowerTT_closedT
  :  forall t1 t2
  ,  ClosedT t1
@@ -234,6 +243,8 @@ Proof.
 Qed.
 
 
+(* If we can lower a type at a given index, then that index did not 
+   appear in the type, and the variable with that index was not free. *)
 Lemma lowerTT_freeT
  :  forall n t1 t2
  ,  lowerTT n t1 = Some t2

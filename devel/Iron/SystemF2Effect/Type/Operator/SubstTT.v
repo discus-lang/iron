@@ -92,6 +92,8 @@ Proof.
 Qed.
 
 
+(* If two types are equivalent, and we substitute some third type
+   into both, then the result is also equivalent. *)
 Lemma substTT_EquivT
  :  forall  ke sp t1 t2 t3 k3 k
  ,  KindT    ke sp t3 k3

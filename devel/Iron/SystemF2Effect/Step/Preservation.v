@@ -16,14 +16,14 @@ Require Export Iron.SystemF2Effect.Type.Operator.FreeTT.
    then its type is preserved. *)
 Theorem preservation
  :  forall se sp sp' ss ss' fs fs' x x' t e
- ,  WfFS   se sp ss fs 
- -> TYPEC  nil nil se sp fs  x   t  e
- -> STEPF  ss  sp fs  x ss' sp' fs' x'
+ ,  WfFS   se sp ss  fs
+ -> TYPEC  nil nil se sp fs  x   t  e    
+ -> STEPF  ss  sp fs  x ss' sp' fs' x'   
  -> (exists se' e'
-            ,  extends se' se
-            /\ WfFS         se' sp' ss' fs'
-            /\ SubsVisibleT nil sp e e'
-            /\ TYPEC nil nil se' sp' fs' x' t e').
+    ,  extends se' se                   
+    /\ WfFS          se' sp' ss' fs'     
+    /\ SubsVisibleT  nil sp  e   e'
+    /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp sp' ss ss' fs fs' x x' t e.
  intros HH HC HS. 

@@ -40,6 +40,7 @@ Definition maskOnCapT    (n : nat) (e : ty) : ty
 
 
 (********************************************************************)
+(* Masking some effects in a type preserves its kind. *)
 Lemma maskOnT_kind
  :  forall ke sp t k p
  ,  KindT  ke sp t k 
@@ -70,6 +71,7 @@ Qed.
 Hint Resolve maskOnT_kind.
 
 
+(* Masking effects on variables in a type preserves its kind. *)
 Lemma maskOnVarT_kind
  :  forall ke sp t k n
  ,  KindT  ke sp t k
@@ -82,6 +84,7 @@ Qed.
 Hint Resolve maskOnVarT_kind.
 
 
+(* Masking effects on capabilities in a type preserves its kind. *)
 Lemma maskOnCapT_kind
  :  forall ke sp t k n
  ,  KindT  ke sp t k
@@ -95,6 +98,8 @@ Hint Resolve maskOnCapT_kind.
 
 
 (********************************************************************)
+(* If a given region variable is not free in a type, 
+   then masking effects on that variable is identity. *)
 Lemma maskOnVarT_freeTT_id
  :  forall d t 
  ,  freeTT d t = false 
@@ -119,6 +124,7 @@ Qed.
 
 
 (********************************************************************)
+(* Push masking through lifting. *)
 Lemma maskOnVarT_liftTT
  :  forall r d e
  ,  maskOnVarT r (liftTT 1 (1 + (r + d)) e) 
@@ -161,6 +167,7 @@ Hint Resolve maskOnVarT_liftTT.
 
 
 (********************************************************************)
+(* Push masking through substitution. *)
 Lemma maskOnVarT_substTT
  :  forall d d' t1 t2
  ,  freeTT d t2 = false

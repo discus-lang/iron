@@ -4,6 +4,9 @@ Require Export Iron.SystemF2Effect.Type.Operator.
 
 
 (********************************************************************)
+(* Check whether an effect is visible relative to the region handles
+   the given store properties. If an effect is some other region handle
+   not in the store properties, then count that as not visible. *)
 Definition isVisibleE (sp : stprops) (t : ty) : bool
  := match t with 
     | TCon1 tc (TCap (TyCapRegion n)) 
@@ -14,6 +17,9 @@ Definition isVisibleE (sp : stprops) (t : ty) : bool
     end.
 
 
+(* If isVisibleE applied to some type returns false,
+   then that type must have been an effect on some region handle
+   that was not in the provided store properties. *)
 Lemma isVisibleE_TCon1_false
  :  forall sp t1
  ,  false = isVisibleE sp t1
@@ -34,6 +40,13 @@ Qed.
 
 
 (********************************************************************)
+(* Subsumption of effects, where we only care about effects that 
+   are visible in the given set of store properties. 
+
+   We use this in the proof of perservation.
+   At each step in the reduction we allow the term to allocate new
+   regions and have effects on those regions, as they are not
+   mentioned in the previous list of store properties. *)
 Definition SubsVisibleT ke sp e e'
  := SubsT ke
           sp 
@@ -104,6 +117,12 @@ Hint Resolve subsVisibleT_sum_above_right.
 
 
 (********************************************************************)
+(* Manage the region phase change. 
+   We need this when allocating a new region, where the associated
+   region variable is replaced by the freshly allocated region handle. 
+
+   Because the region handle will have been freshly allocated, 
+   it won't appear in the previous set of store properties. *)
 Lemma subsVisibleT_mask
  :  forall sp r n e1 e2
  ,  hasSRegion n sp = false

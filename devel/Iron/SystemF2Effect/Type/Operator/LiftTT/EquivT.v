@@ -4,6 +4,12 @@ Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
 Require Export Iron.SystemF2Effect.Type.Relation.KindT.
 
 
+(* If two closed types are equivalent, and we substitute some third
+   type into both, then the results are also equivalent. 
+
+   NOTE: The more general form where t1 and t2 are open should also
+         be true, but we don't need it for the main proofs.
+*)
 Lemma equivT_closed_liftTT_liftTT
  :  forall sp t1 t2 k d
  ,  EquivT nil sp t1 t2 k
