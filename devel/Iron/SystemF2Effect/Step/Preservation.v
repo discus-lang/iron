@@ -1,61 +1,75 @@
 
 Require Export Iron.SystemF2Effect.Step.TypeC.
 Require Export Iron.SystemF2Effect.Type.Operator.FreeTT.
+Require Export Iron.SystemF2Effect.Store.LiveE.
 
 (* TODO: To handle region deallocation:
-   - When a region is deallocated add a token to stprops saying it can no 
-     longer be accessed.
-   - Make the SfStoreRead and SfStoreWrite check for this.
-   - Add a relation preservation saying that no effects mention deleted regions.
-     In progress this will ensure that reads and writes aren't performed on this
-     because the read and write redexes have effects saying what regions they access. 
-*)
-     
+   - Require all effects to be on regions mentioned in the frame stack.
+   - Require all regions mentioned in frame stack to be live.
+   - When popping FUse frame, set all bindings in that region to dead.
+   - First requirement ensures store actions don't access dead regions. *)
+
 
 (* When a well typed expression transitions to the next state
    then its type is preserved. *)
 Theorem preservation
  :  forall se sp sp' ss ss' fs fs' x x' t e
  ,  WfFS   se sp ss  fs
+ -> LiveE  fs e
  -> TYPEC  nil nil se sp fs  x   t  e    
  -> STEPF  ss  sp fs  x ss' sp' fs' x'   
  -> (exists se' e'
     ,  extends se' se                   
-    /\ WfFS          se' sp' ss' fs'     
+    /\ WfFS          se' sp' ss' fs'
+    /\ LiveE         fs' e'
     /\ SubsVisibleT  nil sp  e   e'
     /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp sp' ss ss' fs fs' x x' t e.
- intros HH HC HS. 
+ intros HH HL HC HS. 
  gen t e.
  induction HS; intros.
 
+
+ (*********************************************************)
  (* Pure evaluation. *)
  Case "SfStep". 
  { inverts_typec. 
    exists se. 
    exists e.
    rip.
+
+   (* Original effect visibly subsumes effect of result. *)
    - apply subsT_visible_refl.
      eauto.
+
+   (* Resulting configuration is well typed. *)
    - eapply TcExp; eauto.
      eapply stepp_preservation; eauto.
      inverts HH. rip.
  }
 
+
+ (*********************************************************)
  (* Push let context. *)
  Case "SfLetPush".
  { exists se.
    exists e.
    rip. 
+
+   (* Frame stack with new FLet frame is well formed. *)
    - unfold WfFS in *. rip.
      unfold STOREP in *. rip.
      eapply H3.
      inverts H2.
      + nope.
      + auto.
+
+   (* Original effect visibly subsumes effect of result. *)
    - eapply subsT_visible_refl. 
      inverts HC; eauto.
+
+   (* Resulting configuation is well typed. *)
    - inverts HC.
      inverts H0.
      eapply TcExp 
@@ -68,15 +82,27 @@ Proof.
         * inverts HH. rip.
  }
 
+
+ (*********************************************************)
  (* Pop let context and substitute. *)
  Case "SfLetPop".
  { exists se.
    exists e.
    rip.
+
+   (* Store is still well formed. *)
    - unfold WfFS in *. rip.
      unfold STOREP in *. rip.
+
+   (* After popping top FLet frame, effects of result are still 
+      to live regions. *)
+   - eapply liveE_pop_flet; eauto.
+
+   (* Original effect visibly subsumes effect of result. *)
    - eapply subsT_visible_refl.
      inverts HC; eauto.
+
+   (* Resulting configuration is well typed. *)
    - inverts HC.
      inverts H1.
      eapply TcExp  
@@ -95,6 +121,8 @@ Proof.
       + eauto.
  } 
 
+
+ (*********************************************************)
  (* Create a new region. *)
  Case "SfRegionNew".
  { inverts_typec.
@@ -116,6 +144,32 @@ Proof.
 
    rip.
 
+   (* Resulting effect is to live regions. *)
+   - eapply liveE_sum_above.
+     + have HLL: (liftTT 1 0 e1 = maskOnVarT 0 e0)
+        by (eapply lowerTT_some_liftTT; eauto).
+       rrwrite (liftTT 1 0 e1 = e1) in HLL.
+
+       have (SubsT nil sp e e1 KEffect) 
+        by (eapply EqSym in H0; eauto).
+
+       have (LiveE fs e1).
+
+       have HLE: (LiveE (fs :> FUse p) e1).
+       rewrite HLL in HLE.
+
+       have HL0: (LiveE (fs :> FUse p) e0) 
+        by (eapply liveE_maskOnVarT; eauto).
+
+       eapply liveE_phase_change; eauto.
+
+     + have (SubsT nil sp e e2 KEffect)
+        by  (eapply EqSym in H0; eauto).
+
+       have (LiveE fs e2).
+       have (LiveE (fs :> FUse p) e2).
+       rrwrite (substTT 0 r e2 = e2); auto.
+       
    (* Effect of result is subsumed by previous. *)
    - rrwrite ( TSum (substTT 0 r e0) (substTT 0 r e2)
              = substTT 0 r (TSum e0 e2)).
@@ -129,14 +183,14 @@ Proof.
       
        apply lowerTT_some_liftTT in H5.
 
-       assert   (SubsVisibleT nil sp (liftTT 1 0 e) (liftTT 1 0 e1)) as HL.
+       assert   (SubsVisibleT nil sp (liftTT 1 0 e) (liftTT 1 0 e1)) as HV.
         rrwrite (liftTT 1 0 e  = e).
         rrwrite (liftTT 1 0 e1 = e1).
         eapply subsT_subsVisibleT.
         auto.
-       rewrite H5 in HL.
+       rewrite H5 in HV.
 
-       rrwrite (liftTT 1 0 e = e) in HL.
+       rrwrite (liftTT 1 0 e = e) in HV.
        rrwrite (substTT 0 r e = e).
        eapply subsVisibleT_mask; eauto.
      }
@@ -198,7 +252,14 @@ Proof.
          have (In (SRegion p) sp).
          rewrite H in H14. tauto.
 
-       (* The initial type and effect are closed, so substituting
+       (* Effect of frame stack is still to live regions *)
+       * rrwrite (substTT 0 r e2 = e2).
+         have    (SubsT nil sp e e2 KEffect) 
+          by     (eapply EqSym in H0; eauto).
+         eapply  liveE_subsT; eauto.
+
+       (* Frame stack is well typed after substituting region handle.
+          The initial type and effect are closed, so substituting
           the region handle into them doesn't do anything. *)
        * assert (ClosedT t0).
          { have HK: (KindT  (nil :> KRegion) sp t0 KData).
@@ -208,15 +269,16 @@ Proof.
            have (freeTT 0 t0 = false) by (eapply lowerTT_freeT; eauto).
            eapply freeTT_wfT_drop; eauto.
          }
+
          rrwrite (substTT 0 r t0 = t0).
-
          rrwrite (substTT 0 r e2 = e2).
-
          rrwrite (t1 = t0) by (eapply lowerTT_closedT; eauto).
          eauto.
  }
 
- (* Pop a region from ths stack. *)
+
+ (*********************************************************)
+ (* Pop a region from the frame stack. *)
  Case "SfRegionPop".
  { inverts_typec.
 
@@ -226,7 +288,7 @@ Proof.
    (* No regions in store. *)
    - inverts HH. rip. 
      unfold STOREP in *.
-     spec H4 p.
+     spec H5 p.
      have (In (FUse p) (fs :> FUse p)).
       rip. nope.
 
@@ -252,6 +314,8 @@ Proof.
        eapply EqSym; eauto.
  }
 
+
+ (*********************************************************)
  (* Allocate a reference. *)
  Case "SfStoreAlloc".
  { inverts HC.
@@ -259,11 +323,22 @@ Proof.
    exists (TRef   (TCap (TyCapRegion r1)) t2 <: se).
    exists e2.
    rip.
+
+   (* Resulting store is well formed. *)
    - unfold WfFS in *.
      rip. eauto.
+
+   (* Resulting effects are to live regions. *)
+   - have  (SubsT nil sp e e2 KEffect)
+      by   (eapply EqSym in H; eauto).
+     eapply liveE_subsT; eauto.
+
+   (* Original effect visibly subsumes resulting one. *)
    - eapply EqSym in H.
       eapply subsT_subsVisibleT; eauto.
       eauto. eauto.
+
+   (* Resulting configuation is well typed. *)
    - eapply TcExp
       with (t1 := TRef (TCap (TyCapRegion r1)) t2)
            (e1 := TBot KEffect)
@@ -274,21 +349,32 @@ Proof.
         * eapply equivT_sum_left; eauto.
      + eapply TxVal.
        eapply TvLoc.
-        have    (length se = length ss) as HL.
+        have    (length se = length ss).
         rrwrite (length ss = length se).
         eauto. eauto.
      + eauto.
  }
-      
+
+
+ (*********************************************************)
  (* Read from a reference. *)
  Case "SfStoreRead".
  { inverts HC.
    exists se.
    exists e2. 
    rip.
+
+   (* Resulting effects are to live regions. *)
+   - have  (SubsT nil sp e e2 KEffect)
+      by   (eapply EqSym in H0; eauto).
+     eapply liveE_subsT; eauto.
+
+   (* Original effect visibly subsumes resulting one. *)
    - eapply EqSym in H0.
       eapply subsT_subsVisibleT; eauto.
       eauto. eauto.
+
+   (* Resulting configutation is well typed. *)
    - eapply TcExp
       with (t1 := t1)
            (e1 := TBot KEffect)
@@ -302,17 +388,30 @@ Proof.
      + eauto.
  }
 
+
+ (*********************************************************)
  (* Write to a reference. *)
  Case "SfStoreWrite".
  { inverts HC.
    exists se.
    exists e2.
    rip.
+
+   (* Resulting store is well formed. *)
    - inverts_type.
      eapply store_update_wffs; eauto.
-   - eapply EqSym in H.
+
+   (* Resulting effects are to live regions. *)
+   - have  (SubsT nil sp e e2 KEffect)
+      by   (eapply EqSym in H; eauto).
+     eapply liveE_subsT; eauto.
+
+   (* Original effect visibly subsumes resulting one. *)
+    - eapply EqSym in H.
       eapply subsT_subsVisibleT; eauto.
        eauto. eauto.
+
+   (* Resulting configuration is well typed. *)
    - eapply TcExp
       with (t1 := t1)
            (e1 := TBot KEffect)

@@ -2,6 +2,7 @@
 Require Export Iron.SystemF2Effect.Value.TyJudge.
 Require Export Iron.SystemF2Effect.Step.Frame.
 Require Export Iron.SystemF2Effect.Store.
+Require Export Iron.SystemF2Effect.Store.LiveE.
 
 
 (* Type of a frame stack.
@@ -28,6 +29,7 @@ Inductive
  | TfConsUse
    :  forall ke te se sp fs t1 t2 e2 n
    ,  not (In (FUse n) fs)
+   -> LiveE  fs e2
    -> TYPEF  ke te se  sp fs             t1 t2 e2
    -> TYPEF  ke te se  sp (fs :> FUse n) t1 t2 e2.
 
