@@ -178,7 +178,7 @@ Hint Resolve liftTT_plus.
 Hint Rewrite liftTT_plus : global.
 
 
-(******************************************************************************)
+(********************************************************************)
 Lemma liftTT_wfT_1
  :  forall t n ix
  ,  WfT n t

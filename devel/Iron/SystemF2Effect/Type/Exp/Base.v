@@ -50,6 +50,7 @@ Definition isTVar        (n : nat) (t : ty) : bool
     | _                     => false
     end.
 
+
 Lemma isTVar_form
  :  forall i t
  ,  true = isTVar i t
@@ -59,7 +60,6 @@ Proof.
  destruct t; snorm; try nope.
 Qed.
 Hint Resolve isTVar_form.
-
 
 
 Definition isTCapRegion  (n : nat) (t : ty) : bool

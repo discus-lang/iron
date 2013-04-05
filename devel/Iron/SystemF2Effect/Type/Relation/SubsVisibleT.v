@@ -146,36 +146,31 @@ Proof.
   
  - Case "TCon1".
    snorm.
-   unfold SubsVisibleT in *.
+   unfold SubsVisibleT in H1.
    unfold maskOnT at 2 in H1.
-   split_if.
+   split_if. 
    + snorm.
+     unfold SubsVisibleT.
      unfold maskOnT.
-     split_if.
-     * auto.
-     * apply beq_true_split in HeqH2. rip.
-       apply isTVar_form in H3. subst.
-       snorm.
-       apply negb_false_elim in HeqH0.
-       apply beq_true_split in HeqH0. rip.
-       congruence.
+     split_if; auto.
+     * apply isTVar_form in H3. subst.
+       snorm. congruence.
 
    + snorm.
-     unfold maskOnT.
+     unfold SubsVisibleT.
+     unfold maskOnT. 
      split_if.
      * eauto.
-     * unfold maskOnT in *.
-       apply beq_false_split in HeqH2.
-       apply negb_false_elim in HeqH0.
-
+     * unfold maskOnT in H1.
+       norm_negb.
+       
        split_if. 
-       { apply negb_true_elim in HeqH1.
+       { norm_negb.
          eapply isVisibleE_TCon1_false in HeqH1.
          destruct HeqH1 as [tc].
          destruct H2    as [n2]. rip.
          inverts H3.
          snorm.
-         apply beq_true_split in HeqH0. rip.
          inverts H4; congruence.
        }
        { have HC: (ClosedT (TCon1 t e2)).
@@ -194,3 +189,4 @@ Proof.
  - Case "TCap".
    snorm.
 Qed.
+

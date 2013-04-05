@@ -4,7 +4,6 @@ Require Export Iron.SystemF2Effect.Type.Relation.WfT.
 Require Import Coq.Bool.Bool.
 
 
-(********************************************************************)
 (* Type variable is free in type *)
 Fixpoint freeTT (n : nat) (tt: ty) : bool
  := match tt with
@@ -27,31 +26,14 @@ Lemma freeT_wfT_1
  -> freeTT (S n) t = false.
 Proof.
  intros. gen n.
- induction t; rip.
+ induction t; 
+  try (solve [snorm; inverts H; try (erewrite IHt1); snorm; eauto 2]).
+
  - Case "TVar".
-   simpl. inverts H. 
-    destruct n. auto.
-    eapply beq_nat_false_iff. omega.
-
- - Case "TForall".
-   simpl. eapply IHt.
-   inverts H. auto.
-
- - Case "TApp".
-   simpl. inverts H.
-   erewrite IHt1. snorm. auto.
-
- - Case "TSum".
-   simpl. inverts H.
-   erewrite IHt1. snorm. auto.
-
- - Case "TCon1".
-   simpl. inverts H.
-   erewrite IHt; auto.
-
- - Case "TCon2".
-   simpl. inverts H.
-   erewrite IHt1. snorm. auto.
+   snorm. inverts H. 
+   destruct n; auto.
+    eapply beq_nat_false_iff. 
+    omega.
 Qed.
 
 
@@ -62,14 +44,12 @@ Lemma freeT_wfT
  -> freeTT n2 t = false.
 Proof.
  intros.
-  destruct n2.
-   omega.
-   eapply freeT_wfT_1.
-   destruct n1.
-    eauto.
-    inverts H. auto.
-    have (n2 >= n1) by omega.
-    eauto.
+ destruct n2.
+ - omega.
+ - eapply freeT_wfT_1.
+   destruct n1; eauto.
+   + have (n2 >= n1) by omega.
+     inverts H; eauto.
 Qed.
 Hint Resolve freeT_wfT.
 
@@ -81,41 +61,11 @@ Lemma freeTT_wfT_drop
  -> WfT  n    t.
 Proof.
  intros. gen n.
- induction t.
+ induction t;
+  try (solve [snorm; inverts H; eauto]).
+
  - Case "TVar".
    snorm. inverts H.
    eapply WfT_TVar. omega.
-
- - Case "TForall".
-   snorm. inverts H.
-   eapply WfT_TForall. eauto.
-
- - Case "TApp".
-   snorm.
-   apply orb_false_iff in H0. rip.
-   inverts H. eauto.
-
- - Case "TSum".
-   snorm.
-   apply orb_false_iff in H0. rip.
-   inverts H. eauto.
-
- - Case "TBot".
-   eauto.
-
- - Case "TCon0".
-   eauto.
-
- - Case "TCon1".
-   intros.
-   inverts H. snorm.
-
- - Case "TCon2".
-   snorm.
-   apply orb_false_iff in H0. rip.
-   inverts H. eauto.
-
- - Case "TCap".
-   auto.
 Qed.
 

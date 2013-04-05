@@ -62,7 +62,7 @@ Lemma maskOnT_kind
  -> KindT  ke sp (maskOnT p t) k.
 Proof.
  intros. gen ke sp k.
- induction t; intros; inverts_kind; simpl; eauto.
+ induction t; intros; inverts_kind; simpl; eauto 4.
 
  - Case "TCon1".
    unfold maskOnT. 
@@ -121,27 +121,16 @@ Proof.
   try (solve [unfold maskOnVarT; snorm]).
 
  - Case "TSum".
-   unfold maskOnVarT in *.
+   unfold maskOnVarT in *. 
    snorm.
-   apply orb_false_iff in H. rip.
    repeat rewritess; auto.
 
  - Case "TCon1".
    unfold maskOnVarT in *.
    snorm.
    unfold maskOnT.
-   split_if.
-   + destruct t0; 
-      try (solve [snorm;
-                  symmetry in HeqH0; 
-                  rewrite andb_true_iff in HeqH0; rip; nope]).
-      * SCase "TVar".
-        simpl in H.
-        snorm.
-        symmetry in HeqH0.        
-        rewrite andb_true_iff in HeqH0. rip.
-        snorm. subst. nope.
-   +  auto. 
+   split_if; auto.
+   + destruct t0; try (solve [snorm; rip; nope]).
 Qed.
 
 
@@ -159,7 +148,7 @@ Proof.
  - Case "TSum".
    simpl.
    unfold maskOnVarT in *.
-   simpl. f_equal. eauto. eauto.
+   simpl. f_equal; eauto.
 
  - Case "TCon1".
    unfold maskOnVarT in *.
@@ -169,21 +158,17 @@ Proof.
    + split_if.
      * simpl. auto.
      * snorm.
-       apply beq_true_split  in HeqH. rip.
-       apply beq_false_split in HeqH0.
        inverts HeqH0.
         congruence.
         eapply liftTT_isTVar_true in H0. 
          congruence. omega.
    + split_if.
      * snorm.
-       apply beq_true_split  in HeqH0. rip.
-       apply beq_false_split in HeqH.
        inverts HeqH.
         congruence.
         apply isTVar_form in H0. subst.
         rewrite liftTT_TVar_above in H1.
-        simpl in H1. 
+        simpl in H1.
         rewrite <- beq_nat_refl in H1. 
          nope. omega.
      * simpl. auto.
@@ -206,7 +191,8 @@ Proof.
    unfold maskOnVarT in *.
    snorm.
    f_equal. f_equal.
-   lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+   lets D: maskOnVarT_freeTT_id. 
+   unfold  maskOnVarT in *.
    rewritess; auto.
  
  - Case "TApp".
@@ -214,10 +200,12 @@ Proof.
    snorm.
    f_equal. 
    + f_equal. 
-     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     lets D: maskOnVarT_freeTT_id.
+     unfold  maskOnVarT in *.
      rewritess; auto.
    + f_equal.
-     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     lets D: maskOnVarT_freeTT_id.
+     unfold  maskOnVarT in *.
      rewritess; auto.
 
  - Case "TSum".
@@ -230,25 +218,13 @@ Proof.
  - Case "TCon1".
    unfold maskOnVarT.
    unfold maskOnT; split_if; fold maskOnT.
-   + simpl.
-     snorm. 
-     apply beq_true_split in HeqH0. rip.
-     apply isTVar_form in H1. subst.
+   + snorm.
+     apply isTVar_form in H1. subst. 
      spec IHt1 d t2. rip.
-     snorm.
-     * omega.
-     * unfold maskOnT.
-       split_if; auto.
-       eapply beq_false_split in HeqH0. 
-       inverts HeqH0.
-        congruence.
-        snorm. nope.
-     * unfold maskOnT.
-       split_if; auto.
-       unfold isEffectOnVar in HeqH0.
-       eapply beq_false_split in HeqH0.
-       inverts HeqH0.
-        congruence.
+     unfold maskOnT.
+     snorm; try omega.
+     * inverts HeqH1.
+        congruence. 
         snorm. omega.
 
    + simpl. 
@@ -256,9 +232,7 @@ Proof.
 
      * unfold isEffectOnVar in HeqH0.
        unfold isEffectOnVar in HeqH1.
-       apply beq_false_split in HeqH0.
-       apply beq_true_split in HeqH1. 
-       rip. 
+       snorm.
        inverts HeqH0. 
         congruence.
         apply isTVar_form in H1.
@@ -267,7 +241,8 @@ Proof.
          inverts H1. omega.
 
      * repeat f_equal.
-       lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+       lets D: maskOnVarT_freeTT_id. 
+       unfold maskOnVarT in *.
        erewrite D; auto.
   
  - Case "TCon2".
@@ -275,9 +250,11 @@ Proof.
    snorm. 
    f_equal.
    + f_equal.
-     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     lets D: maskOnVarT_freeTT_id. 
+     unfold  maskOnVarT in *.
      rewritess; auto.
    + f_equal.
-     lets D: maskOnVarT_freeTT_id. unfold maskOnVarT in *.
+     lets D: maskOnVarT_freeTT_id. 
+     unfold  maskOnVarT in *.
      rewritess; auto.
 Qed.

@@ -29,6 +29,9 @@ Tactic Notation "norm1"
     [ split_dec 
     | split_if 
     | split_match
+    | norm_negb
+    | norm_andb
+    | norm_orb
     | norm_nat
     | norm_nat_compare
     | norm_beq_nat
