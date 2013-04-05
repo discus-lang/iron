@@ -3,6 +3,7 @@ Require Export Iron.SystemF2Effect.Type.Relation.SubsT.
 Require Export Iron.SystemF2Effect.Type.Operator.
 
 
+(********************************************************************)
 Definition isVisibleE (sp : stprops) (t : ty) : bool
  := match t with 
     | TCon1 tc (TCap (TyCapRegion n)) 
@@ -32,7 +33,7 @@ Proof.
 Qed.
 
 
-
+(********************************************************************)
 Definition SubsVisibleT ke sp e e'
  := SubsT ke
           sp 

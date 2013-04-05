@@ -69,3 +69,18 @@ Proof.
    eapply WfT_TVar. omega.
 Qed.
 
+
+(********************************************************************)
+Lemma isEffectOnVar_freeTT_false
+ :  forall d t
+ ,  freeTT d t = false
+ -> isEffectOnVar d t = false.
+Proof.
+ intros. 
+ destruct t; snorm.
+  destruct t0; snorm; 
+   try rewrite andb_false_iff; rip.
+  right.
+  rewrite beq_nat_false_iff. auto.
+Qed.
+Hint Resolve isEffectOnVar_freeTT_false.

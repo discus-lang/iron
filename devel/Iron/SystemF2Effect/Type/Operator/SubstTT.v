@@ -2,9 +2,9 @@
 Require Export Iron.SystemF2Effect.Type.Relation.KindT.
 Require Export Iron.SystemF2Effect.Type.Operator.LiftTT.
 Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.Base.
-Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemLiftTT.
-Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemLowerTT.
-Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LemEquivT.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LiftTT.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.LowerTT.
+Require Export Iron.SystemF2Effect.Type.Operator.SubstTT.EquivT.
 
 
 (********************************************************************)
@@ -141,51 +141,4 @@ Proof.
    eauto using subst_type_type. 
 Qed.   
 
-
-(********************************************************************)
-(* If we can lower a particular index then the term does not use it, 
-   so we can delete the corresponding slot from the enviornment. *)
-Theorem lower_type_type_ix
- :  forall ix ke sp t1 k1 t2
- ,  lowerTT ix t1 = Some t2
- -> KindT ke sp t1 k1
- -> KindT (delete ix ke) sp t2 k1.
-Proof.
- intros. gen ix ke sp k1 t2.
- induction t1; intros; simpl;
-  try (solve [inverts_kind; snorm; eauto; nope]).
-
- Case "TVar".
-  inverts_kind. snorm.
-   SCase "n > ix".
-    eapply KiVar.
-    rewrite <- H4.
-    destruct n.
-     simpl. burn.
-     simpl. norm. eapply get_delete_below. omega.
-
- Case "TForall".
-  inverts_kind. snorm. 
-   eapply KiForall.
-   rewrite delete_rewind.
-   eauto. nope.
-
- Case "TCon2".
-  inverts_kind. snorm.
-  eapply KiCon2; eauto.
-   destruct tc; destruct t; eauto.
-   nope. nope.
-Qed.
-
-
-Theorem lower_type_type
- :  forall t1 t2 ke sp k1 k2
- ,  lowerTT 0 t1 = Some t2
- -> KindT (ke :> k1) sp t1 k2 
- -> KindT ke         sp t2 k2.
-Proof.
- intros.
- lets D: lower_type_type_ix H H0.
- simpl in D. auto.
-Qed.
 
