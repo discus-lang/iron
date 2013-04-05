@@ -1,78 +1,10 @@
 
-Require Export Iron.SystemF2Effect.Store.Bind.
 Require Export Iron.SystemF2Effect.Step.Frame.
+Require Export Iron.SystemF2Effect.Store.Bind.
+Require Export Iron.SystemF2Effect.Store.StoreM.
+Require Export Iron.SystemF2Effect.Store.StoreP.
 
 
-(******************************************************************************)
-(* Store typing models the store.
-   All types in the store typing have a corresponding binding in the store.
-   We don't want entries in the store typing that don't have corresponding
-   bindings in the store. *)
-
-Definition STOREM (se: stenv) (ss: store)
- := length se = length ss.
-Hint Unfold STOREM.
-
-
-(* Extended store environment models the extended store *)
-Lemma storem_snoc
- :  forall se ss t stv
- ,  STOREM se ss
- -> STOREM (t <: se) (stv <: ss).
-Proof.
- intros.
- unfold STOREM.
- have (length se = length ss). 
- burn.
-Qed.
-Hint Resolve storem_snoc.
-
-
-(*****************************************************************************)
-(* All region handles on frame stack are in store properties.
-
-   We don't require the other way, forcing all store properties to be in 
-   the frame stack. This is because we need to be able to pop a Use frame and
-   still have any region handles in the expression being well typed, along with
-   dangling references into that region. *)
-
-Definition STOREP  (sp : stprops) (fs : stack)
- := forall n, In (FUse n) fs -> In (SRegion n) sp.
-
-
-(* Weaken frame stack in store properties. *)
-Lemma storep_cons
- :  forall sp fs p
- ,  STOREP sp fs
- -> STOREP (sp :> SRegion p) (fs :> FUse p).
-Proof.
- unfold STOREP in *.
- - intros.
-   have HN: (n = p \/ ~(n = p)).
-   inverts HN.
-   + simpl. auto.
-   + assert (In (FUse n) fs).
-      eapply in_tail.
-      have (FUse n <> FUse p) by congruence.
-      eauto. auto.
-     eapply in_split.
-      left. eapply H. auto.
-Qed.
-Hint Resolve storep_cons.
-
-
-Lemma storep_stprops_cons
- :  forall sp fs p
- ,  STOREP sp fs
- -> STOREP (sp :> p) fs.
-Proof.
- unfold STOREP in *.
- snorm.
-Qed.
-Hint Resolve storep_stprops_cons.
-
-
-(******************************************************************************)
 (* Well formed store. *)
 Definition WfS  (se: stenv) (sp: stprops)  (ss: store)
  := Forall ClosedT se
