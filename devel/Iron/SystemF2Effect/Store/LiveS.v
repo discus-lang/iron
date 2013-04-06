@@ -6,14 +6,11 @@ Require Export Iron.SystemF2Effect.Store.StoreP.
 Require Export Iron.SystemF2Effect.Store.LiveE.
 
 
-Definition LiveF (ss : store) (f : frame)
- := forall p, isFUse p f 
-           -> Forall (fun b => regionOfStBind b = p
-                            -> isStValue b) 
-                      ss.
-
 Definition LiveS  (ss : store) (fs : stack)
- := Forall (LiveF ss) fs.
+ :=  forall b
+  ,  In b ss
+  -> In (FUse (regionOfStBind b)) fs
+  -> isStValue b. 
 
 
 Lemma liveS_push_fLet
@@ -22,11 +19,12 @@ Lemma liveS_push_fLet
  -> LiveS ss (fs :> FLet t x).
 Proof.
  intros.
- unfold LiveS in *. 
+ unfold LiveS in *.
+ intros.
  snorm.
- inverts H0; eauto.
- unfold LiveF in *. snorm.
- nope.
+ inverts H1.
+ - nope.
+ - eauto.
 Qed.
 
 
@@ -49,25 +47,23 @@ Lemma liveS_push_fUse_fresh
  -> LiveS  ss fs
  -> LiveS  ss (fs :> FUse (allocRegion sp)).
 Proof.
- intros.
  unfold LiveS in *.
- unfold LiveF in *.
- snorm.
- destruct x0.
+ intros.
+ destruct b.
  - unfold isStValue. eauto.
- - lets D:  storet_handles_in_stprops H. snorm. subst.
-   lets D2: D H4.
-   have HP: (regionOfStBind (StDead p) = p)
-    by snorm.
-   eapply D2 in HP.
-   inverts H2.
-   + unfold isFUse in H3. inverts H3.
-     lets F: allocRegion_fresh sp. tauto.
-   + unfold isFUse in H3. subst.
-     lets D3: H1 (FUse p). rip.
-     spec D3 p.
-     unfold isFUse in D3.
-     have (FUse p = FUse p). rip. snorm.
+ - apply H1 in H2. auto. clear H1.
+   unfold regionOfStBind in *.
+   snorm.
+   inverts H3. 
+   + inverts H1.
+     lets F: allocRegion_fresh sp.
+     remember (allocRegion sp) as p.
+     
+     lets D: storet_handles_in_stprops H.
+     have HP: (regionOfStBind (StDead p) = p).
+     snorm. eapply D with (p := p) in H2. tauto.
+     snorm.
+   + auto.
 Qed.
 
 
@@ -85,23 +81,42 @@ Proof.
 
  destruct b.
  - snorm. subst. exists v. eauto.
- - have HIF: (In (FUse p) fs) 
-    by  (eapply liveE_fUse_in; eauto; snorm).
-
-   unfold LiveS in HLS.
-   unfold LiveF in HLS.
-   snorm.
- 
-   eapply HLS with (p := n) in HIF.
+ - snorm. subst.
+   have (In (StDead p) ss) as HD.
+   unfold LiveS in *. 
+   eapply HLS in HD.
+   + unfold isStValue in HD. nope.
    + snorm.
-     have (In (StDead n) ss) as HD. subst.
-     eapply HIF in HD.
-     unfold isStValue in HD. nope.
-     snorm.
-   + snorm.
+     eapply liveE_fUse_in; eauto.
 Qed.
 
 
+(********************************************************************)
+Lemma liveS_deallocate
+ :  forall ss fs p
+ ,  ~(In (FUse p) fs)
+ -> LiveS ss (fs :> FUse p)
+ -> LiveS (deallocate p ss) fs.
+Proof.
+ intros.
+ induction ss.
+ - admit. 
+ - destruct a.
+   + simpl.
+     split_if.
+     * snorm. subst.
+       admit. (* need LiveS_cons and LiveS_cons_dead *)
 
+     * snorm.
+       have (LiveS ss (fs :> FUse p)) by admit. rip.
+       unfold LiveS in IHss.
+       unfold LiveS. intros. snorm.
+       inverts H2.
+        eauto.
+        eapply IHss; auto.
 
+   + simpl.
+     have (LiveS ss (fs :> FUse p)) by admit. rip.
+     admit. (* need LiveS_cons *)
+Qed.
 

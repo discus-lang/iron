@@ -63,15 +63,19 @@ Qed.
 Hint Resolve wfFS_sregion_cons.
 
 
-(* Popping a frame from the stack preserves well formedness. *)
+(* Deallocating a region preserves well-formedness of the store. *)
 Lemma wfFS_stack_pop
  :  forall se sp ss fs p
- ,  WfFS se sp ss (fs :> FUse p)
- -> WfFS se sp ss fs.
+ ,  WfFS se sp ss               (fs :> FUse p)
+ -> WfFS se sp (deallocate p ss) fs.
 Proof.
  intros.
- unfold WfFS in *. rip. 
+ unfold WfFS in *. 
+ admit. (* wfFS after region dealloc *)
+(*
+ rip. 
  unfold STOREP in *.
   eauto.
+*)
 Qed.
 

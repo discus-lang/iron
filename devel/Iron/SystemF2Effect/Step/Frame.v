@@ -63,22 +63,22 @@ Inductive
  (* Pop a region from the stack. *)
  | SfRegionPop
    :  forall ss sp  fs v1 p
-   ,  STEPF  ss sp (fs :> FUse p)    (XVal v1)
-             ss sp  fs               (XVal v1)
+   ,  STEPF  ss                    sp (fs :> FUse p)    (XVal v1)
+             (deallocate p ss)     sp  fs               (XVal v1)
 
  (* Store operators *****************************)
  (* Allocate a reference. *) 
  | SfStoreAlloc
    :  forall ss sp fs r1 v1
-   ,  STEPF  ss                    sp fs (XAlloc (TCap (TyCapRegion r1)) v1)
-             (StValue r1 v1 <: ss) sp fs (XVal (VLoc (length ss)))
+   ,  STEPF  ss                    sp  fs (XAlloc (TCap (TyCapRegion r1)) v1)
+             (StValue r1 v1 <: ss) sp  fs (XVal (VLoc (length ss)))
 
  (* Read from a reference. *)
  | SfStoreRead
    :  forall ss sp fs l v r
    ,  get l ss = Some (StValue r v)
-   -> STEPF ss                     sp fs (XRead (TCap (TyCapRegion r))  (VLoc l)) 
-            ss                     sp fs (XVal v)
+   -> STEPF ss                     sp  fs (XRead (TCap (TyCapRegion r))  (VLoc l)) 
+            ss                     sp  fs (XVal v)
 
  (* Write to a reference. *)
  | SfStoreWrite

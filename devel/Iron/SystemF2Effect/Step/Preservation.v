@@ -320,11 +320,11 @@ Proof.
      exists e2.
      rip.
      (* Frame stack is still well formed after popping the top FUse frame *)
-     + eapply wfFS_stack_pop; eauto.
+     + eapply wfFS_stack_pop; auto.
 
      (* After popping top FUse,
         all store bindings mentioned by frame stack are still live. *)
-     + admit. (* TODO: need to set all bindings in popped region to dead. *)
+     + eapply liveS_deallocate; eauto.
 
      (* New effect subsumes old one. *)
      + eapply subsT_subsVisibleT.

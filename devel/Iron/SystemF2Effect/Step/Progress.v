@@ -37,7 +37,7 @@ Proof.
      exists ss. exists sp. exists fs. exists (substVX 0 v x).
      eauto.
     SSCase "FUse".
-     exists ss. exists sp. exists fs. exists (XVal v).
+     exists (deallocate n ss). exists sp. exists fs. exists (XVal v).
      eauto.
  }
 
