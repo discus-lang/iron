@@ -1,15 +1,15 @@
 
 Require Export Iron.SystemF2Effect.Step.TypeC.
 Require Export Iron.SystemF2Effect.Type.Operator.FreeTT.
+Require Export Iron.SystemF2Effect.Store.LiveS.
 Require Export Iron.SystemF2Effect.Store.LiveE.
+
 
 (* TODO: To handle region deallocation:
    - Require all effects to be on regions mentioned in the frame stack.
    - Require all regions mentioned in frame stack to be live.
    - When popping FUse frame, set all bindings in that region to dead.
    - First requirement ensures store actions don't access dead regions.
-
-   - Add LiveS and LiveS as hypothesis to TYPEC. 
 *)
 
 
@@ -18,9 +18,9 @@ Require Export Iron.SystemF2Effect.Store.LiveE.
 Theorem preservation
  :  forall se sp sp' ss ss' fs fs' x x' t e
  ,  WfFS   se sp ss  fs
- -> LiveE  fs e
+ -> LiveS ss fs -> LiveE  fs e
  -> TYPEC  nil nil se sp fs  x   t  e    
- -> STEPF  ss  sp fs  x ss' sp' fs' x'   
+ -> STEPF  ss  sp  fs x  ss' sp' fs' x'   
  -> (exists se' e'
     ,  extends se' se                   
     /\ WfFS          se' sp' ss' fs'
@@ -29,7 +29,7 @@ Theorem preservation
     /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp sp' ss ss' fs fs' x x' t e.
- intros HH HL HC HS. 
+ intros HH HLS HLE HC HS. 
  gen t e.
  induction HS; intros.
 
@@ -158,8 +158,8 @@ Proof.
 
        have (LiveE fs e1).
 
-       have HLE: (LiveE (fs :> FUse p) e1).
-       rewrite HLL in HLE.
+       have HLW: (LiveE (fs :> FUse p) e1).
+       rewrite HLL in HLW.
 
        have HL0: (LiveE (fs :> FUse p) e0) 
         by (eapply liveE_maskOnVarT; eauto).
