@@ -76,9 +76,10 @@ Inductive
 
  (* Write to a reference. *)
  | SfStoreWrite
-   :  forall ss sp fs l r v
-   ,  STEPF  ss sp fs                 (XWrite (TCap (TyCapRegion r)) (VLoc l) v)
-             (update l (StValue r v) ss) sp fs (XVal (VConst CUnit)).
+   :  forall ss sp fs l r v1 v2 
+   ,  get l ss = Some (StValue r v1)
+   -> STEPF  ss sp fs                 (XWrite (TCap (TyCapRegion r)) (VLoc l) v2)
+             (update l (StValue r v2) ss) sp fs (XVal (VConst CUnit)).
 
 Hint Constructors STEPF.
 

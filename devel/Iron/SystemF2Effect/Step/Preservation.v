@@ -7,7 +7,10 @@ Require Export Iron.SystemF2Effect.Store.LiveE.
    - Require all effects to be on regions mentioned in the frame stack.
    - Require all regions mentioned in frame stack to be live.
    - When popping FUse frame, set all bindings in that region to dead.
-   - First requirement ensures store actions don't access dead regions. *)
+   - First requirement ensures store actions don't access dead regions.
+
+   - Add LiveS and LiveS as hypothesis to TYPEC. 
+*)
 
 
 (* When a well typed expression transitions to the next state
@@ -403,11 +406,11 @@ Proof.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
-      by   (eapply EqSym in H; eauto).
+      by   (eapply EqSym in H0; eauto).
      eapply liveE_subsT; eauto.
 
    (* Original effect visibly subsumes resulting one. *)
-    - eapply EqSym in H.
+    - eapply EqSym in H0.
       eapply subsT_subsVisibleT; eauto.
        eauto. eauto.
 

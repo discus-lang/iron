@@ -177,11 +177,53 @@ Proof.
  (*********************************************************)
  Case "XWrite".
  { right.
-   inverts_typec.
+   inverts_typec. inverts HW. rip.
+
    have HR: (exists n, t = TCap (TyCapRegion n)).
     destruct HR as [n]. subst.
+
    destruct v; burn.
-   destruct c; nope.
+
+   (* Write to a location. *)
+   - inverts_type. 
+
+     exists (update n0 (StValue n v0) ss).
+     exists sp. exists fs. exists (XVal (VConst CUnit)).
+
+     have (exists b, get n0 ss = Some b). 
+      dest b.
+
+     destruct b.
+     (* Original binding contains a live value that can be overwritten. *)
+     + have HB: (TYPEB nil nil se sp
+                       (StValue n1 v)
+                       (TRef (TCap (TyCapRegion n)) t2))
+        by (eapply Forall2_get_get_same; eauto).
+       inverts HB.
+       eauto.
+   
+     (* Original binding is dead,
+        can't happen due to binding liveness constraints. *)
+     + have HB: (TYPEB nil nil se sp
+                       (StDead n1)
+                       (TRef (TCap (TyCapRegion n)) t2))
+        by (eapply Forall2_get_get_same; eauto).
+       inverts HB.
+
+       remember (TCap (TyCapRegion n)) as p.
+
+       have (SubsT nil sp e1 (TWrite p) KEffect)
+         by  (eapply EqSym in H; eauto).
+
+       have (LiveE fs (TWrite p)).
+
+       lets D: liveS_liveE_value ss fs (TWrite p) n0 (StDead n).
+       spec D n. rip. subst p. snorm. 
+       have (Some n = Some n). rip.
+       have (n = n). rip. nope.
+
+   (* Write to a constant, can't happen. *)
+   - destruct c; nope.
  }
 Qed.
 
