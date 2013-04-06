@@ -5,11 +5,32 @@ Require Export Iron.SystemF2Effect.Store.Bind.
 
 Fixpoint handleOfEffect (e : ty) : option nat
  := match e with
-    | TCap (TyCapRegion p) => Some p
+    | TCon1 tc (TCap (TyCapRegion p)) 
+    => if isEffectTyCon tc then Some p else None
+
     | _                    => None
     end.
 
 
+Lemma handleOfEffect_form_some
+ :  forall e p
+ ,  handleOfEffect e = Some p
+ -> exists tc
+     ,  e    = TCon1 tc (TCap (TyCapRegion p)) 
+     /\ true = isEffectTyCon tc.
+Proof.
+ intros.
+ destruct e; snorm.
+ - destruct e; snorm. 
+   destruct t0; snorm.
+   exists t. rip.
+ - destruct e; snorm.
+   destruct t0; snorm.
+Qed.
+Hint Resolve handleOfEffect_form_some.
+
+
+(********************************************************************)
 (* All region handles in this effect have corresponding 
    FUse frames in the frame stack. *)
 Definition LiveEs (fs : stack) (es : list ty)
@@ -96,6 +117,32 @@ Qed.
 Hint Resolve liveE_sum_above.
 
 
+Lemma liveE_sum_above_left
+ :  forall fs e1 e2
+ ,  LiveE fs (TSum e1 e2)
+ -> LiveE fs e1.
+Proof.
+ intros.
+ unfold LiveE  in *. 
+ unfold LiveEs in *.
+ snorm. eauto.
+Qed.
+Hint Resolve liveE_sum_above_left.
+
+
+Lemma liveE_sum_above_right
+ :  forall fs e1 e2
+ ,  LiveE fs (TSum e1 e2)
+ -> LiveE fs e2.
+Proof.
+ intros.
+ unfold LiveE  in *.
+ unfold LiveEs in *.
+ snorm. eauto.
+Qed.
+
+
+(********************************************************************)
 Lemma liveE_frame_cons
  :  forall fs f e
  ,  LiveE  fs        e
@@ -136,18 +183,37 @@ Proof.
  unfold LiveE in *.
  unfold LiveEs in *.
  snorm.
-  admit.      (* ok, effect is on handle, so not masked. *)
+ spec H x.
+ apply handleOfEffect_form_some in H1.
+ destruct H1 as [tc]. rip.
+ eapply maskOnVar_effect_remains in H0.
+ - eapply H in H0; eauto.
+   snorm. nope.
+ - eauto.
 Qed.
-
+  
 
 Lemma liveE_phase_change
  :  forall fs p e
  ,  LiveE (fs :> FUse p) e
  -> LiveE (fs :> FUse p) (substTT 0 (TCap (TyCapRegion p)) e).
 Proof.
- admit.       (* TODO: liveE_phase_change *)
-Qed.
+ intros.
+ induction e; snorm;
+  try (solve [unfold LiveE in *;
+              unfold LiveEs in *;
+              snorm; inverts H0; nope]).
 
+ - Case "TSum".
+   eapply liveE_sum_above.
+   + eapply liveE_sum_above_left  in H; eauto.
+   + eapply liveE_sum_above_right in H; eauto.
+
+ - Case "TCon1".
+   destruct e; 
+    unfold LiveE; unfold LiveEs; snorm;
+    try (solve [inverts H0; snorm; nope]).
+Qed.
 
 Global Opaque LiveE.
 

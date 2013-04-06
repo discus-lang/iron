@@ -249,3 +249,30 @@ Proof.
      unfold  maskOnVarT in *.
      rewritess; auto.
 Qed.
+
+
+(********************************************************************)
+Lemma maskOnVar_effect_remains
+ :  forall t tc p n e
+ ,  t = TCon1 tc (TCap (TyCapRegion p))
+ -> In t (flattenT e)
+ -> In t (flattenT (maskOnVarT n e)).
+Proof.
+ intros.
+ induction e; snorm.
+
+ - Case "TSum".
+   apply in_app_split in H0.
+   inverts H0; snorm.
+
+ - Case "TCon1".
+   + inverts H0.
+     inverts H1.
+     snorm.
+     unfold maskOnVarT.
+     unfold maskOnT.
+     split_if.
+     * snorm. nope.
+     * snorm.
+     * nope.
+Qed.
