@@ -62,3 +62,21 @@ Proof.
    + snorm.
 Qed.
 
+
+Lemma liveS_push_fLet
+ :  forall ss fs t x
+ ,  LiveS ss fs
+ -> LiveS ss (fs :> FLet t x).
+Proof.
+ admit.
+Qed.
+
+
+Lemma liveS_pop_fLet
+ :  forall ss fs t x
+ ,  LiveS ss (fs :> FLet t x)
+ -> LiveS ss fs.
+Proof.
+ admit.
+Qed.
+

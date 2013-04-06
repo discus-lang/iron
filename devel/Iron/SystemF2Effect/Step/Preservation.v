@@ -10,6 +10,11 @@ Require Export Iron.SystemF2Effect.Store.LiveE.
    - Require all regions mentioned in frame stack to be live.
    - When popping FUse frame, set all bindings in that region to dead.
    - First requirement ensures store actions don't access dead regions.
+
+   - Do multistep evaluation and explicit soundness.
+   - Do a single step and multi-step frame condition, 
+      if the effect term does not contain write effects on particular regions
+      then all values in those regions are preserved.
 *)
 
 
@@ -23,8 +28,9 @@ Theorem preservation
  -> STEPF  ss  sp  fs x  ss' sp' fs' x'   
  -> (exists se' e'
     ,  extends se' se                   
-    /\ WfFS          se' sp' ss' fs'
-    /\ LiveE         fs' e'
+    /\ WfFS  se' sp' ss' fs'
+    /\ LiveS ss' fs'    
+    /\ LiveE fs' e'
     /\ SubsVisibleT  nil sp  e   e'
     /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
@@ -67,6 +73,9 @@ Proof.
      inverts H2.
      + nope.
      + auto.
+    
+   (* All store bindings mentioned by frame stack are still live. *)
+   - eapply liveS_push_fLet; auto.
 
    (* Original effect visibly subsumes effect of result. *)
    - eapply subsT_visible_refl. 
@@ -96,6 +105,10 @@ Proof.
    (* Store is still well formed. *)
    - unfold WfFS in *. rip.
      unfold STOREP in *. rip.
+
+   (* After popping top FLet frame, 
+      all store bindings mentioned by frame stack are still live. *)
+   - eapply liveS_pop_fLet; eauto.
 
    (* After popping top FLet frame, effects of result are still 
       to live regions. *)
@@ -146,6 +159,10 @@ Proof.
    have (ClosedT e2).
 
    rip.
+
+   (* All store bindings mentioned by resulting frame stack
+      are still live. *)
+   - admit. (* TODO: LiveS after push FUse *)
 
    (* Resulting effect is to live regions. *)
    - eapply liveE_sum_above.
@@ -303,6 +320,10 @@ Proof.
      (* Frame stack is still well formed after popping the top FUse frame *)
      + eapply wfFS_stack_pop; eauto.
 
+     (* After popping top FUse,
+        all store bindings mentioned by frame stack are still live. *)
+     + admit. (* TODO: need to set all bindings in popped region to dead. *)
+
      (* New effect subsumes old one. *)
      + eapply subsT_subsVisibleT.
        have HE: (EquivT nil (sp :> SRegion n) e2 e KEffect).
@@ -330,6 +351,9 @@ Proof.
    (* Resulting store is well formed. *)
    - unfold WfFS in *.
      rip. eauto.
+
+   (* All store bindings mentioned by frame stack are still live. *)
+   - admit. (* ok, add new value, fs mentions r1 due to alloc effect and LiveE *)
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
@@ -403,6 +427,9 @@ Proof.
    (* Resulting store is well formed. *)
    - inverts_type.
      eapply store_update_wffs; eauto.
+
+   (* All store bindings mentioned by frame stack are still live. *)
+   - admit. (* ok, need LiveS/Update *)
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
