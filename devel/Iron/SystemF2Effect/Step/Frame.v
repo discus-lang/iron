@@ -5,6 +5,7 @@ Require Export Iron.SystemF2Effect.Step.Pure.
 Require Export Iron.SystemF2Effect.Store.Prop.
 
 
+(********************************************************************)
 (* Frame Stacks *)
 Inductive frame : Set :=
  (* Holds the continuation of a let-expression while the right
@@ -17,6 +18,11 @@ Hint Constructors frame.
 
 Definition stack := list frame.
 Hint Unfold stack.
+
+
+Definition isFUse (p : nat) (f : frame)
+ := f = FUse p.
+Hint Unfold isFUse.
 
 
 (********************************************************************)

@@ -4,24 +4,6 @@ Require Export Iron.SystemF2Effect.Store.Bind.
 Require Export Iron.SystemF2Effect.Store.LiveE.
 
 
-Definition isFUse    (p : nat) (f : frame)
- := f = FUse p.
-Hint Unfold isFUse.
-
-
-Definition isStValue (b : stbind)
- := exists p v, b = StValue p v.
-Hint Unfold isStValue.
-
-
-Definition regionOfStBind (b : stbind)
- := match b with 
-    | StValue n _ => n
-    | StDead  n   => n
-    end.
-Hint Unfold regionOfStBind.
-
-
 Definition LiveF (ss : store) (f : frame)
  := forall p, isFUse p f 
            -> Forall (fun b => regionOfStBind b = p
@@ -30,8 +12,32 @@ Definition LiveF (ss : store) (f : frame)
 
 Definition LiveS  (ss : store) (fs : stack)
  := Forall (LiveF ss) fs.
-                         
 
+
+Lemma liveS_push_fLet
+ :  forall ss fs t x
+ ,  LiveS ss fs
+ -> LiveS ss (fs :> FLet t x).
+Proof.
+ intros.
+ unfold LiveS in *. 
+ snorm.
+ inverts H0; eauto.
+ unfold LiveF in *. snorm.
+ nope.
+Qed.
+
+
+Lemma liveS_pop_fLet
+ :  forall ss fs t x
+ ,  LiveS ss (fs :> FLet t x)
+ -> LiveS ss fs.
+Proof.
+ intros.
+ unfold LiveS in *.
+ snorm.
+Qed.
+                         
 
 Lemma liveS_liveE_value
  :  forall ss fs e l b p
@@ -60,30 +66,5 @@ Proof.
      unfold isStValue in HD. nope.
      snorm.
    + snorm.
-Qed.
-
-
-Lemma liveS_push_fLet
- :  forall ss fs t x
- ,  LiveS ss fs
- -> LiveS ss (fs :> FLet t x).
-Proof.
- intros.
- unfold LiveS in *. 
- snorm.
- inverts H0; eauto.
- unfold LiveF in *. snorm.
- nope.
-Qed.
-
-
-Lemma liveS_pop_fLet
- :  forall ss fs t x
- ,  LiveS ss (fs :> FLet t x)
- -> LiveS ss fs.
-Proof.
- intros.
- unfold LiveS in *.
- snorm.
 Qed.
 

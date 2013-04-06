@@ -162,7 +162,7 @@ Proof.
 
    (* All store bindings mentioned by resulting frame stack
       are still live. *)
-   - admit. (* TODO: LiveS after push FUse *)
+   - admit.
 
    (* Resulting effect is to live regions. *)
    - eapply liveE_sum_above.
