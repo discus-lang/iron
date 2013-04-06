@@ -1,5 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Store.Wf.
+Require Export Iron.SystemF2Effect.Store.TypeB.
+Require Export Iron.SystemF2Effect.Store.TypeS.
 
 
 (* Reading bindings **********************************************************)

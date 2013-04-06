@@ -1,6 +1,8 @@
 
 Require Export Iron.SystemF2Effect.Step.Frame.
 Require Export Iron.SystemF2Effect.Store.Bind.
+Require Export Iron.SystemF2Effect.Store.TypeB.
+Require Export Iron.SystemF2Effect.Store.TypeS.
 Require Export Iron.SystemF2Effect.Store.StoreM.
 Require Export Iron.SystemF2Effect.Store.StoreP.
 
