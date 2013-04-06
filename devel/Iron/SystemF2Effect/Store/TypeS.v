@@ -25,6 +25,29 @@ Qed.
 Hint Resolve storet_weak_stprops.
 
 
+(* All region handles in store bindings are present 
+   in the store properties. *)
+Lemma storet_handles_in_stprops
+ :  forall se sp ss
+ ,  STORET se sp ss
+ -> Forall (fun s => forall p
+                  ,  regionOfStBind s = p 
+                  -> In (SRegion p) sp) 
+           ss.
+Proof.
+ intros.
+ snorm.
+ unfold STORET in *.
+ have (exists ix, get ix ss = Some x).
+  dest ix.
+ have (exists t, TYPEB nil nil se sp x t).
+  dest t.
+ inverts H3.
+ - snorm. subst. inverts_kind. auto.
+ - snorm. subst. inverts_kind. auto.
+Qed.
+
+
 (* Extended store is well typed under extended store environment *)
 Lemma storet_snoc
  :  forall se sp ss r1 v1 t2

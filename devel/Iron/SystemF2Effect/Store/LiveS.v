@@ -1,6 +1,8 @@
 
 Require Export Iron.SystemF2Effect.Step.Frame.
 Require Export Iron.SystemF2Effect.Store.Bind.
+Require Export Iron.SystemF2Effect.Store.TypeS.
+Require Export Iron.SystemF2Effect.Store.StoreP.
 Require Export Iron.SystemF2Effect.Store.LiveE.
 
 
@@ -37,8 +39,39 @@ Proof.
  unfold LiveS in *.
  snorm.
 Qed.
-                         
 
+
+(********************************************************************)
+Lemma liveS_push_fUse_fresh
+ :  forall se sp ss fs 
+ ,  STORET se sp ss
+ -> STOREP sp fs
+ -> LiveS  ss fs
+ -> LiveS  ss (fs :> FUse (allocRegion sp)).
+Proof.
+ intros.
+ unfold LiveS in *.
+ unfold LiveF in *.
+ snorm.
+ destruct x0.
+ - unfold isStValue. eauto.
+ - lets D:  storet_handles_in_stprops H. snorm. subst.
+   lets D2: D H4.
+   have HP: (regionOfStBind (StDead p) = p)
+    by snorm.
+   eapply D2 in HP.
+   inverts H2.
+   + unfold isFUse in H3. inverts H3.
+     lets F: allocRegion_fresh sp. tauto.
+   + unfold isFUse in H3. subst.
+     lets D3: H1 (FUse p). rip.
+     spec D3 p.
+     unfold isFUse in D3.
+     have (FUse p = FUse p). rip. snorm.
+Qed.
+
+
+(********************************************************************)
 Lemma liveS_liveE_value
  :  forall ss fs e l b p
  ,  LiveS ss fs
@@ -67,4 +100,8 @@ Proof.
      snorm.
    + snorm.
 Qed.
+
+
+
+
 
