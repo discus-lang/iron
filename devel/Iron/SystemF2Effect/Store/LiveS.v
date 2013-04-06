@@ -68,7 +68,12 @@ Lemma liveS_push_fLet
  ,  LiveS ss fs
  -> LiveS ss (fs :> FLet t x).
 Proof.
- admit.
+ intros.
+ unfold LiveS in *. 
+ snorm.
+ inverts H0; eauto.
+ unfold LiveF in *. snorm.
+ nope.
 Qed.
 
 
@@ -77,6 +82,8 @@ Lemma liveS_pop_fLet
  ,  LiveS ss (fs :> FLet t x)
  -> LiveS ss fs.
 Proof.
- admit.
+ intros.
+ unfold LiveS in *.
+ snorm.
 Qed.
 
