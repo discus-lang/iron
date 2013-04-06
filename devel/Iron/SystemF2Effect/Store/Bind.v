@@ -21,10 +21,13 @@ Definition store := list stbind.
 (******************************************************************************)
 (* Types of store bindings. *)
 Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop := 
- (* A store binding that contains a live value. *)
+ (* A store binding that contains a live value.
+    Requiring that the region handle is well kinded ensures that it's 
+    mentioned in the store properties. *)
  | TbValue
    :  forall ke te se sp n v t
-   ,  TYPEV  ke te se sp v t
+   ,  KindT  ke sp (TCap (TyCapRegion n)) KRegion
+   -> TYPEV  ke te se sp v t
    -> TYPEB  ke te se sp (StValue n v) (TRef (TCap (TyCapRegion n)) t)
 
  (* After a store binding has been dealloated,
@@ -33,7 +36,8 @@ Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
     so there is no opportunity to treat it has having the wrong type. *)
  | TbDead 
    :  forall ke te se sp n t
-   ,  TYPEB  ke te se sp (StDead n)    (TRef (TCap (TyCapRegion n)) t).
+   ,  KindT  ke sp (TCap (TyCapRegion n)) KRegion
+   -> TYPEB  ke te se sp (StDead n)    (TRef (TCap (TyCapRegion n)) t).
 
 Hint Constructors TYPEB.
 
@@ -58,7 +62,7 @@ Lemma typeb_stprops_snoc
  -> TYPEB  ke te se (p <: sp) v t.
 Proof. 
  intros. 
- inverts H; eauto.
+ inverts H; eauto using kind_stprops_snoc.
 Qed.
 Hint Resolve typeb_stprops_snoc.
 
@@ -69,7 +73,7 @@ Lemma typeb_stprops_cons
  -> TYPEB  ke te se (sp :> p) v t.
 Proof. 
  intros.
- inverts H; eauto.
+ inverts H; eauto using kind_stprops_cons.
 Qed.
 Hint Resolve typeb_stprops_snoc.
 
@@ -100,7 +104,8 @@ Hint Resolve storet_weak_stprops.
 (* Extended store is well typed under extended store environment *)
 Lemma storet_snoc
  :  forall se sp ss r1 v1 t2
- ,  TYPEV  nil nil se sp v1 t2
+ ,  KindT  nil sp (TCap (TyCapRegion r1)) KRegion
+ -> TYPEV  nil nil se sp v1 t2
  -> STORET                                     se  sp                   ss
  -> STORET (TRef (TCap (TyCapRegion r1)) t2 <: se) sp (StValue r1 v1 <: ss).
 Proof.
@@ -108,27 +113,30 @@ Proof.
  set (tRef' := TRef (TCap (TyCapRegion r1)) t2).
 
  assert (TYPEB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
-  apply TbValue.
-   apply typev_stenv_snoc.
-    subst tRef'.
-    assert (ClosedT t2).
-     rrwrite (0 = @length ki nil).
-     apply (kind_wfT nil sp t2 KData).
+ { apply TbValue; auto.
+   - apply typev_stenv_snoc.
+     subst tRef'.
+     assert (ClosedT t2).
+      rrwrite (0 = @length ki nil).
+      apply (kind_wfT nil sp t2 KData).
 
-     (* NOTE: This one has to be done manually to instantiate existentials *)
-     apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).
-    auto. auto. auto.
+      (* NOTE: This one has to be done manually to instantiate existentials *)
+      apply (typex_kind_type nil nil se sp (XVal v1) t2 (TBot KEffect)).
+       auto. auto. auto.
+ }
      
  assert (Forall2 (TYPEB nil nil (tRef' <: se) sp) ss se).
-  lets D: (@Forall2_impl stbind ty) 
+ { lets D: (@Forall2_impl stbind ty) 
                 (TYPEB nil nil se sp) 
                 (TYPEB nil nil (tRef' <: se) sp)
-                ss se H0.
-  intros.
-  apply typeb_stenv_snoc.
-   auto.
-   subst tRef'. eauto.
-  auto. auto.
+                ss se H1.
+   intros.
+   apply typeb_stenv_snoc.
+    auto.
+    subst tRef'. eauto.
+   auto. 
+ }
+ auto.
 Qed.
 Hint Resolve storet_snoc.
 

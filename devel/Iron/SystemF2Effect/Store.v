@@ -25,16 +25,17 @@ Lemma store_update_wffs
  :  forall se sp ss fs l r v t
  ,  WfFS se sp ss fs
  -> get l se = Some (TRef (TCap (TyCapRegion r)) t)
+ -> KindT nil sp (TCap (TyCapRegion r)) KRegion
  -> TYPEV nil nil se sp v t
  -> WfFS se sp (update l (StValue r v) ss) fs.
 Proof.
  intros se sp ss fs l r v t HWF1 HG HV.
  inverts HWF1. rip.
-  have (length se = length ss).
+ - have (length se = length ss).
    unfold STOREM.
    rewritess.
    rewrite update_length. auto.
-  unfold STORET.
+ - unfold STORET.
    eapply Forall2_update_right; eauto.
 Qed.
 
