@@ -7,8 +7,11 @@ Require Import Iron.SystemF2Effect.Value.TyJudge.TypeKind.
 (* Store bindings are the primitive objects we keep in the store.
    Each one is tagged with the number of the region is in. *)
 Inductive stbind :=
- (* A store value in some region. *)
- | StValue : nat -> val -> stbind.
+ (* A store binding containing a live value. *)
+ | StValue : nat -> val -> stbind
+
+ (* A store binding that has been deallocated. *)
+ | StDead  : nat -> stbind.
 Hint Constructors stbind.
 
 (* A store is a list of store bindings. *)
@@ -18,10 +21,20 @@ Definition store := list stbind.
 (******************************************************************************)
 (* Types of store bindings. *)
 Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop := 
+ (* A store binding that contains a live value. *)
  | TbValue
    :  forall ke te se sp n v t
    ,  TYPEV  ke te se sp v t
-   -> TYPEB  ke te se sp (StValue n v) (TRef (TCap (TyCapRegion n)) t).
+   -> TYPEB  ke te se sp (StValue n v) (TRef (TCap (TyCapRegion n)) t)
+
+ (* After a store binding has been dealloated,
+    we can treat the location has having any type we want.
+    The progress theorem guarantees these dead bindings will never be read,
+    so there is no opportunity to treat it has having the wrong type. *)
+ | TbDead 
+   :  forall ke te se sp n t
+   ,  TYPEB  ke te se sp (StDead n)    (TRef (TCap (TyCapRegion n)) t).
+
 Hint Constructors TYPEB.
 
 
@@ -32,7 +45,8 @@ Lemma typeb_stenv_snoc
  -> ClosedT t2
  -> TYPEB  ke te (t2 <: se) sp v t1.
 Proof.
- intros. inverts H. eauto.
+ intros. 
+ inverts H; eauto.
 Qed.
 Hint Resolve typeb_stenv_snoc.
 
@@ -43,7 +57,8 @@ Lemma typeb_stprops_snoc
  ,  TYPEB  ke te se sp v t
  -> TYPEB  ke te se (p <: sp) v t.
 Proof. 
- intros. inverts H. eauto.
+ intros. 
+ inverts H; eauto.
 Qed.
 Hint Resolve typeb_stprops_snoc.
 
@@ -53,7 +68,8 @@ Lemma typeb_stprops_cons
  ,  TYPEB  ke te se sp v t
  -> TYPEB  ke te se (sp :> p) v t.
 Proof. 
- intros. inverts H. eauto.
+ intros.
+ inverts H; eauto.
 Qed.
 Hint Resolve typeb_stprops_snoc.
 

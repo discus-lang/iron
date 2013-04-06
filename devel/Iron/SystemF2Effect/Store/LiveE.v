@@ -215,6 +215,27 @@ Proof.
     try (solve [inverts H0; snorm; nope]).
 Qed.
 
+
+Lemma liveE_fUse_in
+ :  forall e p fs
+ ,  handleOfEffect e = Some p
+ -> LiveE fs e
+ -> In (FUse p) fs.
+Proof.
+ intros.
+ unfold LiveE  in *.
+ unfold LiveEs in *.
+ snorm.
+ eapply handleOfEffect_form_some in H.
+ destruct H as [tc]. rip.
+ snorm. 
+ lets D: H0 (TCon1 tc (TCap (TyCapRegion p))). clear H0.
+ eapply D. 
+  tauto. 
+  snorm. nope.
+Qed.
+
+
 Global Opaque LiveE.
 
 
