@@ -132,6 +132,60 @@ Qed.
 Hint Resolve liveS_store_cons_dead.
 
 
+Lemma liveS_store_cons_value
+ :  forall p v fs ss
+ ,  In (FUse p) fs
+ -> LiveS ss                  fs
+ -> LiveS (ss :> StValue p v) fs.
+Proof.
+ intros.
+ unfold LiveS in *.
+ snorm.
+ inverts H1; eauto.
+Qed.
+
+
+Lemma liveS_store_snoc_value
+ :  forall p v fs ss
+ ,  In (FUse p) fs
+ -> LiveS ss                  fs
+ -> LiveS (StValue p v <: ss) fs.
+Proof.
+ intros.
+ unfold LiveS in *.
+ snorm.
+ rrwrite ( StValue p v <: ss 
+         = (nil :> StValue p v) >< ss) in H1.
+ eapply in_app_split in H1.
+ inverts H1.
+ - eauto.
+ - eauto.
+   simpl in H3. inverts H3.
+   unfold isStValue. eauto. nope.
+Qed.
+
+
+Lemma liveS_update
+ :  forall ss fs l p v
+ ,  In (FUse p) fs
+ -> LiveS  ss fs
+ -> LiveS (update l (StValue p v) ss) fs.
+Proof.
+ intros. gen l.
+ induction ss; intros.
+ - unfold LiveS.
+   intros.
+   destruct l; snorm.
+ - have (LiveS ss fs). rip.
+   destruct l.
+   + simpl. 
+     eapply liveS_store_cons_value; eauto.
+   + simpl.
+     unfold LiveS in *. snorm.
+     inverts H2. eauto. eauto.
+Qed.
+
+
 Lemma liveS_deallocate
  :  forall ss fs p
  ,  ~(In (FUse p) fs)

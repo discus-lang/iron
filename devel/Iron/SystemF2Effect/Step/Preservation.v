@@ -5,16 +5,11 @@ Require Export Iron.SystemF2Effect.Store.LiveS.
 Require Export Iron.SystemF2Effect.Store.LiveE.
 
 
-(* TODO: To handle region deallocation:
-   - Require all effects to be on regions mentioned in the frame stack.
-   - Require all regions mentioned in frame stack to be live.
-   - When popping FUse frame, set all bindings in that region to dead.
-   - First requirement ensures store actions don't access dead regions.
-
-   - Do multistep evaluation and explicit soundness.
+(* - Do multistep evaluation and explicit soundness.
    - Do a single step and multi-step frame condition, 
-      if the effect term does not contain write effects on particular regions
-      then all values in those regions are preserved.
+      if the effect term does not contain write effects on 
+      particular regions then all values in those regions are 
+      preserved.
 *)
 
 
@@ -355,7 +350,18 @@ Proof.
      rip. eauto.
 
    (* All store bindings mentioned by frame stack are still live. *)
-   - admit. (* ok, add new value, fs mentions r1 due to alloc effect and LiveE *)
+   - remember (TCap (TyCapRegion r1)) as p.
+
+     have (SubsT nil sp e (TAlloc p) KEffect)
+      by (eapply EqSym in H; eauto).
+
+     have (LiveE fs (TAlloc p)).
+
+     assert (In (FUse r1) fs).
+      eapply liveE_fUse_in; eauto.
+      subst p. simpl. auto.
+     
+     eapply liveS_store_snoc_value; auto.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
@@ -431,7 +437,20 @@ Proof.
      eapply store_update_wffs; eauto.
 
    (* All store bindings mentioned by frame stack are still live. *)
-   - admit. (* ok, need LiveS/Update *)
+   - eapply liveS_update.
+     + inverts_type.
+       remember (TCap (TyCapRegion r)) as p.
+
+       have (SubsT nil sp e (TWrite p) KEffect)
+        by  (eapply EqSym in H0; eauto).
+
+       have (LiveE fs (TWrite p))
+        by  (eapply liveE_subsT; eauto).
+
+       eapply liveE_fUse_in with (e := TWrite p).
+        subst p. snorm. eauto.
+
+     + auto.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
