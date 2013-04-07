@@ -92,6 +92,46 @@ Qed.
 
 
 (********************************************************************)
+Lemma liveS_store_tail
+ :  forall ss s fs
+ ,  LiveS (ss :> s) fs
+ -> LiveS ss        fs.
+Proof.
+ intros.
+ unfold LiveS in *.
+ snorm.
+Qed.
+Hint Resolve liveS_store_tail.
+
+
+Lemma liveS_stack_tail
+ :  forall ss fs f
+ ,  LiveS ss (fs :> f)
+ -> LiveS ss fs.
+Proof.
+ intros.
+ unfold LiveS in *.
+ snorm.
+Qed.
+Hint Resolve liveS_stack_tail.
+
+
+Lemma liveS_store_cons_dead
+ :  forall ss p fs
+ ,  ~(In (FUse p) fs)
+ ->  LiveS ss fs
+ ->  LiveS (ss :> StDead p) fs.
+Proof.
+ intros.
+ unfold LiveS in *.
+ snorm.
+ inverts H1.
+ - unfold regionOfStBind in H2. tauto.
+ - eauto.
+Qed.
+Hint Resolve liveS_store_cons_dead.
+
+
 Lemma liveS_deallocate
  :  forall ss fs p
  ,  ~(In (FUse p) fs)
@@ -100,15 +140,16 @@ Lemma liveS_deallocate
 Proof.
  intros.
  induction ss.
- - admit. 
+ - unfold LiveS.
+   snorm.
  - destruct a.
    + simpl.
      split_if.
      * snorm. subst.
-       admit. (* need LiveS_cons and LiveS_cons_dead *)
+       eapply liveS_store_tail in H0. rip.
 
      * snorm.
-       have (LiveS ss (fs :> FUse p)) by admit. rip.
+       have (LiveS ss (fs :> FUse p)). rip.
        unfold LiveS in IHss.
        unfold LiveS. intros. snorm.
        inverts H2.
@@ -116,7 +157,14 @@ Proof.
         eapply IHss; auto.
 
    + simpl.
-     have (LiveS ss (fs :> FUse p)) by admit. rip.
-     admit. (* need LiveS_cons *)
+     have (LiveS ss (fs :> FUse p)). rip.
+     have (LiveS (ss :> StDead n) fs).
+     clear H H0 H1.
+     unfold LiveS in *.
+     snorm.
+     inverts H.
+     * lets D: H2 (StDead n).
+       eapply D. eauto. auto.
+     * eauto.
 Qed.
 
