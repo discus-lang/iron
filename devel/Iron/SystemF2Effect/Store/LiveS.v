@@ -136,12 +136,11 @@ Lemma liveS_deallocate
  :  forall ss fs p
  ,  ~(In (FUse p) fs)
  -> LiveS ss (fs :> FUse p)
- -> LiveS (deallocate p ss) fs.
+ -> LiveS (map (deallocate p) ss) fs.
 Proof.
  intros.
  induction ss.
- - unfold LiveS.
-   snorm.
+ - unfold LiveS. snorm.
  - destruct a.
    + simpl.
      split_if.
@@ -167,4 +166,4 @@ Proof.
        eapply D. eauto. auto.
      * eauto.
 Qed.
-
+   

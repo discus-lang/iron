@@ -63,8 +63,8 @@ Inductive
  (* Pop a region from the stack. *)
  | SfRegionPop
    :  forall ss sp  fs v1 p
-   ,  STEPF  ss                    sp (fs :> FUse p)    (XVal v1)
-             (deallocate p ss)     sp  fs               (XVal v1)
+   ,  STEPF  ss                      sp (fs :> FUse p)    (XVal v1)
+             (map (deallocate p) ss) sp  fs               (XVal v1)
 
  (* Store operators *****************************)
  (* Allocate a reference. *) 

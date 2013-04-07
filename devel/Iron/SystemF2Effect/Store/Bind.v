@@ -40,14 +40,16 @@ Hint Unfold regionOfStBind.
 (* Deallocate all store bindings in the given region by setting
    them to StDead. The dead bindings hold their locations in the
    store, but they no longer contain any value. *)
-Fixpoint deallocate (p1 : nat) (ss : store) : store
- := match ss with
-    |  nil                   => nil
-    |  StValue p2 v :: ss' 
+Fixpoint deallocate (p1 : nat) (b : stbind) {struct b} : stbind
+ := match b with
+    |  StValue p2 v
     => if beq_nat p1 p2
-           then StDead  p2   :: deallocate p1 ss'
-           else StValue p2 v :: deallocate p1 ss'
-   
-    |  StDead p2 :: ss' 
-    => StDead p2 :: deallocate p1 ss'
+          then StDead  p2
+          else StValue p2 v
+
+    |  StDead p2
+    => StDead p2 
     end.
+
+
+
