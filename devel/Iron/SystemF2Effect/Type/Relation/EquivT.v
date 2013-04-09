@@ -61,6 +61,7 @@ Inductive EquivT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
    -> EquivT ke sp (TSum t1 (TSum t2 t3))
                    (TSum (TSum t1 t2) t3) k.
 
+
 Hint Constructors EquivT.
 
 

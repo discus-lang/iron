@@ -2,7 +2,7 @@
 Require Export Iron.SystemF2Effect.Type.Exp.Base.
 Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
 Require Export Iron.SystemF2Effect.Type.Relation.SubsT.
-Require Export Iron.SystemF2Effect.Type.Operator.FlattenT.
+Require Export Iron.SystemF2Effect.Type.Relation.KindTs.
 
 
 Inductive EquivTs : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
@@ -15,9 +15,56 @@ Inductive EquivTs : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
    -> Forall (fun t1 => In t1 ts2) ts1
    -> EquivTs ke sp ts1 ts2 k.
 
-Hint Constructors EquivTs.
+
+(********************************************************************)
+(* Structural *)
+
+Lemma equivTs_app
+ :  forall ke sp ts1 ts1' ts2 ts2' k
+ ,  EquivTs ke sp ts1 ts1' k
+ -> EquivTs ke sp ts2 ts2' k
+ -> EquivTs ke sp (ts1 ++ ts2) (ts1' ++ ts2') k.
+Proof.
+ intros.
+ inverts H. inverts H0.
+ eapply EqsSum; snorm.
+  eapply in_app_split in H0. inverts H0.
+   eauto. eauto.
+  eapply in_app_split in H0. inverts H0.
+   eauto. eauto.
+Qed.
+Hint Resolve equivTs_app.
 
 
+(********************************************************************)
+(* Projections *)
+
+Lemma equivTs_sumkind
+ :  forall  ks sp ts1 ts2 k
+ ,  EquivTs ks sp ts1 ts2 k
+ -> sumkind k.
+Proof. intros. inverts H; auto. Qed.
+Hint Resolve equivTs_sumkind.
+
+
+Lemma equivTs_kinds_left
+ :  forall  ks sp ts1 ts2 k
+ ,  EquivTs ks sp ts1 ts2 k
+ -> KindTs  ks sp ts1 k.
+Proof. intros. inverts H; auto. Qed.
+Hint Resolve equivTs_kinds_left.
+
+
+Lemma equivTs_kinds_right
+ :  forall  ks sp ts1 ts2 k
+ ,  EquivTs ks sp ts1 ts2 k
+ -> KindTs  ks sp ts2 k.
+Proof. intros. inverts H; auto. Qed.
+Hint Resolve equivTs_kinds_right.
+
+
+
+(********************************************************************)
 Lemma equivTs_refl
  :  forall  ke sp ts k
  ,  sumkind k
@@ -55,68 +102,5 @@ Proof.
  intros.
  inverts H. inverts H0.
  eapply EqsSum; snorm.
-Qed.
-
-
-Lemma equivTs_app
- :  forall ke sp ts1 ts1' ts2 ts2' k
- ,  EquivTs ke sp ts1 ts1' k
- -> EquivTs ke sp ts2 ts2' k
- -> EquivTs ke sp (ts1 ++ ts2) (ts1' ++ ts2') k.
-Proof.
- intros.
- inverts H. inverts H0.
- eapply EqsSum; snorm.
-  eapply in_app_split in H0. inverts H0.
-   eauto. eauto.
-  eapply in_app_split in H0. inverts H0.
-   eauto. eauto.
-Qed.
-Hint Resolve equivTs_app.
-
-
-Lemma equivT_equivTs 
- :  forall  ke sp t1 t2 k
- ,  sumkind k
- -> EquivT  ke sp t1 t2 k
- -> EquivTs ke sp (flattenT t1) (flattenT t2) k.
-Proof.
- intros.
- induction H0.
-  eapply equivTs_refl;  auto.
-  eapply equivTs_sym;   auto.
-  eapply equivTs_trans; auto.
-
- - Case "EqSumCong".
-   simpl.
-   spec IHEquivT1 H0.
-   spec IHEquivT2 H0.
-   eauto.
-
- - Case "EqSumBot".
-   simpl. norm. 
-   apply equivTs_refl; auto.
-   
- - Case "EqSumIdemp".
-   simpl.
-   eapply EqsSum; norm; auto.
-   + eapply in_app_split in H2.
-     inverts H2; auto.
-
- - Case "EqSumComm".
-   simpl.
-   eapply EqsSum; snorm.
-
- - Case "EqSumAssoc".
-   simpl.
-   eapply EqsSum; auto.
-   + norm. 
-     eapply in_app_split in H4. inverts H4.
-     eapply in_app_split in H5. inverts H5.
-     auto. auto. auto.
-   + norm.
-     eapply in_app_split in H4. inverts H4. auto.
-     eapply in_app_split in H5. inverts H5. 
-     auto. auto.
 Qed.
 

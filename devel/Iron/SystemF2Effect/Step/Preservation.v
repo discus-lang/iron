@@ -44,7 +44,7 @@ Proof.
    rip.
 
    (* Original effect visibly subsumes effect of result. *)
-   - apply subsT_visible_refl.
+   - apply subsVisibleT_refl.
      eauto.
 
    (* Resulting configuration is well typed. *)
@@ -73,7 +73,7 @@ Proof.
    - eapply liveS_push_fLet; auto.
 
    (* Original effect visibly subsumes effect of result. *)
-   - eapply subsT_visible_refl. 
+   - eapply subsVisibleT_refl. 
      inverts HC; eauto.
 
    (* Resulting configuation is well typed. *)
@@ -110,7 +110,7 @@ Proof.
    - eapply liveE_pop_flet; eauto.
 
    (* Original effect visibly subsumes effect of result. *)
-   - eapply subsT_visible_refl.
+   - eapply subsVisibleT_refl.
      inverts HC; eauto.
 
    (* Resulting configuration is well typed. *)

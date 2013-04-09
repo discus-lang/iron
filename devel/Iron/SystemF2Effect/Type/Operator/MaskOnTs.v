@@ -37,6 +37,9 @@ Proof.
 Qed.
 
 
+(********************************************************************)
+(* Structural lemmas. *)
+
 Lemma maskOnTs_app
  :  forall p ts1 ts2
  ,  maskOnTs p ts1 ++ maskOnTs p ts2
@@ -53,44 +56,6 @@ Proof.
      * simpl. rewritess. auto.
 Qed.
 Hint Resolve maskOnTs_app.
-
-
-Lemma maskOnTs_kind
- :  forall ke sp ts k p
- ,  KindTs ke sp ts k
- -> KindTs ke sp (maskOnTs p ts) k.
-Proof.
- intros.
- induction ts.
- - simpl. auto.
- - apply kindTs_snoc in H. rip.
-   remember (maskOnTs p (ts :> a)) as ts2.
-    symmetry in Heqts2.
-    apply maskOnTs_cases in Heqts2.
-    inverts Heqts2; auto.
-Qed.
-Hint Resolve maskOnTs_kind.   
-
-
-Lemma maskOnTs_subsTs
- :  forall ke sp ts1 ts2 k p
- ,  SubsTs ke sp ts1 ts2 k
- -> SubsTs ke sp ts1 (maskOnTs p ts2) k.
-Proof.
- intros.
- inverts H.
- eapply SbsSum; auto.
- - induction ts2. 
-   + snorm.
-   + eapply kindTs_snoc in H2. rip.
-     apply Forall_split_cons in H3.
-     remember (maskOnTs p (ts2 :> a)) as ts'.
-      symmetry in Heqts'.
-      apply maskOnTs_cases in Heqts'.
-      rip. inverts Heqts'.
-       auto. auto.
-Qed.
-Hint Resolve maskOnTs_subsTs.
 
 
 Lemma maskOnTs_flattenT
@@ -113,34 +78,28 @@ Qed.
 Hint Resolve maskOnTs_flattenT.
 
 
-Lemma maskOnT_subsT
- :  forall ke sp p e1 e2
- ,  SubsT  ke sp e1 e2             KEffect
- -> SubsT  ke sp e1 (maskOnT p e2) KEffect.
+(********************************************************************)
+(* Kind preservation. *)
+
+Lemma maskOnTs_kind
+ :  forall ke sp ts k p
+ ,  KindTs ke sp ts k
+ -> KindTs ke sp (maskOnTs p ts) k.
 Proof.
  intros.
-
- have  HE1: (EquivT ke sp (bunchT KEffect (flattenT e1)) 
-                          e1                                         KEffect).
- eapply subsT_equiv_above; eauto.
- clear HE1.
-
- have  HE2: (EquivT ke sp (maskOnT p e2) 
-                          (bunchT KEffect (flattenT (maskOnT p e2))) KEffect)
-  by (eapply EqSym; [eapply bunchT_kindT; eauto | eauto | eauto]).
- eapply subsT_equiv_below.
-  eapply EqSym in HE2; eauto.
- clear HE2.
-
- eapply subsTs_subsT.
-
- rrwrite (flattenT (maskOnT p e2) = maskOnTs p (flattenT e2)).
- eapply maskOnTs_subsTs.
-
- eapply subsT_subsTs; eauto.
+ induction ts.
+ - simpl. auto.
+ - apply kindTs_snoc in H. rip.
+   remember (maskOnTs p (ts :> a)) as ts2.
+    symmetry in Heqts2.
+    apply maskOnTs_cases in Heqts2.
+    inverts Heqts2; auto.
 Qed.
-Hint Resolve maskOnT_subsT.
+Hint Resolve maskOnTs_kind.   
 
+
+(********************************************************************)
+(* Equivalence *)
 
 Lemma maskOnTs_maskOnT_equivTs
  :  forall ke sp p t k
@@ -171,4 +130,57 @@ Proof.
      simpl. auto.
 Qed.     
 Hint Resolve maskOnTs_maskOnT_equivTs.
+
+
+(********************************************************************)
+(* Subsumption *)
+
+Lemma maskOnTs_subsTs_below
+ :  forall ke sp ts1 ts2 k p
+ ,  SubsTs ke sp ts1 ts2 k
+ -> SubsTs ke sp ts1 (maskOnTs p ts2) k.
+Proof.
+ intros.
+ inverts H.
+ eapply SbsSum; auto.
+ - induction ts2. 
+   + snorm.
+   + eapply kindTs_snoc in H2. rip.
+     apply Forall_split_cons in H3.
+     remember (maskOnTs p (ts2 :> a)) as ts'.
+      symmetry in Heqts'.
+      apply maskOnTs_cases in Heqts'.
+      rip. inverts Heqts'.
+       auto. auto.
+Qed.
+Hint Resolve maskOnTs_subsTs_below.
+
+
+Lemma maskOnT_subsT_below
+ :  forall ke sp p e1 e2
+ ,  SubsT  ke sp e1 e2             KEffect
+ -> SubsT  ke sp e1 (maskOnT p e2) KEffect.
+Proof.
+ intros.
+
+ have  HE1: (EquivT ke sp (bunchT KEffect (flattenT e1)) 
+                          e1                                         KEffect).
+ eapply subsT_equiv_above; eauto.
+ clear HE1.
+
+ have  HE2: (EquivT ke sp (maskOnT p e2) 
+                          (bunchT KEffect (flattenT (maskOnT p e2))) KEffect)
+  by (eapply EqSym; [eapply bunchT_kindT; eauto | eauto | eauto]).
+ eapply subsT_equiv_below.
+  eapply EqSym in HE2; eauto.
+ clear HE2.
+
+ eapply subsTs_subsT.
+
+ rrwrite (flattenT (maskOnT p e2) = maskOnTs p (flattenT e2)).
+ eapply maskOnTs_subsTs_below.
+
+ eapply subsT_subsTs; eauto.
+Qed.
+Hint Resolve maskOnT_subsT_below.
 

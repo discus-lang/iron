@@ -98,6 +98,51 @@ Hint Resolve maskOnCapT_kind.
 
 
 (********************************************************************)
+Lemma maskOn_equivT
+ :  forall ke sp t1 t2 k p
+ ,  EquivT ke sp t1 t2 k
+ -> EquivT ke sp (maskOnT p t1) (maskOnT p t2) k.
+Proof.
+ intros.
+ induction H;
+  try (solve [snorm; eauto 2]).
+ - simpl.
+   eapply EqTrans.
+   eapply EqSumComm; eauto. eauto.
+Qed. 
+Hint Resolve maskOn_equivT.
+
+
+Lemma maskOnT_subsT
+ :  forall ke sp t1 t2 k p
+ ,  SubsT  ke sp t1 t2 k
+ -> SubsT  ke sp (maskOnT p t1) (maskOnT p t2) k.
+Proof.
+ intros.
+ induction H;
+  try (solve [snorm; eauto 2]).
+Qed.
+Hint Resolve maskOnT_subsT.
+
+
+(********************************************************************)
+Lemma maskOnT_idemp
+ : forall p t
+ , maskOnT p (maskOnT p t) = maskOnT p t.
+Proof.
+ intros.
+ induction t; intros; snorm.
+ - repeat rewritess. auto.
+ - unfold maskOnT at 2. 
+   split_if.
+   + unfold maskOnT at 2.
+     rewrite <- HeqH. snorm.
+   + auto.
+Qed.
+Hint Resolve maskOnT_idemp.
+
+
+(********************************************************************)
 (* If a given region variable is not free in a type, 
    then masking effects on that variable is identity. *)
 Lemma maskOnVarT_freeTT_id

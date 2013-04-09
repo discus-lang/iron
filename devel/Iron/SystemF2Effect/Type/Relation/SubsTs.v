@@ -18,6 +18,64 @@ Inductive SubsTs  : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
 
 
 (********************************************************************)
+(* Structural. *)
+Lemma subsTs_single_cases
+ :  forall ke sp ts1 t1 t2 k
+ ,  SubsTs ke sp (ts1 :> t1) (nil :> t2) k
+ -> SubsTs ke sp ts1 (nil :> t2) k
+ \/ t1 = t2.
+Proof.
+ intros.
+ inverts H.
+ simpl in H3.
+ eapply Forall_forall with (x := t2) in H3.
+ - inverts H3.
+   + tauto.
+   + left. eapply SbsSum; snorm. eauto.
+ - auto.
+Qed.
+
+
+(********************************************************************)
+(* Projections. *)
+Lemma subsTs_sumkind
+ :  forall ke sp ts1 ts2 k
+ ,  SubsTs ke sp ts1 ts2 k
+ -> sumkind k.
+Proof. intros. inverts H; auto. Qed.
+Hint Resolve subsTs_sumkind.
+
+
+Lemma subsTs_kinds_left
+ :  forall ke sp ts1 ts2 k
+ ,  SubsTs ke sp ts1 ts2 k
+ -> KindTs ke sp ts1 k.
+Proof. intros. inverts H; auto. Qed.
+Hint Resolve subsTs_kinds_left.
+
+
+Lemma subsTs_kinds_right
+ :  forall ke sp ts1 ts2 k
+ ,  SubsTs ke sp ts1 ts2 k
+ -> KindTs ke sp ts1 k.
+Proof. intros. inverts H; auto. Qed.
+Hint Resolve subsTs_kinds_right.
+
+
+(********************************************************************)
+Lemma subsTs_refl
+ :  forall ke sp ts k
+ ,  sumkind k
+ -> KindTs ke sp ts k
+ -> SubsTs ke sp ts ts k.
+Proof.
+ intros.
+ eapply SbsSum; eauto.
+ snorm.
+Qed.
+Hint Resolve subsTs_refl.
+
+
 Lemma subsTs_trans
  :  forall ke sp ts1 ts2 ts3 k
  ,  SubsTs ke sp ts1 ts2 k
@@ -108,23 +166,6 @@ Hint Resolve subsT_subsTs.
 
 
 (********************************************************************)
-Lemma subsTs_single_cases
- :  forall ke sp ts1 t1 t2 k
- ,  SubsTs ke sp (ts1 :> t1) (nil :> t2) k
- -> SubsTs ke sp ts1 (nil :> t2) k
- \/ t1 = t2.
-Proof.
- intros.
- inverts H.
- simpl in H3.
- eapply Forall_forall with (x := t2) in H3.
- - inverts H3.
-   + tauto.
-   + left. eapply SbsSum; snorm. eauto.
- - auto.
-Qed.
-
-
 Lemma subsTs_subsT_1
  :  forall ke sp ts1 t2 k
  ,  SubsTs ke sp ts1 (t2 :: nil) k

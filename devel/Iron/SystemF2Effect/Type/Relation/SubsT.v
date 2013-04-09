@@ -84,6 +84,7 @@ Proof.
  intros.
  inverts H; eauto.
 Qed.
+Hint Resolve subsT_sumkind_left.
 
 
 Lemma subsT_sumkind_right
@@ -94,6 +95,7 @@ Proof.
  intros.
  inverts H; eauto.
 Qed.
+Hint Resolve subsT_sumkind_right.
 
 
 (********************************************************************)
@@ -107,6 +109,7 @@ Proof.
  intros. 
  eapply SbTrans with (t2 := t1); eauto.
 Qed.
+Hint Resolve subsT_equiv_above.
 
 
 Lemma subsT_equiv_below
@@ -118,6 +121,7 @@ Proof.
  intros.
  eapply SbTrans with (t1 := t1); eauto.
 Qed.
+Hint Resolve subsT_equiv_below.
 
 
 (********************************************************************)

@@ -103,7 +103,7 @@ Lemma bunchT_flattenT
  :  forall ke sp t k
  ,  sumkind k
  -> KindT   ke sp t k
- -> EquivT ke sp (bunchT k (flattenT t)) t k.
+ -> EquivT  ke sp (bunchT k (flattenT t)) t k.
 Proof.
  induction t; intros; simpl; snorm.
 
@@ -118,4 +118,16 @@ Proof.
    inverts H0. eauto.
 Qed.
 Hint Resolve bunchT_flattenT.
+
+
+(* The converse is not true.
+   If ts contains  (TSum t1 t2)  this will be eliminated 
+   by flattenT . bunchT, then the EqsSum check fails.  
+Lemma flattenT_bunchT
+ :  forall  ke sp ts k
+ ,  sumkind k
+ -> KindTs  ke sp ts k
+ -> EquivTs ke sp (flattenT (bunchT k ts)) ts k.
+
+*)
 

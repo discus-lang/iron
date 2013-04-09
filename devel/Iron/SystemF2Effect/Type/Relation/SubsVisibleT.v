@@ -55,18 +55,35 @@ Definition SubsVisibleT ke sp e e'
           KEffect.
 
 
-Lemma subsT_visible_refl
+Lemma subsVisibleT_refl
  :  forall ke sp e
- ,  KindT ke sp e KEffect
+ ,  KindT  ke sp e KEffect
  -> SubsVisibleT ke sp e e.
 Proof.
  intros.
  unfold SubsVisibleT.
-  eapply maskOnT_subsT. auto.
+  eapply maskOnT_subsT_below. auto.
 Qed.
-Hint Resolve subsT_visible_refl.
+Hint Resolve subsVisibleT_refl.
 
 
+Lemma subsVisibleT_trans
+ :  forall ke sp e1 e2 e3
+ ,  SubsVisibleT ke sp e1 e2
+ -> SubsVisibleT ke sp e2 e3
+ -> SubsVisibleT ke sp e1 e3.
+Proof.
+ intros.
+ unfold SubsVisibleT in *.
+ eapply SbTrans.
+  eapply H.
+  eapply maskOnT_subsT in H0.
+  erewrite maskOnT_idemp in H0. 
+  auto.
+Qed.
+ 
+
+(********************************************************************)
 Lemma subsT_subsVisibleT
  :  forall       ke sp e1 e2
  ,  SubsT        ke sp e1 e2 KEffect
@@ -74,7 +91,7 @@ Lemma subsT_subsVisibleT
 Proof.
  intros.
  unfold SubsVisibleT.
-  eapply maskOnT_subsT. auto.
+  eapply maskOnT_subsT_below. auto.
 Qed.
 
 
