@@ -22,7 +22,7 @@ Theorem preservation
  -> TYPEC  nil nil se sp fs  x   t  e    
  -> STEPF  ss  sp  fs x  ss' sp' fs' x'   
  -> (exists se' e'
-    ,  extends se' se                   
+    ,  extends se' se
     /\ WfFS  se' sp' ss' fs'
     /\ LiveS ss' fs'    
     /\ LiveE fs' e'
@@ -164,11 +164,11 @@ Proof.
    (* Resulting effect is to live regions. *)
    - eapply liveE_sum_above.
      + have HLL: (liftTT 1 0 e1 = maskOnVarT 0 e0)
-        by (eapply lowerTT_some_liftTT; eauto).
+        by  (eapply lowerTT_some_liftTT; eauto).
        rrwrite (liftTT 1 0 e1 = e1) in HLL.
 
        have (SubsT nil sp e e1 KEffect) 
-        by (eapply EqSym in H0; eauto).
+        by  (eapply EqSym in H0; eauto).
 
        have (LiveE fs e1).
 
@@ -229,7 +229,7 @@ Proof.
    (* Result expression is well typed. *)
    - rrwrite (substTT 0 r e2 = e2).
      eapply TcExp 
-       with (sp := sp :> SRegion p) 
+       with (sp := SRegion p <: sp) 
             (t1 := substTT 0 r t0)
             (e1 := substTT 0 r e0)
             (e2 := substTT 0 r e2); auto.
@@ -240,7 +240,6 @@ Proof.
         eapply KiSum; auto.
          * eapply subst_type_type. eauto.
            subst r. eauto.
-         * eapply kind_stprops_cons. auto.
 
      (* Type is preserved after substituting region handle. *)
      + have HTE: (nil = substTE 0 r nil).
@@ -255,6 +254,8 @@ Proof.
          rrwrite (liftTE 0 se  = se) by (inverts HH; auto).
          auto.
        * subst r. auto.
+         eapply KiCap. 
+          admit. (* ok, in_snoc *)
 
      (* New frame stack is well typed. *)
      + eapply TfConsUse.
@@ -353,7 +354,7 @@ Proof.
    - remember (TCap (TyCapRegion r1)) as p.
 
      have (SubsT nil sp e (TAlloc p) KEffect)
-      by (eapply EqSym in H; eauto).
+      by  (eapply EqSym in H; eauto).
 
      have (LiveE fs (TAlloc p)).
 

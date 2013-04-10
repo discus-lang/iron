@@ -17,6 +17,7 @@ Proof.
   destruct t1. simpl in *. eauto.
   eauto. eauto.
 Qed.
+Hint Resolve kind_stprops_snoc.
 
 
 Lemma kind_stprops_cons
@@ -32,3 +33,4 @@ Proof.
   eapply KiCon2; eauto.
   destruct t1. snorm.
 Qed.
+Hint Resolve kind_stprops_cons.

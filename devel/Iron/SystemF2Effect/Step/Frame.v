@@ -58,7 +58,7 @@ Inductive
    :  forall ss sp fs x p
    ,  p = allocRegion sp
    -> STEPF  ss sp                 fs            (XNew x)
-             ss (sp :> SRegion p) (fs :> FUse p) (substTX 0 (TCap (TyCapRegion p)) x)
+             ss (SRegion p <: sp) (fs :> FUse p) (substTX 0 (TCap (TyCapRegion p)) x)
 
  (* Pop a region from the stack. *)
  | SfRegionPop
@@ -88,4 +88,15 @@ Inductive
              (update l (StValue r v2) ss) sp fs (XVal (VConst CUnit)).
 
 Hint Constructors STEPF.
+
+
+(******************************************************************************)
+Lemma stepf_stprops_extends
+ :  forall  ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
+ ,  STEPF   ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
+ -> extends sp2 sp1.
+Proof.
+ intros. 
+ induction H; eauto.
+Qed.
 

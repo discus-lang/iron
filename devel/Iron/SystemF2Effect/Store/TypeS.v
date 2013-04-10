@@ -14,12 +14,12 @@ Hint Unfold STORET.
 Lemma storet_weak_stprops
  :  forall se sp ss p
  ,  STORET se sp ss
- -> STORET se (sp :> SRegion p) ss.
+ -> STORET se (SRegion p <: sp) ss.
 Proof.
  intros.
  unfold STORET in *.
  eapply Forall2_impl.
-  intros. eapply typeb_stprops_cons. eauto.
+  intros. eapply typeb_stprops_snoc. eauto.
  auto.
 Qed.
 Hint Resolve storet_weak_stprops.

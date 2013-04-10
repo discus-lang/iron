@@ -6,8 +6,8 @@ Require Export Iron.SystemF2Effect.Store.LiveE.
 
 
 (* Type of a frame stack.
-   The frame stack is like a continuation that takes an expression of a certain
-   type and produces a new expression. *)
+   The frame stack is like a continuation that takes an expression of
+   a certain type and produces a new expression. *)
 Inductive
  TYPEF :  kienv -> tyenv 
        -> stenv -> stprops 
@@ -38,12 +38,12 @@ Hint Constructors TYPEF.
 
 (* Invert all hypothesis that are compound typing statements. *)
 Ltac inverts_typef :=
- repeat 
-  (try (match goal with 
-        | [ H: TYPEF _ _ _ _ (_ :> FLet _ _) _ _ _ |- _ ] => inverts H
-        | [ H: TYPEF _ _ _ _ (_ :> FUse _)   _ _ _ |- _ ] => inverts H
-        end);
-   try inverts_type).
+ repeat (try 
+  (match goal with 
+   | [ H: TYPEF _ _ _ _ (_ :> FLet _ _) _ _ _ |- _ ] => inverts H
+   | [ H: TYPEF _ _ _ _ (_ :> FUse _)   _ _ _ |- _ ] => inverts H
+   end); 
+ try inverts_type).
 
 
 Lemma typef_kind_effect
@@ -98,21 +98,14 @@ Qed.
 Hint Resolve typef_stenv_snoc.
 
 
-Lemma typef_stprops_cons
+Lemma typef_stprops_snoc
  :  forall ke te se sp fs t1 t2 p e
  ,  TYPEF  ke te se sp        fs t1 t2 e
- -> TYPEF  ke te se (sp :> p) fs t1 t2 e.
+ -> TYPEF  ke te se (p <: sp) fs t1 t2 e.
 Proof.
  intros. 
  induction H; eauto.
- + eapply TfNil.
-   eapply kind_stprops_cons. auto.
- + eapply TfConsLet.
-   eauto.
-   eapply kind_stprops_cons. auto.
-   eauto. eauto.
 Qed.
-Hint Resolve typef_stprops_cons.   
-
+Hint Resolve typef_stprops_snoc.
 
 

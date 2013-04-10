@@ -69,10 +69,11 @@ Proof.
    destruct H10     as [e3]. rip.
    exists se3. exists e3. rip.
    + eapply extends_trans; eauto.
+
    + eapply subsVisibleT_trans; eauto.
-     admit. (* need SubsVisibleT_strengthen stprops *)
+     assert (extends sp2 sp1).
+      eapply stepf_stprops_extends.
+     eauto.
+
+     eapply subsVisibleT_strengthen; eauto.
 Qed.
-
-
-
-

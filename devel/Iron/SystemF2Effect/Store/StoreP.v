@@ -15,32 +15,35 @@ Definition STOREP  (sp : stprops) (fs : stack)
 
 
 (* Weaken frame stack in store properties. *)
-Lemma storep_cons
+Lemma storep_snoc
  :  forall sp fs p
  ,  STOREP sp fs
- -> STOREP (sp :> SRegion p) (fs :> FUse p).
+ -> STOREP (SRegion p <: sp) (fs :> FUse p).
 Proof.
  unfold STOREP in *.
  - intros.
    have HN: (n = p \/ ~(n = p)).
    inverts HN.
-   + simpl. auto.
+   + rrwrite (  SRegion p <: sp 
+             = (SRegion p <: nil) >< sp).
+     snorm.
    + assert (In (FUse n) fs).
       eapply in_tail.
       have (FUse n <> FUse p) by congruence.
       eauto. auto.
-     eapply in_split.
-      left. eapply H. auto.
+     rrwrite (  SRegion p <: sp
+             = (SRegion p <: nil) >< sp).
+     snorm.
 Qed.
-Hint Resolve storep_cons.
+Hint Resolve storep_snoc.
 
 
-Lemma storep_stprops_cons
+Lemma storep_stprops_snoc
  :  forall sp fs p
  ,  STOREP sp fs
- -> STOREP (sp :> p) fs.
+ -> STOREP (p <: sp) fs.
 Proof.
  unfold STOREP in *.
  snorm.
 Qed.
-Hint Resolve storep_stprops_cons.
+Hint Resolve storep_stprops_snoc.

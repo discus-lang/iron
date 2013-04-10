@@ -100,7 +100,7 @@ Proof.
  Case "XNew".
  { right.
    exists ss. 
-   exists (sp :> SRegion (allocRegion sp)). 
+   exists (SRegion (allocRegion sp) <: sp). 
    exists (fs :> FUse    (allocRegion sp)).
    eauto.
  }

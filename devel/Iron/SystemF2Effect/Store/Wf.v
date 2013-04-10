@@ -50,17 +50,17 @@ Hint Resolve wfFS_storem_length.
 
 
 (* Weaken frame stack in WfFS *)
-Lemma wfFS_sregion_cons
+Lemma wfFS_sregion_snoc
  :  forall se sp ss fs p
  ,  WfFS se sp ss fs
- -> WfFS se (sp :> SRegion p) ss (fs :> FUse p).
+ -> WfFS se (SRegion p <: sp) ss (fs :> FUse p).
 Proof. 
  intros.
  unfold WfFS. 
  inverts H. inverts H1. inverts H2.
  auto.
 Qed.
-Hint Resolve wfFS_sregion_cons.
+Hint Resolve wfFS_sregion_snoc.
 
 
 Lemma deallocate_typeb
