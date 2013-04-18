@@ -1,4 +1,6 @@
 
+Require Export Iron.Language.SystemF2Data.Exp.Base.
+
 
 (* Well formed expressions are closed under the given environment. *)
 Inductive wfX (kn: nat) (tn: nat) : exp -> Prop :=

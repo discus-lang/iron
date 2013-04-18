@@ -1,5 +1,6 @@
 
-Require Export Iron.Language.SystemF2.Ki.
+Require Export Iron.Language.SystemF2Data.Base.
+Require Export Iron.Language.SystemF2Data.Kind.
 
 
 (********************************************************************)

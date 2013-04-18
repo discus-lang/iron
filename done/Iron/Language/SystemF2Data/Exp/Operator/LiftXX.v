@@ -1,6 +1,7 @@
 
 Require Export Iron.Language.SystemF2Data.Exp.Base.
 Require Export Iron.Language.SystemF2Data.Exp.Alt.
+Require Export Iron.Language.SystemF2Data.Exp.Operator.LiftTX.
 
 
 (* Lift expression indices in expressions *)
@@ -55,25 +56,6 @@ Proof.
  intros. destruct a. destruct d0. auto.
 Qed.
 Hint Rewrite dcOfAlt_liftXA : global.
-
-
-Lemma dcOfAlt_liftTA
- : forall d a
- , dcOfAlt (liftTA d a) = dcOfAlt a.
-Proof.
- intros. destruct a. destruct d0. auto.
-Qed.
-Hint Rewrite dcOfAlt_liftTA : global.
-
-
-Lemma dcOfAlt_liftTA_map
- :  forall ix aa
- ,  map dcOfAlt (map (liftTA ix) aa)
- =  map dcOfAlt aa.
-Proof.
- intros. induction aa; simpl; burn.
-Qed.
-Hint Rewrite dcOfAlt_liftTA_map : global.
 
 
 (* When we lift an expression by zero places,

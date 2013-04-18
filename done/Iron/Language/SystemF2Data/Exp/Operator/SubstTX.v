@@ -1,7 +1,7 @@
 
 Require Import Iron.Language.SystemF2Data.Type.
 Require Import Iron.Language.SystemF2Data.Exp.Relation.TypeX.
-Require Import Coq.Logic.FunctionalExtensionality.
+Require Import Iron.Language.SystemF2Data.Exp.Operator.LiftTX.
 
 
 (* Substitution of Types in Exps *)
@@ -34,6 +34,16 @@ with substTA (d: nat) (u: ty) (aa: alt) : alt :=
   => AAlt dc (substTX d u xx)
   end.
 
+
+(* The data constructor of an alternative is unchanged
+   by type substitution. *)
+Lemma dcOfAlt_substTA
+ : forall d u a
+ , dcOfAlt (substTA d u a) = dcOfAlt a.
+Proof.
+ intros. destruct a. destruct d0. auto.
+Qed.
+Hint Rewrite dcOfAlt_substTA : global.
 
 
 Theorem subst_type_exp_ix

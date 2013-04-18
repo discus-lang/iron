@@ -1,7 +1,6 @@
 
-Require Export Iron.Language.SystemF2.TyBase.
-Require Export Iron.Language.SystemF2.TyLift.
-Require Import Coq.Logic.FunctionalExtensionality.
+Require Export Iron.Language.SystemF2Data.Type.Operator.LiftTT.
+Require Export Iron.Language.SystemF2Data.Type.Operator.LiftTT.
 
 
 (********************************************************************)
@@ -199,4 +198,6 @@ Proof.
   rewrite (liftTT_liftTT_11 0 n).
   burn.
 Qed.
+
+
 

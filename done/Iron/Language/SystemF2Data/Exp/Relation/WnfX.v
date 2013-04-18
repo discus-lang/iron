@@ -1,4 +1,7 @@
 
+Require Export Iron.Language.SystemF2Data.Exp.Base.
+Require Export Iron.Language.SystemF2Data.Exp.Relation.WfX.
+
 
 (* Weak normal forms cannot be reduced further by 
    call-by-value evaluation. *)

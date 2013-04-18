@@ -52,6 +52,17 @@ with substXA (d: nat) (u: exp) (aa: alt)
     end. 
 
 
+(* The data constructor of an alternative is unchanged
+   by exp substitution. *)
+Lemma dcOfAlt_substXA
+ : forall d u a
+ , dcOfAlt (substXA d u a) = dcOfAlt a.
+Proof.
+ intros. destruct a. destruct d0. auto.
+Qed.
+Hint Rewrite dcOfAlt_substXA : global.
+
+
 (* Substitution of exps in exps preserves typing *)
 Theorem subst_exp_exp_ix
  :  forall ix ds ke te x1 t1 x2 t2
@@ -146,55 +157,4 @@ Proof.
  rrwrite (te = delete 0 (te :> t2)). 
  eapply subst_exp_exp_ix; burn.
 Qed.
-
-
-(* Substitution of several expressions at once. *)
-Theorem subst_exp_exp_list
- :  forall ds ks te x1 xs t1 ts
- ,  Forall2 (TYPE ds ks te)         xs ts
- -> TYPE ds ks (te >< ts) x1 t1
- -> TYPE ds ks te    (substXXs 0 xs x1) t1.
-Proof.
- intros ds ks te x1 xs t1 ts HF HT.
- gen ts ks x1.
- induction xs; intros; inverts_type.
-
- Case "base case".
-  destruct ts. 
-   simpl. auto.
-   nope.
-
- Case "step case".
-  simpl. 
-   destruct ts.
-    nope.
-    inverts HF.
-     eapply IHxs. eauto.
-     simpl in HT.
-     eapply subst_exp_exp. eauto. 
-     rrwrite (length xs = length ts).
-     eapply type_tyenv_weaken_append. auto.
-Qed.
-
-
-(* The data constructor of an alternative is unchanged
-   by exp substitution. *)
-Lemma dcOfAlt_substXA
- : forall d u a
- , dcOfAlt (substXA d u a) = dcOfAlt a.
-Proof.
- intros. destruct a. destruct d0. auto.
-Qed.
-Hint Rewrite dcOfAlt_substXA : global.
-
-
-(* The data constructor of an alternative is unchanged
-   by type substitution. *)
-Lemma dcOfAlt_substTA
- : forall d u a
- , dcOfAlt (substTA d u a) = dcOfAlt a.
-Proof.
- intros. destruct a. destruct d0. auto.
-Qed.
-Hint Rewrite dcOfAlt_substTA : global.
 

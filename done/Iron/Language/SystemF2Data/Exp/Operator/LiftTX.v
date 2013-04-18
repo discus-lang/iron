@@ -3,7 +3,6 @@ Require Export Iron.Language.SystemF2Data.Exp.Base.
 Require Export Iron.Language.SystemF2Data.Exp.Alt.
 
 
-(********************************************************************)
 (* Lift type indices in expressions. *)
 Fixpoint liftTX (d: nat) (xx: exp) : exp :=
   match xx with
@@ -33,3 +32,24 @@ Fixpoint liftTX (d: nat) (xx: exp) : exp :=
   |  AAlt dc xx
   => AAlt dc (liftTX d xx)
   end.
+
+
+Lemma dcOfAlt_liftTA
+ : forall d a
+ , dcOfAlt (liftTA d a) = dcOfAlt a.
+Proof.
+ intros. destruct a. destruct d0. auto.
+Qed.
+Hint Rewrite dcOfAlt_liftTA : global.
+
+
+Lemma dcOfAlt_liftTA_map
+ :  forall ix aa
+ ,  map dcOfAlt (map (liftTA ix) aa)
+ =  map dcOfAlt aa.
+Proof.
+ intros. induction aa; simpl; burn.
+Qed.
+Hint Rewrite dcOfAlt_liftTA_map : global.
+
+

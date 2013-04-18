@@ -1,6 +1,7 @@
 
 Require Import Iron.Language.SystemF2Data.Type.
 Require Import Iron.Language.SystemF2Data.Exp.Relation.TypeX.
+Require Import Iron.Language.SystemF2Data.Exp.Operator.SubstXX.
 
 
 (* Substitute several expressions.
@@ -41,4 +42,31 @@ Fixpoint substXXs (d: nat) (us: list exp) (xx: exp) :=
  end.
 
 
+(* Substitution of several expressions at once. *)
+Theorem subst_exp_exp_list
+ :  forall ds ks te x1 xs t1 ts
+ ,  Forall2 (TYPE ds ks te)         xs ts
+ -> TYPE ds ks (te >< ts) x1 t1
+ -> TYPE ds ks te    (substXXs 0 xs x1) t1.
+Proof.
+ intros ds ks te x1 xs t1 ts HF HT.
+ gen ts ks x1.
+ induction xs; intros; inverts_type.
+
+ Case "base case".
+  destruct ts. 
+   simpl. auto.
+   nope.
+
+ Case "step case".
+  simpl. 
+   destruct ts.
+    nope.
+    inverts HF.
+     eapply IHxs. eauto.
+     simpl in HT.
+     eapply subst_exp_exp. eauto. 
+     rrwrite (length xs = length ts).
+     eapply type_tyenv_weaken_append. auto.
+Qed.
 

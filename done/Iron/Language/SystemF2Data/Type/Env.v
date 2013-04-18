@@ -1,5 +1,7 @@
 
-Require Export Iron.Language.SystemF2.Ty.
+Require Export Iron.Language.SystemF2Data.Type.Base.
+Require Export Iron.Language.SystemF2Data.Type.Operator.LiftTT.
+Require Export Iron.Language.SystemF2Data.Type.Operator.SubstTT.
 
 
 (* Type Enviroments *)

@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SystemF2.Base.
+Require Export Iron.Language.SystemF2Data.Base.
 
 
 (* Kinds *)

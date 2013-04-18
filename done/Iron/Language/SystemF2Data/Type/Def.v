@@ -1,5 +1,6 @@
 
 Require Export Iron.Language.SystemF2Data.Type.Base.
+Require Export Iron.Language.SystemF2Data.Type.Relation.KindT.
 
 
 (********************************************************************)
