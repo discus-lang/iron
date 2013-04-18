@@ -36,15 +36,19 @@ Hint Resolve flattenT_kindTs.
 
 Lemma equivT_equivTs 
  :  forall  ke sp t1 t2 k
- ,  sumkind k
- -> EquivT  ke sp t1 t2 k
+ ,  EquivT  ke sp t1 t2 k
  -> EquivTs ke sp (flattenT t1) (flattenT t2) k.
 Proof.
- intros.
- induction H0.
+ intros ke sp t1 t2 k HE.
+ induction HE; intros.
   eapply equivTs_refl;  auto.
   eapply equivTs_sym;   auto.
   eapply equivTs_trans; auto.
+
+ - Case "EqAppCong".
+   simpl.
+   inverts H0_.
+   have (sumkind (KFun k11 k12)).
 
  - Case "EqSumCong".
    simpl.

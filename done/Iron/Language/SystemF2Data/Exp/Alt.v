@@ -1,5 +1,6 @@
 
-Require Export Iron.Language.SystemF2Data.ExpBase.
+Require Export Iron.Language.SystemF2Data.Exp.Base.
+Require Export Iron.Language.SystemF2Data.Exp.Relation.TypeX.
 
 
 (* Get the data constructor of an alternative. *)

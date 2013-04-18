@@ -1,7 +1,6 @@
 
-Require Import Iron.Language.SystemF2Data.Step.
-Require Import Iron.Language.SystemF2Data.TyJudge.
 Require Import Iron.Language.SystemF2Data.Exp.
+Require Import Iron.Language.SystemF2Data.Step.Step.
 
 
 (* If we have a well typed case match on a data object then there

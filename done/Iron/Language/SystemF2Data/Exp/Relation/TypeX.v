@@ -1,11 +1,7 @@
 
-Require Export Iron.Language.SystemF2.Ki.
-Require Export Iron.Language.SystemF2.KiJudge.
-Require Export Iron.Language.SystemF2.TyEnv.
-Require Export Iron.Language.SystemF2.TySubsts.
-Require Export Iron.Language.SystemF2Data.Def.
-Require Export Iron.Language.SystemF2Data.Exp.
-Require Import Coq.Logic.FunctionalExtensionality.
+Require Export Iron.Language.SystemF2Data.Type.
+Require Export Iron.Language.SystemF2Data.Exp.Base.
+
 
 (* Builtin in types. *)
 Definition tUnit 

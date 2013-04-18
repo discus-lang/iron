@@ -1,7 +1,39 @@
 
-Require Import Iron.Language.SystemF2.SubstTypeType.
-Require Import Iron.Language.SystemF2Data.TyJudge.
+Require Import Iron.Language.SystemF2Data.Type.
+Require Import Iron.Language.SystemF2Data.Exp.Relation.TypeX.
 Require Import Coq.Logic.FunctionalExtensionality.
+
+
+(* Substitution of Types in Exps *)
+Fixpoint substTX (d: nat) (u: ty) (xx: exp) : exp :=
+  match xx with
+  | XVar _     => xx
+
+  |  XLAM x     
+  => XLAM (substTX (S d) (liftTT 1 0 u) x)
+
+  |  XAPP x t
+  => XAPP (substTX d u x)  (substTT d u t)
+
+  |  XLam t x
+  => XLam (substTT d u t)  (substTX d u x)
+
+  |  XApp x1 x2
+  => XApp (substTX d u x1) (substTX d u x2)
+
+  |  XCon dc ts xs 
+  => XCon dc (map (substTT d u) ts) (map (substTX d u) xs)
+
+  |  XCase xx alts
+  => XCase (substTX d u xx) (map (substTA d u) alts)
+ end
+
+with substTA (d: nat) (u: ty) (aa: alt) : alt :=
+  match aa with
+  |  AAlt dc xx
+  => AAlt dc (substTX d u xx)
+  end.
+
 
 
 Theorem subst_type_exp_ix

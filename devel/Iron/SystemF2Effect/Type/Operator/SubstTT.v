@@ -117,6 +117,10 @@ Proof.
  - Case "EqTrans".
    eapply EqTrans with (t2 := substTT 0 t3 t2); eauto.
 
+ - Case "EqCongApp".
+   simpl.
+   eapply EqCongApp; eauto.
+
  - Case "EqSumCong".
    eapply EqSumCong; fold substTT. auto.
    eauto using subst_type_type.

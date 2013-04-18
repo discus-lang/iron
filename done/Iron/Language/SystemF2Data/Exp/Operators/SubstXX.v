@@ -1,7 +1,55 @@
 
-Require Import Iron.Language.SystemF2.SubstTypeType.
-Require Import Iron.Language.SystemF2Data.SubstTypeExp.
-Require Import Iron.Language.SystemF2Data.TyJudge.
+Require Import Iron.Language.SystemF2Data.Type.
+Require Import Iron.Language.SystemF2Data.Exp.Relation.TypeX.
+
+
+(* Substitution of Exps in Exps *)
+Fixpoint substXX (d:  nat) (u: exp) (xx: exp) : exp :=
+ match xx with
+    | XVar ix 
+    => match nat_compare ix d with
+       (* Index matches the one we are substituting for. *)
+       | Eq  => u
+       
+       (* Index was free in the original expression.
+          As we've removed the outermost binder, also decrease this
+          index by one. *)
+       | Gt  => XVar (ix - 1)
+
+       (* Index was bound in the original expression. *)
+       | Lt  => XVar ix
+       end
+
+    |  XLAM x1
+    => XLAM (substXX d (liftTX 0 u) x1)
+
+    |  XAPP x1 t2
+    => XAPP (substXX d u x1) t2
+
+    (* Increase the depth as we move across a lambda.
+       Also lift free references in the exp being substituted
+       across the lambda as we enter it. *)
+    |  XLam t1 x2
+    => XLam t1 (substXX (S d) (liftXX 1 0 u) x2)
+
+    (* Applications *)
+    |  XApp x1 x2 
+    => XApp (substXX d u x1) (substXX d u x2)
+
+    |  XCon dc ts xs
+    => XCon dc ts (map (substXX d u) xs)
+
+    |  XCase x alts
+    => XCase (substXX d u x) (map (substXA d u) alts)
+    end
+
+with substXA (d: nat) (u: exp) (aa: alt) 
+ := match aa with 
+    |  AAlt (DataCon tag arity) x 
+    => AAlt (DataCon tag arity)
+         (substXX (d + arity) 
+                  (liftXX arity 0 u) x)
+    end. 
 
 
 (* Substitution of exps in exps preserves typing *)
@@ -127,4 +175,26 @@ Proof.
      rrwrite (length xs = length ts).
      eapply type_tyenv_weaken_append. auto.
 Qed.
+
+
+(* The data constructor of an alternative is unchanged
+   by exp substitution. *)
+Lemma dcOfAlt_substXA
+ : forall d u a
+ , dcOfAlt (substXA d u a) = dcOfAlt a.
+Proof.
+ intros. destruct a. destruct d0. auto.
+Qed.
+Hint Rewrite dcOfAlt_substXA : global.
+
+
+(* The data constructor of an alternative is unchanged
+   by type substitution. *)
+Lemma dcOfAlt_substTA
+ : forall d u a
+ , dcOfAlt (substTA d u a) = dcOfAlt a.
+Proof.
+ intros. destruct a. destruct d0. auto.
+Qed.
+Hint Rewrite dcOfAlt_substTA : global.
 

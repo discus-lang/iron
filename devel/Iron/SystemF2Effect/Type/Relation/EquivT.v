@@ -25,6 +25,13 @@ Inductive EquivT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
    -> EquivT ke sp t2 t3 k
    -> EquivT ke sp t1 t3 k
 
+ | EqCongApp
+   :  forall ke sp t1 t1' t2 t2' k11 k12
+   ,  appkind k12
+   -> EquivT ke sp t1 t1' (KFun k11 k12)
+   -> EquivT ke sp t2 t2' k11
+   -> EquivT ke sp (TApp t1 t2) (TApp t1' t2') k12
+
  | EqSumCong
    :  forall ke sp t1 t1' t2 t2' k
    ,  sumkind k
@@ -61,7 +68,6 @@ Inductive EquivT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
    -> EquivT ke sp (TSum t1 (TSum t2 t3))
                    (TSum (TSum t1 t2) t3) k.
 
-
 Hint Constructors EquivT.
 
 
@@ -79,22 +85,10 @@ Qed.
 Hint Resolve equivT_sum_left.
 
 
-Lemma equivT_kind_trans
- :  forall ke sp t1 t2 k
- ,  EquivT ke sp t1 t2 k
- -> KindT   ke sp t1 k
- -> KindT   ke sp t2 k.
-Proof.
- intros.
- induction H; eauto.
- inverts H0. eauto.
-Qed.
-
-
 Lemma equivT_kind_left
  :  forall ke sp t1 t2 k
  ,  EquivT ke sp t1 t2 k
- -> KindT   ke sp t1 k.
+ -> KindT  ke sp t1 k.
 Proof.
  intros. 
  induction H; eauto.
@@ -111,6 +105,17 @@ Proof.
  induction H; eauto.
 Qed.  
 Hint Resolve equivT_kind_right.
+
+
+Lemma equivT_kind_trans
+ :  forall ke sp t1 t2 k
+ ,  EquivT ke sp t1 t2 k
+ -> KindT   ke sp t1 k
+ -> KindT   ke sp t2 k.
+Proof.
+ intros.
+ induction H; eauto.
+Qed.
  
 
 (********************************************************************)

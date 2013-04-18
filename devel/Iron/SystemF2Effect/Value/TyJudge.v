@@ -149,6 +149,11 @@ Inductive
     -> TYPEV  ke te se sp v1 t11
     -> TYPEX  ke te se sp (XOp1 op v1) t12 e.
 
+  | TxCastEffect
+    :  TYPEX  ke te se sp x t1 e1
+    -> SubsT  ke te se sp x e2 e1                     (* also use to fix equiv of effect *)
+    -> TYPEX  ke te se sp x (casteff e2 t1) e2
+
 Hint Constructors TYPEV.
 Hint Constructors TYPEX.
 

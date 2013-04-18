@@ -1,8 +1,7 @@
 
-Require Import Iron.Language.SystemF2Data.Step.
-Require Import Iron.Language.SystemF2Data.TyJudge.
-Require Import Iron.Language.SystemF2Data.SubstExpExp.
-Require Import Iron.Language.SystemF2Data.SubstTypeExp.
+Require Import Iron.Language.SystemF2Data.Exp.
+Require Import Iron.Language.SystemF2Data.Step.Step.
+
 
 (* When a well typed expression transitions to the next state
    then its type is preserved. *)

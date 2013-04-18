@@ -1,8 +1,5 @@
 
-Require Import Iron.Language.SystemF2.Ki.
-Require Import Iron.Language.SystemF2.KiJudge.
-Require Import Iron.Language.SystemF2.Ty.
-Require Export Iron.Language.SystemF2Data.Base.
+Require Export Iron.Language.SystemF2Data.Type.Base.
 
 
 (********************************************************************)
