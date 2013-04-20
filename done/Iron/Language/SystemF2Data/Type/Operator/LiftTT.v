@@ -1,5 +1,7 @@
 
-Require Export Iron.Language.SystemF2Data.Type.Base.
+Require Export Iron.Language.SystemF2Data.Type.Exp.
+Require Export Iron.Language.SystemF2Data.Type.Utils.
+Require Export Iron.Language.SystemF2Data.Type.Relation.WfT.
 
 
 (*******************************************************************)
@@ -30,15 +32,9 @@ Lemma liftTT_wfT
  -> wfT (S kn) (liftTT 1 d t).
 Proof.
  intros. gen kn d.
- lift_burn t; inverts H; try burn.
- 
- Case "TVar".
-  repeat (simpl; lift_cases).
-   eapply WfT_TVar. burn.
-   eapply WfT_TVar. burn.
+ lift_burn t; inverts H; snorm.
 Qed.
 Hint Resolve liftTT_wfT.
-
 
 
 (********************************************************************)
@@ -78,8 +74,8 @@ Lemma liftTT_takeTArgs
 Proof.
  intros.
  induction tt; intros; simpl; auto.
-  lift_cases; auto.
-  rr. burn.
+  lift_cases; auto. 
+  snorm. rewritess. auto.
 Qed. 
 Hint Rewrite liftTT_takeTArgs : global.
 
@@ -102,6 +98,7 @@ Lemma liftTT_makeTApps
 Proof.
  intros. gen t1.
  induction ts; burn.
+  snorm. rewritess. snorm.
 Qed.
 Hint Rewrite liftTT_makeTApps : global.
 
@@ -143,7 +140,7 @@ Proof.
  induction m; intros.
  rewrite liftTT_zero; burn.
 
- rw (n + S m = S n + m). 
+ rrwrite (n + S m = S n + m). 
   rewrite liftTT_comm.
   rewrite <- IHm.
   rewrite liftTT_comm.
@@ -161,16 +158,16 @@ Proof.
  intros. gen n ix.
  induction t; intros; inverts H; simpl; auto.
 
-  Case "TVar".
-   lift_cases; burn.
+ - Case "TVar".
+   lift_cases; snorm. f_equal. omega. 
 
-  Case "TForall".
+ - Case "TForall".
    f_equal. spec IHt H1.
-   rw (S (n + ix) = S n + ix).
+   rrwrite (S (n + ix) = S n + ix).
    burn.
 
-  Case "TApp".
-   rs. burn.
+ - Case "TApp".
+   repeat rewritess; eauto.
 Qed.
 Hint Resolve liftTT_wfT_1.
 
@@ -181,7 +178,7 @@ Lemma liftTT_closedT_id_1
  -> liftTT 1 d t = t.
 Proof.
  intros.
- rw (d = d + 0). eauto.
+ rrwrite (d = d + 0). eauto.
 Qed.
 Hint Resolve liftTT_closedT_id_1.
 
@@ -192,7 +189,7 @@ Lemma liftTT_closedT_10
  -> closedT (liftTT 1 0 t).
 Proof.
  intros. red.
- rw (0 = 0 + 0).
+ rrwrite (0 = 0 + 0).
  rewrite liftTT_wfT_1; auto.
 Qed.
 Hint Resolve liftTT_closedT_10.
@@ -211,14 +208,14 @@ Lemma liftTT_liftTT_11
  =  liftTT 1 (1 + (d + d')) (liftTT 1 d t).
 Proof.
  intros. gen d d'.
- induction t; intros; simpl; try burn.
+ induction t; intros; simpl; repeat rewritess; try burn.
 
- Case "TVar".
-  repeat (lift_cases; unfold liftTT); burn.
+ - Case "TVar".
+   repeat (lift_cases; unfold liftTT); try f_equal; try omega; burn.
 
- Case "TForall".
-  rw (S (d + d') = (S d) + d').
-  burn.
+ - Case "TForall".
+   rrwrite (S (d + d') = (S d) + d').
+   rewritess. snorm.
 Qed.
 
 
@@ -231,9 +228,9 @@ Proof.
  induction m1; intros; simpl.
   burn. 
 
-  rw (S m1 = 1 + m1).
+  rrwrite (S m1 = 1 + m1).
   rewrite <- liftTT_plus.
-  rs.
+  repeat rewritess.
   rw (m1 + n2 + n1 = n1 + (m1 + n2)).
   rewrite liftTT_liftTT_11.
   burn.
@@ -249,7 +246,7 @@ Proof.
  induction m2; intros.
   burn.
 
-  rw (S m2 = 1 + m2).
+  rrwrite (S m2 = 1 + m2).
   rewrite <- liftTT_plus.
   rewrite liftTT_liftTT_1.
   rewrite IHm2.
@@ -263,6 +260,7 @@ Lemma liftTT_map_liftTT
  ,  map (liftTT m1 n1) (map (liftTT m2 (n2 + n1)) ts)
  =  map (liftTT m2 (m1 + n2 + n1)) (map (liftTT m1 n1) ts).
 Proof.
- induction ts; simpl; burn.
+ induction ts; snorm; burn.
+  rewritess. auto.
 Qed.  
 
