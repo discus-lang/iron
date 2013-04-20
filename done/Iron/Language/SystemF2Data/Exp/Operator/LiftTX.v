@@ -20,6 +20,9 @@ Fixpoint liftTX (d: nat) (xx: exp) : exp :=
   |  XApp x1 x2
   => XApp (liftTX d x1) (liftTX d x2)
 
+  |  XPrim p xs
+  => XPrim p (map (liftTX d) xs)
+
   |  XCon dc ts xs
   => XCon dc (map (liftTT 1 d) ts) (map (liftTX d) xs)
 
@@ -34,6 +37,7 @@ Fixpoint liftTX (d: nat) (xx: exp) : exp :=
   end.
 
 
+(* Data constructor of alternative is unchanged by lifting. *)
 Lemma dcOfAlt_liftTA
  : forall d a
  , dcOfAlt (liftTA d a) = dcOfAlt a.
@@ -43,6 +47,7 @@ Qed.
 Hint Rewrite dcOfAlt_liftTA : global.
 
 
+(* Data constructor of alternatives are unchaged by lifting. *)
 Lemma dcOfAlt_liftTA_map
  :  forall ix aa
  ,  map dcOfAlt (map (liftTA ix) aa)

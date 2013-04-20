@@ -17,6 +17,15 @@ Definition tFun (t1: ty) (t2: ty)
 Hint Unfold tFun.
 
 
+Fixpoint primDef (p : prim) : defprim := 
+ match p with
+ | PNat  _   => DefPrim nil (TCon TyConNat)
+ | PBool _   => DefPrim nil (TCon TyConBool)
+ | PAdd      => DefPrim (TCon TyConNat :: TCon TyConNat :: nil) (TCon TyConNat)
+ | PIsZero   => DefPrim (TCon TyConNat :: nil)                  (TCon TyConBool)
+ end. 
+
+
 (* Type Judgement assigns a type to an expression. *)
 Inductive TYPE (ds: defs) (ke: kienv) (te: tyenv) : exp -> ty -> Prop :=
  (* Variables *)
@@ -51,6 +60,13 @@ Inductive TYPE (ds: defs) (ke: kienv) (te: tyenv) : exp -> ty -> Prop :=
    ,  TYPE ds ke te x1           (tFun t1 t2)
    -> TYPE ds ke te x2           t1
    -> TYPE ds ke te (XApp x1 x2) t2
+
+ (* Primitive operators and literals. *)
+ | TYPrim
+   :  forall p xs tsArg tResult 
+   ,  primDef p        = DefPrim tsArg tResult
+   -> Forall2 (TYPE ds ke te) xs tsArg
+   -> TYPE ds ke te (XPrim p xs) tResult
 
  (* Data Constructors *)
  | TYCon 
@@ -102,6 +118,7 @@ Ltac inverts_type :=
    | [ H: TYPE  _ _ _ (XAPP  _ _)   _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XLam  _ _)   _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XApp  _ _)   _    |- _ ] => inverts H
+   | [ H: TYPE  _ _ _ (XPrim _ _)   _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XCon  _ _ _) _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XCase _ _)   _    |- _ ] => inverts H
    | [ H: TYPEA _ _ _ (AAlt _ _)    _ _  |- _ ] => inverts H
@@ -172,38 +189,44 @@ Proof.
       -> wfA (length ke) (length te) a)
   ; intros; inverts_type; eauto.
 
- Case "XLAM".
-  eapply WfX_XLAM.
-  apply IHx in H1.
-  rrwrite (length (ke :> KStar) = S (length ke)) in H1.
-  rewrite <- length_liftTE in H1. auto.
+ - Case "XLAM".
+   eapply WfX_XLAM.
+   apply IHx in H1.
+   rrwrite (length (ke :> KStar) = S (length ke)) in H1.
+   rewrite <- length_liftTE in H1. auto.
 
- Case "XLam".
-  eapply WfX_XLam; eauto.
-  apply IHx in H4.
-  rrwrite (length (te :> t) = S (length te)) in H4.
-  auto.
+ - Case "XLam".
+   eapply WfX_XLam; eauto.
+   apply IHx in H4.
+   rrwrite (length (te :> t) = S (length te)) in H4.
+   auto.
 
- Case "XCon".
-  apply WfX_XCon.
-  repeat nforall. intros.
-  have (exists k, KIND ke x k).
-  dest k. eauto.
+ - Case "XPrim".
+   eapply WfX_XPrim.
    repeat nforall. intros.
    have (exists t, TYPE ds ke te x t).
-   dest t. eauto.
+   destruct H1. eauto.
 
- Case "XCase".
-  eapply WfX_XCase; eauto.
-  repeat nforall. eauto.
+ - Case "XCon".
+   apply WfX_XCon.
+   repeat nforall. intros.
+   have (exists k, KIND ke x k).
+   dest k. eauto.
+    repeat nforall. intros.
+    have (exists t, TYPE ds ke te x t).
+    dest t. eauto.
 
- Case "XAlt".
-  destruct dc.
-  eapply WfA_AAlt. eauto.
-  apply IHx in H8.
-  rr. lists.
-  rrwrite (length te + length tsFields = length tsFields + length te).
-  eauto.
+ - Case "XCase".
+   eapply WfX_XCase; eauto.
+   repeat nforall. eauto.
+
+ - Case "XAlt".
+   destruct dc.
+   eapply WfA_AAlt. eauto.
+   apply IHx in H8.
+   rr. lists.
+   rrwrite (length te + length tsFields = length tsFields + length te).
+   eauto.
 Qed.
 Hint Resolve type_wfX.
 
@@ -236,41 +259,49 @@ Proof.
                            (liftTA ix a)     (liftTT 1 ix t3) (liftTT 1 ix t4))
   ; intros; inverts_type; simpl; eauto.
 
- Case "XVar".
-  apply TYVar.
-  apply get_map; auto.
+ - Case "XVar".
+   apply TYVar.
+   apply get_map; auto.
 
- Case "XLAM".
-  eapply TYLAM. 
-  rewrite insert_rewind. 
-  rewrite (liftTE_liftTE 0 ix).
-  burn.
-
- Case "XAPP".
-  rewrite (liftTT_substTT' 0 ix). 
-  simpl.
-  eapply TYAPP.
-  eapply (IHx1 ix) in H2. simpl in H2. eauto.
-  apply kind_kienv_insert; auto.
-
- Case "XLam".
-  apply TYLam.
-   apply kind_kienv_insert. auto.
-   rrwrite ( liftTE ix te :> liftTT 1 ix t
-           = liftTE ix (te :> t)).
+ - Case "XLAM".
+   eapply TYLAM. 
+   rewrite insert_rewind. 
+   rewrite (liftTE_liftTE 0 ix).
    burn.
 
- Case "XApp".
-  eapply TYApp.
-   eapply IHx1_1 in H2. simpl in H2. eauto.
-   eapply IHx1_2 in H4. eauto.
+ - Case "XAPP".
+   rewrite (liftTT_substTT' 0 ix). 
+   simpl.
+   eapply TYAPP.
+   eapply (IHx1 ix) in H2. simpl in H2. eauto.
+   apply kind_kienv_insert; auto.
 
- Case "XCon".
-  (* unpack the data type definition *)
-  defok ds (DefData dc tsFields tc).
+ - Case "XLam".
+   apply TYLam.
+    apply kind_kienv_insert. auto.
+    rrwrite ( liftTE ix te :> liftTT 1 ix t
+            = liftTE ix (te :> t)).
+    burn.
 
-  (* show XCon has the correct type *)
-  rr. eapply TYCon; eauto.
+ - Case "XApp".
+   eapply TYApp.
+    eapply IHx1_1 in H2. simpl in H2. eauto.
+    eapply IHx1_2 in H4. eauto.
+
+ - Case "XPrim".
+   eapply TYPrim.
+   have (closedT t1) by admit.                      (* TODO: show prim types all closed *)
+   rrwrite (liftTT 1 ix t1 = t1).
+   eauto.
+   (* prim args have correct types. *)
+   admit.                                           (* TODO: prim args have correct types. *) 
+
+ - Case "XCon".
+   (* unpack the data type definition *)
+   defok ds (DefData dc tsFields tc).
+
+   (* show XCon has the correct type *)
+   rr. eapply TYCon; eauto.
 
    (* type args have correct kinds *)
     eapply Forall2_map_left.
@@ -303,48 +334,48 @@ Proof.
        rr. apply liftTT_wfT_1. auto.
        rewrite <- H. auto.
 
- Case "XCase".
-  eapply TYCase; eauto.
-  apply  Forall_map.
-  eapply Forall_impl_in; eauto.
-   intros. repeat nforall.
-   eapply H; burn.
-    rr. burn.
-    repeat nforall. intros.
-     have (In x (map dcOfAlt aa)).
-     rr. auto.
+ - Case "XCase".
+   eapply TYCase; eauto.
+   apply  Forall_map.
+   eapply Forall_impl_in; eauto.
+    intros. repeat nforall.
+    eapply H; burn.
+     rr. burn.
+     repeat nforall. intros.
+      have (In x (map dcOfAlt aa)).
+      rr. auto.
        
- Case "XAlt".
-  defok ds (DefData dc tsFields tc).
+ - Case "XAlt".
+   defok ds (DefData dc tsFields tc).
 
-  rr.
-  eapply TYAlt; eauto.
-   eapply Forall2_map_left.
-   eapply Forall2_impl; eauto.
-    intros. eapply kind_kienv_insert. auto.
+   rr.
+   eapply TYAlt; eauto.
+    eapply Forall2_map_left.
+    eapply Forall2_impl; eauto.
+     intros. eapply kind_kienv_insert. auto.
+ 
+    assert ( map (liftTT 1 ix) (map (substTTs 0 tsParam)  tsFields)
+           = map (substTTs 0 (map (liftTT 1 ix) tsParam)) tsFields) as HXX.
+     lists.
+     erewrite map_ext_in; eauto.
+     intros.
+      rename x into t1.
+      rrwrite (ix = ix + 0).
+      rewrite liftTT_substTTs'.
+      f_equal. 
+      nnat.
+      assert (wfT (length ks) t1).
+       eapply kind_wfT.
+       nforall. eauto.
+      eapply liftTT_wfT_1.
+      rrwrite (length tsParam = length ks).
+      auto.
 
-   assert ( map (liftTT 1 ix) (map (substTTs 0 tsParam)  tsFields)
-          = map (substTTs 0 (map (liftTT 1 ix) tsParam)) tsFields) as HXX.
-    lists.
-    erewrite map_ext_in; eauto.
-    intros.
-     rename x into t1.
-     rrwrite (ix = ix + 0).
-     rewrite liftTT_substTTs'.
-     f_equal. 
-     nnat.
-     assert (wfT (length ks) t1).
-      eapply kind_wfT.
-      nforall. eauto.
-     eapply liftTT_wfT_1.
-     rrwrite (length tsParam = length ks).
-     auto.
-
-   unfold liftTE in IHx1. 
-   unfold liftTE.
-   rewrite <- HXX.
-   rewrite <- map_app.
-   eauto.
+    unfold liftTE in IHx1. 
+    unfold liftTE.
+    rewrite <- HXX.
+    rewrite <- map_app.
+    eauto.
 Qed.
 
 
@@ -391,6 +422,9 @@ Proof.
  Case "XLam".
   apply TYLam; eauto.
   rewrite insert_rewind. auto.
+
+ Case "XPrim".
+  admit. (* type_tyenv_insert prim *)
 
  Case "XCon".
   eapply TYCon; eauto.

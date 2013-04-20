@@ -27,6 +27,10 @@ Fixpoint liftXX (n:  nat) (d:  nat) (xx: exp) {struct xx} : exp :=
     |  XApp x1 x2
     => XApp   (liftXX n d x1) (liftXX n d x2)
 
+    (* lift all the arguments applied to a primop *)
+    |  XPrim p xs
+    => XPrim p (map (liftXX n d) xs)
+
     (* lift all the arguments of a data constructor *)
     |  XCon dc ts xs
     => XCon dc ts (map (liftXX n d) xs)
@@ -47,8 +51,7 @@ Fixpoint liftXX (n:  nat) (d:  nat) (xx: exp) {struct xx} : exp :=
   end.
 
 
-(* The data constructor of an alternative is unchanged
-   by lifting. *)
+(* Data constructor of an alternative is unchanged by lifting. *)
 Lemma dcOfAlt_liftXA
  : forall n d a
  , dcOfAlt (liftXA n d a) = dcOfAlt a.
@@ -58,8 +61,7 @@ Qed.
 Hint Rewrite dcOfAlt_liftXA : global.
 
 
-(* When we lift an expression by zero places,
-   then the expression is unchanged. *)
+(* Lifting an expression by zero places is indentity. *)
 Lemma liftXX_zero
  : forall d x
  , liftXX 0 d x = x.
@@ -70,21 +72,26 @@ Proof.
       ,  liftXA 0 d a = a)
   ; intros; simpl; try burn.
 
- Case "XVar".
-  lift_cases; burn.
+ - Case "XVar".
+   lift_cases; burn.
 
- Case "XCon".
-  nforall.
-  rewrite (map_ext_in (liftXX 0 d) id); auto.
-  rewrite map_id; auto.
+ - Case "XPrim".
+   nforall.
+   rewrite (map_ext_in (liftXX 0 d) id); auto.
+   rewrite map_id; auto.
 
- Case "XCase".
-  nforall.
-  rewrite (map_ext_in (liftXA 0 d) id); auto.
-  rewrite map_id. burn.
+ - Case "XCon".
+   nforall.
+   rewrite (map_ext_in (liftXX 0 d) id); auto.
+   rewrite map_id; auto.
 
- Case "XAlt".
-  destruct dc. burn.
+ - Case "XCase".
+   nforall.
+   rewrite (map_ext_in (liftXA 0 d) id); auto.
+   rewrite map_id. burn.
+
+ - Case "XAlt".
+   destruct dc. burn.
 Qed.
 Hint Rewrite liftXX_zero : global.
 
@@ -102,26 +109,33 @@ Proof.
       =  liftXA m d (liftXA n d a))
   ; intros; simpl; try burn.
 
- Case "XVar".
-  repeat (simple; lift_cases; intros); burn.
+ - Case "XVar".
+   repeat (simple; lift_cases; intros); burn.
 
- Case "XCon".
-  f_equal. lists. 
-  nforall.
-  rewrite (map_ext_in 
-   (fun x0 => liftXX n d (liftXX m d x0))
-   (fun x0 => liftXX m d (liftXX n d x0))); burn.
+ - Case "XCon".
+   f_equal. lists. 
+   nforall.
+   rewrite (map_ext_in 
+    (fun x0 => liftXX n d (liftXX m d x0))
+    (fun x0 => liftXX m d (liftXX n d x0))); burn.
 
- Case "XCase".
-  f_equal. eauto. 
-  lists.
-  nforall.
-  rewrite (map_ext_in
-   (fun a1 => liftXA n d (liftXA m d a1))
-   (fun a1 => liftXA m d (liftXA n d a1))); burn.
+ - Case "Prim".
+   f_equal. lists. 
+   nforall.
+   rewrite (map_ext_in 
+    (fun x0 => liftXX n d (liftXX m d x0))
+    (fun x0 => liftXX m d (liftXX n d x0))); burn.
 
- Case "XAlt".
-  destruct dc. burn.
+ - Case "XCase".
+   f_equal. eauto. 
+   lists.
+   nforall.
+   rewrite (map_ext_in
+    (fun a1 => liftXA n d (liftXA m d a1))
+    (fun a1 => liftXA m d (liftXA n d a1))); burn.
+
+ - Case "XAlt".
+   destruct dc. burn.
 Qed.
 
 
@@ -139,32 +153,36 @@ Proof.
       =  liftXA n     d (liftXA (S m) d a))
   ; intros; simpl; try burn.
 
- Case "XVar".
-  repeat (simple; lift_cases; intros); burn.
+ - Case "XVar".
+   repeat (simple; lift_cases; intros); burn.
 
- Case "XCon".
-  f_equal. lists. nforall.
-  rewrite (map_ext_in
-   (fun x0 => liftXX (S n) d (liftXX m d x0))
-   (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
+ - Case "XCon".
+   f_equal. lists. nforall.
+   rewrite (map_ext_in
+    (fun x0 => liftXX (S n) d (liftXX m d x0))
+    (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
 
- Case "XCase".
-  f_equal; auto. lists. nforall.
-  rewrite (map_ext_in
-   (fun x1 => liftXA (S n) d (liftXA m d x1))
-   (fun x1 => liftXA n d (liftXA (S m) d x1))); burn.
-  auto. auto.
+ - Case "XPrim".
+   f_equal. lists. nforall.
+   rewrite (map_ext_in
+    (fun x0 => liftXX (S n) d (liftXX m d x0))
+    (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
 
- Case "XAlt".
-  destruct dc; burn.
+ - Case "XCase".
+   f_equal; auto. lists. nforall.
+   rewrite (map_ext_in
+    (fun x1 => liftXA (S n) d (liftXA m d x1))
+    (fun x1 => liftXA n d (liftXA (S m) d x1))); burn.
+
+ - Case "XAlt".
+   destruct dc; burn.
 Qed.
 Hint Rewrite liftXX_succ : global.
 
 
 (* We can collapse two consecutive lifting expressions by lifting 
    just onces by the sum of the places, provided the lifting
-   occurs at depth zero. 
-   (TODO: we may be able to weaken this second requirement. *)
+   occurs at depth zero. *)
 Lemma liftXX_plus 
  : forall n m x 
  , liftXX n 0 (liftXX m 0 x) = liftXX (n + m) 0 x.

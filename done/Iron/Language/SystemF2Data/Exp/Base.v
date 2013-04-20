@@ -1,19 +1,47 @@
 
 Require Export Iron.Language.SystemF2Data.Type.
 
+Inductive prim : Type :=
+ | PNat    : nat  -> prim 
+ | PBool   : bool -> prim
+
+ | PAdd    : prim
+ | PIsZero : prim.
+
+
+Inductive defprim : Type :=
+ | DefPrim 
+   :  list ty    (* Types of the arguments. *)
+   -> ty         (* Type  of the returned value. *)
+   -> defprim.
+
+
 
 (* Expressions *)
 Inductive exp : Type :=
- (* Functions *)
+ (* Variables *)
  | XVar   : nat -> exp
- | XLAM   : exp -> exp              (* type abstraction *)
- | XAPP   : exp -> ty  -> exp       (* type application *)
- | XLam   : ty  -> exp -> exp       (* function abstraction *)
- | XApp   : exp -> exp -> exp       (* function application *)
 
- (* Data Types *)
- | XCon   : datacon -> list ty -> list exp -> exp
- | XCase  : exp     -> list alt -> exp
+ (* Type abstraction *)
+ | XLAM   : exp -> exp
+ 
+ (* Type application. *)
+ | XAPP   : exp -> ty  -> exp
+
+ (* Function abstraction. *)
+ | XLam   : ty  -> exp -> exp
+
+ (* Function application. *)
+ | XApp   : exp -> exp -> exp
+
+ (* Saturated primitive operators and literals. *)
+ | XPrim  : prim     -> list exp -> exp
+
+ (* Saturated data constructors. *)
+ | XCon   : datacon  -> list ty  -> list exp -> exp
+
+ (* Case expressions. *)
+ | XCase  : exp      -> list alt -> exp
 
  (* Alternatives *)
 with alt     : Type :=
@@ -37,53 +65,29 @@ Theorem exp_mutind
  -> (forall x1 t2,   PX x1                 -> PX (XAPP x1 t2))
  -> (forall t  x1,   PX x1                 -> PX (XLam t x1))
  -> (forall x1 x2,   PX x1 -> PX x2        -> PX (XApp x1 x2))
+ -> (forall p xs,    Forall PX xs          -> PX (XPrim p xs))
  -> (forall dc ts xs,         Forall PX xs -> PX (XCon dc ts xs))
  -> (forall x  aa,   PX x  -> Forall PA aa -> PX (XCase x aa))
  -> (forall dc x,    PX x                  -> PA (AAlt dc x))
  ->  forall x, PX x.
 Proof. 
  intros PX PA.
- intros var tlam tapp lam app con case alt.
+ intros var tlam tapp lam app prim con case alt.
  refine (fix  IHX x : PX x := _
          with IHA a : PA a := _
          for  IHX).
 
- (* expressions *)
- case x; intros.
+ - case x; intros.
+   + apply var.
+   + apply tlam. apply IHX.
+   + apply tapp. apply IHX.
+   + apply lam.  apply IHX.
+   + apply app.  apply IHX. apply IHX.
+   + apply prim. induction l;  intuition. 
+   + apply con.  induction l0; intuition.
+   + apply case. apply IHX. induction l; intuition.
 
- Case "XVar".
-  apply var.
-
- Case "XLAM".
-  apply tlam. 
-   apply IHX.
-
- Case "XAPP".
-  apply tapp.
-   apply IHX.
- 
- Case "XLam".
-  apply lam. 
-   apply IHX.
-
- Case "XApp".
-  apply app. 
-   apply IHX.
-   apply IHX.
-
- Case "XCon".
-  apply con.
-   induction l0; intuition.
-
- Case "XCase".
-  apply case.
-   apply IHX.
-   induction l; intuition.
-
- (* alternatives *)
- case a; intros.
-
- Case "XAlt".
-  apply alt.
-   apply IHX.
+ - case a; intros.
+   + apply alt.  apply IHX.
 Qed.
+
