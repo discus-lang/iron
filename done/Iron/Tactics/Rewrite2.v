@@ -4,28 +4,28 @@ Require Import Iron.Tactics.Have.
 
 (* Apply matching rewrites from the hypothesis. *)
 Ltac down 
- := match goal with
+ := repeat (match goal with
     | [H : ?X = _  |- ?X = _  ] => rewrite H
     | [H : _  = ?X |- ?X = _  ] => rewrite H
     | [H : ?X = _  |- _  = ?X ] => rewrite <- H
     | [H : _  = ?X |- _  = ?X ] => rewrite <- H
-    end; auto.
+    end); auto.
 
 
 (* Apply all rewrites from the hypothesis. *)
 Ltac rewritess
- := match goal with
+ := repeat (match goal with
     | [H: eq _ _                 |- _ ] => rewrite H in *
     | [H: forall _,       eq _ _ |- _ ] => rewrite H in *
     | [H: forall _ _,     eq _ _ |- _ ] => rewrite H in *
     | [H: forall _ _ _,   eq _ _ |- _ ] => rewrite H in *
     | [H: forall _ _ _ _, eq _ _ |- _ ] => rewrite H in *
-    end.
+    end).
 
 
 (* Apply all erewrites from the hypothesis. *)
 Ltac espread
- := match goal with
+ := repeat (match goal with
     | [H: eq _ _                       |- _ ] => erewrite H in *; clear H
     | [H: forall _,       eq _ _       |- _ ] => erewrite H in *; clear H
     | [H: forall _ _,     eq _ _       |- _ ] => erewrite H in *; clear H
@@ -35,7 +35,7 @@ Ltac espread
     | [H: forall _ _,     _ -> eq _ _  |- _ ] => erewrite H in *; clear H
     | [H: forall _ _ _,   _ -> eq _ _  |- _ ] => erewrite H in *; clear H
     | [H: forall _ _ _ _, _ -> eq _ _  |- _ ] => erewrite H in *; clear H
-    end.
+    end).
 
 
 (* Rewrite using the 'have' tactic.

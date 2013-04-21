@@ -51,7 +51,10 @@ Lemma kind_wfT
  -> wfT  (length ke) t.
 Proof.
  intros ke t k HK. gen ke k.
- induction t; intros; inverts_kind; burn. 
+ induction t; intros; inverts_kind; burn.
+ - eapply WfT_TForall.
+   rrwrite (S (length ke) = length (ke :> KStar)).
+   eauto.
 Qed.
 Hint Resolve kind_wfT.
 
@@ -102,12 +105,12 @@ Proof.
  intros. gen ix ke k1.
  induction t; intros; simpl; inverts_kind; eauto.
 
- Case "TVar".
-  lift_cases; intros; repeat nnat; auto.
+ - Case "TVar".
+   lift_cases; intros; repeat nnat; auto.
 
- Case "TForall".
-  apply KIForall.
-  rewrite insert_rewind. auto.
+ - Case "TForall".
+   apply KIForall.
+   rewrite insert_rewind. auto.
 Qed.
 
 
@@ -136,27 +139,27 @@ Proof.
  intros. gen ix ke t2 k1 k2.
  induction t1; intros; simpl; inverts_kind; eauto.
 
- Case "TVar".
-  fbreak_nat_compare.
-  SCase "n = ix".
-   rewrite H in H4.
-   inverts H4. auto.
+ - Case "TVar".
+   fbreak_nat_compare.
+   SCase "n = ix".
+    rewrite H in H4.
+    inverts H4. auto.
 
-  SCase "n < ix".
-   apply KIVar. rewrite <- H4.
-   apply get_delete_above; auto.
+   SCase "n < ix".
+    apply KIVar. rewrite <- H4.
+    apply get_delete_above; auto.
 
-  SCase "n > ix".
-   apply KIVar. rewrite <- H4.
-   destruct n.
-    burn.
-    simpl. nnat. apply get_delete_below. omega.
+   SCase "n > ix".
+    apply KIVar. rewrite <- H4.
+    destruct n.
+     burn.
+     simpl. nnat. apply get_delete_below. omega.
 
- Case "TForall".
-  apply KIForall.
-  rewrite delete_rewind.
-  eapply IHt1; eauto.
-   apply kind_kienv_weaken; auto.
+ - Case "TForall".
+   apply KIForall.
+   rewrite delete_rewind.
+   eapply IHt1; eauto.
+    apply kind_kienv_weaken; auto.
 Qed.
 
 
@@ -189,6 +192,4 @@ Proof.
  rrwrite (ke = delete 0 (ke :> k2)).
  eapply subst_type_type_ix; burn.
 Qed.
-
-
 

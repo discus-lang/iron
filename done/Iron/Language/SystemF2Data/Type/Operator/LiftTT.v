@@ -9,9 +9,10 @@ Require Export Iron.Language.SystemF2Data.Type.Relation.WfT.
 Fixpoint liftTT (n: nat) (d: nat) (tt: ty) : ty :=
   match tt with
   |  TVar ix
-  => if le_gt_dec d ix
-      then TVar (ix + n)
-      else tt
+  => match nat_compare ix d with
+     | Lt => tt
+     | _  => TVar (ix + n)
+     end
 
   |  TCon _     => tt
 
@@ -118,7 +119,7 @@ Lemma liftTT_comm
  ,  liftTT n d (liftTT m d t)
  =  liftTT m d (liftTT n d t).
 Proof.
- intros. gen d. lift_burn t.
+ intros. gen d. lift_burn t. 
 Qed.
 
 
@@ -156,18 +157,19 @@ Lemma liftTT_wfT_1
  -> liftTT 1 (n + ix) t = t.
 Proof.
  intros. gen n ix.
- induction t; intros; inverts H; simpl; auto.
+ induction t; intros; inverts H; burn.
 
  - Case "TVar".
-   lift_cases; snorm. f_equal. omega. 
+   lift_cases; snorm; f_equal; omega. 
 
  - Case "TForall".
-   f_equal. spec IHt H1.
+   snorm. f_equal.
+   spec IHt H1.
    rrwrite (S (n + ix) = S n + ix).
    burn.
 
  - Case "TApp".
-   repeat rewritess; eauto.
+   snorm. rewritess; burn. 
 Qed.
 Hint Resolve liftTT_wfT_1.
 
@@ -208,14 +210,20 @@ Lemma liftTT_liftTT_11
  =  liftTT 1 (1 + (d + d')) (liftTT 1 d t).
 Proof.
  intros. gen d d'.
- induction t; intros; simpl; repeat rewritess; try burn.
-
+ induction t; intros. 
+ - Case "TCon".
+   snorm.
+ 
  - Case "TVar".
    repeat (lift_cases; unfold liftTT); try f_equal; try omega; burn.
 
  - Case "TForall".
+   snorm.   
    rrwrite (S (d + d') = (S d) + d').
    rewritess. snorm.
+
+ - Case "TApp".
+   snorm. rewritess. auto.
 Qed.
 
 
@@ -230,8 +238,8 @@ Proof.
 
   rrwrite (S m1 = 1 + m1).
   rewrite <- liftTT_plus.
-  repeat rewritess.
-  rw (m1 + n2 + n1 = n1 + (m1 + n2)).
+  rewritess.
+  rrwrite (m1 + n2 + n1 = n1 + (m1 + n2)) by omega.
   rewrite liftTT_liftTT_11.
   burn.
 Qed.

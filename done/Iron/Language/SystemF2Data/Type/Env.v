@@ -13,6 +13,7 @@ Hint Unfold tyenv.
 Definition liftTE d te    := map (liftTT 1 d) te.
 Hint Unfold liftTE.
 
+
 (* Substitution of types in type environments. *)
 Definition substTE d t te := map (substTT d t) te.
 Hint Unfold substTE.
@@ -34,8 +35,12 @@ Lemma liftTE_liftTE
  =  liftTE (1 + (n + n')) (liftTE n te).
 Proof. 
  intros. induction te; rip.
-  unfold liftTE.
-  simpl. rewrite liftTT_liftTT_11. burn.
+ - unfold liftTE.
+   snorm. 
+   rewrite liftTT_liftTT_11. 
+   snorm.
+   f_equal. 
+   unfold liftTE in IHte. auto.
 Qed.
 
 
@@ -71,9 +76,10 @@ Proof.
  intros.
  unfold liftTE.
  induction se; rip.
-  inverts H. rip.
-  rs. rw (liftTT 1 n a = a).
-  auto.
+ - inverts H. rip.
+   snorm. rewritess.
+   rrwrite (liftTT 1 n a = a).
+   auto.
 Qed.
 Hint Resolve liftTE_closedT_id.
 
@@ -86,9 +92,10 @@ Proof.
  intros.
  unfold substTE.
  induction se; rip.
-  inverts H. rip.
-  rs. rw (substTT n t2 a = a).
-  auto.
+ - inverts H. rip.
+   snorm. rewritess.
+   rrwrite (substTT n t2 a = a).
+   auto.
 Qed.
 Hint Resolve substTE_closedT_id.
 

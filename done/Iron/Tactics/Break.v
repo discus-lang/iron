@@ -83,7 +83,21 @@ Ltac split_match_comparison :=
   end.
 
 
+Ltac split_match_nat :=
+  match goal with
+  | [ |- context [match ?X with | 0 => _ | S _ => _ end] ]
+    => let Z := fresh in remember X as Z; destruct Z
+
+  | [ H: context [match ?X with | 0 => _ | S _ => _ end] |- _]
+    => let Z := fresh in remember X as Z; destruct Z
+  end.
+
+
 Ltac split_match
- := first [split_if | split_match_option | split_match_comparison].
+ := first [ split_dec
+          | split_if 
+          | split_match_option 
+          | split_match_comparison
+          | split_match_nat ].
 
 

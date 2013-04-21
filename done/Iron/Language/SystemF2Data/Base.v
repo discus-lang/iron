@@ -4,7 +4,7 @@ Require Export Iron.Data.List.
 Require Export Iron.Data.Nat.
 Require Export Iron.Norm.List.
 Require Export Iron.Norm.
-Require Export Iron.Tactics.Rip2.
+Require Export Iron.Tactics.Rip3.
 Require Export Iron.Tactics.Rewrite2.
 Require Export Iron.Tactics.Case.
 Require Export Iron.Tactics.Nope.
@@ -64,11 +64,12 @@ Tactic Notation "burn0" "using" tactic(T)
 
 Tactic Notation "burn"
  := try (solve [ burn0
-               | red; burn0 ]).
+               | red; burn0 
+               | repeat f_equal; burn0 ]).
 
 Tactic Notation "burn" "using" tactic(T) 
  := try (solve [ burn0 using T
-               | red; burn0 using T]).
-
+               | red; burn0 using T
+               | repeat f_equal; burn0 using T]).
 
 Ltac have_auto ::= burn.

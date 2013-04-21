@@ -53,8 +53,7 @@ Lemma dcOfAlt_liftTA_map
  ,  map dcOfAlt (map (liftTA ix) aa)
  =  map dcOfAlt aa.
 Proof.
- intros. induction aa; simpl; burn.
+ intros. induction aa; snorm; rewritess; eauto.
 Qed.
 Hint Rewrite dcOfAlt_liftTA_map : global.
-
 

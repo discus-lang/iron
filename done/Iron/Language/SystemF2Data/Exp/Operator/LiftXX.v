@@ -72,9 +72,6 @@ Proof.
       ,  liftXA 0 d a = a)
   ; intros; simpl; try burn.
 
- - Case "XVar".
-   lift_cases; burn.
-
  - Case "XPrim".
    nforall.
    rewrite (map_ext_in (liftXX 0 d) id); auto.
@@ -106,36 +103,37 @@ Proof.
  induction x using exp_mutind with 
   (PA := fun a => forall d
       ,  liftXA n d (liftXA m d a)
-      =  liftXA m d (liftXA n d a))
-  ; intros; simpl; try burn.
+      =  liftXA m d (liftXA n d a)); 
+  try (solve [intros; simpl; f_equal; rewritess; eauto]).
 
  - Case "XVar".
-   repeat (simple; lift_cases; intros); burn.
+   repeat (simple; lift_cases; intros); f_equal; try omega; burn.
 
- - Case "XCon".
-   f_equal. lists. 
-   nforall.
+ - Case "XPrim".
+   snorm. f_equal.
+   lists.
    rewrite (map_ext_in 
     (fun x0 => liftXX n d (liftXX m d x0))
     (fun x0 => liftXX m d (liftXX n d x0))); burn.
 
- - Case "Prim".
-   f_equal. lists. 
-   nforall.
+ - Case "XCon".
+   snorm. f_equal.
+   lists.
    rewrite (map_ext_in 
     (fun x0 => liftXX n d (liftXX m d x0))
     (fun x0 => liftXX m d (liftXX n d x0))); burn.
 
  - Case "XCase".
-   f_equal. eauto. 
-   lists.
-   nforall.
-   rewrite (map_ext_in
-    (fun a1 => liftXA n d (liftXA m d a1))
-    (fun a1 => liftXA m d (liftXA n d a1))); burn.
+   snorm. f_equal.
+   + auto.
+   + lists.
+     rewrite (map_ext_in
+      (fun a1 => liftXA n d (liftXA m d a1))
+      (fun a1 => liftXA m d (liftXA n d a1))); burn. 
 
  - Case "XAlt".
-   destruct dc. burn.
+   snorm. 
+   destruct dc. snorm. f_equal. auto.
 Qed.
 
 
@@ -150,32 +148,37 @@ Proof.
  induction x using exp_mutind with 
   (PA := fun a => forall d
       ,  liftXA (S n) d (liftXA  m    d a)
-      =  liftXA n     d (liftXA (S m) d a))
-  ; intros; simpl; try burn.
+      =  liftXA n     d (liftXA (S m) d a));
+  try (solve [intros; simpl; f_equal; rewritess; eauto]).
 
  - Case "XVar".
-   repeat (simple; lift_cases; intros); burn.
+   repeat (simple; lift_cases; intros); f_equal; try omega; burn.
 
  - Case "XCon".
-   f_equal. lists. nforall.
+   snorm. f_equal.
+   lists.
    rewrite (map_ext_in
     (fun x0 => liftXX (S n) d (liftXX m d x0))
     (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
 
  - Case "XPrim".
-   f_equal. lists. nforall.
+   snorm. f_equal.
+   lists.
    rewrite (map_ext_in
     (fun x0 => liftXX (S n) d (liftXX m d x0))
     (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
 
  - Case "XCase".
-   f_equal; auto. lists. nforall.
-   rewrite (map_ext_in
-    (fun x1 => liftXA (S n) d (liftXA m d x1))
-    (fun x1 => liftXA n d (liftXA (S m) d x1))); burn.
+   snorm. f_equal.
+   + auto.
+   + lists.
+     rewrite (map_ext_in
+      (fun x1 => liftXA (S n) d (liftXA m d x1))
+      (fun x1 => liftXA n d (liftXA (S m) d x1))); burn.
 
  - Case "XAlt".
-   destruct dc; burn.
+   snorm.
+   destruct dc; snorm; f_equal; auto.
 Qed.
 Hint Rewrite liftXX_succ : global.
 
