@@ -128,6 +128,10 @@ Lemma value_lam
 Proof.
  intros. destruct x; eauto; nope.
 
+ (* None of the primitive literals are functions. *)
+ - Case "XPrim".
+   destruct p; nope.
+
  (* x can't be a XCon  because those must be saturated, 
     and therefore not return functions. *)
  - Case "XCon".
@@ -178,8 +182,8 @@ Proof.
  induction x using exp_mutind with 
   (PA := fun a => forall ds ke te t1 t2
       ,  TYPEA ds ke te a t1 t2 
-      -> wfA (length ke) (length te) a)
-  ; intros; inverts_type; eauto.
+      -> wfA (length ke) (length te) a);
+   intros; inverts_type; eauto.
 
  - Case "XLAM".
    eapply WfX_XLAM.

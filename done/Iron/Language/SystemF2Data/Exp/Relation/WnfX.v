@@ -21,7 +21,16 @@ Inductive wnfX : exp -> Prop :=
  | Wnf_XCon
    :  forall dc ts xs
    ,  Forall wnfX xs
-   -> wnfX (XCon dc ts xs).
+   -> wnfX (XCon dc ts xs)
+
+ (* Literals are always wnf. *)
+ | Wnf_XPrim_PNat
+   :  forall n
+   ,  wnfX (XPrim (PNat n) nil)
+
+ | Wnf_XPrim_PBool
+   :  forall b
+   ,  wnfX (XPrim (PBool b) nil).
 Hint Constructors wnfX.
 
 

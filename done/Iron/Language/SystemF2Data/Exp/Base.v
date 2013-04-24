@@ -20,14 +20,17 @@ Inductive exp : Type :=
  (* Function application. *)
  | XApp   : exp -> exp -> exp
 
- (* Saturated primitive operators and literals. *)
- | XPrim  : prim     -> list exp -> exp
-
  (* Saturated data constructors. *)
  | XCon   : datacon  -> list ty  -> list exp -> exp
 
  (* Case expressions. *)
  | XCase  : exp      -> list alt -> exp
+
+ (* Saturated primitive operators. *)
+ | XPrim  : prim     -> list exp -> exp
+
+ (* Primitive literals. *)
+ | XLit   : lit      -> exp
 
  (* Alternatives *)
 with alt     : Type :=

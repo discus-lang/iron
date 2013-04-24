@@ -4,12 +4,6 @@ Require Import Iron.Language.SystemF2Data.Type.
 
 (* Primive operators and literals. *)
 Inductive prim : Type :=
- (* Literal natural number. *)
- | PNat    : nat  -> prim 
-
- (* Literal boolean. *)
- | PBool   : bool -> prim
-
  (* Add two naturals. *)
  | PAdd    : prim
 

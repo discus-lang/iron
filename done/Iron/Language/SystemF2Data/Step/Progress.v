@@ -120,7 +120,6 @@ Proof.
  (*************************************)
  - Case "XPrim".
    inverts_type.
-   right.
 
    (* All prim args are either wnf or can step. *)
    assert (Forall (fun x => wnfX x \/ (exists x', STEP x x')) xs) as HWS.
@@ -131,10 +130,40 @@ Proof.
      intuition. eauto.
    } 
 
-   (* All prim args are wnf, or there is a context where one can step. *)
+   (* All ctor args are wnf, or there is a context where one can step. *)
    lets D: (@exps_ctx_run exp exp) HWS. inverts D.
-   (* All prim args are wnf. *)
-   + admit. (* primop eval *)
+   (* All ctor args are wnf. *)
+   + left.
+
+   destruct p.
+   + SCase "PNat".
+     snorm. inverts H4.
+     inverts H6. left. eauto.
+
+   + SCase "PBool".
+     snorm. inverts H4.
+     inverts H6. left. eauto.
+
+   + SCase "PAdd".
+     lets D: (@exps_ctx_run exp exp) HWS. inverts D.
+     * right.
+       simpl in H4. inverts H4.
+
+       (* unpack predicates on args. *)
+       inverts H6. inverts H7. inverts H8.
+       inverts H0. inverts H7. inverts H8.
+       inverts H1. inverts H8. inverts H9.
+
+       admit.
+     
+    * right.
+      dest C. dest x'. rip.
+      lets D: step_context_XPrim_exists H2 H5.
+      destruct D as [x'']. eauto.
+  
+   + SCase "PIsZero".
+     lets D:           
+  
 
    (* There is a context where one prim arg can step. *)
    + dest C. dest x'. rip.
