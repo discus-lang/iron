@@ -72,8 +72,9 @@ Proof.
 
      * SSCase "x = XCon".
        inverts_type.
-       admit. (* substTT t0 / t1 *)
-       (* have (takeTCon (TCon tc0) = takeTCon (TForall t0)) by snorm. nope. *)
+       have (takeTCon (TCon tc0) = takeTCon (TForall t0))
+        by (eapply makeTApps_takeTCon; eauto).
+       snorm. nope.
 
      * SSCase "x = XCase".
        nope.

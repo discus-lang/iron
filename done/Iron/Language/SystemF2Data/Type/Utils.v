@@ -43,6 +43,8 @@ Definition takeTApps (tt: ty) : (ty * list ty)
 
 
 
+
+(********************************************************************)
 Lemma makeTApps_snoc
  : forall t1 t2 t3 ts
  , makeTApps (TApp t1 t2) (snoc t3 ts) 
