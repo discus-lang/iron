@@ -102,6 +102,22 @@ Qed.
 Hint Resolve substTT_closedT_id.
 
 
+Lemma substTT_closedT_id_list
+ :  forall d ts t2
+ ,  Forall closedT ts
+ -> map (substTT d t2) ts = ts.
+Proof.
+ intros.
+ induction ts.
+ - snorm.
+ - simpl. 
+   rewrite substTT_closedT_id.
+   rewrite IHts; snorm.
+   snorm.
+Qed.
+Hint Resolve substTT_closedT_id_list.
+
+
 (********************************************************************)
 (* If we lift at depth d, this creates an empty space and
    substituting into it doens't do anything. *)

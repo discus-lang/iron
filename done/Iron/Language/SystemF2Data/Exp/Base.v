@@ -1,20 +1,6 @@
 
 Require Export Iron.Language.SystemF2Data.Type.
-
-Inductive prim : Type :=
- | PNat    : nat  -> prim 
- | PBool   : bool -> prim
-
- | PAdd    : prim
- | PIsZero : prim.
-
-
-Inductive defprim : Type :=
- | DefPrim 
-   :  list ty    (* Types of the arguments. *)
-   -> ty         (* Type  of the returned value. *)
-   -> defprim.
-
+Require Export Iron.Language.SystemF2Data.Exp.Prim.
 
 
 (* Expressions *)

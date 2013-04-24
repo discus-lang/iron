@@ -75,8 +75,8 @@ Lemma liftTT_takeTArgs
 Proof.
  intros.
  induction tt; intros; simpl; auto.
-  lift_cases; auto. 
-  snorm. rewritess. auto.
+ - lift_cases; auto.
+ - snorm. rewritess. auto.
 Qed. 
 Hint Rewrite liftTT_takeTArgs : global.
 
@@ -139,13 +139,12 @@ Lemma liftTT_plus
 Proof.
  intros. gen n d.
  induction m; intros.
- rewrite liftTT_zero; burn.
-
- rrwrite (n + S m = S n + m). 
-  rewrite liftTT_comm.
-  rewrite <- IHm.
-  rewrite liftTT_comm.
-  burn.
+ - rewrite liftTT_zero; burn.
+ - rrwrite (n + S m = S n + m). 
+   rewrite liftTT_comm.
+   rewrite <- IHm.
+   rewrite liftTT_comm.
+   burn.
 Qed. 
 Hint Rewrite <- liftTT_plus : global.
 
@@ -197,6 +196,22 @@ Qed.
 Hint Resolve liftTT_closedT_10.
 
 
+Lemma liftTT_closedT_id_list
+ :  forall ts d
+ ,  Forall closedT ts
+ -> map (liftTT 1 d) ts = ts.
+Proof.
+ intros.
+ induction ts.
+ - snorm.
+ - simpl. 
+   rewrite IHts.
+   rewrite liftTT_closedT_id_1; auto.
+   snorm. snorm.
+Qed.
+Hint Resolve liftTT_closedT_id_list.
+
+
 (********************************************************************)
 (* Changing the order of lifting.
    We build this up in stages. 
@@ -234,14 +249,13 @@ Lemma liftTT_liftTT_1
 Proof.
  intros. gen n1 m1 n2 t.
  induction m1; intros; simpl.
-  burn. 
-
-  rrwrite (S m1 = 1 + m1).
-  rewrite <- liftTT_plus.
-  rewritess.
-  rrwrite (m1 + n2 + n1 = n1 + (m1 + n2)) by omega.
-  rewrite liftTT_liftTT_11.
-  burn.
+ - burn. 
+ - rrwrite (S m1 = 1 + m1).
+   rewrite <- liftTT_plus.
+   rewritess.
+   rrwrite (m1 + n2 + n1 = n1 + (m1 + n2)) by omega.
+   rewrite liftTT_liftTT_11.
+   burn.
 Qed.
 
 
@@ -252,13 +266,12 @@ Lemma liftTT_liftTT
 Proof.
  intros. gen n1 m1 n2 t.
  induction m2; intros.
-  burn.
-
-  rrwrite (S m2 = 1 + m2).
-  rewrite <- liftTT_plus.
-  rewrite liftTT_liftTT_1.
-  rewrite IHm2.
-  burn.
+ - burn.
+ - rrwrite (S m2 = 1 + m2).
+   rewrite <- liftTT_plus.
+   rewrite liftTT_liftTT_1.
+   rewrite IHm2.
+   burn.
 Qed.
 Hint Rewrite liftTT_liftTT : global.
 
@@ -270,5 +283,5 @@ Lemma liftTT_map_liftTT
 Proof.
  induction ts; snorm; burn.
   rewritess. auto.
-Qed.  
+Qed.
 

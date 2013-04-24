@@ -99,24 +99,43 @@ Proof.
     eapply IHx1_2 in H6; eauto.
 
  - Case "XPrim".
-   admit. (* need prim type args are closed. *)
+   eapply TYPrim; eauto.
+   + lets D: prim_types_closed H5. rip.
+     rrwrite (substTT ix t2 t1 = t1). 
+     eauto.
+   + have (Forall closedT tsArg) 
+      by (eapply prim_types_closed_args; eauto).
+
+     have HTS: (tsArg = map (substTT ix t2) tsArg)
+      by (symmetry; eauto; eapply substTT_closedT_id_list; eauto).
+     rewrite HTS.
+     rewrite HTS in H7.
+
+     eapply Forall2_map.
+     eapply Forall2_map_right' in H7.
+     eapply Forall2_impl_in; eauto; intros. 
+     simpl in H6.
+     snorm.
+     eapply H; eauto. 
+     have (closedT y).
+     rrwrite (substTT ix t2 y = y) in H6.
+     trivial.     
 
  - Case "XCon".
    rr. simpl.
    eapply TYCon; eauto.
-   eapply subst_type_type_ix_forall2; eauto.
-
-   eapply Forall2_map.
-   eapply Forall2_map_right' in H11.
-   eapply Forall2_impl_in; eauto; intros.
-    rrwrite (ix = 0 + ix). 
-    rewrite substTTs_substTT; rr.
-     nforall. eapply H; eauto.
-     defok ds (DefData     dc tsFields tc).
-     defok ds (DefDataType tc ks       dcs).
-     rrwrite (length ts = length ks).
-     repeat nforall.
-     have (KIND ks y KStar). eauto.
+   + eapply subst_type_type_ix_forall2; eauto.
+   + eapply Forall2_map.
+     eapply Forall2_map_right' in H11.
+     eapply Forall2_impl_in; eauto; intros.
+     rrwrite (ix = 0 + ix). 
+     rewrite substTTs_substTT; rr.
+      nforall. eapply H; eauto.
+      defok ds (DefData     dc tsFields tc).
+      defok ds (DefDataType tc ks       dcs).
+      rrwrite (length ts = length ks).
+      repeat nforall.
+      have (KIND ks y KStar). eauto.
  
  - Case "XCase".
    eapply TYCase; eauto.

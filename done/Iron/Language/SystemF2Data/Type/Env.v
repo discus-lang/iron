@@ -76,10 +76,6 @@ Proof.
  intros.
  unfold liftTE.
  induction se; rip.
- - inverts H. rip.
-   snorm. rewritess.
-   rrwrite (liftTT 1 n a = a).
-   auto.
 Qed.
 Hint Resolve liftTE_closedT_id.
 
@@ -92,10 +88,6 @@ Proof.
  intros.
  unfold substTE.
  induction se; rip.
- - inverts H. rip.
-   snorm. rewritess.
-   rrwrite (substTT n t2 a = a).
-   auto.
 Qed.
 Hint Resolve substTE_closedT_id.
 
