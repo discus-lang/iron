@@ -21,6 +21,9 @@ Fixpoint substTX (d: nat) (u: ty) (xx: exp) : exp :=
   |  XApp x1 x2
   => XApp (substTX d u x1) (substTX d u x2)
 
+  |  XPrim p xs
+  => XPrim p (map (substTX d u) xs)
+
   |  XCon dc ts xs 
   => XCon dc (map (substTT d u) ts) (map (substTX d u) xs)
 
@@ -64,40 +67,43 @@ Proof.
                   (substTT ix t3 t1) (substTT ix t3 t2));
   intros; simpl; inverts_type; eauto.
 
- Case "XVar".
-  apply TYVar.
-  unfold substTE. auto. 
+ - Case "XVar".
+   apply TYVar.
+   unfold substTE. auto. 
 
- Case "XLAM".
-  simpl. apply TYLAM.
-  rewrite delete_rewind.
-  rewrite (liftTE_substTE 0 ix).
-  eauto using kind_kienv_weaken.
+ - Case "XLAM".
+   simpl. apply TYLAM.
+   rewrite delete_rewind.
+   rewrite (liftTE_substTE 0 ix).
+   eauto using kind_kienv_weaken.
 
- Case "XAPP".
-  rewrite (substTT_substTT 0 ix).
-  eauto using subst_type_type_ix.
-  apply TYAPP.
-   simpl. eapply (IHx1 ix) in H4; eauto.
-   simpl. eapply subst_type_type_ix; eauto.
+ - Case "XAPP".
+   rewrite (substTT_substTT 0 ix).
+   eauto using subst_type_type_ix.
+   apply TYAPP.
+    simpl. eapply (IHx1 ix) in H4; eauto.
+    simpl. eapply subst_type_type_ix; eauto.
 
- Case "XLam".
-  simpl. apply TYLam.
-  eapply subst_type_type_ix; eauto.
-  unfold substTE. rewrite map_rewind.
-  rrwrite ( map (substTT ix t2) (te :> t)
-          = substTE ix t2 (te :> t)).
-  burn.
+ - Case "XLam".
+   simpl. apply TYLam.
+   eapply subst_type_type_ix; eauto.
+   unfold substTE. rewrite map_rewind.
+   rrwrite ( map (substTT ix t2) (te :> t)
+           = substTE ix t2 (te :> t)).
+   eapply IHx1; eauto.
 
- Case "XApp".
-  eapply TYApp.
-   eapply IHx1_1 in H4; eauto.
-    simpl in H4. burn.
-   eapply IHx1_2 in H6; eauto.
+ - Case "XApp".
+   eapply TYApp.
+    eapply IHx1_1 in H4; eauto.
+     simpl in H4. burn.
+    eapply IHx1_2 in H6; eauto.
 
- Case "XCon".
-  rr. simpl.
-  eapply TYCon; eauto.
+ - Case "XPrim".
+   admit. (* need prim type args are closed. *)
+
+ - Case "XCon".
+   rr. simpl.
+   eapply TYCon; eauto.
    eapply subst_type_type_ix_forall2; eauto.
 
    eapply Forall2_map.
@@ -112,29 +118,29 @@ Proof.
      repeat nforall.
      have (KIND ks y KStar). eauto.
  
- Case "XCase".
-  eapply TYCase; eauto.
-  eapply Forall_map.
-  repeat nforall. intros. eauto.
-  repeat nforall. intros.
-   have (In x (map dcOfAlt aa)).
-   assert ( map dcOfAlt (map (substTA ix t2) aa)
-          = map dcOfAlt aa) as HDC.
-    lists. f_equal.
-    extensionality x0. rr. auto.
-   rewrite HDC. auto.
+ - Case "XCase".
+   eapply TYCase; eauto.
+   eapply Forall_map.
+   repeat nforall. intros. eauto.
+   repeat nforall. intros.
+    have (In x (map dcOfAlt aa)).
+    assert ( map dcOfAlt (map (substTA ix t2) aa)
+           = map dcOfAlt aa) as HDC.
+     lists. f_equal.
+     extensionality x0. rr. auto.
+    rewrite HDC. auto.
 
- Case "AAlt".
-  defok ds (DefData dc tsFields tc).
-  rr.
-  eapply TYAlt with (tc := tc) (ks := ks) (dcs := dcs); eauto.
-  eapply subst_type_type_ix_forall2; eauto.
-   eapply IHx1 in H10; eauto.
-   rrwrite (ix = 0 + ix).   
-   rewrite substTTs_substTT_map; rr.
-    unfold substTE. rewrite <- map_app. auto. 
-    rrwrite (length tsParam = length ks).
-    eauto.
+ - Case "AAlt".
+   defok ds (DefData dc tsFields tc).
+   rr.
+   eapply TYAlt with (tc := tc) (ks := ks) (dcs := dcs); eauto.
+   eapply subst_type_type_ix_forall2; eauto.
+    eapply IHx1 in H10; eauto.
+    rrwrite (ix = 0 + ix).   
+    rewrite substTTs_substTT_map; rr.
+     unfold substTE. rewrite <- map_app. auto. 
+     rrwrite (length tsParam = length ks).
+     eauto.
 Qed.
 
 

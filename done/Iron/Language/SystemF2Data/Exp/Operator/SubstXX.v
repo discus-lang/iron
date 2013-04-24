@@ -32,9 +32,11 @@ Fixpoint substXX (d:  nat) (u: exp) (xx: exp) : exp :=
     |  XLam t1 x2
     => XLam t1 (substXX (S d) (liftXX 1 0 u) x2)
 
-    (* Applications *)
     |  XApp x1 x2 
     => XApp (substXX d u x1) (substXX d u x2)
+ 
+    |  XPrim p xs
+    => XPrim p (map (substXX d u) xs)
 
     |  XCon dc ts xs
     => XCon dc ts (map (substXX d u) xs)
@@ -80,70 +82,76 @@ Proof.
       -> TYPEA ds ke (delete ix te) (substXA ix x2 a1) t11 t12)
   ; intros; simpl; inverts_type; eauto.
 
- Case "XVar".
-  fbreak_nat_compare.
-  SCase "n = ix".
-   rewrite H in H3. inverts H3. auto.
+ - Case "XVar".
+   fbreak_nat_compare.
+   SCase "n = ix".
+    rewrite H in H3. inverts H3. auto.
 
-  SCase "n < ix".
-   apply TYVar; auto.
+  + SCase "n < ix".
+    apply TYVar; auto.
 
-  SCase "n > ix".
-   apply TYVar; auto.
-   rewrite <- H3.
-   destruct n.
-    burn. 
-    simpl. nnat. apply get_delete_below; burn.
+  + SCase "n > ix".
+    apply TYVar; auto.
+    rewrite <- H3.
+    destruct n.
+     burn. 
+     simpl. nnat. apply get_delete_below; burn.
 
- Case "XLAM".
-  simpl.
-  eapply (IHx1 ix) in H3.
-  apply TYLAM.
-   unfold liftTE. rewrite map_delete. eauto.
-   eapply get_map. eauto.
-   unfold liftTE. rewrite <- map_delete.
-    rrwrite (map (liftTT 1 0) (delete ix te) = liftTE 0 (delete ix te)). 
-    apply type_kienv_weaken1. auto.
+ - Case "XLAM".
+   simpl.
+   eapply (IHx1 ix) in H3.
+   apply TYLAM.
+    unfold liftTE. rewrite map_delete. eauto.
+    eapply get_map. eauto.
+    unfold liftTE. rewrite <- map_delete.
+     rrwrite (map (liftTT 1 0) (delete ix te) = liftTE 0 (delete ix te)). 
+     apply type_kienv_weaken1. auto.
 
- Case "XLam".
-  simpl.
-  apply TYLam; auto.
-   rewrite delete_rewind.
-   eauto using type_tyenv_weaken1.
+ - Case "XLam".
+   simpl.
+   apply TYLam; auto.
+    rewrite delete_rewind.
+    eauto using type_tyenv_weaken1.
 
- Case "XCon".
-  eapply TYCon; eauto.
-   nforall.
-   apply (Forall2_map_left (TYPE ds ke (delete ix te))).
-   apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
+ - Case "XPrim".
+   eapply TYPrim; eauto.
+    apply (Forall2_map_left (TYPE ds ke (delete ix te))).
+    apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
+    snorm. eauto.
 
- Case "XCase".
-  eapply TYCase; eauto.
-   clear IHx1.
+ - Case "XCon".
+   eapply TYCon; eauto.
+    apply (Forall2_map_left (TYPE ds ke (delete ix te))).
+    apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
+    snorm. eauto.
+
+ - Case "XCase".
+   eapply TYCase; eauto.
    (* Alts have correct type *)
-    eapply Forall_map.
-    repeat nforall. eauto.
+   + clear IHx1.
+      eapply Forall_map.
+      repeat nforall. eauto.
 
    (* Required datacon is in alts list *)
-   repeat nforall. intros.
-   rename x into d. lists.
-   apply in_map_iff.
-   have (exists a, dcOfAlt a = d /\ In a aa). 
-    shift a. rip.
-   rewrite dcOfAlt_substXA; auto.
+   + repeat nforall. intros.
+     rename x into d. lists.
+     apply in_map_iff.
+     have (exists a, dcOfAlt a = d /\ In a aa). 
+      shift a. rip.
+     rewrite dcOfAlt_substXA; auto.
 
- Case "AAlt".
-  defok ds (DefData dc tsFields tc).
-  eapply TYAlt; eauto.
-  rewrite delete_app.
-  lists.
-  assert ( length tsFields 
-         = length (map (substTTs 0 tsParam) tsFields)) as HL
-   by (lists; auto).
-  rewrite HL.
-  eapply IHx1 with (t2 := t2); eauto.
-  rewrite <- delete_app.
-  eauto using type_tyenv_weaken_append.
+ - Case "AAlt".
+   defok ds (DefData dc tsFields tc).
+   eapply TYAlt; eauto.
+   rewrite delete_app.
+   lists.
+   assert ( length tsFields 
+          = length (map (substTTs 0 tsParam) tsFields)) as HL
+    by (lists; auto).
+   rewrite HL.
+   eapply IHx1 with (t2 := t2); eauto.
+   rewrite <- delete_app.
+   eauto using type_tyenv_weaken_append.
 Qed.
 
 

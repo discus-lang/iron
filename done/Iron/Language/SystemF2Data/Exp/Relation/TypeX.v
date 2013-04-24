@@ -137,14 +137,15 @@ Lemma value_lam
 Proof.
  intros. destruct x; eauto; nope.
 
- (* Show that x can't be a XCon because data type definitions can't
-    define the function type constructor. *)
- unfold tFun in H0.
- inverts H0.
-  apply makeTApps_takeTCon in H4.
-  simpl in H4. inverts H4.
-  have (DEFOK ds (DefData d tsFields TyConFun)).
-  nope.
+ (* x can't be a XCon  because those must be saturated, 
+    and therefore not return functions. *)
+ - Case "XCon".
+   unfold tFun in H0.
+   inverts H0.
+   apply makeTApps_takeTCon in H4.
+   simpl in H4. inverts H4.
+   have (DEFOK ds (DefData d tsFields TyConFun)).
+   nope.
 Qed.
 Hint Resolve value_lam.
 
@@ -224,8 +225,8 @@ Proof.
    destruct dc.
    eapply WfA_AAlt. eauto.
    apply IHx in H8.
-   rr. lists.
-   rrwrite (length te + length tsFields = length tsFields + length te).
+   norm. lists.
+   rrwrite (length te + length tsFields = length tsFields + length te) by omega.
    eauto.
 Qed.
 Hint Resolve type_wfX.
@@ -409,50 +410,51 @@ Proof.
       -> TYPEA ds ke (insert ix t2 te) (liftXA 1 ix a) t3 t4)
   ; intros; inverts_type; simpl; eauto.
 
- Case "XVar".
-  nnat; lift_cases; burn.
+ - Case "XVar".
+   nnat; lift_cases; burn.
 
- Case "XLAM".
-  apply TYLAM.
-  assert ( liftTE 0 (insert ix t2 te)
-         = insert ix (liftTT 1 0 t2) (liftTE 0 te)).
-   unfold liftTE. rewrite map_insert. auto.
-   burn.
+ - Case "XLAM".
+   apply TYLAM.
+   assert ( liftTE 0 (insert ix t2 te)
+          = insert ix (liftTT 1 0 t2) (liftTE 0 te)).
+    unfold liftTE. rewrite map_insert. auto.
+    rewritess.
+    burn.
 
- Case "XLam".
-  apply TYLam; eauto.
-  rewrite insert_rewind. auto.
+ - Case "XLam".
+   apply TYLam; eauto.
+   rewrite insert_rewind. auto.
 
- Case "XPrim".
-  admit. (* type_tyenv_insert prim *)
+ - Case "XPrim".
+   admit. (* type_tyenv_insert prim *)
 
- Case "XCon".
-  eapply TYCon; eauto.
-   nforall.
-   apply (Forall2_map_left (TYPE ds ke (insert ix t2 te))).
-   apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
+ - Case "XCon".
+   eapply TYCon; eauto.
+    nforall.
+    apply (Forall2_map_left (TYPE ds ke (insert ix t2 te))).
+    apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
 
- Case "XCase".
-  eapply TYCase; eauto.
-   apply Forall_map.
-   apply (Forall_impl_in 
-     (fun a => TYPEA ds ke te a tObj t1)); eauto.
-   repeat nforall. eauto.
-   repeat nforall.
-    intros. lists.
-    rename x0 into d.
-    eapply map_exists_in.
-    have (In d (map dcOfAlt aa)). 
-    assert (exists a, dcOfAlt a = d /\ In a aa).
-     eapply map_in_exists. auto.
-   shift a. rip.
-   eapply dcOfAlt_liftXA.
+ - Case "XCase".
+   eapply TYCase; eauto.
+    apply Forall_map.
+    apply (Forall_impl_in 
+      (fun a => TYPEA ds ke te a tObj t1)); eauto.
+    repeat nforall. eauto.
+    repeat nforall.
+     intros. lists.
+     rename x0 into d.
+     eapply map_exists_in.
+     have (In d (map dcOfAlt aa)). 
+     assert (exists a, dcOfAlt a = d /\ In a aa).
+      eapply map_in_exists. auto.
+    shift a. rip.
+    eapply dcOfAlt_liftXA.
 
- Case "XAlt".
-  defok ds (DefData dc tsFields tc).
-  eapply TYAlt; eauto.
-  rewrite insert_app.
-  lists. burn.
+ - Case "XAlt".
+   defok ds (DefData dc tsFields tc).
+   eapply TYAlt; eauto.
+   rewrite insert_app.
+   lists. burn.
 Qed. 
 
 
@@ -480,11 +482,11 @@ Lemma type_tyenv_weaken_append
 Proof.
  intros.
  induction te'; simpl.
-  burn.
+ - burn.
 
-  rrwrite (S (length te') = length te' + 1).
-  rrwrite (length te' + 1 = 1 + length te').
-  rewrite <- liftXX_plus.
-  eapply type_tyenv_weaken1.
-  burn.
+ - rrwrite (S (length te') = length te' + 1).
+   rrwrite (length te' + 1 = 1 + length te').
+   rewrite <- liftXX_plus.
+   eapply type_tyenv_weaken1.
+   burn.
 Qed.
