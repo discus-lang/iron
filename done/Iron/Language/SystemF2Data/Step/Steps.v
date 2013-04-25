@@ -6,8 +6,9 @@ Require Export Iron.Language.SystemF2Data.Step.Step.
 
 (* Multi-step evaluation
    A sequence of small step transitions.
+
    As opposed to STEPSL, this version has an append constructor
-   ESAppend that makes it easy to join two evaluations together.
+   EsAppend that makes it easy to join two evaluations together.
    We use this when converting big-step evaluations to small-step. *)
 Inductive STEPS : exp -> exp -> Prop :=
 
@@ -34,6 +35,7 @@ Inductive STEPS : exp -> exp -> Prop :=
 Hint Constructors STEPS.
 
 
+(********************************************************************)
 (* Multi-step evaluating a wnf doesn't change it. *)
 Lemma steps_wnfX 
  :  forall x v
@@ -50,6 +52,7 @@ Proof.
 Qed.
 
 
+(********************************************************************)
 (* Multi-step evaluation in a context. *)
 Lemma steps_context
  :  forall C x1 x1'
@@ -62,6 +65,7 @@ Proof.
 Qed.
 
 
+(********************************************************************)
 (* Multi-step evaluation of a data constructor argument. *)
 Lemma steps_context_XCon
  :  forall C x v dc ts
@@ -71,10 +75,8 @@ Lemma steps_context_XCon
 Proof.
  intros C x v dc ts HC HS.
  induction HS; auto.
-
- Case "XCon".
-  lets D: EsContext XcCon; eauto. 
-  eauto.
+ - lets D: EsContext XcCon; eauto. 
+ - eauto.
 Qed.
 
 
@@ -86,10 +88,42 @@ Lemma steps_in_XCon
 Proof.
  intros xs ts vs dc HS HW.
  lets HC: make_chain HS HW.
-  eapply steps_wnfX.
-
- clear HS. clear HW.
- induction HC; auto.
-  eapply (EsAppend (XCon dc ts (C x)) (XCon dc ts (C v))); auto.
-  eapply steps_context_XCon; auto.
+ - eapply steps_wnfX.
+ - clear HS. clear HW.
+   induction HC; auto.
+   eapply (EsAppend (XCon dc ts (C x)) (XCon dc ts (C v))); auto.
+   eapply steps_context_XCon; auto.
 Qed.
+
+
+(********************************************************************)
+(* Multi-step evaluation of a primitive operator argument. *)
+Lemma steps_context_XPrim
+ :  forall C x v p
+ ,  exps_ctx wnfX C
+ -> STEPS x v
+ -> STEPS (XPrim p (C x)) (XPrim p (C v)).
+Proof.
+ intros C x v p HC HS.
+ induction HS; auto.
+ - lets D: EsContext XcPrim; eauto.
+ - eauto.
+Qed.
+
+
+Lemma steps_in_XPrim
+ :  forall xs vs p
+ ,  Forall2 STEPS xs vs
+ -> Forall wnfX vs
+ -> STEPS (XPrim p xs) (XPrim p vs).
+Proof.
+ intros xs vs p HS HW.
+ lets HC: make_chain HS HW.
+ - eapply steps_wnfX.
+ - clear HS. clear HW.
+   induction HC; auto.
+   eapply (EsAppend (XPrim p (C x)) (XPrim p (C v))); auto.
+   eapply steps_context_XPrim; auto.
+Qed.
+
+

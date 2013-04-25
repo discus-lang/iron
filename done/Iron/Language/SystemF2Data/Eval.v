@@ -32,11 +32,18 @@ Inductive EVAL : exp -> exp -> Prop :=
 
  | EvCase 
    :  forall x1 x2 v3 dc ts vs alts
-   ,  EVAL x1 (XCon dc ts vs)
+   ,  EVAL   x1 (XCon dc ts vs)
    -> Forall wnfX vs
    -> getAlt dc alts = Some (AAlt dc x2)
    -> EVAL (substXXs 0 vs x2) v3
    -> EVAL (XCase x1 alts)   v3
+
+ | EvPrim
+   :  forall p xs vs v
+   ,  EVALS  xs vs
+   -> Forall wnfX vs
+   -> stepPrim p vs = Some v
+   -> EVAL (XPrim p xs) v
 
  with EVALS : list exp -> list exp -> Prop :=
   | EvsNil
@@ -60,6 +67,7 @@ Ltac inverts_eval :=
    | [ H: EVAL (XAPP _ _)    _ |- _ ] => inverts H
    | [ H: EVAL (XCon _ _ _)  _ |- _ ] => inverts H
    | [ H: EVAL (XCase _ _)   _ |- _ ] => inverts H
+   | [ H: EVAL (XPrim _ _)   _ |- _ ] => inverts H
    end).
 
 
@@ -88,7 +96,11 @@ Theorem EVAL_mutind
     -> getAlt dc alts = Some (AAlt dc x2) 
     -> EVAL (substXXs 0 vs x2) v3 -> PE (substXXs 0 vs x2) v3 
     -> PE (XCase x1 alts) v3) 
-
+ -> (forall p xs vs v
+    ,  EVALS xs vs                -> PS xs vs
+    -> Forall wnfX vs
+    -> stepPrim p vs  = Some v
+    -> PE (XPrim p xs) v)
  -> (  PS nil nil)
  -> (forall x v xs vs
     ,  EVAL x v                   -> PE x  v
@@ -96,10 +108,9 @@ Theorem EVAL_mutind
     -> PS (x :: xs) (v :: vs))
  -> forall x1 x2
  ,  EVAL x1 x2 -> PE x1 x2.
-
 Proof.
  intros PE PS.
- intros Hdone HLAM Hlam Hcon Hcase Hnil Hcons.
+ intros Hdone HLAM Hlam Hcon Hcase Hprim Hnil Hcons.
  refine (fix  IHPE x  x'  (HE: EVAL  x  x')  {struct HE} 
               : PE x x'   := _
          with IHPS xs xs' (HS: EVALS xs xs') {struct HS}
@@ -112,11 +123,59 @@ Proof.
  eapply Hlam;  eauto.
  eapply Hcon;  eauto.
  eapply Hcase; eauto.
+ eapply Hprim; eauto.
 
  case HS; intros.
  eapply Hnil.
  eapply Hcons; eauto.
 Qed.
+
+
+(********************************************************************)
+(* Evaluating a wnf is identity. *)
+Lemma eval_wnf_id
+ :  forall x v
+ ,  wnfX x
+ -> EVAL x v 
+ -> x = v.
+Proof.
+ intros.
+ induction H0 using EVAL_mutind with
+  (PS := fun xs vs
+      => Forall wnfX xs
+      -> EVALS xs vs
+      -> xs = vs);
+  inverts H; eauto.
+
+ - rip. subst. auto. 
+ - rip. subst. auto.
+Qed.
+
+
+Lemma evals_wnf_id
+ :  forall xs vs
+ ,  Forall wnfX xs
+ -> EVALS xs vs
+ -> xs = vs.
+Proof.
+ intros.
+ induction H0; auto.
+ + inverts H. rip. subst.
+   cut (x = v); intros. subst. auto.
+   eapply eval_wnf_id; auto.
+Qed.
+
+
+Lemma evals_wnfX
+ :  forall vs
+ ,  Forall wnfX vs
+ -> EVALS vs vs.
+Proof.
+ intros. 
+ induction vs. auto.
+ inverts H. rip.
+Qed.
+Hint Resolve evals_wnfX.
 
 
 (* A terminating big-step evaluation always produces a whnf.
@@ -148,6 +207,7 @@ Qed.
 Hint Resolve evals_produces_wnfX.
 
 
+(********************************************************************)
 (* Big to Small steps
    Convert a big-step evaluation into a list of individual
    machine steps. *)
@@ -165,101 +225,119 @@ Proof.
       -> Forall2 STEPS xs vs)
   ; intros.
 
- Case "EvDone".
-  intros. apply EsNone.
-
- (* Type Application ***)
- Case "EVLAMAPP".
-  intros. inverts HT.
-  lets E1: IHHE1 H1. clear IHHE1.
-  lets T1: preservation_steps H1 E1. inverts keep T1.
-  lets T2: subst_type_exp H2 H3.
-   simpl in T2.
-  lets E2: IHHE2 T2.
-  eapply EsAppend.
-   lets D: steps_context XcAPP. eapply D. eauto.
-  eapply EsAppend.
-   eapply EsStep.
-    eapply EsLAMAPP. auto.
+ (*************************************)
+ - Case "EvDone".
+   intros. apply EsNone.
 
 
- (* Function Application ***)
- Case "EvLamApp".
-  intros. inverts HT.
-
-  lets E1: IHHE1 H1. 
-  lets E2: IHHE2 H3.
-
-  lets T1: preservation_steps H1 E1. inverts keep T1.
-  lets T2: preservation_steps H3 E2.
-  lets T3: subst_exp_exp H6 T2.
-  lets E3: IHHE3 T3.
-
-  eapply EsAppend.
-    lets D: steps_context XcApp1. eapply D. eauto. 
+ (*************************************)
+ - Case "EVLAMAPP".
+   intros. inverts HT.
+   lets E1: IHHE1 H1. clear IHHE1.
+   lets T1: preservation_steps H1 E1. inverts keep T1.
+   lets T2: subst_type_exp H2 H3.
+    simpl in T2.
+   lets E2: IHHE2 T2.
    eapply EsAppend.
-    lets D: steps_context (XcApp2 (XLam t0 x12)).
-     eapply Value. eauto. unfold closedX.
-     have    (0 = @length ki nil). rewrite H at 1.
-     rrwrite (0 = @length ty nil). eauto.
-    eapply D. eauto.
+    + lets D: steps_context XcAPP. eapply D. eauto.
+    + eapply EsAppend.
+      * eapply EsStep.
+        eapply EsLAMAPP. 
+      * auto.
+
+
+ (*************************************)
+ - Case "EvLamApp".
+   intros. inverts HT.
+
+   lets E1: IHHE1 H1. 
+   lets E2: IHHE2 H3.
+
+   lets T1: preservation_steps H1 E1. inverts keep T1.
+   lets T2: preservation_steps H3 E2.
+   lets T3: subst_exp_exp H6 T2.
+   lets E3: IHHE3 T3.
+
+   eapply EsAppend. 
+   + lets D: steps_context XcApp1. eapply D. eauto. 
+   + eapply EsAppend.
+     * lets D: steps_context (XcApp2 (XLam t0 x12)).
+       eapply Value. eauto. unfold closedX.
+       have    (0 = @length ki nil). rewrite H at 1.
+       rrwrite (0 = @length ty nil). eauto.
+       eapply D. eauto.
+     * eapply EsAppend.
+        eapply EsStep.
+        eapply EsLamApp. eauto. 
+        eauto.
+
+
+ (*************************************)
+ - Case "EvCon".
+   intros.
+   inverts HT.
+   lets D: IHHE H8 H.
+   eapply steps_in_XCon; eauto.
+
+
+ (*************************************)
+ - Case "EvCase".
+   intros. inverts keep HT.
+
+   lets Ex1: IHHE1 H3. clear IHHE1.
+
    eapply EsAppend.
-    eapply EsStep.
-     eapply EsLamApp. eauto. eauto.
-
-
- (* Constructor evaluation ***)
- Case "EvCon".
-  intros.
-  inverts HT.
-  lets D: IHHE H8 H.
-  eapply steps_in_XCon; eauto.
- 
-
- (* Case selection ***)  
- Case "EvCase".
-  intros. inverts keep HT.
-
-  lets Ex1: IHHE1 H3. clear IHHE1.
-
-  eapply EsAppend.
    (* evaluate the discriminant *)
-   lets HSx1: steps_context XcCase. eapply HSx1.
-    eapply Ex1.
+   + lets HSx1: steps_context XcCase. eapply HSx1.
+     eapply Ex1.
 
-  (* choose the alternative *)
-  lets HTCon: preservation_steps H3 Ex1. clear Ex1.
-  assert (TYPEA ds nil nil (AAlt dc x2) tObj t1) as TA.
-   repeat nforall. eauto. 
+   (* choose the alternative *)
+   + lets HTCon: preservation_steps H3 Ex1. clear Ex1.
+     have HA: (TYPEA ds nil nil (AAlt dc x2) tObj t1)
+      by (repeat nforall; eauto).
 
-  inverts TA. inverts HTCon.
-  rewrite H17 in H10. inverts H10.
-  rewrite H16 in H9.  inverts H9.
-  clear H7.
-  assert (ts = tsParam).
-   eapply makeTApps_args_eq; eauto.
-   have (length ts = length ks0)       as HL1.
-   have (length tsParam = length ks0)  as HL2.
-   rewrite <- HL2 in HL1. eauto. 
-   subst.
+    inverts HA. inverts HTCon.
+    rewrite H17 in H10. inverts H10.
+    rewrite H16 in H9.  inverts H9.
+    clear H7.
 
-  (* substitute ctor values into alternative *)
-  eapply EsAppend.
-   eapply EsStep.
-    eapply EsCaseAlt.
-     auto.
-     rewrite Forall_forall in H. eauto.
-     
-     eapply IHHE2.
+    have (ts = tsParam)
+     by (eapply makeTApps_args_eq; eauto).
+    have HL1: (length ts = length ks0).
+    have HL2: (length tsParam = length ks0).
+    rewrite <- HL2 in HL1. eauto. 
+    subst.
+
+   (* substitute ctor values into alternative *)
+   eapply EsAppend.
+   * eapply EsStep.
+     eapply EsCaseAlt; auto.
+     rewrite Forall_forall in H; eauto.
+   * eapply IHHE2.
      eapply subst_exp_exp_list; eauto.
 
- Case "EvsNil".
-  auto.
 
- Case "EvsHead".
-  destruct ts. 
-   inverts H0. 
-   inverts H0. eauto.
+ (*************************************)
+ - Case "EvPrim".
+   inverts keep HT.
+   lets Ex1: IHHE H6. clear IHHE. rip.
+
+   eapply EsAppend.
+   (* evaluate the arguments. *)
+   + eapply steps_in_XPrim; eauto.
+
+   (* evaluate the operator. *)
+   + eauto. 
+
+
+ (*************************************)
+ - Case "EvsNil".
+   auto.
+
+ - Case "EvsHead".
+   destruct ts. 
+   + inverts H0.
+   + inverts H0. eauto.
 Qed.
 
 
@@ -284,43 +362,64 @@ Proof.
   try (solve [inverts H; eauto]);
   try eauto.
 
- Case "Context".
-  destruct H; inverts_type; eauto.
+ - Case "Context".
+   destruct H; inverts_type; eauto.
 
-   SCase "XcApp1".
-    inverts_eval. inverts H. eauto.
+   + SCase "XcApp1".
+     inverts_eval. inverts H. eauto.
    
-   SCase "XcApp2".
-    inverts_eval. inverts H1. eauto.
+   + SCase "XcApp2".
+     inverts_eval. inverts H1. eauto.
 
-   SCase "XcAPP".
-    inverts_eval. inverts H. eauto.
+   + SCase "XcAPP".
+     inverts_eval. inverts H. eauto.
 
-   SCase "XcCon".
-    assert (exists t, TYPE ds ke te x t).
-    eapply exps_ctx_Forall2_exists_left; eauto.
-    dest t.
+   + SCase "XcCon".
+     have (exists t, TYPE ds ke te x t)
+      by (eapply exps_ctx_Forall2_exists_left; eauto).
+     dest t.
  
-    inverts_eval.
-    inverts H2.
-    eapply EvCon. clear H9. 
- 
-    induction H; intros.
-      inverts H3.
-      eapply EvsCons. eauto.
-       induction xs. eauto.
-        inverts H7. eauto.
-        inverts H3. eauto.
+     inverts_eval.
+     * inverts H2.
+       eapply EvCon. clear H9. 
+       induction H; intros.
+        inverts H3.
+         eapply EvsCons. 
+          eauto.
+          induction xs. 
+           eauto.
+           inverts H7. eauto.
+          inverts H3. eauto.
 
-    eapply EvCon.
-     clear H5 H6 H9. 
-     gen vs.
-     induction H; intros.
-      inverts H11. eauto.
-      inverts H11. eauto.
-      
-   SCase "XcCase".
-    inverts H0. inverts H. eauto. 
+     * eapply EvCon.
+       clear H5 H6 H9. 
+       gen vs.
+       induction H; intros.
+        inverts H11; eauto.
+        inverts H11; eauto.
+ 
+   + SCase "XcPrim".
+     have (exists t, TYPE ds ke te x t)
+      by (eapply exps_ctx_Forall2_exists_left; eauto).
+     dest t.
+
+     inverts_eval.
+     * inverts H2.
+     * eapply EvPrim; eauto.
+       clear H3 H5 H9.
+       gen vs.
+       induction H; intros.
+        inverts H6; eauto.
+        inverts H6; eauto.
+
+   + SCase "XcCase".
+     inverts H0. inverts H. eauto.
+
+ - SCase "XcPrim".
+   eapply EvPrim; eauto.
+   eapply eval_wnf_id in H1; auto.
+   + subst. auto.
+   + eapply stepPrim_result_wnfX; eauto.
 Qed.
 
 
@@ -332,13 +431,12 @@ Lemma eval_of_stepsl
  -> EVAL   x1 v2.
 Proof.
  intros.
- induction H0.
- 
- Case "EslNone".
+ induction H0. 
+ - Case "EslNone".
    apply EvDone. inverts H1. auto.
 
- Case "EslCons".
-  eapply eval_expansion; eauto.
+ - Case "EslCons".
+   eapply eval_expansion; eauto.
    apply IHSTEPSL; auto.
    eapply preservation; eauto.
 Qed.

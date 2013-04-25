@@ -1,20 +1,7 @@
 
 Require Export Iron.Language.SystemF2Data.Exp.
 Require Export Iron.Language.SystemF2Data.Step.Context.
-
-
-(* Single step evaluation for primitives. *)
-Fixpoint primStep (p : prim) (xs : list exp) : option exp :=
- match p, xs with
- |  PAdd,    XLit (LNat n1) :: XLit (LNat n2) :: nil 
- => Some (XLit (LNat (n1 + n2)))
-
- |  PIsZero, XLit (LNat n1) :: nil
- => Some (XLit (LBool (if beq_nat n1 0 then true else false)))
-
- | _, _
- => None
- end.
+Require Export Iron.Language.SystemF2Data.Step.Prim.
 
 
 (** * Single Small Step Evaluation *)
@@ -53,7 +40,7 @@ Inductive STEP : exp -> exp -> Prop :=
  | EsPrim
    :  forall p vs vResult
    ,  Forall wnfX vs
-   -> primStep p vs = Some vResult
+   -> stepPrim p vs = Some vResult
    -> STEP (XPrim p vs) vResult.
 
 Hint Constructors STEP.
