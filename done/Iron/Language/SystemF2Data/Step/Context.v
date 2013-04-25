@@ -29,6 +29,11 @@ Inductive exp_ctx : (exp -> exp) -> Prop :=
    :  forall t2
    ,  exp_ctx  (fun xx => XAPP xx t2)
 
+ | XcCon 
+   :  forall dc ts C
+   ,  exps_ctx wnfX C 
+   -> exp_ctx  (fun xx => XCon dc ts (C xx))
+
  (* As the XPrim constructor contains a list of sub-expressions, 
     we need an additional exps_ctx context to indicate which one 
     we're talking about. *)
@@ -36,11 +41,6 @@ Inductive exp_ctx : (exp -> exp) -> Prop :=
    :  forall p C
    ,  exps_ctx wnfX C
    -> exp_ctx  (fun xx => XPrim p (C xx))
-
- | XcCon 
-   :  forall dc ts C
-   ,  exps_ctx wnfX C 
-   -> exp_ctx  (fun xx => XCon dc ts (C xx))
 
  (* We need to reduce the discriminant of a case to a value. *)
  | XcCase

@@ -7,7 +7,7 @@ Require Import Iron.Language.SystemF2Data.Exp.Operator.LiftTX.
 (* Substitution of Types in Exps *)
 Fixpoint substTX (d: nat) (u: ty) (xx: exp) : exp :=
   match xx with
-  | XVar _     => xx
+  |  XVar _     => xx
 
   |  XLAM x     
   => XLAM (substTX (S d) (liftTT 1 0 u) x)
@@ -21,14 +21,16 @@ Fixpoint substTX (d: nat) (u: ty) (xx: exp) : exp :=
   |  XApp x1 x2
   => XApp (substTX d u x1) (substTX d u x2)
 
-  |  XPrim p xs
-  => XPrim p (map (substTX d u) xs)
-
   |  XCon dc ts xs 
   => XCon dc (map (substTT d u) ts) (map (substTX d u) xs)
 
   |  XCase xx alts
   => XCase (substTX d u xx) (map (substTA d u) alts)
+
+  |  XPrim p xs
+  => XPrim p (map (substTX d u) xs)
+
+  |  XLit l    => xx
  end
 
 with substTA (d: nat) (u: ty) (aa: alt) : alt :=
@@ -98,29 +100,6 @@ Proof.
      simpl in H4. burn.
     eapply IHx1_2 in H6; eauto.
 
- - Case "XPrim".
-   eapply TYPrim; eauto.
-   + lets D: prim_types_closed H5. rip.
-     rrwrite (substTT ix t2 t1 = t1). 
-     eauto.
-   + have (Forall closedT tsArg) 
-      by (eapply prim_types_closed_args; eauto).
-
-     have HTS: (tsArg = map (substTT ix t2) tsArg)
-      by (symmetry; eauto; eapply substTT_closedT_id_list; eauto).
-     rewrite HTS.
-     rewrite HTS in H7.
-
-     eapply Forall2_map.
-     eapply Forall2_map_right' in H7.
-     eapply Forall2_impl_in; eauto; intros. 
-     simpl in H6.
-     snorm.
-     eapply H; eauto. 
-     have (closedT y).
-     rrwrite (substTT ix t2 y = y) in H6.
-     trivial.     
-
  - Case "XCon".
    rr. simpl.
    eapply TYCon; eauto.
@@ -148,6 +127,33 @@ Proof.
      lists. f_equal.
      extensionality x0. rr. auto.
     rewrite HDC. auto.
+
+ - Case "XPrim".
+   eapply TYPrim; eauto.
+   + lets D: prim_types_closed H5. rip.
+     rrwrite (substTT ix t2 t1 = t1). 
+     eauto.
+   + have (Forall closedT tsArg) 
+      by (eapply prim_types_closed_args; eauto).
+
+     have HTS: (tsArg = map (substTT ix t2) tsArg)
+      by (symmetry; eauto; eapply substTT_closedT_id_list; eauto).
+     rewrite HTS.
+     rewrite HTS in H7.
+
+     eapply Forall2_map.
+     eapply Forall2_map_right' in H7.
+     eapply Forall2_impl_in; eauto; intros. 
+     simpl in H6.
+     snorm.
+     eapply H; eauto. 
+     have (closedT y).
+     rrwrite (substTT ix t2 y = y) in H6.
+     trivial.     
+
+ - Case "XLit".
+   eapply TYLit.
+   destruct l; snorm.
 
  - Case "AAlt".
    defok ds (DefData dc tsFields tc).

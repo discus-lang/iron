@@ -27,10 +27,6 @@ Fixpoint liftXX (n:  nat) (d:  nat) (xx: exp) {struct xx} : exp :=
     |  XApp x1 x2
     => XApp   (liftXX n d x1) (liftXX n d x2)
 
-    (* lift all the arguments applied to a primop *)
-    |  XPrim p xs
-    => XPrim p (map (liftXX n d) xs)
-
     (* lift all the arguments of a data constructor *)
     |  XCon dc ts xs
     => XCon dc ts (map (liftXX n d) xs)
@@ -38,6 +34,13 @@ Fixpoint liftXX (n:  nat) (d:  nat) (xx: exp) {struct xx} : exp :=
     (* lift all the alternatives in a case-expression *)
     |  XCase x alts
     => XCase (liftXX n d x) (map (liftXA n d) alts)
+
+    (* lift all the arguments applied to a primop *)
+    |  XPrim p xs
+    => XPrim p (map (liftXX n d) xs)
+
+    |  XLit l
+    => XLit l
     end
 
  with liftXA (n: nat) (d: nat) (aa: alt) {struct aa}:= 
@@ -69,13 +72,8 @@ Proof.
  intros. gen d.
  induction x using exp_mutind with 
   (PA := fun a => forall d
-      ,  liftXA 0 d a = a)
-  ; intros; simpl; try burn.
-
- - Case "XPrim".
-   nforall.
-   rewrite (map_ext_in (liftXX 0 d) id); auto.
-   rewrite map_id; auto.
+      ,  liftXA 0 d a = a);
+  intros; simpl; try burn.
 
  - Case "XCon".
    nforall.
@@ -86,6 +84,11 @@ Proof.
    nforall.
    rewrite (map_ext_in (liftXA 0 d) id); auto.
    rewrite map_id. burn.
+
+ - Case "XPrim".
+   nforall.
+   rewrite (map_ext_in (liftXX 0 d) id); auto.
+   rewrite map_id; auto.
 
  - Case "XAlt".
    destruct dc. burn.
@@ -109,13 +112,6 @@ Proof.
  - Case "XVar".
    repeat (simple; lift_cases; intros); f_equal; try omega; burn.
 
- - Case "XPrim".
-   snorm. f_equal.
-   lists.
-   rewrite (map_ext_in 
-    (fun x0 => liftXX n d (liftXX m d x0))
-    (fun x0 => liftXX m d (liftXX n d x0))); burn.
-
  - Case "XCon".
    snorm. f_equal.
    lists.
@@ -130,6 +126,13 @@ Proof.
      rewrite (map_ext_in
       (fun a1 => liftXA n d (liftXA m d a1))
       (fun a1 => liftXA m d (liftXA n d a1))); burn. 
+
+ - Case "XPrim".
+   snorm. f_equal.
+   lists.
+   rewrite (map_ext_in 
+    (fun x0 => liftXX n d (liftXX m d x0))
+    (fun x0 => liftXX m d (liftXX n d x0))); burn.
 
  - Case "XAlt".
    snorm. 
@@ -161,13 +164,6 @@ Proof.
     (fun x0 => liftXX (S n) d (liftXX m d x0))
     (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
 
- - Case "XPrim".
-   snorm. f_equal.
-   lists.
-   rewrite (map_ext_in
-    (fun x0 => liftXX (S n) d (liftXX m d x0))
-    (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
-
  - Case "XCase".
    snorm. f_equal.
    + auto.
@@ -175,6 +171,13 @@ Proof.
      rewrite (map_ext_in
       (fun x1 => liftXA (S n) d (liftXA m d x1))
       (fun x1 => liftXA n d (liftXA (S m) d x1))); burn.
+
+ - Case "XPrim".
+   snorm. f_equal.
+   lists.
+   rewrite (map_ext_in
+    (fun x0 => liftXX (S n) d (liftXX m d x0))
+    (fun x0 => liftXX n d (liftXX (S m) d x0))); burn.
 
  - Case "XAlt".
    snorm.
@@ -192,13 +195,12 @@ Lemma liftXX_plus
 Proof.
  intros. gen n.
  induction m; intros.
-  burn.
-
-  intros.
-  rrwrite (n + S m = S n + m). 
-  rewrite liftXX_comm.
-  rewrite <- IHm.
-  rewrite liftXX_comm.
-  burn.
+ - burn.
+ - intros.
+   rrwrite (n + S m = S n + m). 
+   rewrite liftXX_comm.
+   rewrite <- IHm.
+   rewrite liftXX_comm.
+   burn.
 Qed.
 

@@ -56,29 +56,24 @@ Proof.
      right. inverts H1. inverts H3.
      * SSCase "x = XVar". 
        nope.
-
      * SSCase "x = XLAM". 
        exists (substTX 0 t2 x1). 
        eapply EsLAMAPP.
-
      * SSCase "x = XAPP". 
        nope.
-
      * SSCase "x = XApp". 
        nope.
-     
-     * SSCase "x = XPrim".
-       destruct p; snorm; congruence. 
-
      * SSCase "x = XCon".
        inverts_type.
        have (takeTCon (TCon tc0) = takeTCon (TForall t0))
         by (eapply makeTApps_takeTCon; eauto).
        snorm. nope.
-
      * SSCase "x = XCase".
        nope.
-
+     * SSCase "x = XPrim".
+       destruct p; snorm; congruence. 
+     * SSCase "x = XLit".
+       destruct l0; snorm; congruence.
    + SCase "x steps".
      right.
      dest x'.
@@ -115,59 +110,6 @@ Proof.
      destruct H0  as [x1'].
      exists (XApp x1' x2).
      eapply (EsContext (fun xx => XApp xx x2)); auto.
-
- 
- (*************************************)
- - Case "XPrim".
-   inverts_type.
-
-   (* All prim args are either wnf or can step. *)
-   assert (Forall (fun x => wnfX x \/ (exists x', STEP x x')) xs) as HWS.
-   { repeat nforall. intros.
-     have (exists t, TYPE ds nil nil x t).
-     destruct H2 as [t'].
-     eapply H0 in H1. 
-     intuition. eauto.
-   } 
-
-   (* All ctor args are wnf, or there is a context where one can step. *)
-   lets D: (@exps_ctx_run exp exp) HWS. inverts D.
-   (* All ctor args are wnf. *)
-   + left.
-
-   destruct p.
-   + SCase "PNat".
-     snorm. inverts H4.
-     inverts H6. left. eauto.
-
-   + SCase "PBool".
-     snorm. inverts H4.
-     inverts H6. left. eauto.
-
-   + SCase "PAdd".
-     lets D: (@exps_ctx_run exp exp) HWS. inverts D.
-     * right.
-       simpl in H4. inverts H4.
-
-       (* unpack predicates on args. *)
-       inverts H6. inverts H7. inverts H8.
-       inverts H0. inverts H7. inverts H8.
-       inverts H1. inverts H8. inverts H9.
-
-       admit.
-     
-    * right.
-      dest C. dest x'. rip.
-      lets D: step_context_XPrim_exists H2 H5.
-      destruct D as [x'']. eauto.
-  
-   + SCase "PIsZero".
-     lets D:           
-  
-
-   (* There is a context where one prim arg can step. *)
-   + dest C. dest x'. rip.
-     admit. (* need steps_context_XPrim_exists *)
 
 
  (*************************************)
@@ -239,11 +181,42 @@ Proof.
        dest x. exists (substXXs 0 l0 x).
        eapply EsCaseAlt; eauto.
 
+     * SSCase "XCon".
+       admit. (* no prim types in defs *)
+
   (* Discriminant steps *)
   + SCase "x steps".
     destruct H2 as [x'].
     exists (XCase x' aa).
     lets D: EsContext XcCase; eauto.
+
+
+ (*************************************)
+ - Case "XPrim".
+   inverts_type.
+   right.
+
+   (* All prim args are either wnf or can step. *)
+   assert (Forall (fun x => wnfX x \/ (exists x', STEP x x')) xs) as HWS.
+   { repeat nforall. intros.
+     have (exists t, TYPE ds nil nil x t).
+     destruct H2 as [t'].
+     eapply H0 in H1. 
+     intuition. eauto.
+   } 
+
+   (* All ctor args are wnf, or there is a context where one can step. *)
+   lets D: (@exps_ctx_run exp exp) HWS. inverts D.
+   (* All ctor args are wnf. *)
+   + admit. (* if all args are wnf and well typed then prim can step
+               prove this seprately as part of Prim module. *)
+   + dest C. dest x'. rip.
+     lets D: step_context_XPrim_exists H2 H5.
+     destruct D as [x'']. eauto.
+
+ - Case "XLit".
+   inverts_type.
+   left. eauto.
 
  - Case "XAlt".
    auto.     

@@ -1,5 +1,6 @@
 
 Require Import Iron.Language.SystemF2Data.Type.
+Require Import Iron.Language.SystemF2Data.Exp.Lit.
 
 
 (* Primive operators and literals. *)
@@ -24,8 +25,6 @@ Inductive defprim : Type :=
 (* Define the types of primops. *)
 Fixpoint primDef (p : prim) : defprim := 
  match p with
- | PNat  _   => DefPrim nil (TCon TyConNat)
- | PBool _   => DefPrim nil (TCon TyConBool)
  | PAdd      => DefPrim (TCon TyConNat :: TCon TyConNat :: nil) (TCon TyConNat)
  | PIsZero   => DefPrim (TCon TyConNat :: nil)                  (TCon TyConBool)
  end. 

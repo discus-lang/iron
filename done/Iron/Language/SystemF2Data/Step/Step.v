@@ -6,11 +6,11 @@ Require Export Iron.Language.SystemF2Data.Step.Context.
 (* Single step evaluation for primitives. *)
 Fixpoint primStep (p : prim) (xs : list exp) : option exp :=
  match p, xs with
- |  PAdd,    XPrim (PNat n1) nil :: XPrim (PNat n2) nil :: nil 
- => Some (XPrim (PNat (n1 + n2)) nil)
+ |  PAdd,    XLit (LNat n1) :: XLit (LNat n2) :: nil 
+ => Some (XLit (LNat (n1 + n2)))
 
- |  PIsZero, XPrim (PNat n1) nil :: nil
- => Some (XPrim (PBool (if beq_nat n1 0 then true else false)) nil)
+ |  PIsZero, XLit (LNat n1) :: nil
+ => Some (XLit (LBool (if beq_nat n1 0 then true else false)))
 
  | _, _
  => None
@@ -70,21 +70,12 @@ Proof.
  - Case "Step in context".
    destruct H; auto; nope.
 
-   + SCase "XPrim".
-     inverts HW; inverts H; nope.
-
    + SCase "XCon".
      inverts HW.
      have (wnfX x)
       by (eapply exps_ctx_Forall; eauto).
      have (x' = x).
      subst. auto.
-
- - Case "XPrim steps".
-   destruct p;
-    try (solve [simpl in H0; snorm]).
-   * inverts HW.
-   * inverts HW.
 Qed.
 
 

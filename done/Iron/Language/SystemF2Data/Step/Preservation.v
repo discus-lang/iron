@@ -5,6 +5,32 @@ Require Import Iron.Language.SystemF2Data.Step.Steps.
 Require Import Iron.Language.SystemF2Data.Step.Stepsl.
 
 
+(* When a well typed application of a primitive to some values
+   transitions to the next state then its type is preserved. 
+   This tells us that the types given in the primitive definitions
+   match their runtime behaviour.
+*)
+Lemma preservation_prim
+ :  forall ds p vsArg vResult t
+ ,  Forall wnfX vsArg
+ -> STEP (XPrim p vsArg) vResult
+ -> TYPE ds nil nil (XPrim p vsArg) t
+ -> TYPE ds nil nil vResult         t.
+Proof.
+ intros ds p vs vResult t HV HS HT.
+ inverts HS.
+ - admit.
+ - inverts HT.
+   destruct p.
+   + SCase "PAdd".
+     snorm. 
+     inverts H2. inverts H5. inverts H6. inverts H7.
+     have (wnfX x). have (wnfX x0).
+     admit.
+   + admit.
+Qed.
+
+
 (* When a well typed expression transitions to the next state
    then its type is preserved. *)
 Theorem preservation
@@ -16,44 +42,51 @@ Proof.
  intros ds x x' t HT HS. gen t.
  induction HS; intros; inverts_type; eauto.
 
- (* Evaluation in an arbitrary context. *)
- Case "EsContext".
-  destruct H; inverts_type; eauto. 
+ - Case "EsContext".
+   destruct H; inverts_type; eauto. 
 
-  SCase "XCon".
-   eapply TYCon; eauto.
-   eapply exps_ctx_Forall2_swap; eauto.
+  + SCase "XCon".
+    eapply TYCon; eauto.
+    eapply exps_ctx_Forall2_swap; eauto.
 
- Case "EsLamApp".
-  eapply subst_exp_exp; eauto.
+  + SCase "XPrim".
+    eapply TYPrim; eauto.
+    eapply exps_ctx_Forall2_swap; eauto.
 
- Case "EsLAMAPP".
-  assert (TYPE ds nil (substTE 0 t2 nil) (substTX 0 t2 x12) (substTT 0 t2 t1)) as HT
-      by (eapply subst_type_exp; eauto).
-  simpl in HT. auto.
+ - Case "EsLamApp".
+   eapply subst_exp_exp; eauto.
 
- Case "EsCaseAlt".
-  eapply subst_exp_exp_list; eauto.
-  have (In (AAlt dc x) alts).
+ - Case "EsLAMAPP".
+   have HT: (TYPE ds nil (substTE 0 t2 nil) (substTX 0 t2 x12) (substTT 0 t2 t1))
+    by (eapply subst_type_exp; eauto).
+   simpl in HT. auto.
 
-  nforall. (* todo: burn should get this *)
-  have (TYPEA ds nil nil (AAlt dc x) (makeTApps (TCon tc) ts) t) as HA.
-  inverts HA.
-  rewrite H11 in H16. inverts H16.
-  rewrite H15 in H10. inverts H10.
+ - Case "EsCaseAlt".
+   eapply subst_exp_exp_list; eauto.
+   have (In (AAlt dc x) alts).
 
-  have (getCtorOfType (TCon tc0) = Some tc0) as HTC.
-   erewrite getCtorOfType_makeTApps in H5; eauto.
+   nforall.
+   have (TYPEA ds nil nil (AAlt dc x) (makeTApps (TCon tc) ts) t) as HA.
+   inverts HA.
+   rewrite H11 in H16. inverts H16.
+   rewrite H15 in H10. inverts H10.
+
+   have HTC: (getCtorOfType (TCon tc0) = Some tc0).
+    erewrite getCtorOfType_makeTApps in H5; eauto.
    inverts H5.
-  rewrite H6 in H15. inverts H15.
-  rr.
-  have (length ts = length ks0)      as HTK1.
-  have (length tsParam = length ks0) as HTK2.
-  rewrite <- HTK1 in HTK2.
-  assert (tsParam = ts).
-   eapply makeTApps_args_eq; eauto. 
+
+   rewrite H6 in H15. inverts H15.
+   rr.
+   have (length ts = length ks0)      as HTK1.
+   have (length tsParam = length ks0) as HTK2.
+   rewrite <- HTK1 in HTK2.
+   have (tsParam = ts)
+    by (eapply makeTApps_args_eq; eauto).
    subst.
-  eauto.
+   eauto.
+
+ - Case "EsPrim".
+   eapply preservation_prim; eauto.
 Qed.
 
 

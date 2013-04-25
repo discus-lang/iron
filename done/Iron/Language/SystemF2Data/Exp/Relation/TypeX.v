@@ -8,15 +8,6 @@ Require Export Iron.Language.SystemF2Data.Exp.Operator.LiftTX.
 Require Export Iron.Language.SystemF2Data.Exp.Operator.LiftXX.
 
 
-(* Builtin in types. *)
-Definition tUnit 
- := makeTApps (TCon tcUnit) nil.
-
-Definition tFun (t1: ty) (t2: ty)
- := TApp (TApp (TCon TyConFun) t1) t2.
-Hint Unfold tFun.
-
-
 (* Type Judgement assigns a type to an expression. *)
 Inductive TYPE (ds: defs) (ke: kienv) (te: tyenv) : exp -> ty -> Prop :=
  (* Variables *)
@@ -52,13 +43,6 @@ Inductive TYPE (ds: defs) (ke: kienv) (te: tyenv) : exp -> ty -> Prop :=
    -> TYPE ds ke te x2           t1
    -> TYPE ds ke te (XApp x1 x2) t2
 
- (* Primitive operators and literals. *)
- | TYPrim
-   :  forall p xs tsArg tResult 
-   ,  primDef p        = DefPrim tsArg tResult
-   -> Forall2 (TYPE ds ke te) xs tsArg
-   -> TYPE ds ke te (XPrim p xs) tResult
-
  (* Data Constructors *)
  | TYCon 
    :  forall tc (ks: list ki) tsFields tsParam xs dc dcs
@@ -82,8 +66,20 @@ Inductive TYPE (ds: defs) (ke: kienv) (te: tyenv) : exp -> ty -> Prop :=
    -> getCtorOfType tObj  = Some tcObj
    -> getTypeDef tcObj ds = Some (DefDataType tcObj ks dcs)
    -> Forall (fun dc => In dc (map dcOfAlt alts)) dcs
-
    -> TYPE ds ke te (XCase xObj alts) tResult
+
+ (* Primitive operators. *)
+ | TYPrim
+   :  forall p xs tsArg tResult 
+   ,  primDef p        = DefPrim tsArg tResult
+   -> Forall2 (TYPE ds ke te) xs tsArg
+   -> TYPE ds ke te (XPrim p xs) tResult
+
+ (* Primitive literals. *)
+ | TYLit
+   :  forall l t
+   ,  typeOfLit l = t
+   -> TYPE ds ke te (XLit l) t
 
 with TYPEA  (ds: defs) (ke: kienv) (te: tyenv) : alt -> ty -> ty -> Prop :=
  (* Case Alternatives *)
@@ -109,9 +105,10 @@ Ltac inverts_type :=
    | [ H: TYPE  _ _ _ (XAPP  _ _)   _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XLam  _ _)   _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XApp  _ _)   _    |- _ ] => inverts H
-   | [ H: TYPE  _ _ _ (XPrim _ _)   _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XCon  _ _ _) _    |- _ ] => inverts H
    | [ H: TYPE  _ _ _ (XCase _ _)   _    |- _ ] => inverts H
+   | [ H: TYPE  _ _ _ (XPrim _ _)   _    |- _ ] => inverts H
+   | [ H: TYPE  _ _ _ (XLit  _)     _    |- _ ] => inverts H
    | [ H: TYPEA _ _ _ (AAlt _ _)    _ _  |- _ ] => inverts H
    end).
 
@@ -128,10 +125,6 @@ Lemma value_lam
 Proof.
  intros. destruct x; eauto; nope.
 
- (* None of the primitive literals are functions. *)
- - Case "XPrim".
-   destruct p; nope.
-
  (* x can't be a XCon  because those must be saturated, 
     and therefore not return functions. *)
  - Case "XCon".
@@ -141,6 +134,11 @@ Proof.
    simpl in H4. inverts H4.
    have (DEFOK ds (DefData d tsFields TyConFun)).
    nope.
+
+ - Case "XLit".
+   unfold tFun in H0.
+   inverts H0.
+   destruct l; snorm; congruence.
 Qed.
 Hint Resolve value_lam.
 
@@ -197,12 +195,6 @@ Proof.
    rrwrite (length (te :> t) = S (length te)) in H4.
    auto.
 
- - Case "XPrim".
-   eapply WfX_XPrim.
-   repeat nforall. intros.
-   have (exists t, TYPE ds ke te x t).
-   destruct H1. eauto.
-
  - Case "XCon".
    apply WfX_XCon.
    repeat nforall. intros.
@@ -216,12 +208,19 @@ Proof.
    eapply WfX_XCase; eauto.
    repeat nforall. eauto.
 
+ - Case "XPrim".
+   eapply WfX_XPrim.
+   repeat nforall. intros.
+   have (exists t, TYPE ds ke te x t).
+   destruct H1. eauto.
+
  - Case "XAlt".
    destruct dc.
    eapply WfA_AAlt. eauto.
    apply IHx in H8.
    norm. lists.
-   rrwrite (length te + length tsFields = length tsFields + length te) by omega.
+   rrwrite ( length te + length tsFields  
+           = length tsFields + length te) by omega.
    eauto.
 Qed.
 Hint Resolve type_wfX.
@@ -284,24 +283,6 @@ Proof.
     eapply IHx1_1 in H2. simpl in H2. eauto.
     eapply IHx1_2 in H4. eauto.
 
- - Case "XPrim".
-   eapply TYPrim.
-   + have (closedT t1).
-     rrwrite (liftTT 1 ix t1 = t1).
-     eauto.
-   + have (Forall closedT tsArg)
-      by (eapply prim_types_closed_args; eauto).
-     rrwrite (tsArg = map (liftTT 1 ix) tsArg)
-      by (symmetry; eauto).
-     eapply Forall2_map_left.
-     eapply Forall2_impl_in; eauto.
-     snorm.
-     have (closedT y).
-     have HL: (y = liftTT 1 ix y)
-      by (symmetry; eauto).
-     rewrite HL.
-     eapply H; eauto.
-
  - Case "XCon".
    (* unpack the data type definition *)
    defok ds (DefData dc tsFields tc).
@@ -351,6 +332,28 @@ Proof.
    + snorm. 
      have (In x (map dcOfAlt aa)).
      rr. auto.
+
+ - Case "XPrim".
+   eapply TYPrim.
+   + have (closedT t1).
+     rrwrite (liftTT 1 ix t1 = t1).
+     eauto.
+   + have (Forall closedT tsArg)
+      by (eapply prim_types_closed_args; eauto).
+     rrwrite (tsArg = map (liftTT 1 ix) tsArg)
+      by (symmetry; eauto).
+     eapply Forall2_map_left.
+     eapply Forall2_impl_in; eauto.
+     snorm.
+     have (closedT y).
+     have HL: (y = liftTT 1 ix y)
+      by (symmetry; eauto).
+     rewrite HL.
+     eapply H; eauto.
+
+ - Case "XLit".
+   eapply TYLit.
+   destruct l; snorm.
        
  - Case "XAlt".
    defok ds (DefData dc tsFields tc).
@@ -430,12 +433,6 @@ Proof.
    apply TYLam; eauto.
    rewrite insert_rewind. auto.
 
- - Case "XPrim".
-   eapply TYPrim; eauto.
-   eapply Forall2_map_left.
-   eapply (Forall2_impl_in (TYPE ds ke te)).
-   snorm. auto.
-
  - Case "XCon".
    eapply TYCon; eauto.
     nforall.
@@ -457,6 +454,12 @@ Proof.
       by (eapply map_in_exists; auto).
      shift a. rip.
      eapply dcOfAlt_liftXA.
+
+ - Case "XPrim".
+   eapply TYPrim; eauto.
+   eapply Forall2_map_left.
+   eapply (Forall2_impl_in (TYPE ds ke te)).
+   snorm. auto.
 
  - Case "XAlt".
    defok ds (DefData dc tsFields tc).

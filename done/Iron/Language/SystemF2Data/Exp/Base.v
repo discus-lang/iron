@@ -1,5 +1,6 @@
 
 Require Export Iron.Language.SystemF2Data.Type.
+Require Export Iron.Language.SystemF2Data.Exp.Lit.
 Require Export Iron.Language.SystemF2Data.Exp.Prim.
 
 
@@ -54,14 +55,15 @@ Theorem exp_mutind
  -> (forall x1 t2,   PX x1                 -> PX (XAPP x1 t2))
  -> (forall t  x1,   PX x1                 -> PX (XLam t x1))
  -> (forall x1 x2,   PX x1 -> PX x2        -> PX (XApp x1 x2))
- -> (forall p xs,    Forall PX xs          -> PX (XPrim p xs))
  -> (forall dc ts xs,         Forall PX xs -> PX (XCon dc ts xs))
  -> (forall x  aa,   PX x  -> Forall PA aa -> PX (XCase x aa))
+ -> (forall p xs,    Forall PX xs          -> PX (XPrim p xs))
+ -> (forall l,                                PX (XLit  l))
  -> (forall dc x,    PX x                  -> PA (AAlt dc x))
  ->  forall x, PX x.
 Proof. 
  intros PX PA.
- intros var tlam tapp lam app prim con case alt.
+ intros var tlam tapp lam app con case prim lit alt.
  refine (fix  IHX x : PX x := _
          with IHA a : PA a := _
          for  IHX).
@@ -72,9 +74,10 @@ Proof.
    + apply tapp. apply IHX.
    + apply lam.  apply IHX.
    + apply app.  apply IHX. apply IHX.
-   + apply prim. induction l;  intuition. 
    + apply con.  induction l0; intuition.
    + apply case. apply IHX. induction l; intuition.
+   + apply prim. induction l;  intuition. 
+   + apply lit.
 
  - case a; intros.
    + apply alt.  apply IHX.

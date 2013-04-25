@@ -35,14 +35,17 @@ Fixpoint substXX (d:  nat) (u: exp) (xx: exp) : exp :=
     |  XApp x1 x2 
     => XApp (substXX d u x1) (substXX d u x2)
  
-    |  XPrim p xs
-    => XPrim p (map (substXX d u) xs)
-
     |  XCon dc ts xs
     => XCon dc ts (map (substXX d u) xs)
 
     |  XCase x alts
     => XCase (substXX d u x) (map (substXA d u) alts)
+
+    |  XPrim p xs
+    => XPrim p (map (substXX d u) xs)
+
+    |  XLit l
+    => xx
     end
 
 with substXA (d: nat) (u: exp) (aa: alt) 
@@ -79,8 +82,8 @@ Proof.
       ,  get ix te = Some t2
       -> TYPEA ds ke te           a1 t11 t12
       -> TYPE  ds ke (delete ix te) x2 t2
-      -> TYPEA ds ke (delete ix te) (substXA ix x2 a1) t11 t12)
-  ; intros; simpl; inverts_type; eauto.
+      -> TYPEA ds ke (delete ix te) (substXA ix x2 a1) t11 t12);
+  intros; simpl; inverts_type; eauto.
 
  - Case "XVar".
    fbreak_nat_compare.
@@ -113,12 +116,6 @@ Proof.
     rewrite delete_rewind.
     eauto using type_tyenv_weaken1.
 
- - Case "XPrim".
-   eapply TYPrim; eauto.
-    apply (Forall2_map_left (TYPE ds ke (delete ix te))).
-    apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
-    snorm. eauto.
-
  - Case "XCon".
    eapply TYCon; eauto.
     apply (Forall2_map_left (TYPE ds ke (delete ix te))).
@@ -139,6 +136,12 @@ Proof.
      have (exists a, dcOfAlt a = d /\ In a aa). 
       shift a. rip.
      rewrite dcOfAlt_substXA; auto.
+
+ - Case "XPrim".
+   eapply TYPrim; eauto.
+    apply (Forall2_map_left (TYPE ds ke (delete ix te))).
+    apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
+    snorm. eauto.
 
  - Case "AAlt".
    defok ds (DefData dc tsFields tc).

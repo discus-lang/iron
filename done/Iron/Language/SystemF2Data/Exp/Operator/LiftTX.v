@@ -20,14 +20,17 @@ Fixpoint liftTX (d: nat) (xx: exp) : exp :=
   |  XApp x1 x2
   => XApp (liftTX d x1) (liftTX d x2)
 
-  |  XPrim p xs
-  => XPrim p (map (liftTX d) xs)
-
   |  XCon dc ts xs
   => XCon dc (map (liftTT 1 d) ts) (map (liftTX d) xs)
 
   |  XCase xx alts
   => XCase (liftTX d xx) (map (liftTA d) alts)
+
+  |  XPrim p xs
+  => XPrim p (map (liftTX d) xs)
+
+  |  XLit l
+  => XLit l
  end
 
  with liftTA (d: nat) (aa: alt) : alt :=

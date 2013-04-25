@@ -13,5 +13,12 @@ Inductive ty  : Type :=
 Hint Constructors ty.
 
 
+(* Builtin in types. *)
+Definition tUnit 
+ := TCon tcUnit.
+
+Definition tFun (t1: ty) (t2: ty)
+ := TApp (TApp (TCon TyConFun) t1) t2.
+Hint Unfold tFun.
 
 

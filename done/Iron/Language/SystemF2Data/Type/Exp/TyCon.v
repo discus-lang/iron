@@ -17,6 +17,10 @@ Inductive tycon : Type :=
 Hint Constructors tycon.
 
 
+Definition tcUnit := TyConData 0 KStar.
+Hint Unfold tcUnit.
+
+
 (* Check whether two type constructors are equal. *)
 Fixpoint tycon_beq t1 t2 :=
  match t1, t2 with

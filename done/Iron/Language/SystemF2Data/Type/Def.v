@@ -163,9 +163,6 @@ Hint Resolve getDataDef_in.
 Definition dcUnit := DataCon   0 0. 
 Hint Unfold dcUnit.
 
-Definition tcUnit := TyConData 0 KStar.
-Hint Unfold tcUnit.
-
 
 (* Check that a definition is ok. *)
 Inductive DEFOK : list def -> def -> Prop :=

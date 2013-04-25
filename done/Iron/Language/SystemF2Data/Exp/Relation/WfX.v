@@ -29,11 +29,6 @@ Inductive wfX (kn: nat) (tn: nat) : exp -> Prop :=
    ,  wfX kn tn x1 -> wfX kn tn x2
    -> wfX kn tn (XApp x1 x2)
 
- | WfX_XPrim
-   :  forall p xs
-   ,  Forall (wfX kn tn) xs
-   -> wfX kn tn (XPrim p xs)
-
  | WfX_XCon
    :  forall dc ts xs
    ,  Forall (wfT kn)    ts
@@ -45,6 +40,15 @@ Inductive wfX (kn: nat) (tn: nat) : exp -> Prop :=
    ,  wfX kn tn x 
    -> Forall (wfA kn tn) alts
    -> wfX kn tn (XCase x alts)
+
+ | WfX_XPrim
+   :  forall p xs
+   ,  Forall (wfX kn tn) xs
+   -> wfX kn tn (XPrim p xs)
+
+ | WfX_XLit
+   :  forall l
+   ,  wfX kn tn (XLit l)
 
 with    wfA (kn: nat) (tn: nat) : alt -> Prop :=
  | WfA_AAlt
