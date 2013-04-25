@@ -4,7 +4,7 @@ Require Export Iron.Language.SystemF2Data.Type.Exp.
 Require Export Iron.Language.SystemF2Data.Type.Operator.LiftTT.
 Require Export Iron.Language.SystemF2Data.Type.Operator.SubstTT.
 
-
+(********************************************************************)
 (* Kinds judgement assigns a kind to a type *)
 Inductive KIND : kienv -> ty -> ki -> Prop :=
  | KIConFun
@@ -33,6 +33,7 @@ Inductive KIND : kienv -> ty -> ki -> Prop :=
 Hint Constructors KIND.
 
 
+(********************************************************************)
 (* Invert all hypothesis that are compound kinding statements. *)
 Ltac inverts_kind :=
  repeat 
@@ -44,6 +45,7 @@ Ltac inverts_kind :=
    end).
 
 
+(********************************************************************)
 (* A well kinded type is well formed *)
 Lemma kind_wfT
  :  forall ke t k
@@ -96,6 +98,7 @@ Qed.
 Hint Resolve kind_empty_is_closed.
 
 
+(********************************************************************)
 (* Weakening kind environments. *)
 Lemma kind_kienv_insert
  :  forall ke ix t k1 k2
@@ -125,6 +128,8 @@ Proof.
  rewrite H0. apply kind_kienv_insert. auto.
 Qed.
 
+
+(********************************************************************)
 (* Substitution of types in types preserves kinding.
    Must also subst new new type into types in env higher than ix
    otherwise indices that reference subst type are broken, and 

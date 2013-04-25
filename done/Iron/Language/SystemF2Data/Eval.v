@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Data.Step.
 
 
+(********************************************************************)
 (* Big Step Evaluation
    This is also called 'Natural Semantics'.
    It provides a relation between the expression to be reduced 
@@ -59,6 +60,7 @@ Hint Constructors EVAL.
 Hint Constructors EVALS.
 
 
+(********************************************************************)
 (* Invert all hypothesis that are compound eval statements. *)
 Ltac inverts_eval :=
  repeat
@@ -71,6 +73,7 @@ Ltac inverts_eval :=
    end).
 
 
+(********************************************************************)
 Theorem EVAL_mutind
  :  forall (PE : exp      -> exp      -> Prop)
            (PS : list exp -> list exp -> Prop)
@@ -341,7 +344,7 @@ Proof.
 Qed.
 
 
-
+(********************************************************************)
 (* Small to Big steps
    Convert a list of individual machine steps to a big-step
    evaluation. The main part of this is the expansion lemma, which 

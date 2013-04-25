@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Data.Type.Exp.
 
 
+(********************************************************************)
 (* Well formed types are closed under the given kind environment. *)
 Inductive wfT (kn: nat) : ty -> Prop :=
  | WfT_TVar 
@@ -31,6 +32,7 @@ Definition closedT : ty -> Prop
 Hint Unfold closedT.
 
 
+(********************************************************************)
 Lemma wfT_succ
  :  forall tn t1
  ,  wfT tn     t1

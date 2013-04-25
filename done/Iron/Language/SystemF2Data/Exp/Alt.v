@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Data.Exp.Base.
 
 
+(********************************************************************)
 (* Get the data constructor of an alternative. *)
 Fixpoint dcOfAlt (aa: alt) : datacon :=
  match aa with 
@@ -10,6 +11,7 @@ Fixpoint dcOfAlt (aa: alt) : datacon :=
 Hint Unfold dcOfAlt.
 
 
+(********************************************************************)
 (* Get the alternative body that matches a given constructor. *)
 Fixpoint getAlt (dc: datacon) (alts: list alt) {struct alts} 
                 : option alt :=
@@ -65,9 +67,4 @@ Proof.
      exists e. auto.
 Qed.
 Hint Resolve getAlt_exists.
-
-
-
-
-
 

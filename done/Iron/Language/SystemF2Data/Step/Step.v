@@ -4,6 +4,7 @@ Require Export Iron.Language.SystemF2Data.Step.Context.
 Require Export Iron.Language.SystemF2Data.Step.Prim.
 
 
+(********************************************************************)
 (** * Single Small Step Evaluation *)
 (** The single step rules model the individual transitions that the 
      machine can make at runtime. *)
@@ -46,6 +47,7 @@ Inductive STEP : exp -> exp -> Prop :=
 Hint Constructors STEP.
 
 
+(********************************************************************)
 (* Stepping a wnf doesn't change it. *)
 Lemma step_wnfX
  :  forall x v
@@ -66,6 +68,7 @@ Proof.
 Qed.
 
 
+(********************************************************************)
 Lemma step_context_XPrim_exists
  :  forall C x p
  ,  exps_ctx wnfX C

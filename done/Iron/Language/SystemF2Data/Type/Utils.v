@@ -2,9 +2,8 @@
 Require Export Iron.Language.SystemF2Data.Type.Exp.
 Require Export Iron.Language.SystemF2Data.Type.Relation.WfT.
 
-
+(********************************************************************)
 (* Type Utils *)
-
 (* Get the type constructor of a type, if any *)
 Fixpoint getCtorOfType (tt: ty) : option tycon :=
  match tt with
@@ -40,8 +39,6 @@ Fixpoint takeTArgs (tt: ty) : list ty :=
    and a list of argument types. *)
 Definition takeTApps (tt: ty) : (ty * list ty) 
  := (takeTCon tt, takeTArgs tt).
-
-
 
 
 (********************************************************************)

@@ -8,6 +8,7 @@ Require Export Iron.Language.SystemF2Data.Exp.Operator.LiftTX.
 Require Export Iron.Language.SystemF2Data.Exp.Operator.LiftXX.
 
 
+(********************************************************************)
 (* Type Judgement assigns a type to an expression. *)
 Inductive TYPE (ds: defs) (ke: kienv) (te: tyenv) : exp -> ty -> Prop :=
  (* Variables *)
@@ -96,6 +97,7 @@ Hint Constructors TYPE.
 Hint Constructors TYPEA.
 
 
+(********************************************************************)
 (* Invert all hypothesis that are compound typing statements. *)
 Ltac inverts_type :=
  repeat 
@@ -117,7 +119,7 @@ Ltac inverts_type :=
 (* Forms of values. 
    If we know the type of a value,
    then we know the form of that value. *)
-Lemma value_lam 
+Lemma value_form_lam 
  :  forall x ds ke te t1 t2
  ,  value x 
  -> TYPE ds ke te x (tFun t1 t2)
@@ -140,12 +142,48 @@ Proof.
    inverts H0.
    destruct l; snorm; congruence.
 Qed.
-Hint Resolve value_lam.
+Hint Resolve value_form_lam.
+
+
+Lemma value_form_nat
+ :  forall ds ke te x 
+ ,  value x
+ -> TYPE ds ke te x tNat
+ -> (exists n, x = XLit (LNat n)).
+Proof.
+ intros. destruct x; eauto; nope.
+
+ - Case "XCon".
+   inverts_type.
+   admit. (* data ctors cant return lit types *)
+
+ - destruct l; nope.
+   eauto.
+Qed.
+Hint Resolve value_form_nat.
+
+
+Lemma value_form_bool
+ :  forall ds ke te x
+ ,  value x
+ -> TYPE ds ke te x tBool
+ -> (exists b, x = XLit (LBool b)).
+Proof.
+ intros. destruct x; eauto; nope.
+
+ - Case "XCon".
+   inverts_type.
+   admit. (* data ctors can't return lit types *)
+
+ - destruct l; nope.
+   eauto.
+Qed.
+Hint Resolve value_form_bool.
 
 
 (********************************************************************)
 (* Forms of types *)
-Lemma type_XLAM
+Lemma type_form_XLAM
  :  forall ds ke te x t
  ,  TYPE ds ke te (XLAM x) t
  -> (exists t', t = TForall t').
@@ -153,10 +191,10 @@ Proof.
  intros. destruct t; nope.
  eauto.
 Qed.
-Hint Resolve type_XLAM.
+Hint Resolve type_form_XLAM.
 
 
-Lemma type_XLam
+Lemma type_form_XLam
  :  forall ds ke te x t1 t2
  ,  TYPE ds ke te (XLam t1 x) t2
  -> (exists t21 t22, t2 = tFun t21 t22).
@@ -165,12 +203,11 @@ Proof.
  inverts H. 
  unfold tFun. eauto.
 Qed.
-Hint Resolve type_XLam.
+Hint Resolve type_form_XLam.
 
 
 (********************************************************************)
 (* A well typed expression is well formed *)
-
 Theorem type_wfX
  :  forall ds ke te x t
  ,  TYPE ds ke te x t
@@ -237,6 +274,21 @@ Proof.
  eauto.
 Qed.
 Hint Resolve type_wfX_Forall2.
+
+
+Lemma type_closedX
+ :  forall ds x t
+ ,  TYPE ds nil nil x t
+ -> closedX x.
+Proof.
+ intros.
+ unfold closedX.
+ have HLK: (0 = length (@nil ki)). rewrite HLK at 1.
+ have HLT: (0 = length (@nil ty)). rewrite HLT at 1.
+ eauto.
+Qed.
+Hint Resolve type_closedX.
+
 
 
 (********************************************************************)

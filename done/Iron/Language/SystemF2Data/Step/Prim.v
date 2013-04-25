@@ -9,7 +9,7 @@ Fixpoint stepPrim (p : prim) (xs : list exp) : option exp :=
  => Some (XLit (LNat (n1 + n2)))
 
  |  PIsZero, XLit (LNat n1) :: nil
- => Some (XLit (LBool (if beq_nat n1 0 then true else false)))
+ => Some (XLit (LBool (beq_nat n1 0)))
 
  | _, _
  => None

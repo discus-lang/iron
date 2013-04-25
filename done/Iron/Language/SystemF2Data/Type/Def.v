@@ -157,7 +157,6 @@ Hint Resolve getDataDef_in.
 
 
 
-
 (********************************************************************)
 (* Builtin data types must be present in the list of definitions. *)
 Definition dcUnit := DataCon   0 0. 

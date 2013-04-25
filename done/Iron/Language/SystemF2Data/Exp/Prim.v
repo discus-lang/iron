@@ -2,7 +2,7 @@
 Require Import Iron.Language.SystemF2Data.Type.
 Require Import Iron.Language.SystemF2Data.Exp.Lit.
 
-
+(********************************************************************)
 (* Primive operators and literals. *)
 Inductive prim : Type :=
  (* Add two naturals. *)

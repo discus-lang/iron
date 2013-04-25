@@ -2,7 +2,8 @@
 Require Import Iron.Language.SystemF2Data.Exp.
 Require Import Iron.Language.SystemF2Data.Step.Step.
 
-(* TODO: shift this somewhere else *)
+
+(********************************************************************)
 (* If we have a well typed case match on a data object then there
    is an alternative corresponding to that data constructor *)
 Lemma getAlt_has
@@ -24,6 +25,45 @@ Qed.
 Hint Resolve getAlt_has.
 
 
+(* Well typed primitives applied to values can always progress. *)
+Lemma progress_prim
+ :  forall ds p tsArg tResult xs 
+ ,  primDef p = DefPrim tsArg tResult
+ -> Forall2 (TYPE ds nil nil) xs tsArg
+ -> Forall  wnfX xs
+ -> (exists x, STEP (XPrim p xs) x).
+Proof.
+ intros.
+ destruct p.
+
+ - Case "PAdd".
+   snorm. inverts H.
+   inverts H0. inverts H5. inverts H6.
+   eapply value_form_nat in H4.
+   + destruct H4 as [n]. subst.
+     eapply value_form_nat in H3.
+     * destruct H3 as [n']. subst.
+       exists (XLit (LNat (n + n'))). 
+       eauto.
+     * have (closedX x0).
+       eauto.
+   + have (closedX x).
+     eauto.
+
+ - Case "PIsZero".
+   snorm. inverts H.
+   inverts H0. inverts H5.
+   eapply value_form_nat in H4.
+   + destruct H4 as [n]. subst.
+     exists (XLit (LBool (beq_nat n 0))).
+     eauto.
+   + have (closedX x).
+     eauto.
+Qed. 
+Hint Resolve progress_prim.
+
+
+(********************************************************************)
 (* A well typed expression is either a well formed value, 
    or can transition to the next state. *)
 Theorem progress
@@ -36,7 +76,6 @@ Proof.
  induction x using exp_mutind with 
   (PA := fun a => a = a)
   ; intros.
-
 
  (*************************************)
  - Case "XVar".
@@ -135,11 +174,11 @@ Proof.
        eapply kind_wfT_Forall2. eauto.
      } 
 
-    assert (Forall (wfX 0 0) xs).
-    { have    (0 = length (@nil ki)) as HKL. rewrite HKL at 1.
-      rrwrite (0 = length (@nil ty)). eauto.
-    }
-    eauto.
+     assert (Forall (wfX 0 0) xs).
+     { have    (0 = length (@nil ki)) as HKL. rewrite HKL at 1.
+       rrwrite (0 = length (@nil ty)). eauto.
+     }
+     eauto.
 
    + (* There is a context where one ctor arg can step *)
      right.
@@ -207,9 +246,10 @@ Proof.
 
    (* All ctor args are wnf, or there is a context where one can step. *)
    lets D: (@exps_ctx_run exp exp) HWS. inverts D.
-   (* All ctor args are wnf. *)
-   + admit. (* if all args are wnf and well typed then prim can step
-               prove this seprately as part of Prim module. *)
+   (* All arguments are wnf. *)
+   + eapply progress_prim; eauto.
+
+   (* One of the arguments can step. *)
    + dest C. dest x'. rip.
      lets D: step_context_XPrim_exists H2 H5.
      destruct D as [x'']. eauto.
@@ -219,6 +259,6 @@ Proof.
    left. eauto.
 
  - Case "XAlt".
-   auto.     
+   auto.
 Qed.
 

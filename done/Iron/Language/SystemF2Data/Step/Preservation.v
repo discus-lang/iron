@@ -4,12 +4,10 @@ Require Import Iron.Language.SystemF2Data.Step.Step.
 Require Import Iron.Language.SystemF2Data.Step.Steps.
 Require Import Iron.Language.SystemF2Data.Step.Stepsl.
 
-
-(* When a well typed application of a primitive to some values
-   transitions to the next state then its type is preserved. 
-   This tells us that the types given in the primitive definitions
-   match their runtime behaviour.
-*)
+(********************************************************************)
+(* When a well typed application of a primitive to some values transitions
+   to the next state, then its type is preserved. This tells us that the
+   types given in the primitive definitions match their runtime behaviour. *)
 Lemma preservation_prim
  :  forall ds p vsArg vResult t
  ,  Forall wnfX vsArg
@@ -62,7 +60,8 @@ Proof.
 
  (*************************************)
  - Case "EsLAMAPP".
-   have HT: (TYPE ds nil (substTE 0 t2 nil) (substTX 0 t2 x12) (substTT 0 t2 t1))
+   have HT: (TYPE ds nil (substTE 0 t2 nil) 
+                         (substTX 0 t2 x12) (substTT 0 t2 t1))
     by (eapply subst_type_exp; eauto).
    snorm.
 
