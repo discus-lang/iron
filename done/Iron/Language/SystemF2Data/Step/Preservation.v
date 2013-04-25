@@ -19,15 +19,15 @@ Lemma preservation_prim
 Proof.
  intros ds p vs vResult t HV HS HT.
  inverts HS.
- - admit.
+ - admit.   (* preservation prim *)
  - inverts HT.
    destruct p.
    + SCase "PAdd".
      snorm. 
      inverts H2. inverts H5. inverts H6. inverts H7.
      have (wnfX x). have (wnfX x0).
-     admit.
-   + admit.
+     admit. (* preservation prim *)
+   + admit. (* preservation prim *)
 Qed.
 
 
@@ -42,6 +42,7 @@ Proof.
  intros ds x x' t HT HS. gen t.
  induction HS; intros; inverts_type; eauto.
 
+ (*************************************)
  - Case "EsContext".
    destruct H; inverts_type; eauto. 
 
@@ -53,20 +54,26 @@ Proof.
     eapply TYPrim; eauto.
     eapply exps_ctx_Forall2_swap; eauto.
 
+
+ (*************************************)
  - Case "EsLamApp".
    eapply subst_exp_exp; eauto.
 
+
+ (*************************************)
  - Case "EsLAMAPP".
    have HT: (TYPE ds nil (substTE 0 t2 nil) (substTX 0 t2 x12) (substTT 0 t2 t1))
     by (eapply subst_type_exp; eauto).
-   simpl in HT. auto.
+   snorm.
 
+
+ (*************************************)
  - Case "EsCaseAlt".
    eapply subst_exp_exp_list; eauto.
-   have (In (AAlt dc x) alts).
 
-   nforall.
-   have (TYPEA ds nil nil (AAlt dc x) (makeTApps (TCon tc) ts) t) as HA.
+   norm.
+   have (In (AAlt dc x) alts).
+   have HA: (TYPEA ds nil nil (AAlt dc x) (makeTApps (TCon tc) ts) t).
    inverts HA.
    rewrite H11 in H16. inverts H16.
    rewrite H15 in H10. inverts H10.
@@ -75,16 +82,18 @@ Proof.
     erewrite getCtorOfType_makeTApps in H5; eauto.
    inverts H5.
 
+   snorm.
    rewrite H6 in H15. inverts H15.
-   rr.
-   have (length ts = length ks0)      as HTK1.
-   have (length tsParam = length ks0) as HTK2.
+   have HTK1: (length ts      = length ks0).
+   have HTK2: (length tsParam = length ks0).
    rewrite <- HTK1 in HTK2.
    have (tsParam = ts)
     by (eapply makeTApps_args_eq; eauto).
    subst.
    eauto.
 
+
+ (*************************************)
  - Case "EsPrim".
    eapply preservation_prim; eauto.
 Qed.
