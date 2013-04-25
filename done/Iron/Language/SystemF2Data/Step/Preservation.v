@@ -4,10 +4,12 @@ Require Import Iron.Language.SystemF2Data.Step.Step.
 Require Import Iron.Language.SystemF2Data.Step.Steps.
 Require Import Iron.Language.SystemF2Data.Step.Stepsl.
 
+
 (********************************************************************)
-(* When a well typed application of a primitive to some values transitions
-   to the next state, then its type is preserved. This tells us that the
-   types given in the primitive definitions match their runtime behaviour. *)
+(* When a well typed application of a primitive to some values
+   transitions to the next state, then its type is preserved. 
+   This tells us that the types given in the primitive definitions
+   match their runtime behaviour. *)
 Lemma preservation_prim
  :  forall ds p vsArg vResult t
  ,  Forall wnfX vsArg
@@ -16,19 +18,35 @@ Lemma preservation_prim
  -> TYPE ds nil nil vResult         t.
 Proof.
  intros ds p vs vResult t HV HS HT.
+ inverts HT.
  inverts HS.
- - admit.   (* preservation prim *)
- - inverts HT.
-   destruct p.
+
+ - inverts H0; nope.
+   inverts H.
+   have (wnfX x)
+    by (eapply exps_ctx_Forall; eauto).
+   eapply step_wnfX in H; eauto. subst.
+   eauto.
+
+ - destruct p. 
    + SCase "PAdd".
-     snorm. 
-     inverts H2. inverts H5. inverts H6. inverts H7.
+     simpl in H1.
+     inverts H1. inverts H3. inverts H6.
      have (wnfX x). have (wnfX x0).
-     admit. (* preservation prim *)
-   + admit. (* preservation prim *)
+     eapply value_form_nat in H4; eauto. destruct H4 as [n1].
+     eapply value_form_nat in H3; eauto. destruct H3 as [n2].
+     subst. snorm.
+
+   + SCase "PIsZero".
+     simpl in H1.
+     inverts H1. inverts H3. inverts H6.
+     have (wnfX x).
+     eapply value_form_nat in H4; eauto. destruct H4 as [n1].
+     subst. snorm.
 Qed.
 
 
+(********************************************************************)
 (* When a well typed expression transitions to the next state
    then its type is preserved. *)
 Theorem preservation

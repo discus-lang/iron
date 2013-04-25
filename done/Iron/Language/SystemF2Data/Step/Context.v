@@ -9,10 +9,6 @@ Require Export Iron.Data.Chain.
     there is able to take an evaluation step *)
 Inductive exp_ctx : (exp -> exp) -> Prop :=
 
- (* The top level context names the entire expression *)
- | XcTop 
-   : exp_ctx  (fun x => x)
-
  (* Left of an application *)
  | XcApp1
    :  forall x2
