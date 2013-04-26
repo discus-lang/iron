@@ -50,11 +50,8 @@ Lemma getTypeDef_in
 Proof.
  intros.
  induction ds.
-  false.
-  destruct a.
-   simpl in H.
-   destruct (tycon_beq tc t);
-    inverts H. burn. burn. burn.
+ - false.
+ - destruct a; burn.
 Qed.
 Hint Resolve getTypeDef_in.
 
@@ -80,12 +77,8 @@ Lemma getDataDef_in
 Proof.
  intros.
  induction ds.
-  false.
-  destruct a.
-   burn.
-   simpl in H.
-   destruct (datacon_beq tc d). 
-    inverts H. burn. burn.
+ - false.
+ - destruct a; burn.
 Qed.
 Hint Resolve getDataDef_in.
 

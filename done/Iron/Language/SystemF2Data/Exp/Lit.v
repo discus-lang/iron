@@ -1,7 +1,7 @@
 
 Require Import Iron.Language.SystemF2Data.Type.
 
-
+(* Literal values. *)
 Inductive lit : Type :=
  (* Literal natural number. *)
  | LNat   : nat  -> lit

@@ -245,17 +245,17 @@ Proof.
    repeat nforall. intros.
    have (exists k, KIND ke x k).
    dest k. eauto.
-    repeat nforall. intros.
+    norm.
     have (exists t, TYPE ds ke te x t).
     dest t. eauto.
 
  - Case "XCase".
    eapply WfX_XCase; eauto.
-   repeat nforall. eauto.
+   norm. eauto.
 
  - Case "XPrim".
    eapply WfX_XPrim.
-   repeat nforall. intros.
+   snorm.
    have (exists t, TYPE ds ke te x t).
    destruct H1. eauto.
 
@@ -277,9 +277,7 @@ Lemma type_wfX_Forall2
  -> Forall (wfX (length ke) (length te)) xs.
 Proof.
  intros.
- eapply (Forall2_Forall_left (TYPE ds ke te)).
- intros. nforall. eauto.
- eauto.
+ eapply (Forall2_Forall_left (TYPE ds ke te)); norm; eauto.
 Qed.
 Hint Resolve type_wfX_Forall2.
 
@@ -340,8 +338,8 @@ Proof.
 
  - Case "XApp".
    eapply TYApp.
-    eapply IHx1_1 in H2. simpl in H2. eauto.
-    eapply IHx1_2 in H4. eauto.
+   + eapply IHx1_1 in H2. simpl in H2. eauto.
+   + eapply IHx1_2 in H4. eauto.
 
  - Case "XCon".
    (* unpack the data type definition *)
@@ -432,7 +430,7 @@ Proof.
        rrwrite (ix = ix + 0).
        rewrite liftTT_substTTs'.
        f_equal. 
-       nnat.
+       norm.
        have (wfT (length ks) t1)
         by (eapply kind_wfT; snorm).
        eapply liftTT_wfT_1.
@@ -479,15 +477,15 @@ Proof.
   ; intros; inverts_type; simpl; eauto.
 
  - Case "XVar".
-   nnat; lift_cases; burn.
+   norm; lift_cases; burn.
 
  - Case "XLAM".
    apply TYLAM.
    assert ( liftTE 0 (insert ix t2 te)
           = insert ix (liftTT 1 0 t2) (liftTE 0 te)).
     unfold liftTE. rewrite map_insert. auto.
-    rewritess.
-    burn.
+   rewritess.
+   burn.
 
  - Case "XLam".
    apply TYLam; eauto.
@@ -495,7 +493,7 @@ Proof.
 
  - Case "XCon".
    eapply TYCon; eauto.
-    nforall.
+    norm.
     apply (Forall2_map_left (TYPE ds ke (insert ix t2 te))).
     apply (Forall2_impl_in  (TYPE ds ke te)); eauto.
 
@@ -504,7 +502,8 @@ Proof.
    + apply Forall_map.
      apply (Forall_impl_in 
       (fun a => TYPEA ds ke te a tObj t1)); eauto.
-     repeat nforall. eauto.
+     snorm.
+
    + repeat nforall.
      intros. lists.
      rename x0 into d.
@@ -518,8 +517,7 @@ Proof.
  - Case "XPrim".
    eapply TYPrim; eauto.
    eapply Forall2_map_left.
-   eapply (Forall2_impl_in (TYPE ds ke te)).
-   snorm. auto.
+   eapply (Forall2_impl_in (TYPE ds ke te)); snorm.
 
  - Case "XAlt".
    defok ds (DefData dc tsFields tc).

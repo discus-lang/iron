@@ -26,12 +26,12 @@ Hint Extern 4 (_ >= _) => omega.
 Hint Extern 4 (_ <= _) => omega.
 
 
-(* The norm_beq_nat tactic normalises this,
+(* The norm_beq_nat tactic normalizes this,
    so we never want to unfold it. *)
 Global Opaque beq_nat.
 
 
-(* Primitive normalisations. *)
+(* Primitive normalizations. *)
 Tactic Notation "norm1"
  := first
     [ split_dec 
@@ -50,11 +50,14 @@ Tactic Notation "norm"
  := repeat (rip; try norm1);
     autorewrite with global in *.
 
+
+(* Simplify and normalize. *)
 Tactic Notation "snorm"
  := repeat (rip; simpl in *; try norm1);
     autorewrite with global in *.
 
 
+(* Simplify and normalize, a few different ways. *)
 Tactic Notation "burn0"
  := snorm; eauto; nope.
 
@@ -72,4 +75,7 @@ Tactic Notation "burn" "using" tactic(T)
                | red; burn0 using T
                | repeat f_equal; burn0 using T]).
 
+
+(* When using the 'have' or 'rrwrite' tactics, 
+   use 'burn' to prove the goal. *)
 Ltac have_auto ::= burn.

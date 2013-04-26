@@ -65,9 +65,7 @@ Lemma kind_wfT_Forall
  :  forall ks ts
  ,  Forall (fun t => KIND ks t KStar) ts
  -> Forall (wfT (length ks)) ts.
-Proof.
- intros. repeat nforall. eauto.
-Qed.
+Proof. snorm; eauto. Qed.
 Hint Resolve kind_wfT_Forall.
 
 
@@ -77,8 +75,7 @@ Lemma kind_wfT_Forall2
  -> Forall (wfT (length ke)) ts.
 Proof.
  intros.
- eapply (Forall2_Forall_left (KIND ke)).
- nforall. intros. eauto. eauto.
+ eapply (Forall2_Forall_left (KIND ke)); snorm; eauto.
 Qed.
 Hint Resolve kind_wfT_Forall2.
 
@@ -92,8 +89,8 @@ Lemma kind_empty_is_closed
 Proof.
  intros. unfold closedT.
  have (@length ki nil = 0).
-  rewrite <- H0.
-  eapply kind_wfT. eauto.
+ rewrite <- H0.
+ eapply kind_wfT. eauto.
 Qed.
 Hint Resolve kind_empty_is_closed.
 

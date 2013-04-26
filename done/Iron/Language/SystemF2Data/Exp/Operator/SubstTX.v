@@ -83,22 +83,23 @@ Proof.
    rewrite (substTT_substTT 0 ix).
    eauto using subst_type_type_ix.
    apply TYAPP.
-    simpl. eapply (IHx1 ix) in H4; eauto.
-    simpl. eapply subst_type_type_ix; eauto.
+   + simpl. eapply (IHx1 ix) in H4; eauto.
+   + simpl. eapply subst_type_type_ix; eauto.
 
  - Case "XLam".
-   simpl. apply TYLam.
-   eapply subst_type_type_ix; eauto.
-   unfold substTE. rewrite map_rewind.
-   rrwrite ( map (substTT ix t2) (te :> t)
-           = substTE ix t2 (te :> t)).
-   eapply IHx1; eauto.
+   simpl. 
+   apply TYLam.
+   + eapply subst_type_type_ix; eauto.
+   + unfold substTE. rewrite map_rewind.
+     rrwrite ( map (substTT ix t2) (te :> t)
+             = substTE ix t2 (te :> t)).
+     eapply IHx1; eauto.
 
  - Case "XApp".
    eapply TYApp.
-    eapply IHx1_1 in H4; eauto.
+   + eapply IHx1_1 in H4; eauto.
      simpl in H4. burn.
-    eapply IHx1_2 in H6; eauto.
+   + eapply IHx1_2 in H6; eauto.
 
  - Case "XCon".
    rr. simpl.
@@ -109,24 +110,24 @@ Proof.
      eapply Forall2_impl_in; eauto; intros.
      rrwrite (ix = 0 + ix). 
      rewrite substTTs_substTT; rr.
-      nforall. eapply H; eauto.
-      defok ds (DefData     dc tsFields tc).
-      defok ds (DefDataType tc ks       dcs).
-      rrwrite (length ts = length ks).
-      repeat nforall.
-      have (KIND ks y KStar). eauto.
+     * norm. eapply H; eauto.
+     * defok ds (DefData     dc tsFields tc).
+       defok ds (DefDataType tc ks       dcs).
+       rrwrite (length ts = length ks).
+       norm.
+       have (KIND ks y KStar). eauto.
  
  - Case "XCase".
    eapply TYCase; eauto.
-   eapply Forall_map.
-   repeat nforall. intros. eauto.
-   repeat nforall. intros.
-    have (In x (map dcOfAlt aa)).
-    assert ( map dcOfAlt (map (substTA ix t2) aa)
-           = map dcOfAlt aa) as HDC.
+   + eapply Forall_map.
+     norm. eauto.
+   + norm.
+     have (In x (map dcOfAlt aa)).
+     assert ( map dcOfAlt (map (substTA ix t2) aa)
+            = map dcOfAlt aa) as HDC.
      lists. f_equal.
      extensionality x0. rr. auto.
-    rewrite HDC. auto.
+     rewrite HDC. auto.
 
  - Case "XPrim".
    eapply TYPrim; eauto.
@@ -163,9 +164,10 @@ Proof.
     eapply IHx1 in H10; eauto.
     rrwrite (ix = 0 + ix).   
     rewrite substTTs_substTT_map; rr.
-     unfold substTE. rewrite <- map_app. auto. 
-     rrwrite (length tsParam = length ks).
-     eauto.
+    + unfold substTE. 
+      rewrite <- map_app. auto. 
+    + rrwrite (length tsParam = length ks).
+      eauto.
 Qed.
 
 

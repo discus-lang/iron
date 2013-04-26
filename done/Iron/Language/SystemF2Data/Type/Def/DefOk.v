@@ -58,8 +58,8 @@ Lemma getTypeDef_ok
 Proof.
  intros.
  unfold DEFSOK in H.
- apply getTypeDef_in in H0. 
- nforall. auto.
+ apply getTypeDef_in in H0.
+ snorm. 
 Qed.  
 Hint Resolve getTypeDef_ok.
 
@@ -73,7 +73,7 @@ Proof.
  intros.
  unfold DEFSOK in H.
  apply getDataDef_in in H0.
- nforall. auto.
+ snorm.
 Qed.
 Hint Resolve getDataDef_ok.
 
@@ -86,9 +86,8 @@ Lemma getDataDef_datacon_in
  -> In d dcs.
 Proof.
  intros.
- assert (DEFOK ds (DefData d ts tc)) as HD. eauto.
- assert (DEFOK ds (DefDataType tc ks dcs)) as HT. eauto.
- inverts HD. inverts HT.
+ have (DEFOK ds (DefData d ts tc))       as HD; inverts HD.
+ have (DEFOK ds (DefDataType tc ks dcs)) as HT; inverts HT.
  rewrite H1 in H6. inverts H6.
  auto.
 Qed.

@@ -22,12 +22,16 @@ Fixpoint makeTApps (t1: ty) (tt: list ty) : ty :=
  end.
 
 
+(* Take the left most type along the in a tree of type applications. *)
 Fixpoint takeTCon (tt: ty) : ty :=
  match tt with 
  | TApp t1 t2 => takeTCon t1
  | _          => tt
  end.
 
+
+(* Take the list of arguments in a nested type application, 
+   walking down the spine. *)
 Fixpoint takeTArgs (tt: ty) : list ty :=
  match tt with 
  | TApp t1 t2 => snoc t2 (takeTArgs t1)
@@ -82,8 +86,8 @@ Lemma makeTApps_takeTCon
 Proof.
  intros. gen t1 t2.
  induction ts; intros.
-  simpl in H. subst. auto.
-  eapply IHts in H. simpl in H. auto.
+ + simpl in H. subst. auto.
+ + eapply IHts in H. simpl in H. auto.
 Qed.
 Hint Resolve makeTApps_takeTCon.
 
@@ -95,7 +99,8 @@ Lemma getCtorOfType_makeTApps
 Proof.
  intros. gen t1.
  induction ts; intros.
-  auto. rs.
+ + auto.
+ + snorm.
 Qed.
 Hint Resolve getCtorOfType_makeTApps.
 
@@ -112,8 +117,9 @@ Lemma makeTApps_tycon_eq
  -> tc1 = tc2.
 Proof.
  intros.
- assert ( takeTCon (makeTApps (TCon tc1) ts1) 
-        = takeTCon (makeTApps (TCon tc2) ts2)) as HT by rs.
+ have HT: ( takeTCon (makeTApps (TCon tc1) ts1) 
+          = takeTCon (makeTApps (TCon tc2) ts2)) 
+  by (rewritess; snorm).
  repeat (rewrite takeTCon_makeTApps in HT).
  simpl in HT. inverts HT. auto.
 Qed.
@@ -126,39 +132,40 @@ Lemma makeTApps_args_eq
 Proof.
  intros. gen ts2.
  induction ts1 using rev_ind; intros.
-  Case "ts1 = nil".
+ - Case "ts1 = nil".
    simpl in H. 
    destruct ts2.
-    SCase "ts2 ~ nil".
+   + SCase "ts2 ~ nil".
      auto.
 
-    SCase "ts2 ~ cons".
-    simpl in H.
-    lets D: @snocable ty ts2. inverts D.
-     simpl in H. nope.
-     destruct H0 as [t2].
-     destruct H0 as [ts2']. 
-     subst.
-     rewrite makeTApps_snoc in H. nope.
+   + SCase "ts2 ~ cons".
+     simpl in H.
+     lets D: @snocable ty ts2. inverts D.
+     * simpl in H. nope.
+     * destruct H0 as [t2].
+       destruct H0 as [ts2']. 
+       subst.
+       rewrite makeTApps_snoc in H. nope.
    
-  Case "ts1 ~ snoc".
+ - Case "ts1 ~ snoc".
    lets D: @snocable ty ts2. inverts D.
-   SCase "ts2 ~ nil".
-    simpl in H.
-    rewrite app_snoc in H.
-    rewrite app_nil_right in H.
-    rewrite makeTApps_snoc' in H.
-    nope.
+   + SCase "ts2 ~ nil".
+     simpl in H.
+     rewrite app_snoc in H.
+     rewrite app_nil_right in H.
+     rewrite makeTApps_snoc' in H.
+     nope.
 
-   SCase "ts2 ~ snoc" .
-    dest t. dest ts'. subst.
-    rewrite app_snoc in H.
-    rewrite app_snoc. rr.
-    rewrite makeTApps_snoc' in H.
-    rewrite makeTApps_snoc' in H.
-    inverts H.
-    eapply IHts1 in H1. subst. 
-    auto.
+   + SCase "ts2 ~ snoc" .
+     dest t. dest ts'. subst.
+     rewrite app_snoc in H.
+     rewrite app_snoc. 
+     snorm.
+     rewrite makeTApps_snoc' in H.
+     rewrite makeTApps_snoc' in H.
+     inverts H.
+     eapply IHts1 in H1. subst. 
+     auto.
 Qed.
 
 
@@ -168,12 +175,10 @@ Lemma makeTApps_eq_params
  -> tc1 = tc2 /\ ts1 = ts2.
 Proof.
  intros.
- assert (tc1 = tc2).
-  eapply makeTApps_tycon_eq; eauto.
-  subst.
- assert (ts1 = ts2).
-  eapply makeTApps_args_eq; eauto.
-  subst.
+ rrwrite (tc1 = tc2)
+  by (eapply makeTApps_tycon_eq; eauto).
+ rrwrite (ts1 = ts2)
+  by (eapply makeTApps_args_eq; eauto).
  auto.
 Qed.
 
@@ -186,15 +191,14 @@ Lemma makeTApps_wfT
 Proof.
  intros. gen t1.
  induction ts; intros.
-  simpl. auto.
-  simpl.
-  inverts H0.
-  assert (ts = nil \/ (exists t ts', ts = t <: ts')) as HS.
-   apply snocable.
+ - simpl. auto.
+ - simpl.
+   inverts H0.
+   have HS: (ts = nil \/ (exists t ts', ts = t <: ts'))
+    by (apply snocable).
    inverts HS.
-    simpl. auto. 
-    dest H0. dest H0. subst.
-    eapply IHts. auto.
-     auto.
+   + simpl. auto. 
+   + dest H0. dest H0. subst.
+     eapply IHts; auto.
 Qed.
 

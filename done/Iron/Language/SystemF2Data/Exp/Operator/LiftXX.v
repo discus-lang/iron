@@ -20,22 +20,18 @@ Fixpoint liftXX (n:  nat) (d:  nat) (xx: exp) {struct xx} : exp :=
     |  XAPP x t
     => XAPP (liftXX n d x) t
 
-    (* increase the depth as we move across a lambda *)
     |  XLam t1 x1
     => XLam t1 (liftXX n (S d) x1)
 
     |  XApp x1 x2
     => XApp   (liftXX n d x1) (liftXX n d x2)
 
-    (* lift all the arguments of a data constructor *)
     |  XCon dc ts xs
     => XCon dc ts (map (liftXX n d) xs)
 
-    (* lift all the alternatives in a case-expression *)
     |  XCase x alts
     => XCase (liftXX n d x) (map (liftXA n d) alts)
 
-    (* lift all the arguments applied to a primop *)
     |  XPrim p xs
     => XPrim p (map (liftXX n d) xs)
 
@@ -96,7 +92,7 @@ Qed.
 Hint Rewrite liftXX_zero : global.
 
 
-(* Commutivity of lifting. *)
+(* Commutativity of lifting. *)
 Lemma liftXX_comm
  : forall n m x d
  , liftXX n d (liftXX m d x)

@@ -53,20 +53,22 @@ Proof.
  gen ts ks x1.
  induction xs; intros; inverts_type.
 
- Case "base case".
-  destruct ts. 
-   simpl. auto.
-   nope.
+ - Case "base case".
+   destruct ts. 
+   + simpl. auto.
+   + nope.
 
- Case "step case".
-  simpl. 
+ - Case "step case".
+   simpl. 
    destruct ts.
-    nope.
-    inverts HF.
-     eapply IHxs. eauto.
-     simpl in HT.
-     eapply subst_exp_exp. eauto. 
-     rrwrite (length xs = length ts).
-     eapply type_tyenv_weaken_append. auto.
+   + nope.
+   + inverts HF.
+     eapply IHxs. 
+     * eauto.
+     * simpl in HT.
+       eapply subst_exp_exp. 
+        eauto. 
+        rrwrite (length xs = length ts).
+        eapply type_tyenv_weaken_append. auto.
 Qed.
 

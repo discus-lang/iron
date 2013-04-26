@@ -2,8 +2,9 @@
 Require Import Iron.Language.SystemF2Data.Type.
 Require Import Iron.Language.SystemF2Data.Exp.Lit.
 
+
 (********************************************************************)
-(* Primive operators and literals. *)
+(* Primive operatos. *)
 Inductive prim : Type :=
  (* Add two naturals. *)
  | PAdd    : prim

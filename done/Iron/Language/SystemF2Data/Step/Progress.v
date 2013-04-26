@@ -15,8 +15,8 @@ Proof.
  intros.
  eapply getAlt_exists.
  inverts_type.
- repeat nforall. eapply H8.
-
+ norm. 
+ eapply H8.
  have (getCtorOfType (TCon tc) = Some tc) as HC.
  erewrite getCtorOfType_makeTApps in H5; eauto.
  inverts H5.
@@ -252,7 +252,7 @@ Proof.
    { repeat nforall. intros.
      have (exists t, TYPE ds nil nil x t).
      destruct H2 as [t'].
-     eapply H0 in H1. 
+     eapply H0 in H1.
      intuition. eauto.
    } 
 

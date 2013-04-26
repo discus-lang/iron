@@ -34,12 +34,12 @@ Lemma getAlt_in
 Proof.
  intros.
  induction alts.
-  false.
-  destruct a as [dc' tsArgs x].
-  simpl in H.
-  breaka (datacon_beq dc dc').
+ - false.
+ - destruct a as [dc' tsArgs x].
+   simpl in H.
+   breaka (datacon_beq dc dc').
    inverts H.
-    apply datacon_beq_eq in HeqX; auto.
+   apply datacon_beq_eq in HeqX; auto.
 Qed.
 Hint Resolve getAlt_in.
 
@@ -54,15 +54,15 @@ Lemma getAlt_exists
 Proof.
  intros.
  induction alts.
-  simpl in H. false.
-  simpl in H. inverts H.
-   destruct a. simpl.
-   breaka (datacon_beq d d).
-    exists e. auto.
-    apply datacon_beq_false in HeqX. false.
-   lets D: IHalts H0.
-   destruct a. simpl.
-    breaka (datacon_beq d d0).
+ - simpl in H. false.
+ - simpl in H. inverts H.
+   + destruct a. simpl.
+     breaka (datacon_beq d d).
+     * exists e. auto.
+     * apply datacon_beq_false in HeqX. false.
+   + lets D: IHalts H0.
+     destruct a. simpl.
+     breaka (datacon_beq d d0).
      apply datacon_beq_eq in HeqX. subst. auto.
      exists e. auto.
 Qed.

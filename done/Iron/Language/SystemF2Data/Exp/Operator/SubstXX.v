@@ -97,17 +97,19 @@ Proof.
     apply TYVar; auto.
     rewrite <- H3.
     destruct n.
-     burn. 
-     simpl. nnat. apply get_delete_below; burn.
+    * burn. 
+    * simpl. rrwrite (n - 0 = n) by omega. 
+      apply get_delete_below; burn.
 
  - Case "XLAM".
    simpl.
    eapply (IHx1 ix) in H3.
-   apply TYLAM.
-    unfold liftTE. rewrite map_delete. eauto.
-    eapply get_map. eauto.
-    unfold liftTE. rewrite <- map_delete.
-     rrwrite (map (liftTT 1 0) (delete ix te) = liftTE 0 (delete ix te)). 
+   + apply TYLAM.
+     unfold liftTE. rewrite map_delete. eauto.
+   + eapply get_map. eauto.
+   + unfold liftTE. rewrite <- map_delete.
+     rrwrite ( map (liftTT 1 0) (delete ix te) 
+             = liftTE 0 (delete ix te)). 
      apply type_kienv_weaken1. auto.
 
  - Case "XLam".
@@ -126,11 +128,11 @@ Proof.
    eapply TYCase; eauto.
    (* Alts have correct type *)
    + clear IHx1.
-      eapply Forall_map.
-      repeat nforall. eauto.
+     eapply Forall_map.
+     norm. eauto.
 
    (* Required datacon is in alts list *)
-   + repeat nforall. intros.
+   + norm. 
      rename x into d. lists.
      apply in_map_iff.
      have (exists a, dcOfAlt a = d /\ In a aa). 

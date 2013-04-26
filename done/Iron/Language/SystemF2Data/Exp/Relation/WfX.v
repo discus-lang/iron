@@ -65,3 +65,4 @@ Hint Constructors wfA.
 Definition closedX (xx: exp) : Prop
  := wfX O O xx.
 Hint Unfold closedX.
+
