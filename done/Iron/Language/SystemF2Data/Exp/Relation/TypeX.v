@@ -155,7 +155,11 @@ Proof.
 
  - Case "XCon".
    inverts_type.
-   admit. (* data ctors cant return lit types *)
+   have HD: (DEFOK ds (DefDataType tc ks dcs)).
+    inverts HD.
+   apply makeTApps_takeTCon in H4. 
+    snorm. inverts H4.
+   nope.
 
  - destruct l; nope.
    eauto.
@@ -173,7 +177,11 @@ Proof.
 
  - Case "XCon".
    inverts_type.
-   admit. (* data ctors can't return lit types *)
+   have HD: (DEFOK ds (DefDataType tc ks dcs)).
+    inverts HD.
+   apply makeTApps_takeTCon in H4.
+    snorm. inverts H4.
+   nope.
 
  - destruct l; nope.
    eauto.

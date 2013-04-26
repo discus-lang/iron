@@ -3,6 +3,7 @@ Require Export Iron.Language.SystemF2Data.Base.
 Require Export Iron.Language.SystemF2Data.Kind.
 
 
+(********************************************************************)
 (* Type Constructors. *)
 Inductive tycon : Type :=
  (* The function type constructor. *)
@@ -17,10 +18,12 @@ Inductive tycon : Type :=
 Hint Constructors tycon.
 
 
-Definition tcUnit := TyConData 0 KStar.
+(* The unit type constructor. *)
+Definition  tcUnit := TyConData 0 KStar.
 Hint Unfold tcUnit.
 
 
+(********************************************************************)
 (* Check whether two type constructors are equal. *)
 Fixpoint tycon_beq t1 t2 :=
  match t1, t2 with
@@ -32,6 +35,7 @@ Fixpoint tycon_beq t1 t2 :=
  end.
 
 
+(* Check whether this is the function type constructor. *)
 Definition isTyConFun  (tc: tycon) : Prop :=
  match tc with
  | TyConFun      => True
@@ -40,6 +44,8 @@ Definition isTyConFun  (tc: tycon) : Prop :=
 Hint Unfold isTyConFun.
 
 
+(* Check whether this is is an algebraic type constructor
+   not the function type constructor or a primitive type. *) 
 Definition isTyConData (tc: tycon) : Prop :=
  match tc with
  | TyConData _ _ => True
