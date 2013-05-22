@@ -81,14 +81,6 @@ Lemma wfT_more
 Proof.
  intros. gen tn1 tn2.
  induction tt; intros; inverts H0; eauto.
-
- Case "TVar".
-  eapply WfT_TVar; burn. omega.
-
- Case "TForall".
-  eapply WfT_TForall.
-  lets D: IHtt H2 (S tn2).
-  eapply D. omega.
 Qed.
 Hint Resolve wfT_more.
 

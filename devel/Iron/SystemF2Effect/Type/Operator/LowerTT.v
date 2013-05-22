@@ -62,7 +62,7 @@ Fixpoint lowerTT (d: nat) (tt: ty) : option ty
 
 Ltac burn_lowerTT t := 
   induction t;
-  first [ solve [snorm; f_equal; try omega]
+  first [ solve [snorm; try f_equal; try congruence; omega]
         | solve [repeat (snorm; f_equal; eauto; rewritess; nope) ]].
 
 
@@ -133,18 +133,12 @@ Proof.
  induction t1; intros;
   try (solve [inverts H0; snorm; eauto]).
 
- - Case "TVar".
-   snorm.
-   eapply WfT_TVar. omega.
-   eapply WfT_TVar. inverts H0. omega.
-
  - Case "TForall".
    snorm.
    + eapply WfT_TForall.
      inverts H0.
      eapply IHt1 with (n := S n) (d := S d).
       auto. omega. auto.
-   + congruence.
 Qed.
 
 
@@ -184,7 +178,6 @@ Proof.
       omega.
       auto. 
       subst. auto.
-   + congruence.
 
  - Case "TApp".
    inverts H0.
@@ -192,8 +185,6 @@ Proof.
    + assert (t  = t1_1). eauto.
      assert (t0 = t1_2). eauto. 
      subst. auto.
-   + congruence.
-   + congruence.
     
  - Case "TSum".
    inverts H0.
@@ -201,8 +192,6 @@ Proof.
    + assert (t  = t1_1). eauto.
      assert (t0 = t1_2). eauto. 
      subst. auto.
-   + congruence.
-   + congruence.
 
  - Case "TBot". 
    snorm.
@@ -215,7 +204,6 @@ Proof.
    snorm.
    + assert (t0 = t1). eauto.
      subst. auto.
-   + congruence.
 
  - Case "TCon2".
    inverts H0.
@@ -223,8 +211,6 @@ Proof.
    + assert (t0 = t1_1). eauto.
      assert (t1 = t1_2). eauto.
      subst. auto.
-   + congruence.
-   + congruence.
 
  - Case "TCap".
    snorm.
@@ -251,37 +237,33 @@ Lemma lowerTT_freeT
  -> freeTT n t1  = false.
 Proof.
  intros. gen n t2.
- induction t1; intros; eauto.
+ induction t1; intros; eauto 4.
  - Case "TVar".
    snorm. 
     eapply beq_nat_false_iff. omega.
     eapply beq_nat_false_iff. omega.
 
  - Case "TForall".
-   snorm. eauto. congruence. 
+   snorm. eauto.
 
  - Case "TApp".
    snorm.
    erewrite IHt1_1; eauto.
    erewrite IHt1_2; eauto.
-   congruence. congruence.
 
  - Case "TSum".
    snorm.
    erewrite IHt1_1; eauto.
    erewrite IHt1_2; eauto.
-   congruence. congruence.
 
  - Case "TCon1".
    snorm.
    erewrite IHt1; eauto.
-   congruence.
  
  - Case "TCon2".
    snorm.
    erewrite IHt1_1; eauto.
    erewrite IHt1_2; eauto.
-   congruence. congruence.
 Qed.
 Hint Resolve lowerTT_freeT.   
 

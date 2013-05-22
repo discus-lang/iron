@@ -67,15 +67,6 @@ Lemma substTT_wfT
 Proof.
  intros. gen d ix t2.
  induction t1; rip; inverts H0; simpl; snorm.
-
- Case "TVar".
-  eapply WfT_TVar. omega.
-  eapply WfT_TVar. omega.
-
- Case "TForall".
-  eapply WfT_TForall.
-  eapply IHt1; eauto.
-   omega.
 Qed.
 Hint Resolve substTT_wfT.
 

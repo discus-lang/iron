@@ -11,19 +11,19 @@ Proof.
  intros. gen ix ke sp k1.
  induction t; intros; simpl; inverts_kind; eauto.
 
- Case "TVar".
-  lift_cases; intros; norm; auto.
+ - Case "TVar".
+   lift_cases; snorm.
 
- Case "TForall".
-  apply KiForall.
-  rewrite insert_rewind. auto.
+ - Case "TForall".
+   apply KiForall.
+   rewrite insert_rewind. auto.
 
- Case "TCon2".
-  eapply KiCon2.
-  destruct t1.
+ - Case "TCon2".
+   eapply KiCon2.
+   destruct t1.
+    destruct tc. eauto.
    destruct tc. eauto.
-  destruct tc. eauto.
-  destruct tc. eauto.
+   destruct tc. eauto.
 Qed.
 
 

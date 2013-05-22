@@ -48,7 +48,6 @@ Proof.
  unfold substTE. unfold liftTE.
  lists.
  induction te; simpl; burn.
- try rewritess; burn.
 Qed.
 
 

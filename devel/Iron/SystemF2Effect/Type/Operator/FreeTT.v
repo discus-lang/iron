@@ -63,10 +63,6 @@ Proof.
  intros. gen n.
  induction t;
   try (solve [snorm; inverts H; eauto]).
-
- - Case "TVar".
-   snorm. inverts H.
-   eapply WfT_TVar. omega.
 Qed.
 
 
@@ -84,3 +80,4 @@ Proof.
   rewrite beq_nat_false_iff. auto.
 Qed.
 Hint Resolve isEffectOnVar_freeTT_false.
+

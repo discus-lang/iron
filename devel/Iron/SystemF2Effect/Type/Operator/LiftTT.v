@@ -9,9 +9,10 @@ Require Export Iron.SystemF2Effect.Type.Operator.FreeTT.
 Fixpoint liftTT (n: nat) (d: nat) (tt: ty) : ty :=
  match tt with
  |  TVar ix
- => if le_gt_dec d ix
-     then TVar (ix + n)
-     else tt
+ => match nat_compare ix d with
+    | Lt => tt
+    | _  => TVar (ix + n)
+    end
 
  |  TForall k t    => TForall k (liftTT n (S d) t)
  |  TApp t1 t2     => TApp      (liftTT n d t1) (liftTT n d t2)
@@ -26,12 +27,6 @@ Fixpoint liftTT (n: nat) (d: nat) (tt: ty) : ty :=
 Hint Unfold liftTT.
 
 
-Ltac burn_liftTT t := 
-  induction t;
-  first [ solve [snorm; f_equal; try omega]
-        | solve [repeat (snorm; f_equal; eauto; rewritess; nope) ]].
-
-
 (********************************************************************)
 (* Helper Lemmas *)
 Lemma liftTT_TVar_exists
@@ -39,9 +34,7 @@ Lemma liftTT_TVar_exists
  , exists n2, liftTT n d (TVar n1) = liftTT n d (TVar n2).
 Proof.
  intros.
- unfold liftTT. snorm. 
-  exists n1. snorm. omega.
-  exists n1. snorm. omega.
+ unfold liftTT. exists n1. snorm.
 Qed.
 
 
@@ -66,10 +59,13 @@ Proof.
  destruct t; intros;
    try (solve [simpl; congruence]).
 
- Case "TVar".
-  unfold liftTT. 
-  snorm.
-  congruence.
+ - Case "TVar".
+   unfold liftTT. 
+   snorm.
+   + subst. congruence.
+   + unfold not. intros. 
+     inverts H0. omega.
+   + congruence.
 Qed.
 Hint Resolve liftTT_TVar_not_succ.
 
@@ -79,7 +75,7 @@ Lemma liftTT_TVar_above
  ,  d > i 
  -> liftTT n d (TVar i) = TVar i.
 Proof.
- intros. snorm. omega.
+ snorm; omega.
 Qed.
 Hint Resolve liftTT_TVar_above.
 
@@ -93,12 +89,13 @@ Proof.
  intros.
   destruct t; 
    try (solve [simpl; auto]).
- 
-  apply isTVar_form in H0.
-  simpl in H0. split_if.
-   inverts H0. omega.
-   inverts H0. simpl. 
-   eapply beq_nat_refl.
+
+ - Case "TVar".
+   apply isTVar_form in H0.
+   snorm.
+   + inverts H0. omega. 
+   + inverts H0. eapply beq_nat_refl.
+   + inverts H0. omega.  
 Qed.
 Hint Resolve liftTT_isTVar_true.
 
@@ -110,7 +107,7 @@ Lemma liftTT_TCap
 Proof.
  intros.
  destruct t; simpl in *; nope.
-  split_if; nope.
+  snorm; nope.
 Qed.
 
 
@@ -123,9 +120,6 @@ Lemma liftTT_wfT
 Proof.
  intros. gen kn d.
  induction t; intros; inverts H; snorm.
-
- Case "TVar".
-  eapply WfT_TVar. omega.
 Qed.
 Hint Resolve liftTT_wfT.
 
@@ -135,7 +129,7 @@ Lemma liftTT_zero
  :  forall d t
  ,  liftTT 0 d t = t.
 Proof.
- intros. gen d. burn_liftTT t.
+ intros. gen d. lift_burn t.
 Qed.
 Hint Resolve liftTT_zero.
 Hint Rewrite liftTT_zero : global.
@@ -146,7 +140,7 @@ Lemma liftTT_comm
  ,  liftTT n d (liftTT m d t)
  =  liftTT m d (liftTT n d t).
 Proof.
- intros. gen d. burn_liftTT t.
+ intros. gen d. lift_burn t.
 Qed.
 Hint Resolve liftTT_comm.
 
@@ -156,7 +150,7 @@ Lemma liftTT_succ
  ,  liftTT (S n) d (liftTT m     d t)
  =  liftTT n     d (liftTT (S m) d t).
 Proof.
- intros. gen d m n. burn_liftTT t.
+ intros. gen d m n. lift_burn t.
 Qed.
 Hint Resolve liftTT_succ.
 Hint Rewrite liftTT_succ : global. 
@@ -168,11 +162,11 @@ Lemma liftTT_plus
 Proof.
  intros. gen n d.
  induction m; intros.
- rewrite liftTT_zero; burn.
- rrwrite (n + S m = S n + m).
- rewrite IHm.
- rewrite liftTT_succ.
- auto.
+ - rewrite liftTT_zero; burn.
+ - rrwrite (n + S m = S n + m).
+   rewrite IHm.
+   rewrite liftTT_succ.
+   auto.
 Qed. 
 Hint Resolve liftTT_plus.
 Hint Rewrite liftTT_plus : global.
@@ -185,16 +179,14 @@ Lemma liftTT_wfT_1
  -> liftTT 1 (n + ix) t = t.
 Proof.
  intros. gen n ix.
- induction t; intros; inverts H;
-  try 
-  first 
-  [ solve [snorm; omega]
-  | solve [repeat (snorm; rewritess; f_equal)]].
+ induction t; intros; inverts H; burn;
+  try (solve [snorm; rewritess; burn]).
 
-  Case "TForall".
-   repeat (snorm; try rewritess; f_equal).
-   rrwrite (S (n + ix) = S n + ix). 
-   eauto.
+ - Case "TForall".
+   snorm. f_equal.
+   spec IHt H1.
+   rrwrite (S (n + ix) = S n + ix).
+   burn.
 Qed.
 Hint Resolve liftTT_wfT_1.
 
@@ -235,14 +227,36 @@ Lemma liftTT_liftTT_11
  =  liftTT 1 d              (liftTT 1 (d + d') t).
 Proof.
  intros. gen d d'.
- induction t; intros;
-  try (solve [ snorm; omega ]);
-  try (solve [ snorm; f_equal; rewritess; auto ]).
+ induction t; intros.
 
- Case "TForall". 
-  snorm.
-  rrwrite (S (d + d') = (S d) + d').
-  f_equal; rewritess; auto.
+ - Case "TVar".
+   repeat (lift_cases; unfold liftTT); try f_equal; try omega; burn.
+
+ - Case "TForall".
+   snorm.   
+   rrwrite (S (d + d') = (S d) + d').
+   rewritess. snorm.
+
+ - Case "TApp".
+   snorm; rewritess; auto.
+
+ - Case "TCon".
+   snorm; rewritess; auto.
+
+ - Case "TBot".
+   snorm; rewritess; auto.
+
+ - Case "TCon0".
+   snorm; rewritess; auto.
+
+ - Case "TCon1".
+   snorm; rewritess; auto.
+
+ - Case "TCon2".
+   snorm; rewritess; auto.
+
+ - Case "TCap".
+   snorm; rewritess; auto.
 Qed.
 
 
@@ -318,6 +332,7 @@ Proof.
 
  - Case "TVar".
    snorm.
+   apply beq_nat_false_iff. omega.
    apply beq_nat_false_iff. omega.
    apply beq_nat_false_iff. omega.
 Qed.

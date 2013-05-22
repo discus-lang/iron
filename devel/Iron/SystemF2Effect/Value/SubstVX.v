@@ -73,45 +73,45 @@ Proof.
       -> TYPEV ke (delete ix te) se sp (substVV ix v2 v1) t1)
   ; intros; simpl; inverts_type; eauto.
 
- Case "VVar".
-  fbreak_nat_compare; burn.
-  SCase "n > ix".
-   apply TvVar; auto.
-   destruct n.
-    burn.
-    down. snorm. eapply get_delete_below. omega.
+ - Case "VVar".
+   snorm.
+   + subst. rewrite H in H3. norm.
+   + apply TvVar; auto.
+     destruct n.
+      burn.
+      down. snorm.
 
- Case "VLam".
-  apply TvLam; auto.
-   rewrite delete_rewind.
-   eauto using typev_tyenv_weaken1.
+ - Case "VLam".
+   apply TvLam; auto.
+    rewrite delete_rewind.
+    eauto using typev_tyenv_weaken1.
 
- Case "VLAM".
-  simpl.
-  eapply (IHx1 ix) in H9.
-  apply TvLAM.
-   unfold liftTE. rewrite map_delete. eauto.
-   eapply get_map. eauto.
-   unfold liftTE. rewrite <- map_delete.
-    rrwrite ( map (liftTT 1 0) (delete ix te) 
-            = liftTE 0 (delete ix te)).
-    eauto using typev_kienv_weaken1.
+ - Case "VLAM".
+   simpl.
+   eapply (IHx1 ix) in H9.
+   apply TvLAM.
+    unfold liftTE. rewrite map_delete. eauto.
+    eapply get_map. eauto.
+    unfold liftTE. rewrite <- map_delete.
+     rrwrite ( map (liftTT 1 0) (delete ix te) 
+             = liftTE 0 (delete ix te)).
+     eauto using typev_kienv_weaken1.
 
- Case "XLet".
-  apply TxLet; eauto.
-   rewrite delete_rewind.
-   eauto using typev_tyenv_weaken1.
+ - Case "XLet".
+   apply TxLet; eauto.
+    rewrite delete_rewind.
+    eauto using typev_tyenv_weaken1.
 
- Case "XNew".
-  eapply (IHx1 ix) in H9.
-  eapply TxNew; eauto.
-   unfold liftTE. rewrite map_delete. eauto.
-   eapply get_map. eauto.
-   unfold liftTE. rewrite <- map_delete.
-    rrwrite ( map (liftTT 1 0) (delete ix te)
-            = liftTE 0 (delete ix te)).
-    lets D: typev_kienv_weaken1 H1.
-    eauto using typev_kienv_weaken1.
+ - Case "XNew".
+   eapply (IHx1 ix) in H9.
+   eapply TxNew; eauto.
+    unfold liftTE. rewrite map_delete. eauto.
+    eapply get_map. eauto.
+    unfold liftTE. rewrite <- map_delete.
+     rrwrite ( map (liftTT 1 0) (delete ix te)
+             = liftTE 0 (delete ix te)).
+     lets D: typev_kienv_weaken1 H1.
+     eauto using typev_kienv_weaken1.
 Qed.
 
 

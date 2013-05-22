@@ -36,24 +36,24 @@ Hint Resolve flattenT_kindTs.
 
 Lemma equivT_equivTs 
  :  forall  ke sp t1 t2 k
- ,  EquivT  ke sp t1 t2 k
+ ,  sumkind k
+ -> EquivT  ke sp t1 t2 k
  -> EquivTs ke sp (flattenT t1) (flattenT t2) k.
 Proof.
- intros ke sp t1 t2 k HE.
+ intros ke sp t1 t2 k HK HE.
  induction HE; intros.
   eapply equivTs_refl;  auto.
   eapply equivTs_sym;   auto.
   eapply equivTs_trans; auto.
 
  - Case "EqAppCong".
-   simpl.
-   inverts H0_.
-   have (sumkind (KFun k11 k12)).
+   admit. 
+   (* broken, dont' require type constructor to have sum kind *)
 
  - Case "EqSumCong".
    simpl.
-   spec IHEquivT1 H0.
-   spec IHEquivT2 H0.
+   spec IHHE1 HK.
+   spec IHHE2 HK.
    eauto.
 
  - Case "EqSumBot".
@@ -63,8 +63,8 @@ Proof.
  - Case "EqSumIdemp".
    simpl.
    eapply EqsSum; norm; auto.
-   + eapply in_app_split in H2.
-     inverts H2; auto.
+   + eapply in_app_split in H1.
+     inverts H1; auto.
 
  - Case "EqSumComm".
    simpl.
@@ -74,11 +74,11 @@ Proof.
    simpl.
    eapply EqsSum; auto.
    + norm. 
+     eapply in_app_split in H3. inverts H3.
      eapply in_app_split in H4. inverts H4.
-     eapply in_app_split in H5. inverts H5.
      auto. auto. auto.
    + norm.
-     eapply in_app_split in H4. inverts H4. auto.
-     eapply in_app_split in H5. inverts H5. 
+     eapply in_app_split in H3. inverts H3. auto.
+     eapply in_app_split in H4. inverts H4. 
      auto. auto.
 Qed.

@@ -54,12 +54,12 @@ Definition SubsVisibleT ke sp e e'
           (maskOnT (fun t => negb (isVisibleE sp t)) e') 
           KEffect.
 
-  !!!!!!!!!!!! need to add another sp parameter.
+(*  !!!!!!!!!!!! need to add another sp parameter.
                the effect e' will contain more regions than e, 
                but we only want to check it against the ones in e.
                Need to keep the sps for both e and e'.
                Otherwise the effect with more region handles isn't well kinded.
-
+*)
 
 
 Lemma subsVisibleT_refl
@@ -154,6 +154,8 @@ Lemma subsVisibleT_strengthen
  -> SubsVisibleT ke sp2 e e'
  -> SubsVisibleT ke sp1 e e'.
 Proof.
+ admit. (* not finished *)
+(*
  intros.
  induction e'.
  - admit. 
@@ -163,7 +165,8 @@ Proof.
  
  - unfold SubsVisibleT in *.
    snorm.
-
+   admit. (* not finished *)
+*)
 Qed.
 
 

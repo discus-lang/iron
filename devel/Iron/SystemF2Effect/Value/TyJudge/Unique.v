@@ -20,45 +20,46 @@ Proof.
    try (solve [inverts_type; try congruence]);
    inverts_type; auto.
 
- Case "VLam".
-  spec IHx H9 H10. 
-  burn.
+ - Case "VLam".
+   spec IHx H9 H10. 
+   burn.
 
- Case "VLAM".
-  spec IHx H8 H7.
-  burn.
+ - Case "VLAM".
+   spec IHx H8 H7.
+   burn.
 
- Case "XVal".
-  spec IHx H6 H5.
-  burn.
+ - Case "XVal".
+   spec IHx H6 H5.
+   burn.
 
- Case "XLet".
-  spec IHx1 H11 H13.
-  spec IHx2 H12 H14. 
-  rip.
+ - Case "XLet".
+   spec IHx1 H11 H13.
+   spec IHx2 H12 H14. 
+   rip.
 
- Case "XApp".
-  spec IHx  H7  H6.
-  spec IHx0 H10 H11.
-  subst. inverts IHx. auto.
+ - Case "XApp".
+   spec IHx  H7  H6.
+   spec IHx0 H10 H11.
+   subst. inverts IHx. auto.
 
- Case "VAPP". 
-  spec IHx H7 H6.
-  inverts IHx. auto.
+ - Case "VAPP". 
+   spec IHx H7 H6.
+   inverts IHx. auto.
 
- Case "XOp1".
-  spec IHx H10 H11.
-  subst. rip.
+ - Case "XOp1".
+   spec IHx H10 H11.
+   subst. 
+   rip; congruence.
 
- Case "XNew".
-  spec IHx H8 H10.
-  rip.
+ - Case "XNew".
+   spec IHx H8 H10.
+   rip; congruence.
 
- Case "XAlloc".
-  spec IHx H10 H11.
-  subst. burn.
+ - Case "XAlloc".
+   spec IHx H10 H11.
+   subst. burn.
 
- Case "XRead".
-  spec IHx H10 H11.
-  inverts IHx. auto.
+ - Case "XRead".
+   spec IHx H10 H11.
+   inverts IHx. auto.
 Qed.

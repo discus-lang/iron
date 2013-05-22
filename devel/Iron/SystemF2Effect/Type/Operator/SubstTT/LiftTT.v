@@ -12,7 +12,7 @@ Lemma substTT_liftTT
 Proof.
  intros. gen d t2.
  induction t1; intros;
-  first [ solve [snorm; try omega]
+  first [ solve [snorm; try omega; nope]
         | solve [simpl; f_equal; norm]].
 Qed.
 Hint Rewrite substTT_liftTT : global.
@@ -28,18 +28,18 @@ Lemma liftTT_substTT_1
 Proof.
  intros. gen n n' t2.
  induction t1; intros;
-  try (solve [simpl; f_equal; rewritess; burn]).
+  try (solve [snorm; repeat f_equal; burn]).
 
- Case "TVar".
-  repeat (simpl; split_match; 
-          repeat norm_nat_compare; 
-          subst; f_equal; try omega; auto).
+ - Case "TVar".
+   snorm; try omega.
+   f_equal. omega.
+   f_equal. omega. 
 
- Case "TForall".
-  simpl.
-  rewrite (IHt1 (S n) n').
-  rewrite (liftTT_liftTT_11 0 n).
-  burn.
+ - Case "TForall".
+   snorm.
+   rewrite (IHt1 (S n) n').
+   rewrite (liftTT_liftTT_11 0 n).
+   burn.
 Qed.
 
 
@@ -50,14 +50,14 @@ Lemma liftTT_substTT
 Proof.
  intros. gen n n'.
  induction m; intros; simpl.
-  burn.
+ - burn.
 
-  rrwrite (S m = 1 + m).
-  rewrite liftTT_plus.
-  rewritess.
-  rrwrite (m + n + n' = n + (m + n')) by omega.
-  rewrite liftTT_substTT_1. 
-  burn.
+ - rrwrite (S m = 1 + m).
+   rewrite liftTT_plus.
+   rewritess.
+   rrwrite (m + n + n' = n + (m + n')) by omega.
+   rewrite liftTT_substTT_1. 
+   burn.
 Qed.
 Hint Rewrite <- liftTT_substTT : global.
 
@@ -74,14 +74,15 @@ Proof.
  induction t1; intros;
   try (solve [simpl; f_equal; rewritess; norm]).
 
- Case "TVar".
-  repeat ( unfold liftTT; unfold substTT; fold liftTT; fold substTT
-         ; try lift_cases
-         ; try fbreak_nat_compare
-         ; intros); f_equal; burn; omega.
+ - Case "TVar".
+   repeat ( unfold liftTT; unfold substTT; fold liftTT; fold substTT
+          ; try lift_cases
+          ; try fbreak_nat_compare
+          ; intros); try omega; burn.
+   f_equal. omega.
 
- Case "TForall".
-  simpl. rewrite (IHt1 (S n) n').
-  simpl. rewrite (liftTT_liftTT_11 0 (n + n')). 
-  burn.
+ - Case "TForall".
+   simpl. rewrite (IHt1 (S n) n').
+   simpl. rewrite (liftTT_liftTT_11 0 (n + n')). 
+   burn.
 Qed.

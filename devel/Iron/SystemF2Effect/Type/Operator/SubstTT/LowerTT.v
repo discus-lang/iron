@@ -12,35 +12,8 @@ Lemma lowerTT_substTT
  -> substTT ix t2 t1 = t1'.
 Proof.
  intros. gen ix t2 t1'.
- induction t1; intros; try (solve [snorm]).
-
- Case "TForall".
-  simpl in *.
-  split_match; snorm; nope.
-   snorm.
-   symmetry in HeqH0. spec IHt1 HeqH0.
-   repeat rewritess. auto.
-
- Case "TApp".
-   snorm; try (solve [espread; nope]).
-   symmetry in HeqH0. spec IHt1_1 HeqH0.
-   symmetry in HeqH1. spec IHt1_2 HeqH1.
-   repeat rewritess.  norm.
-
- Case "TSum".
-   snorm; try (solve [espread; nope]).
-   symmetry in HeqH0. spec IHt1_1 HeqH0.
-   symmetry in HeqH1. spec IHt1_2 HeqH1.
-   repeat rewritess.  norm.
-
- Case "TCon1".
-   snorm; try (solve [espread; nope]).
-
- Case "TCon2".
-   snorm; try (solve [espread; nope]).
-   symmetry in HeqH0. spec IHt1_1 HeqH0.
-   symmetry in HeqH1. spec IHt1_2 HeqH1.
-   repeat rewritess.  norm.
+ induction t1; intros; 
+  try (solve [snorm; espread; nope]).
 Qed.
 Hint Resolve lowerTT_substTT.
 Hint Rewrite lowerTT_substTT : global.
@@ -69,10 +42,6 @@ Proof.
    symmetry in HeqH1. rip. clear IHt1. clear HeqH1.
    rrwrite (S (S d + d') = S (S (d + d'))) in D.
    norm. rewrite D in HeqH0. snorm.
-
-   (* Goal 9 *)
-   lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. 
-   symmetry in HeqH1. rip.
 
    (* Goal 8 *)
    lets D: IHt1 (S d) d' (liftTT 1 0 t2) t. 
@@ -108,7 +77,6 @@ Proof.
 Qed.
 
 
-
 (********************************************************************)
 (* If we can lower a particular index then the term does not use it, 
    so we can delete the corresponding slot from the enviornment. *)
@@ -122,26 +90,25 @@ Proof.
  induction t1; intros; simpl;
   try (solve [inverts_kind; snorm; eauto; nope]).
 
- Case "TVar".
-  inverts_kind. snorm.
-   SCase "n > ix".
-    eapply KiVar.
-    rewrite <- H4.
-    destruct n.
-     simpl. burn.
-     simpl. norm. eapply get_delete_below. omega.
+ - Case "TVar".
+   inverts_kind. snorm.
+    SCase "n > ix".
+     eapply KiVar.
+     rewrite <- H4.
+     destruct n.
+      simpl. burn.
+      simpl. norm. 
 
- Case "TForall".
-  inverts_kind. snorm. 
-   eapply KiForall.
-   rewrite delete_rewind.
-   eauto. nope.
+ - Case "TForall".
+   inverts_kind. snorm. 
+    eapply KiForall.
+    rewrite delete_rewind.
+    eauto.
 
- Case "TCon2".
-  inverts_kind. snorm.
-  eapply KiCon2; eauto.
-   destruct tc; destruct t; eauto.
-   nope. nope.
+ - Case "TCon2".
+   inverts_kind. snorm.
+   eapply KiCon2; eauto.
+    destruct tc; destruct t; eauto.
 Qed.
 
 
