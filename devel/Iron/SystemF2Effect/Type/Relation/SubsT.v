@@ -194,6 +194,17 @@ Hint Resolve subsT_sum_merge.
 
 
 (********************************************************************)
+Lemma subsT_stprops_snoc
+ :  forall ke sp p t1 t2 k
+ ,  SubsT ke sp        t1 t2 k
+ -> SubsT ke (p <: sp) t1 t2 k.
+Proof.
+ intros.
+ induction H; eauto.
+Qed.
+
+
+(********************************************************************)
 Lemma subsT_closed_kenv_cons
  :  forall sp t1 t2 k1 k2
  ,  SubsT nil sp t1 t2 k1

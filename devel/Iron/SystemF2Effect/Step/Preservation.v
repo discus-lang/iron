@@ -26,7 +26,7 @@ Theorem preservation
     /\ WfFS  se' sp' ss' fs'
     /\ LiveS ss' fs'    
     /\ LiveE fs' e'
-    /\ SubsVisibleT  nil sp  e   e'
+    /\ SubsVisibleT  nil sp' sp  e  e'
     /\ TYPEC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp sp' ss ss' fs fs' x x' t e.
@@ -194,29 +194,35 @@ Proof.
      have HE: (substTT 0 r e = e). rewrite <- HE. clear HE.
 
      simpl.
-     assert (SubsVisibleT nil sp (substTT 0 r e) (substTT 0 r e0)).
-     { have HE: (EquivT       nil sp e (TSum e1 e2) KEffect).
-       have HS: (SubsT        nil sp e e1 KEffect).
+     set (sp' := SRegion p <: sp).
+     assert (SubsVisibleT nil sp' sp (substTT 0 r e) (substTT 0 r e0)).
+     { have HE: (EquivT       nil sp' e (TSum e1 e2) KEffect)
+        by (subst sp'; eauto).
+
+       have HS: (SubsT        nil sp' e e1 KEffect)
+        by (subst sp'; eauto).
       
        apply lowerTT_some_liftTT in H5.
 
-       assert   (SubsVisibleT nil sp (liftTT 1 0 e) (liftTT 1 0 e1)) as HV.
+       assert   (SubsVisibleT nil sp' sp (liftTT 1 0 e) (liftTT 1 0 e1)) as HV.
         rrwrite (liftTT 1 0 e  = e).
         rrwrite (liftTT 1 0 e1 = e1).
         eapply subsT_subsVisibleT.
         auto.
        rewrite H5 in HV.
 
-       rrwrite (liftTT 1 0 e = e) in HV.
+       rrwrite (liftTT  1 0 e = e) in HV.
        rrwrite (substTT 0 r e = e).
        eapply subsVisibleT_mask; eauto.
      }
 
-     assert (SubsVisibleT nil sp (substTT 0 r e) (substTT 0 r e2)).
+     assert (SubsVisibleT nil sp' sp (substTT 0 r e) (substTT 0 r e2)).
      { rrwrite (substTT 0 r e  = e).
        rrwrite (substTT 0 r e2 = e2).
 
-       have HE: (EquivT nil sp e (TSum e1 e2) KEffect).
+       have HE: (EquivT nil sp' e (TSum e1 e2) KEffect)
+        by (subst sp'; eauto).
+        
        eapply SbEquiv in HE.
        eapply SbSumAboveRight in HE.
        eapply subsT_subsVisibleT. auto.

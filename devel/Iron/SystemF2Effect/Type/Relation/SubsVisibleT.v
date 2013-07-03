@@ -47,25 +47,18 @@ Qed.
    At each step in the reduction we allow the term to allocate new
    regions and have effects on those regions, as they are not
    mentioned in the previous list of store properties. *)
-Definition SubsVisibleT ke sp e e'
+Definition SubsVisibleT ke sp spVis e e'
  := SubsT ke
           sp 
           e 
-          (maskOnT (fun t => negb (isVisibleE sp t)) e') 
+          (maskOnT (fun t => negb (isVisibleE spVis t)) e') 
           KEffect.
-
-(*  !!!!!!!!!!!! need to add another sp parameter.
-               the effect e' will contain more regions than e, 
-               but we only want to check it against the ones in e.
-               Need to keep the sps for both e and e'.
-               Otherwise the effect with more region handles isn't well kinded.
-*)
 
 
 Lemma subsVisibleT_refl
- :  forall ke sp e
+ :  forall ke sp spVis e
  ,  KindT  ke sp e KEffect
- -> SubsVisibleT ke sp e e.
+ -> SubsVisibleT ke sp spVis e e.
 Proof.
  intros.
  unfold SubsVisibleT.
@@ -75,10 +68,10 @@ Hint Resolve subsVisibleT_refl.
 
 
 Lemma subsVisibleT_trans
- :  forall ke sp e1 e2 e3
- ,  SubsVisibleT ke sp e1 e2
- -> SubsVisibleT ke sp e2 e3
- -> SubsVisibleT ke sp e1 e3.
+ :  forall ke sp spVis e1 e2 e3
+ ,  SubsVisibleT ke sp spVis e1 e2
+ -> SubsVisibleT ke sp spVis e2 e3
+ -> SubsVisibleT ke sp spVis e1 e3.
 Proof.
  intros.
  unfold SubsVisibleT in *.
@@ -92,9 +85,9 @@ Qed.
 
 (********************************************************************)
 Lemma subsT_subsVisibleT
- :  forall       ke sp e1 e2
- ,  SubsT        ke sp e1 e2 KEffect
- -> SubsVisibleT ke sp e1 e2.
+ :  forall       ke sp spVis e1 e2
+ ,  SubsT        ke sp       e1 e2 KEffect
+ -> SubsVisibleT ke sp spVis e1 e2.
 Proof.
  intros.
  unfold SubsVisibleT.
@@ -103,10 +96,10 @@ Qed.
 
 
 Lemma subsVisibleT_sum_above
- :  forall ke sp e1 e2 e3
- ,  SubsVisibleT ke sp e1 e2
- -> SubsVisibleT ke sp e1 e3
- -> SubsVisibleT ke sp e1 (TSum e2 e3).
+ :  forall ke sp spVis e1 e2 e3
+ ,  SubsVisibleT ke sp spVis e1 e2
+ -> SubsVisibleT ke sp spVis e1 e3
+ -> SubsVisibleT ke sp spVis e1 (TSum e2 e3).
 Proof. 
  intros.
  unfold SubsVisibleT in *.
@@ -117,9 +110,9 @@ Hint Resolve subsVisibleT_sum_above.
 
 
 Lemma subsVisibleT_sum_above_left
- :  forall ke sp e1 e2 e3
- ,  SubsVisibleT ke sp e1 (TSum e2 e3)
- -> SubsVisibleT ke sp e1 e2.
+ :  forall ke sp spVis e1 e2 e3
+ ,  SubsVisibleT ke sp spVis e1 (TSum e2 e3)
+ -> SubsVisibleT ke sp spVis e1 e2.
 Proof. 
  intros.
  unfold SubsVisibleT in *.
@@ -129,9 +122,9 @@ Hint Resolve subsVisibleT_sum_above_left.
 
 
 Lemma subsVisibleT_sum_above_right
- :  forall ke sp e1 e2 e3
- ,  SubsVisibleT ke sp e1 (TSum e2 e3)
- -> SubsVisibleT ke sp e1 e3.
+ :  forall ke sp spVis e1 e2 e3
+ ,  SubsVisibleT ke sp spVis e1 (TSum e2 e3)
+ -> SubsVisibleT ke sp spVis e1 e3.
 Proof. 
  intros.
  unfold SubsVisibleT in *.
@@ -148,26 +141,13 @@ Lemma subsT_stprops_weaken
  -> SubsT ke sp sp
 *)
 
+(*
 Lemma subsVisibleT_strengthen
  :  forall ke sp1 sp2 e e'
  ,  extends sp2 sp1
  -> SubsVisibleT ke sp2 e e'
  -> SubsVisibleT ke sp1 e e'.
-Proof.
- admit. (* not finished *)
-(*
- intros.
- induction e'.
- - admit. 
-   (* unfold SubsVisibleT in *. snorm.
-   clear H. induction H0; auto. 
-    admit. eauto. admit. *)
- 
- - unfold SubsVisibleT in *.
-   snorm.
-   admit. (* not finished *)
 *)
-Qed.
 
 
 (********************************************************************)
@@ -178,11 +158,11 @@ Qed.
    Because the region handle will have been freshly allocated, 
    it won't appear in the previous set of store properties. *)
 Lemma subsVisibleT_mask
- :  forall sp r n e1 e2
- ,  hasSRegion n sp = false
+ :  forall sp spVis r n e1 e2
+ ,  hasSRegion n spVis = false
  -> r = TCap (TyCapRegion n)
- -> SubsVisibleT nil sp e1 (maskOnT (isEffectOnVar 0) e2)
- -> SubsVisibleT nil sp e1 (substTT 0 r e2).
+ -> SubsVisibleT nil sp spVis e1 (maskOnT (isEffectOnVar 0) e2)
+ -> SubsVisibleT nil sp spVis e1 (substTT 0 r e2).
 Proof.
  intros.
  induction e2.

@@ -116,7 +116,19 @@ Proof.
  intros.
  induction H; eauto.
 Qed.
- 
+
+
+(********************************************************************)
+Lemma equivT_stprops_snoc
+ :  forall ke sp p e1 e2 k
+ ,  EquivT ke sp        e1 e2 k
+ -> EquivT ke (p <: sp) e1 e2 k.
+Proof.
+ intros.
+ induction H; eauto.
+Qed.
+Hint Resolve equivT_stprops_snoc.
+
 
 (********************************************************************)
 Lemma equivT_closed_kenv_cons
