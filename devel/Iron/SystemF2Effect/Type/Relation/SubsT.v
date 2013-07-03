@@ -196,11 +196,38 @@ Hint Resolve subsT_sum_merge.
 (********************************************************************)
 Lemma subsT_stprops_snoc
  :  forall ke sp p t1 t2 k
- ,  SubsT ke sp        t1 t2 k
- -> SubsT ke (p <: sp) t1 t2 k.
+ ,  SubsT  ke sp        t1 t2 k
+ -> SubsT  ke (p <: sp) t1 t2 k.
 Proof.
  intros.
  induction H; eauto.
+Qed.
+Hint Resolve subsT_stprops_snoc.
+
+
+Lemma subsT_stprops_app
+ :  forall ke sp sp' t1 t2 k
+ ,  SubsT ke sp          t1 t2 k
+ -> SubsT ke (sp' >< sp) t1 t2 k.
+Proof.
+ intros. gen ke sp k.
+ induction sp'; intros; snorm; auto.
+ - rrwrite ((sp' :> a) >< sp = sp' >< (a <: sp)).
+   snorm.
+Qed.
+Hint Resolve subsT_stprops_app.
+
+
+Lemma subsT_stprops_extends
+ :  forall ke sp sp' e1 e2 k
+ ,  extends sp' sp
+ -> SubsT ke sp  e1 e2 k
+ -> SubsT ke sp' e1 e2 k.
+Proof.
+ intros.
+ unfold extends in *.
+ destruct H. subst.
+ snorm.
 Qed.
 
 

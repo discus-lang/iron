@@ -39,6 +39,29 @@ Proof.
 Qed.
 
 
+Lemma isVisibleE_extends_cover
+ :  forall sp sp' t
+ ,  extends sp' sp
+ -> false = isVisibleE sp' t
+ -> false = isVisibleE sp  t.
+Proof.
+ intros.
+ unfold isVisibleE in *.
+ destruct t;  auto.
+ destruct t0; auto.
+ destruct t0; auto.
+ apply beq_false_split in H0.
+ inverts H0.
+ - eapply beq_false_join. snorm.
+ - eapply beq_false_join. 
+   right.
+   unfold hasSRegion in *. 
+   unfold extends in *. 
+   destruct H. subst.
+   induction sp. snorm. snorm.
+Qed.
+
+
 (********************************************************************)
 (* Subsumption of effects, where we only care about effects that 
    are visible in the given set of store properties. 
@@ -134,20 +157,72 @@ Hint Resolve subsVisibleT_sum_above_right.
 
 
 (********************************************************************)
-(*
-Lemma subsT_stprops_weaken
- ,  forall ke sp1 sp2 t1 t2
+Lemma subsVisibleT_stprops_extends
+ :  forall ke sp1 sp2 spVis e e'
  ,  extends sp2 sp1
- -> SubsT ke sp sp
-*)
+ -> SubsVisibleT ke sp1 spVis e e'
+ -> SubsVisibleT ke sp2 spVis e e'.
+Proof.
+ intros.
+ unfold SubsVisibleT in *.
+ eapply subsT_stprops_extends; eauto.
+Qed.
 
-(*
-Lemma subsVisibleT_strengthen
- :  forall ke sp1 sp2 e e'
- ,  extends sp2 sp1
- -> SubsVisibleT ke sp2 e e'
- -> SubsVisibleT ke sp1 e e'.
-*)
+
+Lemma maskOnT_subsT_impl
+ :  forall ke sp e1 e2 (p : ty -> bool) (p' : ty -> bool)
+ ,  (forall t, true = p t -> true = p' t)
+ -> SubsT ke sp e1 (maskOnT p  e2) KEffect
+ -> SubsT ke sp e1 (maskOnT p' e2) KEffect.
+Proof.
+ intros. gen ke sp.
+ induction e2; snorm.
+
+ - Case "TSum".
+   eapply SbSumAbove; eauto.
+
+ - Case "TCon1".
+   clear IHe2.
+   unfold maskOnT. 
+   split_if.
+   + eauto.
+   + unfold maskOnT in H0.
+     remember (p (TCon1 t e2)) as X.  
+     destruct X.
+     * apply H in HeqX. congruence.
+     * tauto.
+Qed.
+
+
+Lemma subsVisibleT_spVis_strengthen
+ :  forall ke sp spVis spVis' e1 e2
+ ,  extends spVis' spVis
+ -> SubsVisibleT ke sp spVis' e1 e2
+ -> SubsVisibleT ke sp spVis  e1 e2.
+Proof.
+ intros.
+ induction e2; snorm.
+
+ - Case "TSum".
+   lets He1: subsVisibleT_sum_above_left  H0.
+   lets He2: subsVisibleT_sum_above_right H0.
+   rip.
+
+ - Case "TCon1".
+   clear IHe2.
+   unfold SubsVisibleT in H0.
+   unfold SubsVisibleT.
+   eapply maskOnT_subsT_impl.
+   + assert (  forall t0, true = negb (isVisibleE spVis' t0)
+                       -> true = negb (isVisibleE spVis  t0)) as HV.
+      intros.
+      snorm.
+      eapply negb_true_intro.
+      eapply isVisibleE_extends_cover.
+       eauto. auto.   
+      eapply HV.
+   + eauto.
+Qed.     
 
 
 (********************************************************************)

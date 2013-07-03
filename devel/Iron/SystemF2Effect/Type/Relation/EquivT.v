@@ -130,6 +130,32 @@ Qed.
 Hint Resolve equivT_stprops_snoc.
 
 
+Lemma equivT_stprops_app
+ :  forall ke sp sp' e1 e2 k
+ ,  EquivT ke sp e1 e2 k
+ -> EquivT ke (sp' >< sp) e1 e2 k.
+Proof.
+ intros. gen ke sp k.
+ induction sp'; intros; burn.
+ - rrwrite ((sp' :> a) >< sp = sp' >< (a <: sp)).
+   burn.
+Qed.
+Hint Resolve equivT_stprops_app.
+
+
+Lemma equivT_stprops_extends 
+ :  forall ke sp sp' e1 e2 k
+ ,  extends sp' sp
+ -> EquivT ke sp  e1 e2 k
+ -> EquivT ke sp' e1 e2 k.
+Proof.
+ intros.
+ unfold extends in *.
+ destruct H. subst.
+ snorm.
+Qed.
+
+
 (********************************************************************)
 Lemma equivT_closed_kenv_cons
  :  forall sp t1 t2 k1 k2

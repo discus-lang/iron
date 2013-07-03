@@ -9,6 +9,12 @@ Lemma negb_true_elim
 Proof. destruct x; auto. Qed.
 
 
+Lemma negb_true_intro
+ :  forall x
+ ,  false = x
+ -> true  = negb x .
+Proof. destruct x; eauto. Qed.
+
 Lemma negb_false_elim
  :  forall x
  ,  false  = negb x
@@ -49,6 +55,19 @@ Proof.
  destruct A.
   simpl in H. subst. tauto.
   tauto.
+Qed.
+Hint Resolve beq_false_split.
+
+
+Lemma beq_false_join
+ :  forall A B
+ ,  false = A \/ false = B
+ -> false = andb A B.
+Proof.
+ intros.
+ inversion H. subst.
+ tauto.
+ destruct A; tauto.
 Qed.
 Hint Resolve beq_false_split.
 

@@ -6,4 +6,5 @@ Require Export Iron.SystemF2Effect.Step.Pure.
 Require Export Iron.SystemF2Effect.Step.Frame.
 Require Export Iron.SystemF2Effect.Step.Progress.
 Require Export Iron.SystemF2Effect.Step.Preservation.
+Require Export Iron.SystemF2Effect.Step.Steps.
 

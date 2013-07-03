@@ -14,3 +14,11 @@ Require Export Iron.SystemF2Effect.Store.
 
 (* Evaluation *)
 Require Export Iron.SystemF2Effect.Step.
+
+
+(* - Do a single step and multi-step frame condition, 
+     if the effect term does not contain write effects on 
+     particular regions then all values in those regions are 
+     preserved.
+*)
+

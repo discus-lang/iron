@@ -37,6 +37,18 @@ Proof.
 Qed.
 
 
+Lemma steps_extends_stprops
+ :  forall ss sp fs x  ss' sp' fs' x'
+ ,  Steps  ss sp fs x  ss' sp' fs' x'
+ -> extends sp' sp.
+Proof.
+ intros. 
+ induction H. eauto.
+ eapply stepf_extends_stprops in H.
+ eapply extends_trans; eauto.
+Qed.
+
+
 Lemma steps_preservation
  :  forall se  sp  ss  fs  x  
                sp' ss' fs' x'  
@@ -51,8 +63,8 @@ Lemma steps_preservation
     /\ WfFS    se' sp' ss' fs' 
     /\ LiveS   ss' fs'
     /\ LiveE   fs' e'
-    /\ SubsVisibleT nil sp e e'
-    /\ TYPEC   nil nil se' sp' fs' x' t e').
+    /\ SubsVisibleT nil sp' sp e e'
+    /\ TYPEC    nil nil se' sp' fs' x' t e').
 Proof.
  intros. gen se e.
  induction H3; intros.
@@ -72,8 +84,17 @@ Proof.
 
    + eapply subsVisibleT_trans; eauto.
      assert (extends sp2 sp1).
-      eapply stepf_stprops_extends.
+      eapply stepf_extends_stprops.
      eauto.
 
-     eapply subsVisibleT_strengthen; eauto.
+     * eapply subsVisibleT_stprops_extends.
+       eapply steps_extends_stprops; eauto.
+       eauto.
+
+     * have (extends sp2 sp1)
+        by (eapply stepf_extends_stprops; eauto).
+
+       eapply subsVisibleT_spVis_strengthen; eauto.
 Qed.
+
+

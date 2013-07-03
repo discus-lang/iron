@@ -5,14 +5,6 @@ Require Export Iron.SystemF2Effect.Store.LiveS.
 Require Export Iron.SystemF2Effect.Store.LiveE.
 
 
-(* - Do multistep evaluation and explicit soundness.
-   - Do a single step and multi-step frame condition, 
-      if the effect term does not contain write effects on 
-      particular regions then all values in those regions are 
-      preserved.
-*)
-
-
 (* When a well typed expression transitions to the next state
    then its type is preserved. *)
 Theorem preservation

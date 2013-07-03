@@ -91,7 +91,7 @@ Hint Constructors STEPF.
 
 
 (******************************************************************************)
-Lemma stepf_stprops_extends
+Lemma stepf_extends_stprops
  :  forall  ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
  ,  STEPF   ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
  -> extends sp2 sp1.
