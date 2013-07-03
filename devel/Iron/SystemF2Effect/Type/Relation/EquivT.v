@@ -25,13 +25,13 @@ Inductive EquivT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
    -> EquivT ke sp t2 t3 k
    -> EquivT ke sp t1 t3 k
 
- | EqCongApp
+(* | EqCongApp
    :  forall ke sp t1 t1' t2 t2' k11 k12
    ,  appkind k12
    -> EquivT ke sp t1 t1' (KFun k11 k12)
    -> EquivT ke sp t2 t2' k11
    -> EquivT ke sp (TApp t1 t2) (TApp t1' t2') k12
-
+*)
  | EqSumCong
    :  forall ke sp t1 t1' t2 t2' k
    ,  sumkind k

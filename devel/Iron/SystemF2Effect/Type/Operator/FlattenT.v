@@ -46,10 +46,6 @@ Proof.
   eapply equivTs_sym;   auto.
   eapply equivTs_trans; auto.
 
- - Case "EqAppCong".
-   admit. 
-   (* broken, dont' require type constructor to have sum kind *)
-
  - Case "EqSumCong".
    simpl.
    spec IHHE1 HK.

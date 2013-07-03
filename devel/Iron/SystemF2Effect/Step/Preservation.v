@@ -254,8 +254,9 @@ Proof.
          rrwrite (liftTE 0 se  = se) by (inverts HH; auto).
          auto.
        * subst r. auto.
-         eapply KiCap. 
-          admit. (* ok, in_snoc *)
+         eapply KiCap.
+          rrwrite (SRegion p <: sp = sp ++ (nil :> SRegion p)).
+          eapply in_app_right. snorm.
 
      (* New frame stack is well typed. *)
      + eapply TfConsUse.
