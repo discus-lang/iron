@@ -11,7 +11,7 @@ Definition done (fs : stack) (x : exp)
 (* Add condition, e1 does not mention handles of any deleted regions.
    Also add this condition to preservation to get region deallocation. *)
 Lemma progress
- :  forall se ss sp fs x1 t1 e1
+ :   forall se ss sp fs x1 t1 e1
  ,   WfFS   se sp ss fs
  ->  LiveS  ss fs -> LiveE fs e1
  ->  TYPEC  nil nil se sp fs x1 t1 e1

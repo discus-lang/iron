@@ -31,7 +31,7 @@ Inductive
   | TvVar
     :  forall ke te se sp i t
     ,  get i te = Some t
-    -> KindT   ke sp t KData
+    -> KindT  ke sp t KData
     -> TYPEV  ke te se sp (VVar i) t 
 
   (* Store locations.
@@ -40,17 +40,17 @@ Inductive
      to attach the region variable. Our primitive types don't have region
      annotations themselves. *)
   | TvLoc 
-    :  forall ke te se sp i r t
-    ,  get i se = Some (TRef r t)
+    :  forall ke te se sp l r t
+    ,  get l se = Some (TRef r t)
     -> KindT  ke sp       (TRef r t) KData       
-    -> TYPEV  ke te se sp (VLoc i)   (TRef r t)
+    -> TYPEV  ke te se sp (VLoc l)   (TRef r t)
 
   (* Value abstraction.
      The body is checked in an environment extended with the type of
      of the formal parameter. *)
   | TvLam
     :  forall ke te se sp t1 t2 x2 e2
-    ,  KindT   ke sp t1 KData
+    ,  KindT  ke sp t1 KData
     -> TYPEX  ke (te :> t1) se sp x2 t2 e2
     -> TYPEV  ke te         se sp (VLam t1 x2) (TFun t1 e2 t2)
 
@@ -148,13 +148,6 @@ Inductive
     ,  typeOfOp1 op = TFun t11 t12 e
     -> TYPEV  ke te se sp v1 t11
     -> TYPEX  ke te se sp (XOp1 op v1) t12 e.
-
-(*
-  | TxCastEffect
-    :  TYPEX  ke te se sp x t1 e1
-    -> SubsT  ke te se sp x e2 e1          (* also use to fix equiv of effect *)
-    -> TYPEX  ke te se sp x (casteff e2 t1) e2
-*)
 Hint Constructors TYPEV.
 Hint Constructors TYPEX.
 
