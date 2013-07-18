@@ -1,7 +1,7 @@
 
 Require Export Iron.SystemF2Effect.Step.Frame.
 Require Export Iron.SystemF2Effect.Store.Bind.
-Require Export Iron.SystemF2Effect.Store.TypeS.
+Require Export Iron.SystemF2Effect.Store.StoreT.
 Require Export Iron.SystemF2Effect.Store.StoreP.
 Require Export Iron.SystemF2Effect.Store.LiveE.
 
@@ -116,7 +116,7 @@ Qed.
 Hint Resolve liveS_stack_tail.
 
 
-Lemma liveS_store_cons_dead
+Lemma liveS_stdead_cons
  :  forall ss p fs
  ,  ~(In (FUse p) fs)
  ->  LiveS ss fs
@@ -129,10 +129,10 @@ Proof.
  - unfold regionOfStBind in H2. tauto.
  - eauto.
 Qed.
-Hint Resolve liveS_store_cons_dead.
+Hint Resolve liveS_stdead_cons.
 
 
-Lemma liveS_store_cons_value
+Lemma liveS_stvalue_cons
  :  forall p v fs ss
  ,  In (FUse p) fs
  -> LiveS ss                  fs
@@ -145,7 +145,7 @@ Proof.
 Qed.
 
 
-Lemma liveS_store_snoc_value
+Lemma liveS_stvalue_snoc
  :  forall p v fs ss
  ,  In (FUse p) fs
  -> LiveS ss                  fs
@@ -165,7 +165,7 @@ Proof.
 Qed.
 
 
-Lemma liveS_update
+Lemma liveS_stvalue_update
  :  forall ss fs l p v
  ,  In (FUse p) fs
  -> LiveS  ss fs
@@ -179,7 +179,7 @@ Proof.
  - have (LiveS ss fs). rip.
    destruct l.
    + simpl. 
-     eapply liveS_store_cons_value; eauto.
+     eapply liveS_stvalue_cons; eauto.
    + simpl.
      unfold LiveS in *. snorm.
      inverts H2. eauto. eauto.

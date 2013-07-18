@@ -315,7 +315,7 @@ Proof.
      exists e2.
      rip.
      (* Frame stack is still well formed after popping the top FUse frame *)
-     + eapply wfFS_stack_pop; auto.
+     + eapply wfFS_region_deallocate; auto.
 
      (* After popping top FUse,
         all store bindings mentioned by frame stack are still live. *)
@@ -345,10 +345,6 @@ Proof.
    exists e2.
    rip.
 
-   (* Resulting store is well formed. *)
-   - unfold WfFS in *.
-     rip. eauto.
-
    (* All store bindings mentioned by frame stack are still live. *)
    - remember (TCap (TyCapRegion r1)) as p.
 
@@ -361,7 +357,7 @@ Proof.
       eapply liveE_fUse_in; eauto.
       subst p. simpl. auto.
      
-     eapply liveS_store_snoc_value; auto.
+     eapply liveS_stvalue_snoc; auto.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
@@ -434,10 +430,10 @@ Proof.
 
    (* Resulting store is well formed. *)
    - inverts_type.
-     eapply store_update_wffs; eauto.
+     eapply wfFS_stbind_update; eauto.
 
    (* All store bindings mentioned by frame stack are still live. *)
-   - eapply liveS_update.
+   - eapply liveS_stvalue_update.
      + inverts_type.
        remember (TCap (TyCapRegion r)) as p.
 

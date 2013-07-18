@@ -31,8 +31,8 @@ Hint Unfold isStDead.
 
 Definition regionOfStBind (b : stbind)
  := match b with 
-    | StValue n _ => n
-    | StDead  n   => n
+    | StValue p _ => p
+    | StDead  p   => p
     end.
 Hint Unfold regionOfStBind.
 
