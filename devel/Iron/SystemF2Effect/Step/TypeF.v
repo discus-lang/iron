@@ -20,8 +20,7 @@ Inductive
 
  | TfConsLet
    :  forall ke te se sp fs t1 x2 t2 e2 t3 e3
-   ,  STOREP sp fs
-   -> KindT  ke sp t1 KData
+   ,  KindT  ke sp t1 KData
    -> TYPEX  ke (te :> t1) se sp                    x2 t2 e2
    -> TYPEF  ke te         se sp fs                 t2 t3 e3
    -> TYPEF  ke te         se sp (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)

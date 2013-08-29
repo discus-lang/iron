@@ -78,7 +78,7 @@ Proof.
          auto.
       + auto.
       + eapply TfConsLet; eauto.
-        * inverts HH. rip.
+(*        * inverts HH. rip. *)
  }
 
 
@@ -217,7 +217,7 @@ Proof.
         
        eapply SbEquiv in HE.
        eapply SbSumAboveRight in HE.
-       eapply subsT_subsVisibleT. auto.
+       eapply subsT_subsVisibleT. auto. auto.
      }
  
      unfold SubsVisibleT.
