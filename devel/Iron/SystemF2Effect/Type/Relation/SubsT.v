@@ -7,43 +7,45 @@ Require Export Iron.SystemF2Effect.Type.Relation.EquivT.
    The interesting cases all concern sums. *)
 Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
  | SbEquiv
-   :  forall ke sp t1 t2 k
-   ,  EquivT ke sp t1 t2 k
-   -> SubsT  ke sp t1 t2 k
+   :  forall  ke sp t1 t2 k
+   ,  EquivT  ke sp t1 t2 k
+   -> SubsT   ke sp t1 t2 k
 
  | SbTrans
-   :  forall ke sp t1 t2 t3 k
-   ,  SubsT  ke sp t1 t2 k -> SubsT  ke sp t2 t3 k
-   -> SubsT  ke sp t1 t3 k
+   :  forall  ke sp t1 t2 t3 k
+   ,  SubsT   ke sp t1 t2 k -> SubsT  ke sp t2 t3 k
+   -> SubsT   ke sp t1 t3 k
 
  | SbBot
-   :  forall ke sp t k
+   :  forall  ke sp t k
    ,  sumkind k
-   -> KindT  ke sp t k
-   -> SubsT  ke sp t (TBot k) k
+   -> KindT   ke sp t k
+   -> SubsT   ke sp t (TBot k) k
 
  | SbSumAbove
-   :  forall ke sp t1 t2 t3 k
+   :  forall  ke sp t1 t2 t3 k
    ,  sumkind k
-   -> SubsT  ke sp t1 t2 k -> SubsT  ke sp t1 t3 k
-   -> SubsT  ke sp t1 (TSum t2 t3) k
+   -> SubsT   ke sp t1 t2 k -> SubsT  ke sp t1 t3 k
+   -> SubsT   ke sp t1 (TSum t2 t3) k
 
  | SbSumBelow
-   :  forall ke sp t1 t2 t3 k
+   :  forall  ke sp t1 t2 t3 k
    ,  sumkind k
-   -> KindT  ke sp t3 k
-   -> SubsT  ke sp t1 t2 k
-   -> SubsT  ke sp (TSum t1 t3) t2 k
+   -> KindT   ke sp t3 k
+   -> SubsT   ke sp t1 t2 k
+   -> SubsT   ke sp (TSum t1 t3) t2 k
 
  | SbSumAboveLeft
-   :  forall ke sp t1 t2 t3 k
-   ,  SubsT  ke sp t1 (TSum t2 t3) k
-   -> SubsT  ke sp t1 t2 k
+   :  forall  ke sp t1 t2 t3 k
+   ,  sumkind k
+   -> SubsT   ke sp t1 (TSum t2 t3) k
+   -> SubsT   ke sp t1 t2 k
 
  | SbSumAboveRight
-   :  forall ke sp t1 t2 t3 k
-   ,  SubsT  ke sp t1 (TSum t2 t3) k
-   -> SubsT  ke sp t1 t3 k.
+   :  forall  ke sp t1 t2 t3 k
+   ,  sumkind k
+   -> SubsT   ke sp t1 (TSum t2 t3) k
+   -> SubsT   ke sp t1 t3 k.
 
 Hint Constructors SubsT.
 

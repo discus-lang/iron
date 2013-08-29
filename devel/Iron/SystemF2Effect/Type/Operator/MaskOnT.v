@@ -13,21 +13,9 @@ Require Import Coq.Bool.Bool.
    replacing with the bottom effect. *)
 Fixpoint maskOnT (p : ty -> bool) (e : ty) : ty
  := match e with
-    |  TVar tc        => e
-    |  TForall k t1   => e
-    |  TApp t1 t2     => e
-    |  TSum t1 t2     => TSum (maskOnT p t1) (maskOnT p t2)
-    |  TBot k         => e
-
-    |  TCon0 tc       => e
-
-    |  TCon1 tc t1
-    => if p e     then TBot KEffect
-                  else e
-
-    |  TCon2 tc t1 t2 => e
-    
-    |  TCap  tc       => e
+    |  TSum t1 t2  => TSum (maskOnT p t1) (maskOnT p t2)
+    |  TCon1 tc t1 => if p e then TBot KEffect else e
+    | _            => e
     end.
 Arguments maskOnT p e : simpl nomatch.
 

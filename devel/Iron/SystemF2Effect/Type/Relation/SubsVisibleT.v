@@ -139,7 +139,7 @@ Lemma subsVisibleT_sum_above_left
 Proof. 
  intros.
  unfold SubsVisibleT in *.
- eapply SbSumAboveLeft. eauto.
+ eapply SbSumAboveLeft; eauto.
 Qed.
 Hint Resolve subsVisibleT_sum_above_left.
 
@@ -151,7 +151,7 @@ Lemma subsVisibleT_sum_above_right
 Proof. 
  intros.
  unfold SubsVisibleT in *.
- eapply SbSumAboveRight. eauto.
+ eapply SbSumAboveRight; eauto.
 Qed.
 Hint Resolve subsVisibleT_sum_above_right.
 
@@ -236,8 +236,8 @@ Lemma subsVisibleT_mask
  :  forall sp spVis r n e1 e2
  ,  hasSRegion n spVis = false
  -> r = TCap (TyCapRegion n)
- -> SubsVisibleT nil sp spVis e1 (maskOnT (isEffectOnVar 0) e2)
- -> SubsVisibleT nil sp spVis e1 (substTT 0 r e2).
+ -> SubsVisibleT nil sp spVis e1 (maskOnVarT 0 e2)
+ -> SubsVisibleT nil sp spVis e1 (substTT    0 r e2).
 Proof.
  intros.
  induction e2.
@@ -276,6 +276,7 @@ Proof.
  - Case "TCon1".
    snorm.
    unfold SubsVisibleT in H1.
+   unfold maskOnVarT   in H1.
    unfold maskOnT at 2 in H1.
    split_if. 
    + snorm.

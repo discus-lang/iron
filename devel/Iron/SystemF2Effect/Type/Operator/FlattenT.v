@@ -6,15 +6,9 @@ Require Export Iron.SystemF2Effect.Type.Relation.EquivTs.
 
 Fixpoint flattenT (tt : ty) : list ty
  := match tt with
-    | TVar    _     => tt :: nil
-    | TForall _ _   => tt :: nil
-    | TApp    _ _   => tt :: nil
     | TSum t1 t2    => flattenT t1 ++ flattenT t2
     | TBot    _     => nil
-    | TCon0   _     => tt :: nil
-    | TCon1   _ _   => tt :: nil
-    | TCon2   _ _ _ => tt :: nil
-    | TCap    _     => tt :: nil
+    | _             => tt :: nil
     end.
 
 
