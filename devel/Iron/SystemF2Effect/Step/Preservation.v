@@ -222,7 +222,7 @@ Proof.
      unfold SubsVisibleT.
       simpl.
       apply SbSumAbove; auto.
-                  
+
    (* Result expression is well typed. *)
    - rrwrite (substTT 0 r e2 = e2).
      eapply TcExp 

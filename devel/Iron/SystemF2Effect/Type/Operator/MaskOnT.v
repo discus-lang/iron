@@ -94,9 +94,6 @@ Proof.
  intros.
  induction H;
   try (solve [snorm; eauto 2]).
- - simpl.
-   eapply EqTrans.
-   eapply EqSumComm; eauto. eauto.
 Qed. 
 Hint Resolve maskOn_equivT.
 

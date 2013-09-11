@@ -45,11 +45,10 @@ Inductive EquivT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
    -> EquivT  ke sp t (TSum t t) k
 
  | EqSumComm
-   :  forall ke sp t1 t2 t3 k
+   :  forall ke sp t1 t2 k
    ,  sumkind k
    -> KindT   ke sp t1 k
    -> KindT   ke sp t2 k
-   -> KindT   ke sp t3 k
    -> EquivT  ke sp (TSum t1 t2)  (TSum t2 t1) k
 
  | EqSumAssoc

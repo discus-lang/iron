@@ -134,7 +134,6 @@ Proof.
    eapply EqSumComm; fold substTT. auto.
    eauto using subst_type_type.
    eauto using subst_type_type. 
-   eauto.
 
  - Case "EqSumAssoc".
    eapply EqSumAssoc; fold substTT. auto.
