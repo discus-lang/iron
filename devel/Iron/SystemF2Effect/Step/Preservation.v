@@ -78,7 +78,6 @@ Proof.
          auto.
       + auto.
       + eapply TfConsLet; eauto.
-(*        * inverts HH. rip. *)
  }
 
 
