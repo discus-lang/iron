@@ -22,11 +22,7 @@ Coding style guidelines:
    When *I* use them in *my* proofs they make perfect sense, but when you
    use them in yours they're completely unreadable.
 
- * Heavy use of the 'burn' megatactic. This is in the same vein as Chilpala's
-  'crush' tactic, but I couldn't work out what 'crush' was doing...
-
- * Uses the 'Case' meta-tactic to add structure.
-
+ * Uses bullets and the 'Case' tactic to add structure.
 
 -------------------------------------------------------------------------------
 Proofs that are "done" have at least Progress and Preservation theorems.
