@@ -9,25 +9,26 @@ Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
 (* Substitution of Types in Exps *)
 Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
   match vv with
-  | VVar _         => vv
-  | VLoc _         => vv
-  | VLam t x       => VLam (substTT d u t) (substTX d u x)
-  | VLAM k x       => VLAM k (substTX (S d) (liftTT 1 0 u) x)
-  | VConst c       => vv
+  | VVar _           => vv
+  | VLoc _           => vv
+  | VLam t x         => VLam (substTT d u t) (substTX d u x)
+  | VLAM k x         => VLAM k (substTX (S d) (liftTT 1 0 u) x)
+  | VConst c         => vv
   end
  with    substTX (d: nat) (u: ty) (xx: exp) : exp :=
   match xx with
-  | XVal v         => XVal   (substTV d u v)
-  | XLet t x1 x2   => XLet   (substTT d u t)  (substTX d u x1) (substTX d u x2)
-  | XApp v1 v2     => XApp   (substTV d u v1) (substTV d u v2)
-  | XAPP v1 t2     => XAPP   (substTV d u v1) (substTT d u t2)
+  | XVal v           => XVal   (substTV d u v)
+  | XLet t x1 x2     => XLet   (substTT d u t)  (substTX d u x1) (substTX d u x2)
+  | XApp v1 v2       => XApp   (substTV d u v1) (substTV d u v2)
+  | XAPP v1 t2       => XAPP   (substTV d u v1) (substTT d u t2)
 
-  | XOp1 op1 v     => XOp1   op1 (substTV d u v)
+  | XOp1 op1 v       => XOp1   op1 (substTV d u v)
 
-  | XPrivate x     => XPrivate (substTX (S d) (liftTT 1 0 u) x)
-  | XAlloc r v     => XAlloc   (substTT d u r) (substTV d u v)
-  | XRead  r v     => XRead    (substTT d u r) (substTV d u v)
-  | XWrite r v1 v2 => XWrite   (substTT d u r) (substTV d u v1) (substTV d u v2)
+  | XPrivate x       => XPrivate (substTX (S d) (liftTT 1 0 u) x)
+  | XExtend  t x     => XExtend  (substTT d u t) (substTX (S d) (liftTT 1 0 u) x)
+  | XAlloc   t v     => XAlloc   (substTT d u t) (substTV d u v)
+  | XRead    t v     => XRead    (substTT d u t) (substTV d u v)
+  | XWrite   t v1 v2 => XWrite   (substTT d u t) (substTV d u v1) (substTV d u v2)
   end.  
 
 
@@ -143,6 +144,36 @@ Proof.
      rewrite (liftTE_substTE 0 ix).
      rewrite (liftTE_substTE 0 ix).
      eauto using kind_kienv_weaken.
+
+ - Case "XExtend".
+   have H0: (ix = 0 + ix).
+   rewrite H0 at 4.
+    rewrite (substTT_substTT 0 ix). simpl. 
+   clear H0.
+   apply TxExtend
+    with (e := substTT (S ix) (liftTT 1 0 t2) e).
+   + rrwrite (ix = 0 + ix).
+     eapply lowerTT_substTT_liftTT 
+      with (d' := ix) (t2 := t2) in H8.
+     simpl in H8.
+     rrwrite (S (0 + ix) = 1 + ix + 0).
+     erewrite maskOnVarT_substTT. 
+      * simpl.
+        erewrite maskOnVarT_freeTT_id.
+        rrwrite (ix + 0 = ix). auto.
+        eauto.
+      * eauto.
+
+   + rewrite delete_rewind.
+     rewrite (liftTE_substTE 0 ix).
+     rewrite (liftTE_substTE 0 ix).
+     eapply IHx1.
+     * eauto.
+     * simpl. 
+       rrwrite ( delete ix ke :> KRegion 
+               = insert 0 KRegion (delete ix ke)).
+       eapply kind_kienv_insert. auto.
+     * eauto.
 
  - Case "XAlloc".
    eapply TxOpAlloc; fold substTT.

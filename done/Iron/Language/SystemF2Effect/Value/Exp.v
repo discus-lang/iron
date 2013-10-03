@@ -46,6 +46,8 @@ with     exp : Type :=
 
   (* Store operators *)
   | XPrivate : exp -> exp
+  | XExtend  : ty  -> exp -> exp
+
   | XAlloc   : ty  -> val -> exp
   | XRead    : ty  -> val -> exp
   | XWrite   : ty  -> val -> val -> exp.
@@ -70,6 +72,7 @@ Lemma exp_mutind : forall
  -> (forall v t,        PV v                    -> PX (XAPP   v  t))
  -> (forall o v,        PV v                    -> PX (XOp1 o   v))
  -> (forall x,          PX x                    -> PX (XPrivate x))
+ -> (forall t x,        PX x                    -> PX (XExtend  t x))
  -> (forall r v,        PV v                    -> PX (XAlloc r v))
  -> (forall r v,        PV v                    -> PX (XRead  r v))
  -> (forall r v1 v2,    PV v1 -> PV v2          -> PX (XWrite r v1 v2))
@@ -78,7 +81,7 @@ Proof.
  intros PX PV.
  intros hVar hLoc hLam hLAM hConst 
         hVal hLet hApp hAPP hOp1
-        hPrivate
+        hPrivate hExtend
         hAlloc hRead hWrite.
  refine (fix  IHX x : PX x := _
          with IHV v : PV v := _
@@ -92,6 +95,7 @@ Proof.
  apply hAPP.     apply IHV.
  apply hOp1.     apply IHV.
  apply hPrivate. apply IHX.
+ apply hExtend.  apply IHX.
  apply hAlloc.   apply IHV.
  apply hRead.    apply IHV.
  apply hWrite.   apply IHV. apply IHV.

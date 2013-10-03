@@ -64,6 +64,12 @@ with   WfX (kn tn sn: nat) : exp -> Prop :=
    ,  WfX (S kn) tn sn x 
    -> WfX kn     tn sn (XPrivate x)
 
+ | WfX_XExtend
+   :  forall t1 x2
+   ,  WfT kn t1
+   -> WfX (S kn) tn sn x2
+   -> WfX kn     tn sn (XExtend t1 x2)
+
  | WfX_XAlloc
    :  forall tR v1
    ,  WfT kn tR

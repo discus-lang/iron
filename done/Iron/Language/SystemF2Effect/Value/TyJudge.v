@@ -116,10 +116,17 @@ Inductive
   (* Create a private region. *)
   | TxPrivate
     :  forall ke te se sp x t tL e eL
-    ,  lowerTT 0 t               = Some tL
+    ,  lowerTT 0 t                = Some tL
     -> lowerTT 0 (maskOnVarT 0 e) = Some eL
     -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x            t  e
-    -> TYPEX ke              te             se           sp (XPrivate x) tL eL
+    -> TYPEX ke              te            se            sp (XPrivate x) tL eL
+
+  (* Extend an existing region. *)
+  | TxExtend
+    :  forall ke te se sp r1 x2 t e eL
+    ,  lowerTT 0 (maskOnVarT 0 e) = Some eL
+    -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x2 t e
+    -> TYPEX ke te se  sp (XExtend r1 x2) (substTT 0 r1 t) (TSum eL (TAlloc r1))
 
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
@@ -149,6 +156,7 @@ Inductive
     ,  typeOfOp1 op = TFun t11 t12 e
     -> TYPEV  ke te se sp v1 t11
     -> TYPEX  ke te se sp (XOp1 op v1) t12 e.
+
 Hint Constructors TYPEV.
 Hint Constructors TYPEX.
 
@@ -168,6 +176,7 @@ Ltac inverts_type :=
    | [ H: TYPEX _ _ _ _ (XApp   _ _)   _ _  |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ _ (XAPP   _ _)   _ _  |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ _ (XPrivate _)   _ _  |- _ ] => inverts H
+   | [ H: TYPEX _ _ _ _ (XExtend  _ _) _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XAlloc _ _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XRead  _ _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XWrite _ _ _) _ _  |- _ ] => inverts H
