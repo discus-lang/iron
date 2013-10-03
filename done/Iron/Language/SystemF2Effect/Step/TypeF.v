@@ -26,12 +26,12 @@ Inductive
    -> TYPEF  ke te         se sp fs                 t2 t3 e3
    -> TYPEF  ke te         se sp (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)
 
- | TfConsUse
+ | TfConsPriv
    :  forall ke te se sp fs t1 t2 e2 n
-   ,  not (In (FUse n) fs)
+   ,  not (In (FPriv n) fs)
    -> LiveE  fs e2
-   -> TYPEF  ke te se  sp fs             t1 t2 e2
-   -> TYPEF  ke te se  sp (fs :> FUse n) t1 t2 e2.
+   -> TYPEF  ke te se  sp fs              t1 t2 e2
+   -> TYPEF  ke te se  sp (fs :> FPriv n) t1 t2 e2.
 
 Hint Constructors TYPEF.
 
@@ -40,8 +40,8 @@ Hint Constructors TYPEF.
 Ltac inverts_typef :=
  repeat (try 
   (match goal with 
-   | [ H: TYPEF _ _ _ _ (_ :> FLet _ _) _ _ _ |- _ ] => inverts H
-   | [ H: TYPEF _ _ _ _ (_ :> FUse _)   _ _ _ |- _ ] => inverts H
+   | [ H: TYPEF _ _ _ _ (_ :> FLet  _ _) _ _ _ |- _ ] => inverts H
+   | [ H: TYPEF _ _ _ _ (_ :> FPriv _)   _ _ _ |- _ ] => inverts H
    end); 
  try inverts_type).
 

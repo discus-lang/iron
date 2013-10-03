@@ -32,10 +32,10 @@ Lemma wfFS_wfS
 Proof. firstorder. Qed.
 
 
-Lemma wfFS_fuse_sregion
+Lemma wfFS_fpriv_sregion
  :  forall se sp ss fs p
  ,  WfFS se sp ss fs
- -> In (FUse p)    fs
+ -> In (FPriv p)   fs
  -> In (SRegion p) sp.
 Proof. firstorder. Qed.
 
@@ -51,18 +51,18 @@ Qed.
 Hint Resolve wfFS_storem_length.
 
 
-(* Creating a new region preserves well-formedness of the store. *)
-Lemma wfFS_region_create
+(* Creating a private region preserves well-formedness of the store. *)
+Lemma wfFS_region_private
  :  forall se sp ss fs p
  ,  WfFS se sp ss fs
- -> WfFS se (SRegion p <: sp) ss (fs :> FUse p).
+ -> WfFS se (SRegion p <: sp) ss (fs :> FPriv p).
 Proof. 
  intros.
  unfold WfFS. 
  inverts H. inverts H1. inverts H2.
  auto.
 Qed.
-Hint Resolve wfFS_region_create.
+Hint Resolve wfFS_region_private.
 
 
 (* Deallocating a region preserves well-formedness of the store. *)
@@ -97,7 +97,7 @@ Qed.
    of the stack preserves the well formedness of the store. *)
 Lemma wfFS_region_deallocate
  :  forall se sp ss fs p
- ,  WfFS se sp ss                     (fs :> FUse p)
+ ,  WfFS se sp ss                     (fs :> FPriv p)
  -> WfFS se sp (map (deallocate p) ss) fs.
 Proof.
  intros.

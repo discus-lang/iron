@@ -163,10 +163,10 @@ Proof.
 
        have (LiveE fs e1).
 
-       have HLW: (LiveE (fs :> FUse p) e1).
+       have HLW: (LiveE (fs :> FPriv p) e1).
        rewrite HLL in HLW.
 
-       have HL0: (LiveE (fs :> FUse p) e0) 
+       have HL0: (LiveE (fs :> FPriv p) e0) 
         by (eapply liveE_maskOnVarT; eauto).
 
        eapply liveE_phase_change; eauto.
@@ -175,7 +175,7 @@ Proof.
         by  (eapply EqSym in H0; eauto).
 
        have (LiveE fs e2).
-       have (LiveE (fs :> FUse p) e2).
+       have (LiveE (fs :> FPriv p) e2).
        rrwrite (substTT 0 r e2 = e2); auto.
        
    (* Effect of result is subsumed by previous. *)
@@ -256,13 +256,13 @@ Proof.
           eapply in_app_right. snorm.
 
      (* New frame stack is well typed. *)
-     + eapply TfConsUse.
+     + eapply TfConsPriv.
 
        (* New region handle is not in the existing frame stack. *)
        * unfold not. intros.
 
          have (In (SRegion p) sp)
-          by (eapply wfFS_fuse_sregion; eauto).
+          by (eapply wfFS_fpriv_sregion; eauto).
 
          have (not (In (SRegion (allocRegion sp)) sp)).
          have (In (SRegion p) sp).
@@ -305,7 +305,7 @@ Proof.
    - inverts HH. rip. 
      unfold STOREP in *.
      spec H5 p.
-     have (In (FUse p) (fs :> FUse p)).
+     have (In (FPriv p) (fs :> FPriv p)).
       rip. nope.
 
    (* At least one region in store. *)
@@ -352,8 +352,8 @@ Proof.
 
      have (LiveE fs (TAlloc p)).
 
-     assert (In (FUse r1) fs).
-      eapply liveE_fUse_in; eauto.
+     assert (In (FPriv r1) fs).
+      eapply liveE_fPriv_in; eauto.
       subst p. simpl. auto.
      
      eapply liveS_stvalue_snoc; auto.
@@ -442,7 +442,7 @@ Proof.
        have (LiveE fs (TWrite p))
         by  (eapply liveE_subsT; eauto).
 
-       eapply liveE_fUse_in with (e := TWrite p).
+       eapply liveE_fPriv_in with (e := TWrite p).
         subst p. snorm. eauto.
 
      + auto.

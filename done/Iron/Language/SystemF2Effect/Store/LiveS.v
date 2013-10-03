@@ -10,7 +10,7 @@ Require Export Iron.Language.SystemF2Effect.Store.LiveE.
 Definition LiveS  (ss : store) (fs : stack)
  :=  forall b
   ,  In b ss
-  -> In (FUse (regionOfStBind b)) fs
+  -> In (FPriv (regionOfStBind b)) fs
   -> isStValue b. 
 
 
@@ -46,7 +46,7 @@ Lemma liveS_push_fUse_fresh
  ,  STORET se sp ss
  -> STOREP sp fs
  -> LiveS  ss fs
- -> LiveS  ss (fs :> FUse (allocRegion sp)).
+ -> LiveS  ss (fs :> FPriv (allocRegion sp)).
 Proof.
  unfold LiveS in *.
  intros.
@@ -87,7 +87,7 @@ Proof.
    eapply HLS in HD.
    + unfold isStValue in HD. nope.
    + snorm.
-     eapply liveE_fUse_in; eauto.
+     eapply liveE_fPriv_in; eauto.
 Qed.
 
 
@@ -117,7 +117,7 @@ Hint Resolve liveS_stack_tail.
 
 Lemma liveS_stdead_cons
  :  forall ss p fs
- ,  ~(In (FUse p) fs)
+ ,  ~(In (FPriv p) fs)
  ->  LiveS ss fs
  ->  LiveS (ss :> StDead p) fs.
 Proof.
@@ -133,7 +133,7 @@ Hint Resolve liveS_stdead_cons.
 
 Lemma liveS_stvalue_cons
  :  forall p v fs ss
- ,  In (FUse p) fs
+ ,  In (FPriv p) fs
  -> LiveS ss                  fs
  -> LiveS (ss :> StValue p v) fs.
 Proof.
@@ -146,7 +146,7 @@ Qed.
 
 Lemma liveS_stvalue_snoc
  :  forall p v fs ss
- ,  In (FUse p) fs
+ ,  In (FPriv p) fs
  -> LiveS ss                  fs
  -> LiveS (StValue p v <: ss) fs.
 Proof.
@@ -166,7 +166,7 @@ Qed.
 
 Lemma liveS_stvalue_update
  :  forall ss fs l p v
- ,  In (FUse p) fs
+ ,  In (FPriv p) fs
  -> LiveS  ss fs
  -> LiveS (update l (StValue p v) ss) fs.
 Proof.
@@ -187,8 +187,8 @@ Qed.
 
 Lemma liveS_deallocate
  :  forall ss fs p
- ,  ~(In (FUse p) fs)
- -> LiveS ss (fs :> FUse p)
+ ,  ~(In (FPriv p) fs)
+ -> LiveS ss (fs :> FPriv p)
  -> LiveS (map (deallocate p) ss) fs.
 Proof.
  intros.
@@ -201,7 +201,7 @@ Proof.
        eapply liveS_store_tail in H0. rip.
 
      * snorm.
-       have (LiveS ss (fs :> FUse p)). rip.
+       have (LiveS ss (fs :> FPriv p)). rip.
        unfold LiveS in IHss.
        unfold LiveS. intros. snorm.
        inverts H2.
@@ -209,7 +209,7 @@ Proof.
         eapply IHss; auto.
 
    + simpl.
-     have (LiveS ss (fs :> FUse p)). rip.
+     have (LiveS ss (fs :> FPriv p)). rip.
      have (LiveS (ss :> StDead n) fs).
      clear H H0 H1.
      unfold LiveS in *.

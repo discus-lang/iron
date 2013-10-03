@@ -35,7 +35,7 @@ Hint Resolve handleOfEffect_form_some.
    FUse frames in the frame stack. *)
 Definition LiveEs (fs : stack) (es : list ty)
  := Forall (fun e1 => forall p, handleOfEffect e1 = Some p
-                   -> In (FUse p) fs)
+                   -> In (FPriv p) fs)
            es.
 
 
@@ -195,8 +195,8 @@ Qed.
 
 Lemma liveE_phase_change
  :  forall fs p e
- ,  LiveE (fs :> FUse p) e
- -> LiveE (fs :> FUse p) (substTT 0 (TRgn p) e).
+ ,  LiveE (fs :> FPriv p) e
+ -> LiveE (fs :> FPriv p) (substTT 0 (TRgn p) e).
 Proof.
  intros.
  induction e; snorm;
@@ -216,11 +216,11 @@ Proof.
 Qed.
 
 
-Lemma liveE_fUse_in
+Lemma liveE_fPriv_in
  :  forall e p fs
  ,  handleOfEffect e = Some p
  -> LiveE fs e
- -> In (FUse p) fs.
+ -> In (FPriv p) fs.
 Proof.
  intros.
  unfold LiveE  in *.

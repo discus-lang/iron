@@ -103,7 +103,7 @@ Proof.
  { right.
    exists ss. 
    exists (SRegion (allocRegion sp) <: sp). 
-   exists (fs :> FUse    (allocRegion sp)).
+   exists (fs :> FPriv (allocRegion sp)).
    eauto.
  }
 
@@ -147,9 +147,7 @@ Proof.
 
    destruct b.
    (* Store binding contains a value. *)
-   - have HB: (TYPEB nil nil se sp 
-                    (StValue n0 v) 
-                    (TRef (TRgn n) t0))
+   - have HB: (TYPEB nil nil se sp (StValue n0 v) (TRef (TRgn n) t0))
       by (eapply Forall2_get_get_same; eauto).
      inverts HB.
      exists (XVal v).
@@ -157,9 +155,7 @@ Proof.
     
    (* Store binding is dead, 
       can't happen due to binding liveness constraints LiveE/LiveE *)
-   - have HB: (TYPEB nil nil se sp
-                     (StDead n0)
-                     (TRef (TRgn n) t0))
+   - have HB: (TYPEB nil nil se sp (StDead n0)    (TRef (TRgn n) t0))
       by (eapply Forall2_get_get_same; eauto).
      inverts HB.
 
@@ -198,18 +194,14 @@ Proof.
 
      destruct b.
      (* Original binding contains a live value that can be overwritten. *)
-     + have HB: (TYPEB nil nil se sp
-                       (StValue n1 v)
-                       (TRef (TRgn n) t2))
+     + have HB: (TYPEB nil nil se sp (StValue n1 v) (TRef (TRgn n) t2))
         by (eapply Forall2_get_get_same; eauto).
        inverts HB.
        eauto.
    
      (* Original binding is dead,
         can't happen due to binding liveness constraints. *)
-     + have HB: (TYPEB nil nil se sp
-                       (StDead n1)
-                       (TRef (TRgn n) t2))
+     + have HB: (TYPEB nil nil se sp (StDead n1)    (TRef (TRgn n) t2))
         by (eapply Forall2_get_get_same; eauto).
        inverts HB.
 

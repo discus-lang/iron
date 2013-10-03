@@ -12,17 +12,17 @@ Inductive frame : Set :=
     of the binding is being evaluated. *)
  | FLet   : ty  -> exp      -> frame
 
- (* Local region. *)
- | FUse   : nat -> frame.
+ (* Private region. *)
+ | FPriv  : nat -> frame.
 Hint Constructors frame.
 
 Definition stack := list frame.
 Hint Unfold stack.
 
 
-Definition isFUse (p : nat) (f : frame)
- := f = FUse p.
-Hint Unfold isFUse.
+Definition isFPriv (p : nat) (f : frame)
+ := f = FPriv p.
+Hint Unfold isFPriv.
 
 
 (********************************************************************)
@@ -57,14 +57,14 @@ Inductive
  | SfPrivatePush
    :  forall ss sp fs x p
    ,  p = allocRegion sp
-   -> STEPF  ss sp                 fs            (XPrivate x)
-             ss (SRegion p <: sp) (fs :> FUse p) (substTX 0 (TRgn p) x)
+   -> STEPF  ss sp                 fs             (XPrivate x)
+             ss (SRegion p <: sp) (fs :> FPriv p) (substTX 0 (TRgn p) x)
 
  (* Pop a region from the stack. *)
  | SfPrivatePop
    :  forall ss sp  fs v1 p
-   ,  STEPF  ss                      sp (fs :> FUse p)    (XVal v1)
-             (map (deallocate p) ss) sp  fs               (XVal v1)
+   ,  STEPF  ss                      sp (fs :> FPriv p)(XVal v1)
+             (map (deallocate p) ss) sp  fs            (XVal v1)
 
  (* Store operators *****************************)
  (* Allocate a reference. *) 

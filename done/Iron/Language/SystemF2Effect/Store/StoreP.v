@@ -11,14 +11,14 @@ Require Export Iron.Language.SystemF2Effect.Store.Bind.
    dangling references into that region. *)
 
 Definition STOREP  (sp : stprops) (fs : stack)
- := forall n, In (FUse n) fs -> In (SRegion n) sp.
+ := forall n, In (FPriv n) fs -> In (SRegion n) sp.
 
 
 (* Weaken frame stack in store properties. *)
 Lemma storep_snoc
  :  forall sp fs p
  ,  STOREP sp fs
- -> STOREP (SRegion p <: sp) (fs :> FUse p).
+ -> STOREP (SRegion p <: sp) (fs :> FPriv p).
 Proof.
  unfold STOREP in *.
  - intros.
@@ -27,9 +27,9 @@ Proof.
    + rrwrite (  SRegion p <: sp 
              = (SRegion p <: nil) >< sp).
      snorm.
-   + assert (In (FUse n) fs).
+   + assert (In (FPriv n) fs).
       eapply in_tail.
-      have (FUse n <> FUse p) by congruence.
+      have (FPriv n <> FPriv p) by congruence.
       eauto. auto.
      rrwrite (  SRegion p <: sp
              = (SRegion p <: nil) >< sp).
