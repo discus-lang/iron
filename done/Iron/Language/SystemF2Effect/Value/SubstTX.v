@@ -154,15 +154,14 @@ Proof.
     with (e := substTT (S ix) (liftTT 1 0 t2) e).
    + rrwrite (ix = 0 + ix).
      eapply lowerTT_substTT_liftTT 
-      with (d' := ix) (t2 := t2) in H8.
-     simpl in H8.
+      with (d' := ix) (t2 := t2) in H4; eauto.
+     simpl in H4.
      rrwrite (S (0 + ix) = 1 + ix + 0).
-     erewrite maskOnVarT_substTT. 
-      * simpl.
-        erewrite maskOnVarT_freeTT_id.
-        rrwrite (ix + 0 = ix). auto.
-        eauto.
-      * eauto.
+     erewrite maskOnVarT_substTT; eauto.
+     simpl.
+     erewrite maskOnVarT_freeTT_id; eauto.
+     rrwrite (ix + 0 = ix); eauto.
+   + eauto using subst_type_type_ix.
 
    + rewrite delete_rewind.
      rewrite (liftTE_substTE 0 ix).

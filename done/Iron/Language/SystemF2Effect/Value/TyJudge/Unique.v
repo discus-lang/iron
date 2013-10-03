@@ -51,8 +51,12 @@ Proof.
    subst. 
    rip; congruence.
 
- - Case "XNew".
+ - Case "XPrivate".
    spec IHx H8 H10.
+   rip; congruence.
+
+ - Case "XExtend".
+   spec IHx H11 H13.
    rip; congruence.
 
  - Case "XAlloc".

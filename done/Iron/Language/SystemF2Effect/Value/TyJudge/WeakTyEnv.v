@@ -42,6 +42,13 @@ Proof.
         = insert ix (liftTT 1 0 t2) (liftTE 0 te))
     by (unfold liftTE; rewrite map_insert; auto).
    rewritess. eauto.
+
+ - Case "XExtend".
+   eapply TxExtend; eauto.
+   have ( liftTE 0 (insert ix t2 te)
+        = insert ix (liftTT 1 0 t2) (liftTE 0 te))
+    by (unfold liftTE; rewrite map_insert; auto).
+   rewritess. eauto.
 Qed. 
 
 

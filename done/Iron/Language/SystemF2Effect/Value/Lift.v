@@ -23,7 +23,7 @@ Fixpoint liftTV (d: nat) (vv: val) : val :=
   |  XOp1   op1 v      => XOp1     op1 (liftTV d v)
 
   |  XPrivate x        => XPrivate (liftTX (S d) x)
-  |  XExtend  tR x     => XExtend  (liftTT 1 d tR) (liftTX d x)
+  |  XExtend  tR x     => XExtend  (liftTT 1 d tR) (liftTX (S d) x)
   |  XAlloc   tR v     => XAlloc   (liftTT 1 d tR) (liftTV d v)
   |  XRead    tR v     => XRead    (liftTT 1 d tR) (liftTV d v)
   |  XWrite   tR v1 v2 => XWrite   (liftTT 1 d tR) (liftTV d v1) (liftTV d v2)

@@ -44,15 +44,16 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
   |  XLet t1 x2 x3 
   => XLet t1 (substVX d u x2) (substVX (S d) (liftXV 1 0 u) x3)
 
-  |  XApp v1 v2      => XApp   (substVV d u v1) (substVV d u v2)
-  |  XAPP v1 t2      => XAPP   (substVV d u v1) t2
+  |  XApp v1 v2        => XApp   (substVV d u v1) (substVV d u v2)
+  |  XAPP v1 t2        => XAPP   (substVV d u v1) t2
 
   |  XOp1 op v1        => XOp1 op (substVV d u v1)
 
-  |  XPrivate x      => XPrivate  (substVX d (liftTV 0 u) x)
-  |  XAlloc tR v2    => XAlloc tR (substVV d u v2)
-  |  XRead  tR v1    => XRead  tR (substVV d u v1)
-  |  XWrite tR v1 v2 => XWrite tR (substVV d u v1) (substVV d u v2)
+  |  XPrivate x        => XPrivate   (substVX d (liftTV 0 u) x)
+  |  XExtend  tR x     => XExtend tR (substVX d (liftTV 0 u) x)
+  |  XAlloc   tR v2    => XAlloc  tR (substVV d u v2)
+  |  XRead    tR v1    => XRead   tR (substVV d u v1)
+  |  XWrite   tR v1 v2 => XWrite  tR (substVV d u v1) (substVV d u v2)
   end.
 
 
@@ -105,10 +106,23 @@ Proof.
 
  - Case "XPrivate".
    eapply (IHx1 ix) in H9.
-   eapply TxPrivate; eauto.
-    unfold liftTE. rewrite map_delete. eauto.
-    eapply get_map. eauto.
-    unfold liftTE. rewrite <- map_delete.
+   + eapply TxPrivate; eauto.
+     unfold liftTE. rewrite map_delete. eauto.
+   + eapply get_map. eauto.
+   + unfold liftTE. 
+     rewrite <- map_delete.
+     rrwrite ( map (liftTT 1 0) (delete ix te)
+             = liftTE 0 (delete ix te)).
+     lets D: typev_kienv_weaken1 H1.
+     eauto using typev_kienv_weaken1.
+
+ - Case "XExtend".
+   eapply (IHx1 ix) in H12.
+   + eapply TxExtend; eauto.
+     unfold liftTE. rewrite map_delete. eauto.
+   + eapply get_map. eauto.
+   + unfold liftTE.
+     rewrite <- map_delete.
      rrwrite ( map (liftTT 1 0) (delete ix te)
              = liftTE 0 (delete ix te)).
      lets D: typev_kienv_weaken1 H1.

@@ -125,6 +125,7 @@ Inductive
   | TxExtend
     :  forall ke te se sp r1 x2 t e eL
     ,  lowerTT 0 (maskOnVarT 0 e) = Some eL
+    -> KindT ke sp r1 KRegion
     -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x2 t e
     -> TYPEX ke te se  sp (XExtend r1 x2) (substTT 0 r1 t) (TSum eL (TAlloc r1))
 

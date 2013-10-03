@@ -32,6 +32,14 @@ Proof.
    simpl. norm.
    rrwrite (liftTT 1 0 t2 = t2).
    auto.
+
+ - Case "XExtend".
+   eapply TxExtend; eauto.
+   spec IHx H11 H. clear H11.
+   unfold liftTE in *.
+   simpl. norm.
+   rrwrite (liftTT 1 0 t2 = t2).
+   eauto.
 Qed.
 Hint Resolve typex_stenv_snoc.
 

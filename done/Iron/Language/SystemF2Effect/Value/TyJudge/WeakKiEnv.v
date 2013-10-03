@@ -18,112 +18,129 @@ Proof.
                         (liftTV ix v)     (liftTT 1 ix t3));
    intros; inverts_type.
 
- Case "VVar".
-  simpl.
-  apply TvVar; auto.
-  apply get_map; auto.
-  eauto using kind_kienv_insert.
+ - Case "VVar".
+   simpl.
+   apply TvVar; auto.
+   apply get_map; auto.
+   eauto using kind_kienv_insert.
 
- Case "VLoc".
-  simpl.
-  eapply TvLoc; eauto;
-   rrwrite ( TRef (liftTT 1 ix r) (liftTT 1 ix t)
-           = liftTT 1 ix (TRef r t)).
-  apply get_map; auto.
-  eauto using kind_kienv_insert.
+ - Case "VLoc".
+   simpl.
+   eapply TvLoc; eauto;
+    rrwrite ( TRef (liftTT 1 ix r) (liftTT 1 ix t)
+            = liftTT 1 ix (TRef r t)).
+   apply get_map; auto.
+   eauto using kind_kienv_insert.
 
- Case "VLam".
-  simpl.
-  apply TvLam.
-   apply kind_kienv_insert. auto.
-   rrwrite ( liftTE ix te :> liftTT 1 ix t
-           = liftTE ix (te :> t)).
-   spec IHx1 H8.
-   burn.
+ - Case "VLam".
+   simpl.
+   apply TvLam.
+    apply kind_kienv_insert. auto.
+    rrwrite ( liftTE ix te :> liftTT 1 ix t
+            = liftTE ix (te :> t)).
+    spec IHx1 H8.
+    burn.
 
- Case "VLAM".
-  simpl.
-  eapply TvLAM. 
-  rewrite insert_rewind. 
-  rewrite (liftTE_liftTE 0 ix).
-  rewrite (liftTE_liftTE 0 ix).
-  rrwrite (TBot KEffect = liftTT 1 (S ix) (TBot KEffect)).
-  eauto.
+ - Case "VLAM".
+   simpl.
+   eapply TvLAM. 
+   rewrite insert_rewind. 
+   rewrite (liftTE_liftTE 0 ix).
+   rewrite (liftTE_liftTE 0 ix).
+   rrwrite (TBot KEffect = liftTT 1 (S ix) (TBot KEffect)).
+   eauto.
 
- Case "XConst".
-  simpl.
-  eapply TvConst.
-  destruct c; burn.
+ - Case "XConst".
+   simpl.
+   eapply TvConst.
+   destruct c; burn.
  
- Case "XVal".
-  simpl. auto.
+ - Case "XVal".
+   simpl. auto.
 
- Case "XLet".
-  simpl.
-  apply TxLet.
+ - Case "XLet".
+   simpl.
+   apply TxLet.
+    auto using kind_kienv_insert.
+    eauto.
+    rrwrite ( liftTE ix te :> liftTT 1 ix t
+            = liftTE ix (te :> t)).
+    eauto.
+
+ - Case "XApp".
+   simpl.
+   eapply TxApp.
+    eapply IHx1 in H6. simpl in H6. eauto.
+    eapply IHx0 in H9. eauto.
+
+ - Case "XAPP".
+   simpl.
+   rewrite (liftTT_substTT' 0 ix). 
+   simpl.
+   eapply TvAPP.
+   eapply (IHx1 ix) in H6. simpl in H6. eauto.
    auto using kind_kienv_insert.
+
+ - Case "XOpPrim".
+   simpl.
+   destruct o; simpl in *.
+    inverts H6.
+     eapply TxOpPrim. simpl. eauto.
+     rrwrite (TNat = liftTT 1 ix TNat). eauto.
+    inverts H6.
+     eapply TxOpPrim. simpl. eauto.
+     rrwrite (TNat = liftTT 1 ix TNat). eauto.
+
+ - Case "XPrivate".
+   simpl.
+   eapply TxPrivate
+    with (t := liftTT 1 (S ix) t)
+         (e := liftTT 1 (S ix) e).
+ 
+   + eapply lowerTT_liftTT_succ. auto.
+
+   + rrwrite (S ix = 1 + (0 + ix)).
+     rewrite maskOnVarT_liftTT.
+     eapply lowerTT_liftTT_succ. auto.
+
+   + rewrite insert_rewind.
+     rewrite (liftTE_liftTE 0 ix).
+     rewrite (liftTE_liftTE 0 ix).
+     eapply IHx1.
+     have (liftTT 1 0 t1 = t).
+     have (liftTT 1 0 e1 = maskOnVarT 0 e).
+     repeat rewritess.
+     auto.
+
+ - Case "XExtend".
+   simpl.
+   rewrite (liftTT_substTT' 0 ix).
+   eapply TxExtend
+    with (e := liftTT 1 (S ix) e).
+   + rrwrite (S ix = 1 + (0 + ix)).
+     rewrite maskOnVarT_liftTT.
+     eauto.
+
+   + eauto using kind_kienv_insert.
+
+   + simpl.
+     rewrite insert_rewind.
+     rewrite (liftTE_liftTE 0 ix).
+     rewrite (liftTE_liftTE 0 ix).
+     eapply IHx1. auto.
+
+ - Case "XAlloc".
+   eapply TxOpAlloc; eauto using kind_kienv_insert.
+
+ - Case "XRead".
+   eapply TxOpRead;  eauto using kind_kienv_insert.
+   rrwrite ( TRef (liftTT 1 ix r) (liftTT 1 ix t1)
+           = liftTT 1 ix (TRef r t1)).
    eauto.
-   rrwrite ( liftTE ix te :> liftTT 1 ix t
-           = liftTE ix (te :> t)).
-   eauto.
 
- Case "XApp".
-  simpl.
-  eapply TxApp.
-   eapply IHx1 in H6. simpl in H6. eauto.
-   eapply IHx0 in H9. eauto.
-
- Case "XAPP".
-  simpl.
-  rewrite (liftTT_substTT' 0 ix). 
-  simpl.
-  eapply TvAPP.
-  eapply (IHx1 ix) in H6. simpl in H6. eauto.
-  auto using kind_kienv_insert.
-
- Case "XOpPrim".
-  simpl.
-  destruct o; simpl in *.
-   inverts H6.
-    eapply TxOpPrim. simpl. eauto.
-    rrwrite (TNat = liftTT 1 ix TNat). eauto.
-   inverts H6.
-    eapply TxOpPrim. simpl. eauto.
-    rrwrite (TNat = liftTT 1 ix TNat). eauto.
-
- Case "XPrivate".
-  simpl.
-  eapply TxPrivate
-   with (t := liftTT 1 (S ix) t)
-        (e := liftTT 1 (S ix) e).
-
-   eapply lowerTT_liftTT_succ. auto.
-
-   rrwrite (S ix = 1 + (0 + ix)).
-   rewrite maskOnVarT_liftTT.
-   eapply lowerTT_liftTT_succ. auto.
-
-   rewrite insert_rewind.
-   rewrite (liftTE_liftTE 0 ix).
-   rewrite (liftTE_liftTE 0 ix).
-   eapply IHx1.
-   have (liftTT 1 0 t1 = t).
-   have (liftTT 1 0 e1 = maskOnVarT 0 e).
-   repeat rewritess.
-   auto.
-
- Case "XAlloc".
-  eapply TxOpAlloc; eauto using kind_kienv_insert.
-
- Case "XRead".
-  eapply TxOpRead;  eauto using kind_kienv_insert.
-  rrwrite ( TRef (liftTT 1 ix r) (liftTT 1 ix t1)
-          = liftTT 1 ix (TRef r t1)).
-  eauto.
-
- Case "XWrite".
-  eapply TxOpWrite; eauto using kind_kienv_insert.
-  eapply IHx1 in H10. simpl in H10. eauto.
+ - Case "XWrite".
+   eapply TxOpWrite; eauto using kind_kienv_insert.
+   eapply IHx1 in H10. simpl in H10. eauto.
 Qed.
 
 

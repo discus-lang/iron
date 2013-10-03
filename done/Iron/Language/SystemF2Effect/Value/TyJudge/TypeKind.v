@@ -14,69 +14,77 @@ Proof.
       -> KindT  ke sp t KData);
    intros; inverts_type; eauto 1.
 
- Case "VLam".
-  lets D: IHv H8. rip.
-   eapply KiApp.
-    unfold appkind. congruence.
+ - Case "VLam".
+   lets D: IHv H8. rip.
     eapply KiApp.
-    unfold appkind. congruence.
-    eapply KiApp.
-    unfold appkind. congruence.
-    eapply KiCon0. simpl. eauto.
-  auto. auto. auto.
+     unfold appkind. congruence.
+     eapply KiApp.
+     unfold appkind. congruence.
+     eapply KiApp.
+     unfold appkind. congruence.
+     eapply KiCon0. simpl. eauto.
+   auto. auto. auto.
 
- Case "VLAM".
-  spec IHv H7. rip.
+ - Case "VLAM".
+   spec IHv H7. rip.
 
- Case "XConst".
-  destruct c; snorm.
+ - Case "XConst".
+   destruct c; snorm.
 
- Case "XVar".
-  burn.
+ - Case "XVar".
+   burn.
 
- Case "XApp".
-  lets D1: IHv1 H10.
-  lets D2: IHv2 H11.
-  rip.
-
- Case "XLet".
-  lets D1: IHv H6.
-  inverts D1.
-  inverts H4.
-  inverts H8.
-  inverts H10.
-  simpl in *.
-  inverts H5. eauto.
-
- Case "XAPP".
-  eapply IHv in H6.
-  inverts_kind.
-  rip.
-  eapply subst_type_type; eauto.
-
- Case "XOp1".
-  destruct o; simpl in *; inverts H6;
+ - Case "XApp".
+   lets D1: IHv1 H10.
+   lets D2: IHv2 H11.
    rip.
 
- Case "XNew".
-  spec IHv H7. rip.
-  eapply lower_type_type; eauto.
-  eapply lower_type_type; eauto.
+ - Case "XLet".
+   lets D1: IHv H6.
+   inverts D1.
+   inverts H4.
+   inverts H8.
+   inverts H10.
+   simpl in *.
+   inverts H5. eauto.
 
- Case "XAlloc".
-  rip.
-   eapply KiCon2; eauto. snorm.
-   eapply KiCon1; eauto. snorm.
+ - Case "XAPP".
+   eapply IHv in H6.
+   inverts_kind.
+   rip.
+   eapply subst_type_type; eauto.
+
+ - Case "XOp1".
+   destruct o; simpl in *; inverts H6;
+    rip.
+
+ - Case "XPrivate".
+   spec IHv H7. rip.
+   eapply lower_type_type; eauto.
+   eapply lower_type_type; eauto.
+
+ - Case "XExtend".
+   spec IHv H10. rip.
+   + eapply subst_type_type; eauto.
+   + eapply KiSum; auto. 
+     eapply lower_type_type with (k1 := KRegion).
+      eapply H2. eauto.
+      eapply KiCon1; snorm.
+ 
+ - Case "XAlloc".
+   rip.
+    eapply KiCon2; eauto. snorm.
+    eapply KiCon1; eauto. snorm.
   
- Case "XRead".
-  spec IHv H9.
-  inverts_kind; rip.
-   destruct tc. norm. inverts H1. auto. 
-   destruct tc. norm. inverts H1.
-   eapply KiCon1. simpl in *. eauto. eauto.
+ - Case "XRead".
+   spec IHv H9.
+   inverts_kind; rip.
+    destruct tc. norm. inverts H1. auto. 
+    destruct tc. norm. inverts H1.
+    eapply KiCon1. simpl in *. eauto. eauto.
 
- Case "XWrite".
-  rip. eapply KiCon1; eauto. snorm.
+ - Case "XWrite".
+   rip. eapply KiCon1; eauto. snorm.
 Qed.
 Hint Resolve typex_kind_type_effect.
 
