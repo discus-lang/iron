@@ -116,25 +116,25 @@ Qed.
    well formedness. *)
 Lemma wfFS_stbind_snoc
  :  forall se sp ss fs p v t
- ,  KindT  nil sp (TCap (TyCapRegion p)) KRegion
+ ,  KindT  nil sp (TRgn p) KRegion
  -> TYPEV  nil nil se sp v t
  -> WfFS           se sp ss fs
- -> WfFS   (TRef (TCap (TyCapRegion p)) t <: se) sp 
+ -> WfFS   (TRef (TRgn p) t <: se) sp 
            (StValue p v <: ss) fs.
 Proof.
  intros.
  unfold WfFS.
  inverts H1. rip.
  snorm.
- rrwrite ( TRef (TCap (TyCapRegion p)) t <: se
-        = (TRef (TCap (TyCapRegion p)) t <: nil) >< se) in H4.
+ rrwrite ( TRef (TRgn p) t <: se
+        = (TRef (TRgn p) t <: nil) >< se) in H4.
  apply in_app_split in H4.
  inverts H4.
  - snorm.
  - snorm.
    inverts H6.
    + have (ClosedT t).
-     have (ClosedT (TCap (TyCapRegion p))).
+     have (ClosedT (TRgn p)).
      eauto.
    + nope.
 Qed.
@@ -144,8 +144,8 @@ Hint Resolve wfFS_stbind_snoc.
 (* Store with an updated binding is still well formed. *)
 Lemma wfFS_stbind_update
  :  forall se sp ss fs l p v t
- ,  get l se = Some (TRef (TCap (TyCapRegion p)) t)
- -> KindT nil sp (TCap (TyCapRegion p)) KRegion
+ ,  get l se = Some (TRef (TRgn p) t)
+ -> KindT nil sp (TRgn p) KRegion
  -> TYPEV nil nil se sp v t
  -> WfFS se sp ss fs
  -> WfFS se sp (update l (StValue p v) ss) fs.
@@ -159,6 +159,5 @@ Proof.
  - unfold STORET.
    eapply Forall2_update_right; eauto.
 Qed.
-
 
 

@@ -5,7 +5,7 @@ Require Export Iron.Language.SystemF2Effect.Store.Bind.
 
 Fixpoint handleOfEffect (e : ty) : option nat
  := match e with
-    | TCon1 tc (TCap (TyCapRegion p)) 
+    | TCon1 tc (TRgn p) 
     => if isEffectTyCon tc then Some p else None
 
     | _                    => None
@@ -16,7 +16,7 @@ Lemma handleOfEffect_form_some
  :  forall e p
  ,  handleOfEffect e = Some p
  -> exists tc
-     ,  e    = TCon1 tc (TCap (TyCapRegion p)) 
+     ,  e    = TCon1 tc (TRgn p) 
      /\ true = isEffectTyCon tc.
 Proof.
  intros.
@@ -196,7 +196,7 @@ Qed.
 Lemma liveE_phase_change
  :  forall fs p e
  ,  LiveE (fs :> FUse p) e
- -> LiveE (fs :> FUse p) (substTT 0 (TCap (TyCapRegion p)) e).
+ -> LiveE (fs :> FUse p) (substTT 0 (TRgn p) e).
 Proof.
  intros.
  induction e; snorm;
@@ -229,7 +229,7 @@ Proof.
  eapply handleOfEffect_form_some in H.
  destruct H as [tc]. rip.
  snorm. 
- lets D: H0 (TCon1 tc (TCap (TyCapRegion p))). clear H0.
+ lets D: H0 (TCon1 tc (TRgn p)). clear H0.
  eapply D. 
   tauto. 
   snorm. nope.

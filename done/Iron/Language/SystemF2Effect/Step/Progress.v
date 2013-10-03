@@ -112,7 +112,7 @@ Proof.
  Case "XAlloc".
  { right. 
    inverts_typec. 
-   have HR: (exists n, t = TCap (TyCapRegion n)).
+   have HR: (exists n, t = TRgn n).
    destruct HR as [n].
    exists (StValue n v <: ss).
    exists sp.
@@ -126,7 +126,7 @@ Proof.
  Case "XRead".
  { right.
    inverts HC. inverts_type.
-   have HR: (exists n, t = TCap (TyCapRegion n)).
+   have HR: (exists n, t = TRgn n).
    destruct HR as [n]. subst.
 
    assert (exists l, v = VLoc l) as HL.
@@ -149,7 +149,7 @@ Proof.
    (* Store binding contains a value. *)
    - have HB: (TYPEB nil nil se sp 
                     (StValue n0 v) 
-                    (TRef (TCap (TyCapRegion n)) t0))
+                    (TRef (TRgn n) t0))
       by (eapply Forall2_get_get_same; eauto).
      inverts HB.
      exists (XVal v).
@@ -159,11 +159,11 @@ Proof.
       can't happen due to binding liveness constraints LiveE/LiveE *)
    - have HB: (TYPEB nil nil se sp
                      (StDead n0)
-                     (TRef (TCap (TyCapRegion n)) t0))
+                     (TRef (TRgn n) t0))
       by (eapply Forall2_get_get_same; eauto).
      inverts HB.
 
-     remember (TCap (TyCapRegion n)) as p. 
+     remember (TRgn n) as p. 
 
      have (SubsT nil sp e1 (TRead p) KEffect)
       by  (eapply EqSym in H; eauto).
@@ -182,7 +182,7 @@ Proof.
  { right.
    inverts_typec. inverts HW. rip.
 
-   have HR: (exists n, t = TCap (TyCapRegion n)).
+   have HR: (exists n, t = TRgn n).
     destruct HR as [n]. subst.
 
    destruct v; burn.
@@ -200,7 +200,7 @@ Proof.
      (* Original binding contains a live value that can be overwritten. *)
      + have HB: (TYPEB nil nil se sp
                        (StValue n1 v)
-                       (TRef (TCap (TyCapRegion n)) t2))
+                       (TRef (TRgn n) t2))
         by (eapply Forall2_get_get_same; eauto).
        inverts HB.
        eauto.
@@ -209,11 +209,11 @@ Proof.
         can't happen due to binding liveness constraints. *)
      + have HB: (TYPEB nil nil se sp
                        (StDead n1)
-                       (TRef (TCap (TyCapRegion n)) t2))
+                       (TRef (TRgn n) t2))
         by (eapply Forall2_get_get_same; eauto).
        inverts HB.
 
-       remember (TCap (TyCapRegion n)) as p.
+       remember (TRgn n) as p.
 
        have (SubsT nil sp e1 (TWrite p) KEffect)
          by  (eapply EqSym in H; eauto).

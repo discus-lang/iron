@@ -285,7 +285,7 @@ Qed.
 (********************************************************************)
 Lemma maskOnVar_effect_remains
  :  forall t tc p n e
- ,  t = TCon1 tc (TCap (TyCapRegion p))
+ ,  t = TCon1 tc (TRgn p)
  -> In t (flattenT e)
  -> In t (flattenT (maskOnVarT n e)).
 Proof.

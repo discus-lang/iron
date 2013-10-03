@@ -56,7 +56,7 @@ Notation ClosedT := (WfT 0).
 Lemma closedT_tRef
  :  forall r1 t2
  ,  ClosedT t2
- -> ClosedT (TRef (TCap (TyCapRegion r1)) t2).
+ -> ClosedT (TRef (TRgn r1) t2).
 Proof. auto. Qed.
 Hint Resolve closedT_tRef.
 

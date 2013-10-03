@@ -12,7 +12,7 @@ Require Export Iron.Language.SystemF2Effect.Store.LiveS.
 Lemma storet_get_typev
  :  forall se sp ss ix r v t
  ,  STORET se sp ss
- -> get ix se = Some (TRef (TCap (TyCapRegion r)) t)
+ -> get ix se = Some (TRef (TRgn r) t)
  -> get ix ss = Some (StValue r v)
  -> TYPEV nil nil se sp v t.
 Proof.

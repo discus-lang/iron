@@ -9,7 +9,7 @@ Require Export Iron.Language.SystemF2Effect.Type.Operator.
    not in the store properties, then count that as not visible. *)
 Definition isVisibleE (sp : stprops) (t : ty) : bool
  := match t with 
-    | TCon1 tc (TCap (TyCapRegion n)) 
+    | TCon1 tc (TRgn n)
     => andb (isEffectTyCon tc) (hasSRegion n sp)
 
     | otherwise
@@ -40,7 +40,7 @@ Lemma isVisibleE_TCon1_false
  :  forall sp t1
  ,  false = isVisibleE sp t1
  -> (exists tc n
-      ,  t1    = TCon1 tc (TCap (TyCapRegion n))
+      ,  t1    = TCon1 tc (TRgn n)
      /\ (false = isEffectTyCon tc \/ false = (hasSRegion n sp))).
 Proof.
  destruct t1; try nope.
@@ -233,7 +233,7 @@ Qed.
 Lemma subsVisibleT_mask
  :  forall sp spVis r n e1 e2
  ,  hasSRegion n spVis = false
- -> r = TCap (TyCapRegion n)
+ -> r = TRgn n
  -> SubsVisibleT nil sp spVis e1 (maskOnVarT 0 e2)
  -> SubsVisibleT nil sp spVis e1 (substTT    0 r e2).
 Proof.

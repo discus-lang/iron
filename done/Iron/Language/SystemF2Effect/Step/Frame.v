@@ -58,7 +58,7 @@ Inductive
    :  forall ss sp fs x p
    ,  p = allocRegion sp
    -> STEPF  ss sp                 fs            (XNew x)
-             ss (SRegion p <: sp) (fs :> FUse p) (substTX 0 (TCap (TyCapRegion p)) x)
+             ss (SRegion p <: sp) (fs :> FUse p) (substTX 0 (TRgn p) x)
 
  (* Pop a region from the stack. *)
  | SfRegionPop
@@ -70,21 +70,21 @@ Inductive
  (* Allocate a reference. *) 
  | SfStoreAlloc
    :  forall ss sp fs r1 v1
-   ,  STEPF  ss                    sp  fs (XAlloc (TCap (TyCapRegion r1)) v1)
+   ,  STEPF  ss                    sp  fs (XAlloc (TRgn r1) v1)
              (StValue r1 v1 <: ss) sp  fs (XVal (VLoc (length ss)))
 
  (* Read from a reference. *)
  | SfStoreRead
    :  forall ss sp fs l v r
    ,  get l ss = Some (StValue r v)
-   -> STEPF ss                     sp  fs (XRead (TCap (TyCapRegion r))  (VLoc l)) 
+   -> STEPF ss                     sp  fs (XRead (TRgn r)  (VLoc l)) 
             ss                     sp  fs (XVal v)
 
  (* Write to a reference. *)
  | SfStoreWrite
    :  forall ss sp fs l r v1 v2 
    ,  get l ss = Some (StValue r v1)
-   -> STEPF  ss sp fs                 (XWrite (TCap (TyCapRegion r)) (VLoc l) v2)
+   -> STEPF  ss sp fs                 (XWrite (TRgn r) (VLoc l) v2)
              (update l (StValue r v2) ss) sp fs (XVal (VConst CUnit)).
 
 Hint Constructors STEPF.

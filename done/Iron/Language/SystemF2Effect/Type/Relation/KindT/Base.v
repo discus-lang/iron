@@ -66,10 +66,10 @@ Inductive KindT : kienv -> stprops -> ty -> ki -> Prop :=
     -> KindT ke sp t2 k2
     -> KindT ke sp (TCon2 tc t1 t2) k
 
-  | KiCap
+  | KiRgn
     :  forall ke sp p
     ,  In (SRegion p) sp
-    -> KindT ke sp (TCap (TyCapRegion p)) KRegion.
+    -> KindT ke sp (TRgn p) KRegion.
 
 Hint Constructors KindT.
 
@@ -87,7 +87,7 @@ Ltac inverts_kind :=
    | [ H: KindT _ _ (TCon0 _)     _  |- _ ] => inverts H
    | [ H: KindT _ _ (TCon1 _ _)   _  |- _ ] => inverts H
    | [ H: KindT _ _ (TCon2 _ _ _) _  |- _ ] => inverts H
-   | [ H: KindT _ _ (TCap _)      _  |- _ ] => inverts H
+   | [ H: KindT _ _ (TCap _) _       |- _ ] => inverts H
    end).
 
 
@@ -96,7 +96,7 @@ Ltac inverts_kind :=
 Lemma kind_region
  :  forall t sp
  ,  KindT   nil sp t KRegion
- -> (exists p, t = TCap (TyCapRegion p)).
+ -> (exists p, t = TRgn p).
 Proof.
  intros.
  destruct t; burn.

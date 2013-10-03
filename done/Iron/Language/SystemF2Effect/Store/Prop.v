@@ -1,6 +1,8 @@
 
 Require Import Iron.Language.SystemF2Effect.Base.
 
+
+(********************************************************************)
 (* Store Property *)
 Inductive stprop :=
  (* A region descriptor.
@@ -11,45 +13,6 @@ Inductive stprop :=
 (* Store Properties *)
 Definition stprops 
  := list stprop.
-
-
-(* TODO: shift this into base library *)
-Fixpoint elem {A} (p : A -> bool) (xx : list A)
- := match xx with
-    | nil      => false
-    | x :: xs  => if p x then true else elem p xs
-    end.
-
-
-Lemma elem_get_not
- :  forall {A} (p : A -> bool) (xx : list A) 
- ,  not (exists ix x, get ix xx = Some x /\ p x = true)
- -> elem p xx = false.
-Proof. 
- intros.
- induction xx.
- - simpl. auto.
- - remember (p a) as X.
-   destruct X.
-   + simpl. 
-     rewrite <- HeqX.
-     assert (exists ix x, get ix (xx :> a) = Some x /\ p x = true).
-      exists 0. exists a. rip.
-     tauto.
-     
-   + simpl. 
-     rewrite <- HeqX. 
-     eapply IHxx.
-     unfold not. 
-     intros.
-     destruct H0 as [ix].
-     destruct H0 as [x].
-     rip.
-     have (get (S ix) (xx :> a) = Some x).
-     assert (exists ix x, get ix (xx :> a) = Some x /\ p x = true).
-      exists (S ix). exists x. rip.
-     tauto.
-Qed.  
 
 
 (********************************************************************)
@@ -72,15 +35,6 @@ Definition hasSRegion (r : nat) (sp : stprops)
 
 (********************************************************************)
 (* Allocate a fresh region. *)
-
-Fixpoint catOptions {A} (xs : list (option A)) : list A
- := match xs with
-    | nil             => nil
-    | Some x :: rest  => x :: catOptions rest
-    | None   :: rest  => catOptions rest
-    end.
-
-
 Definition allocRegion (sp : stprops) : nat 
  := S (max_list (catOptions (map regionOfStProp sp))).
 
@@ -95,7 +49,8 @@ Proof.
   omega.
   unfold allocRegion in *.
    snorm.
-   have (max_list (catOptions (map regionOfStProp sp)) >= n) by omega. clear H.
+   have (max_list (catOptions (map regionOfStProp sp)) >= n) 
+    by omega. clear H.
    cut  (max n0 (max_list (catOptions (map regionOfStProp sp))) >= n).
     intros. omega.
     apply max_weaken_left. 
@@ -167,7 +122,8 @@ Proof.
     simpl in H1.
     snorm. symmetry in H1. subst.
     apply get_in in H0.
-    have (not (In (SRegion (allocRegion sp)) sp)) by apply allocRegion_fresh.
+    have (not (In (SRegion (allocRegion sp)) sp)) 
+     by apply allocRegion_fresh.
     tauto.
 Qed.
 Hint Resolve allocRegion_fresh_has.

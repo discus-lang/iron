@@ -128,7 +128,7 @@ Proof.
  (* Create a new region. *)
  Case "SfRegionNew".
  { inverts_typec.
-   set (r := TCap (TyCapRegion p)).
+   set (r := TRgn p).
    exists se.
    exists (TSum (substTT 0 r e0) (substTT 0 r e2)).
 
@@ -251,7 +251,7 @@ Proof.
          rrwrite (liftTE 0 se  = se) by (inverts HH; auto).
          auto.
        * subst r. auto.
-         eapply KiCap.
+         eapply KiRgn.
           rrwrite (SRegion p <: sp = sp ++ (nil :> SRegion p)).
           eapply in_app_right. snorm.
 
@@ -340,12 +340,12 @@ Proof.
  Case "SfStoreAlloc".
  { inverts HC.
    inverts H0.
-   exists (TRef   (TCap (TyCapRegion r1)) t2 <: se).
+   exists (TRef   (TRgn r1) t2 <: se).
    exists e2.
    rip.
 
    (* All store bindings mentioned by frame stack are still live. *)
-   - remember (TCap (TyCapRegion r1)) as p.
+   - remember (TRgn r1) as p.
 
      have (SubsT nil sp e (TAlloc p) KEffect)
       by  (eapply EqSym in H; eauto).
@@ -370,7 +370,7 @@ Proof.
 
    (* Resulting configuation is well typed. *)
    - eapply TcExp
-      with (t1 := TRef (TCap (TyCapRegion r1)) t2)
+      with (t1 := TRef (TRgn r1) t2)
            (e1 := TBot KEffect)
            (e2 := e2).
      + eapply EqSym.
@@ -434,7 +434,7 @@ Proof.
    (* All store bindings mentioned by frame stack are still live. *)
    - eapply liveS_stvalue_update.
      + inverts_type.
-       remember (TCap (TyCapRegion r)) as p.
+       remember (TRgn r) as p.
 
        have (SubsT nil sp e (TWrite p) KEffect)
         by  (eapply EqSym in H0; eauto).

@@ -10,9 +10,9 @@ Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
     mentioned in the store properties. *)
  | TbValue
    :  forall ke te se sp n v t
-   ,  KindT  ke sp (TCap (TyCapRegion n)) KRegion
+   ,  KindT  ke sp (TRgn n) KRegion
    -> TYPEV  ke te se sp v t
-   -> TYPEB  ke te se sp (StValue n v) (TRef (TCap (TyCapRegion n)) t)
+   -> TYPEB  ke te se sp (StValue n v) (TRef (TRgn n) t)
 
  (* After a store binding has been dealloated,
     we can treat the location has having any type we want.
@@ -20,8 +20,8 @@ Inductive TYPEB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
     so there is no opportunity to treat it has having the wrong type. *)
  | TbDead 
    :  forall ke te se sp n t
-   ,  KindT  ke sp (TCap (TyCapRegion n)) KRegion
-   -> TYPEB  ke te se sp (StDead n)    (TRef (TCap (TyCapRegion n)) t).
+   ,  KindT  ke sp (TRgn n) KRegion
+   -> TYPEB  ke te se sp (StDead n)    (TRef (TRgn n) t).
 
 Hint Constructors TYPEB.
 
