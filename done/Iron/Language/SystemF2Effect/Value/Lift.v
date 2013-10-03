@@ -15,17 +15,17 @@ Fixpoint liftTV (d: nat) (vv: val) : val :=
   end
  with liftTX (d: nat) (xx: exp) : exp :=
   match xx with
-  |  XVal v          => XVal   (liftTV d v)
-  |  XLet t x1 x2    => XLet   (liftTT 1 d t)  (liftTX d x1) (liftTX d x2)
-  |  XApp x1 x2      => XApp   (liftTV d x1)   (liftTV d x2)
-  |  XAPP x t        => XAPP   (liftTV d x)    (liftTT 1 d t)
+  |  XVal v          => XVal     (liftTV d v)
+  |  XLet t x1 x2    => XLet     (liftTT 1 d t)  (liftTX d x1) (liftTX d x2)
+  |  XApp x1 x2      => XApp     (liftTV d x1)   (liftTV d x2)
+  |  XAPP x t        => XAPP     (liftTV d x)    (liftTT 1 d t)
 
-  |  XOp1   op1 v => XOp1   op1 (liftTV d v)
+  |  XOp1   op1 v    => XOp1   op1  (liftTV d v)
 
-  |  XNew x          => XNew   (liftTX (S d) x)
-  |  XAlloc tR v     => XAlloc (liftTT 1 d tR) (liftTV d v)
-  |  XRead  tR v     => XRead  (liftTT 1 d tR) (liftTV d v)
-  |  XWrite tR v1 v2 => XWrite (liftTT 1 d tR) (liftTV d v1) (liftTV d v2)
+  |  XPrivate x      => XPrivate (liftTX (S d) x)
+  |  XAlloc tR v     => XAlloc   (liftTT 1 d tR) (liftTV d v)
+  |  XRead  tR v     => XRead    (liftTT 1 d tR) (liftTV d v)
+  |  XWrite tR v1 v2 => XWrite   (liftTT 1 d tR) (liftTV d v1) (liftTV d v2)
  end.
 
 
@@ -40,21 +40,21 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
         (* index was locally bound, leave it be *)
         else vv
 
-  | VLoc l       => VLoc   l
-  | VLam t1 x1   => VLam   t1 (liftXX n (S d) x1)
-  | VLAM k x     => VLAM   k (liftXX n d x)
-  | VConst c     => VConst c
+  | VLoc l          => VLoc   l
+  | VLam t1 x1      => VLam   t1 (liftXX n (S d) x1)
+  | VLAM k x        => VLAM   k (liftXX n d x)
+  | VConst c        => VConst c
   end
  with   liftXX (n: nat) (d: nat) (xx: exp) {struct xx} : exp :=
   match xx with 
-  | XVal v       => XVal   (liftXV n d v)
-  | XLet t x1 x2 => XLet t (liftXX n d x1) (liftXX n (S d) x2)
-  | XApp v1 v2   => XApp   (liftXV n d v1) (liftXV n d v2)
-  | XAPP v1 t2   => XAPP   (liftXV n d v1) t2
+  | XVal v          => XVal   (liftXV n d v)
+  | XLet t x1 x2    => XLet t (liftXX n d x1) (liftXX n (S d) x2)
+  | XApp v1 v2      => XApp   (liftXV n d v1) (liftXV n d v2)
+  | XAPP v1 t2      => XAPP   (liftXV n d v1) t2
 
-  | XOp1   op1 v => XOp1   op1 (liftXV n d v)
+  | XOp1   op1 v    => XOp1   op1 (liftXV n d v)
 
-  | XNew x          => XNew   (liftXX n d x)
+  | XPrivate x      => XPrivate   (liftXX n d x)
   | XAlloc tR v     => XAlloc tR (liftXV n d v)
   | XRead  tR v     => XRead  tR (liftXV n d v)
   | XWrite tR v1 v2 => XWrite tR (liftXV n d v1) (liftXV n d v2)

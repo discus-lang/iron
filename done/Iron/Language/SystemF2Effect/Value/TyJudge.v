@@ -113,13 +113,13 @@ Inductive
     -> TYPEX  ke te se sp (XAPP v1 t2) (substTT 0 t2 t12) (TBot KEffect)
 
   (* Store Operators ******************)
-  (* Create a new region. *)
-  | TxNew
+  (* Create a private region. *)
+  | TxPrivate
     :  forall ke te se sp x t tL e eL
     ,  lowerTT 0 t               = Some tL
     -> lowerTT 0 (maskOnVarT 0 e) = Some eL
-    -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x        t  e
-    -> TYPEX ke              te             se           sp (XNew x) tL eL
+    -> TYPEX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x            t  e
+    -> TYPEX ke              te             se           sp (XPrivate x) tL eL
 
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
@@ -167,7 +167,7 @@ Ltac inverts_type :=
    | [ H: TYPEX _ _ _ _ (XLet   _ _ _) _ _  |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ _ (XApp   _ _)   _ _  |- _ ] => inverts H 
    | [ H: TYPEX _ _ _ _ (XAPP   _ _)   _ _  |- _ ] => inverts H 
-   | [ H: TYPEX _ _ _ _ (XNew   _)     _ _  |- _ ] => inverts H
+   | [ H: TYPEX _ _ _ _ (XPrivate _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XAlloc _ _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XRead  _ _)   _ _  |- _ ] => inverts H
    | [ H: TYPEX _ _ _ _ (XWrite _ _ _) _ _  |- _ ] => inverts H

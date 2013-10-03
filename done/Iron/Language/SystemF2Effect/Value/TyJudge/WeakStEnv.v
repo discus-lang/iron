@@ -17,21 +17,21 @@ Proof.
       -> TYPEV ke te (t2 <: se) sp v t1)
   ; intros; inverts_type; eauto.
 
- Case "VLAM".
-  eapply TvLAM.
-  spec IHx H8 H. clear H8.
-  unfold liftTE in *.
-  simpl. norm. 
-  rrwrite (liftTT 1 0 t2 = t2).
-  auto.
+ - Case "VLAM".
+   eapply TvLAM.
+   spec IHx H8 H. clear H8.
+   unfold liftTE in *.
+   simpl. norm. 
+   rrwrite (liftTT 1 0 t2 = t2).
+   auto.
 
- Case "XNew".
-  eapply TxNew with (t := t) (e := e); eauto.
-  spec IHx H8 H. clear H8.
-  unfold liftTE in *.
-  simpl. norm.
-  rrwrite (liftTT 1 0 t2 = t2).
-  auto.
+ - Case "XPrivate".
+   eapply TxPrivate with (t := t) (e := e); eauto.
+   spec IHx H8 H. clear H8.
+   unfold liftTE in *.
+   simpl. norm.
+   rrwrite (liftTT 1 0 t2 = t2).
+   auto.
 Qed.
 Hint Resolve typex_stenv_snoc.
 
@@ -59,9 +59,9 @@ Lemma typex_stenv_weaken
 Proof.
  intros. gen ke te se1 sp.
  induction se2; intros.
-  burn.
-  rrwrite ((se2 :> a) >< se1 = se2 >< (a <: se1)).
-  inverts H. rip.
+ - burn.
+ - rrwrite ((se2 :> a) >< se1 = se2 >< (a <: se1)).
+   inverts H. rip.
 Qed.
 Hint Resolve typex_stenv_weaken.
 

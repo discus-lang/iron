@@ -18,29 +18,29 @@ Proof.
       -> TYPEV ke (insert ix t2 te) se sp (liftXV 1 ix v) t1)
   ; intros; inverts_type; simpl; eauto.
 
- Case "VVar".
-  nnat; lift_cases; burn.
+ - Case "VVar".
+   nnat; lift_cases; burn.
 
- Case "VLam".
-  apply TvLam; eauto.
-  rewrite insert_rewind. auto.
+ - Case "VLam".
+   apply TvLam; eauto.
+   rewrite insert_rewind. auto.
 
- Case "VLAM".
-  apply TvLAM.
-  assert ( liftTE 0 (insert ix t2 te)
-         = insert ix (liftTT 1 0 t2) (liftTE 0 te)).
-   unfold liftTE. rewrite map_insert. auto.
+ - Case "VLAM".
+   apply TvLAM.
+   have ( liftTE 0 (insert ix t2 te)
+        = insert ix (liftTT 1 0 t2) (liftTE 0 te))
+    by (unfold liftTE; rewrite map_insert; auto).
    rewritess. eauto.
 
- Case "XLet".
-  apply TxLet; eauto. 
-  rewrite insert_rewind. eauto.
+ - Case "XLet".
+   apply TxLet; eauto. 
+   rewrite insert_rewind. eauto.
 
- Case "XNew".
-  eapply TxNew with (t := t) (e := e); eauto.
-  assert ( liftTE 0 (insert ix t2 te)
-         = insert ix (liftTT 1 0 t2) (liftTE 0 te)).
-   unfold liftTE. rewrite map_insert. auto.
+ - Case "XPrivate".
+   eapply TxPrivate with (t := t) (e := e); eauto.
+   have ( liftTE 0 (insert ix t2 te)
+        = insert ix (liftTT 1 0 t2) (liftTE 0 te))
+    by (unfold liftTE; rewrite map_insert; auto).
    rewritess. eauto.
 Qed. 
 
@@ -82,12 +82,12 @@ Lemma type_tyenv_weaken_append
 Proof.
  intros.
  induction te'; simpl.
-  burn.
+  - burn.
 
-  rrwrite (S (length te') = length te' + 1).
-  rrwrite (length te' + 1 = 1 + length te').
-  rewrite <- liftXX_plus.
-  eapply type_tyenv_weaken1.
-  burn.
+  - rrwrite (S (length te') = length te' + 1).
+    rrwrite (length te' + 1 = 1 + length te').
+    rewrite <- liftXX_plus.
+    eapply type_tyenv_weaken1.
+    burn.
 Qed.
 

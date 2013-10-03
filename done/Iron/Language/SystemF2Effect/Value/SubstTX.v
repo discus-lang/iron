@@ -24,10 +24,10 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
 
   | XOp1 op1 v     => XOp1   op1 (substTV d u v)
 
-  | XNew x         => XNew   (substTX (S d) (liftTT 1 0 u) x)
-  | XAlloc r v     => XAlloc (substTT d u r) (substTV d u v)
-  | XRead  r v     => XRead  (substTT d u r) (substTV d u v)
-  | XWrite r v1 v2 => XWrite (substTT d u r) (substTV d u v1) (substTV d u v2)
+  | XPrivate x     => XPrivate (substTX (S d) (liftTT 1 0 u) x)
+  | XAlloc r v     => XAlloc   (substTT d u r) (substTV d u v)
+  | XRead  r v     => XRead    (substTT d u r) (substTV d u v)
+  | XWrite r v1 v2 => XWrite   (substTT d u r) (substTV d u v1) (substTV d u v2)
   end.  
 
 
@@ -120,8 +120,8 @@ Proof.
     inverts H8. 
     spec IHx1 H1; eauto.
 
- - Case "XNew".
-   apply TxNew 
+ - Case "XPrivate".
+   apply TxPrivate 
     with (t := substTT (S ix) (liftTT 1 0 t2) t)
          (e := substTT (S ix) (liftTT 1 0 t2) e).
    + rrwrite (ix = 0 + ix).

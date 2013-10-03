@@ -99,7 +99,7 @@ Proof.
 
 
  (*********************************************************)
- Case "XNew".
+ Case "XPrivate".
  { right.
    exists ss. 
    exists (SRegion (allocRegion sp) <: sp). 

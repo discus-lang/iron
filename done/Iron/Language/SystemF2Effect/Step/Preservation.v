@@ -125,8 +125,8 @@ Proof.
 
 
  (*********************************************************)
- (* Create a new region. *)
- Case "SfRegionNew".
+ (* Create a private region. *)
+ Case "SfPrivatePush".
  { inverts_typec.
    set (r := TRgn p).
    exists se.
@@ -294,8 +294,8 @@ Proof.
 
 
  (*********************************************************)
- (* Pop a region from the frame stack. *)
- Case "SfRegionPop".
+ (* Pop a private region from the frame stack. *)
+ Case "SfPrivatePop".
  { inverts_typec.
 
    (* We can only pop if there is at least on region in the store. *)

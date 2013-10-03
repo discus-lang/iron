@@ -91,9 +91,9 @@ Proof.
     eapply TxOpPrim. simpl. eauto.
     rrwrite (TNat = liftTT 1 ix TNat). eauto.
 
- Case "XNew".
+ Case "XPrivate".
   simpl.
-  eapply TxNew
+  eapply TxPrivate
    with (t := liftTT 1 (S ix) t)
         (e := liftTT 1 (S ix) e).
 

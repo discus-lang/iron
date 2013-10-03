@@ -47,9 +47,9 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
   |  XApp v1 v2      => XApp   (substVV d u v1) (substVV d u v2)
   |  XAPP v1 t2      => XAPP   (substVV d u v1) t2
 
-  |  XOp1 op v1      => XOp1 op (substVV d u v1)
+  |  XOp1 op v1        => XOp1 op (substVV d u v1)
 
-  |  XNew   x        => XNew   (substVX d (liftTV 0 u) x)
+  |  XPrivate x      => XPrivate  (substVX d (liftTV 0 u) x)
   |  XAlloc tR v2    => XAlloc tR (substVV d u v2)
   |  XRead  tR v1    => XRead  tR (substVV d u v1)
   |  XWrite tR v1 v2 => XWrite tR (substVV d u v1) (substVV d u v2)
@@ -103,9 +103,9 @@ Proof.
     rewrite delete_rewind.
     eauto using typev_tyenv_weaken1.
 
- - Case "XNew".
+ - Case "XPrivate".
    eapply (IHx1 ix) in H9.
-   eapply TxNew; eauto.
+   eapply TxPrivate; eauto.
     unfold liftTE. rewrite map_delete. eauto.
     eapply get_map. eauto.
     unfold liftTE. rewrite <- map_delete.

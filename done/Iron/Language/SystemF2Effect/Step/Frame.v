@@ -53,15 +53,15 @@ Inductive
              ss sp  fs               (substVX 0 v1 x2)
 
  (* Region operators ****************************)
- (* Create a new region. *)
- | SfRegionNew
+ (* Create a private region. *)
+ | SfPrivatePush
    :  forall ss sp fs x p
    ,  p = allocRegion sp
-   -> STEPF  ss sp                 fs            (XNew x)
+   -> STEPF  ss sp                 fs            (XPrivate x)
              ss (SRegion p <: sp) (fs :> FUse p) (substTX 0 (TRgn p) x)
 
  (* Pop a region from the stack. *)
- | SfRegionPop
+ | SfPrivatePop
    :  forall ss sp  fs v1 p
    ,  STEPF  ss                      sp (fs :> FUse p)    (XVal v1)
              (map (deallocate p) ss) sp  fs               (XVal v1)
