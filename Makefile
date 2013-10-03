@@ -15,11 +15,11 @@ root_done \
  	done/Iron/Language/SystemF.vo \
  	done/Iron/Language/SystemF2.vo \
  	done/Iron/Language/SystemF2Data.vo \
- 	done/Iron/Language/SystemF2Store.vo 
+ 	done/Iron/Language/SystemF2Store.vo \
+ 	done/Iron/Language/SystemF2Effect.vo
 
 root_devel \
- =	devel/Iron/SystemF2Effect.vo 
- 
+ =	
 
 # -------------------------------------------------------------------
 .PHONY : all

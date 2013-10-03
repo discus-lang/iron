@@ -6,6 +6,7 @@ Require Export Iron.Language.SystemF2Effect.Value.Lift.
 Require Export Iron.Language.SystemF2Effect.Store.Prop.
 
 
+(********************************************************************)
 (* Store Environment holds the types of locations. *)
 Definition stenv := list ty.
 
@@ -23,7 +24,7 @@ Fixpoint typeOfOp1 (op : op1) : ty
 (* Types of Value expressions *)
 Inductive 
   TYPEV : kienv -> tyenv -> stenv -> stprops 
-        -> val  -> ty    -> ty
+        -> val  -> ty 
         -> Prop := 
 
   (* Variables.
@@ -32,7 +33,7 @@ Inductive
     :  forall ke te se sp i t
     ,  get i te = Some t
     -> KindT  ke sp t KData
-    -> TYPEV  ke te se sp (VVar i) t (TDeepUse t)
+    -> TYPEV  ke te se sp (VVar i) t 
 
   (* Store locations.
      We get the type of a location from the store typing.
@@ -40,20 +41,19 @@ Inductive
      to attach the region variable. Our primitive types don't have region
      annotations themselves. *)
   | TvLoc 
-    :  forall ke te se sp i r t
-    ,  get i se = Some (TRef r t)
+    :  forall ke te se sp l r t
+    ,  get l se = Some (TRef r t)
     -> KindT  ke sp       (TRef r t) KData       
-    -> TYPEV  ke te se sp
-              (VLoc i) (TRef r t) (TSum KClosure (TUse r) (TDeepUse t))
+    -> TYPEV  ke te se sp (VLoc l)   (TRef r t)
 
   (* Value abstraction.
      The body is checked in an environment extended with the type of
      of the formal parameter. *)
   | TvLam
     :  forall ke te se sp t1 t2 x2 e2
-    ,  KindT   ke sp t1 KData
-    -> TYPEX  ke (te :> t1) se sp x2 t2 TPure TEmpty
-    -> TYPEV  ke te         se sp (VLam t1 x2) (TFun t1 t2) TEmpty
+    ,  KindT  ke sp t1 KData
+    -> TYPEX  ke (te :> t1) se sp x2 t2 e2
+    -> TYPEV  ke te         se sp (VLam t1 x2) (TFun t1 e2 t2)
 
   (* Type abstraction.
      The body is checked in an environemnt extended with the kind of
@@ -66,8 +66,8 @@ Inductive
      annotation. *) 
   | TvLAM
     :  forall ke te se sp k1 t2 x2
-    ,  TYPEX (ke :> k1) (liftTE 0 te) (liftTE 0 se) sp x2 t2 TPure TEmpty
-    -> TYPEV ke te se sp (VLAM k1 x2) (TForall k1 t2) TEmpty
+    ,  TYPEX (ke :> k1) (liftTE 0 te) (liftTE 0 se) sp x2 t2 (TBot KEffect)
+    -> TYPEV ke          te            se   sp (VLAM k1 x2) (TForall k1 t2)
 
   (* Primitive constants. 
      We get the types of these from the 'typeOfConst' function so we can
@@ -79,7 +79,7 @@ Inductive
 
 
   with TYPEX :  kienv -> tyenv -> stenv -> stprops 
-             -> exp   -> ty -> ty -> ty
+             -> exp   -> ty -> ty 
              -> Prop :=
 
   (* Embed values in the expression language.
@@ -149,17 +149,11 @@ Inductive
     ,  typeOfOp1 op = TFun t11 t12 e
     -> TYPEV  ke te se sp v1 t11
     -> TYPEX  ke te se sp (XOp1 op v1) t12 e.
-
-(*
-  | TxCastEffect
-    :  TYPEX  ke te se sp x t1 e1
-    -> SubsT  ke te se sp x e2 e1          (* also use to fix equiv of effect *)
-    -> TYPEX  ke te se sp x (casteff e2 t1) e2
-*)
 Hint Constructors TYPEV.
 Hint Constructors TYPEX.
 
 
+(********************************************************************)
 (* Invert all hypothesis that are compound typing statements. *)
 Ltac inverts_type :=
  repeat 
