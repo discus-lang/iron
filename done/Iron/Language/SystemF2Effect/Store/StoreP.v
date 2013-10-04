@@ -44,8 +44,8 @@ Proof.
       have (FExt p1 p2 <> FPriv p) by congruence. 
       eauto. auto.
      rrwrite (SRegion p <: sp = (SRegion p <: nil) >< sp).
-     snorm. eauto.
-
+     snorm. firstorder.
+  
  - have HN: (p2 = p \/ ~(p2 = p)).
    inverts HN.
    + rrwrite (SRegion p <: sp = (SRegion p <: nil) >< sp).
@@ -55,7 +55,7 @@ Proof.
       have (FExt p1 p2 <> FPriv p) by congruence. 
       eauto. auto.
      rrwrite (SRegion p <: sp = (SRegion p <: nil) >< sp).
-     snorm. eauto.
+     snorm. firstorder.
 Qed.
 Hint Resolve storep_snoc.
 
@@ -66,8 +66,8 @@ Lemma storep_stprops_snoc
  -> STOREP (p <: sp) fs.
 Proof.
  unfold STOREP in *. rip.
- - have (In (SRegion p1) sp). snorm.
- - have (In (SRegion p2) sp). snorm.
+ - have (In (SRegion p1) sp) by firstorder. snorm.
+ - have (In (SRegion p2) sp) by firstorder. snorm.
 Qed.
 Hint Resolve storep_stprops_snoc.
 

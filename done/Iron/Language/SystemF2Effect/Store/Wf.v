@@ -58,7 +58,7 @@ Lemma wfFS_region_priv
  -> WfFS se (SRegion p <: sp) ss (fs :> FPriv p).
 Proof. 
  intros.
- unfold WfFS. 
+ unfold WfFS in *. 
  inverts H. inverts H1. inverts H2.
  auto.
 Qed.
@@ -70,10 +70,20 @@ Lemma wfFS_region_ext
  :  forall se sp ss fs p1 p2
  ,  WfFS  se  sp ss fs
  -> KindT nil sp (TRgn p1) KRegion
+ -> In (SRegion p1) sp
  -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FExt p1 p2).
 Proof.
  intros.
- unfold WfFS in *. rip.
+ unfold WfFS in *. 
+ unfold STOREP in *. rip.
+ - inverts H2.
+   nope. rip.
+ - inverts H2. 
+   inverts H7. rip. eauto.
+ - inverts H2.
+   inverts H7. eauto. eauto.
+Qed. 
+Hint Resolve wfFS_region_ext.
 
 
 (* Deallocating a region preserves well-formedness of the store. *)
@@ -149,7 +159,9 @@ Proof.
      have (ClosedT (TRgn p)).
      eauto.
    + nope.
- - 
+ - unfold STOREP in *. rip.
+ - unfold STOREP in *. rip. eauto.
+ - unfold STOREP in *. rip. eauto.
 Qed.
 Hint Resolve wfFS_stbind_snoc.
 
@@ -171,7 +183,8 @@ Proof.
    rewrite update_length. auto.
  - unfold STORET.
    eapply Forall2_update_right; eauto.
+ - unfold STOREP in *. rip.
+ - unfold STOREP in *. rip. eauto.
+ - unfold STOREP in *. rip. eauto.
 Qed.
-
-
 

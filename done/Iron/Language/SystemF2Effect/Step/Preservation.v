@@ -54,12 +54,12 @@ Proof.
    rip. 
 
    (* Frame stack with new FLet frame is well formed. *)
-   - unfold WfFS in *. rip.
+   - unfold WfFS in *. 
      unfold STOREP in *. rip.
      eapply H3.
-     inverts H2.
-     + nope.
-     + auto.
+     + inverts H. nope. auto.
+     + inverts H. nope. unfold STOREP in *. firstorder.
+     + inverts H. nope. unfold STOREP in *. firstorder.
     
    (* All store bindings mentioned by frame stack are still live. *)
    - eapply liveS_push_fLet; auto.
@@ -89,8 +89,8 @@ Proof.
    rip.
 
    (* Store is still well formed. *)
-   - unfold WfFS in *. rip.
-     unfold STOREP in *. rip.
+   - unfold WfFS in *.
+     rip; unfold STOREP in *; firstorder.  
 
    (* After popping top FLet frame, 
       all store bindings mentioned by frame stack are still live. *)
@@ -303,8 +303,8 @@ Proof.
 
    (* No regions in store. *)
    - inverts HH. rip. 
-     unfold STOREP in *.
-     spec H5 p.
+     unfold STOREP in *. rip.
+     spec H3 p.
      have (In (FPriv p) (fs :> FPriv p)).
       rip. nope.
 
@@ -343,11 +343,30 @@ Proof.
    set (r1 := TRgn p1).
    set (r2 := TRgn p2).
    exists (TSum (substTT 0 r2 e0) (TSum (substTT 0 r2 e2) (TAlloc r1))).
-
-   have (sumkind KEffect).
    rip.
 
+   (* Store is still well formed. *)
+   - eapply wfFS_region_ext; auto.
+     inverts H10. auto.
 
+   (* Store is live relative to frame stack. *)
+   - admit.
+
+   (* Frame stack is live relative to effect. *)
+   - admit.
+
+   (* Effect of result is subsumed by previous. *)
+   - admit.
+
+   (* Resulting state is well typed. *)
+   - admit. 
+ }
+
+ (*********************************************************)
+ (* Pop and extend frame from the stack, 
+    and merge the new region with the old one. *)
+ Case "SfExtendPop".
+ { admit.
  }
 
  (*********************************************************)
