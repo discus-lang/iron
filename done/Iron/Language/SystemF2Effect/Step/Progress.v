@@ -28,20 +28,24 @@ Proof.
  (*********************************************************)
  Case "XVal".
  { induction fs.
-   SCase "fs = nil".
-    left.
-    unfold done. rip. exists v. auto.
+   - SCase "fs = nil".
+     left.
+     unfold done. rip. exists v. auto.
 
-   SCase "fs = cons ...".
-    right.
-    destruct a as [t x | n].
-    SSCase "FLet".
-     exists ss. exists sp. exists fs. exists (substVX 0 v x).
-     eauto.
-    SSCase "FUse".
-     exists (map (deallocate n) ss). 
-     exists sp. exists fs. exists (XVal v).
-     eauto.
+   - SCase "fs = cons ...".
+     right.
+     destruct a as [t x | p1 | p1 p2].
+     + SSCase "FLet".
+       exists ss. exists sp. exists fs. exists (substVX 0 v x).
+       eauto.
+     + SSCase "FPriv".
+       exists (map (deallocate p1) ss). 
+       exists sp. exists fs. exists (XVal v).
+       eauto.
+     + SSCase "FExt".
+       exists (map (mergeB p1 p2) ss).
+       exists sp. exists fs. exists (XVal v).
+       eauto.
  }
 
 
@@ -107,6 +111,19 @@ Proof.
    eauto.
  }
 
+
+ (*********************************************************)
+ Case "XExtend".
+ { right.
+   inverts HC. inverts_type.
+   have HR: (exists n, t = TRgn n).
+   destruct HR as [p]. subst.
+
+   exists ss.
+   exists (SRegion (allocRegion sp) <: sp).
+   exists (fs :> FExt p (allocRegion sp)).
+   eauto.
+ }
 
  (*********************************************************)
  Case "XAlloc".

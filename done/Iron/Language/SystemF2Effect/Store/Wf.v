@@ -52,7 +52,7 @@ Hint Resolve wfFS_storem_length.
 
 
 (* Creating a private region preserves well-formedness of the store. *)
-Lemma wfFS_region_private
+Lemma wfFS_region_priv
  :  forall se sp ss fs p
  ,  WfFS se sp ss fs
  -> WfFS se (SRegion p <: sp) ss (fs :> FPriv p).
@@ -62,7 +62,18 @@ Proof.
  inverts H. inverts H1. inverts H2.
  auto.
 Qed.
-Hint Resolve wfFS_region_private.
+Hint Resolve wfFS_region_priv.
+
+
+(* Creating an extension region preserves well-formedness of the store. *)
+Lemma wfFS_region_ext
+ :  forall se sp ss fs p1 p2
+ ,  WfFS  se  sp ss fs
+ -> KindT nil sp (TRgn p1) KRegion
+ -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FExt p1 p2).
+Proof.
+ intros.
+ unfold WfFS in *. rip.
 
 
 (* Deallocating a region preserves well-formedness of the store. *)
@@ -107,8 +118,9 @@ Proof.
 
  - eapply storet_deallocate. auto.
  
- - unfold STOREP in *.
-   snorm.
+ - unfold STOREP in *. snorm.
+ - unfold STOREP in *. snorm. eauto.
+ - unfold STOREP in *. snorm. eauto.
 Qed.
 
 
@@ -137,6 +149,7 @@ Proof.
      have (ClosedT (TRgn p)).
      eauto.
    + nope.
+ - 
 Qed.
 Hint Resolve wfFS_stbind_snoc.
 
@@ -159,5 +172,6 @@ Proof.
  - unfold STORET.
    eapply Forall2_update_right; eauto.
 Qed.
+
 
 

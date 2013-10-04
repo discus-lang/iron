@@ -336,6 +336,21 @@ Proof.
 
 
  (*********************************************************)
+ (* Push an extend frame on the stack. *)
+ Case "SfExtendPush".
+ { inverts_typec.
+   exists se.
+   set (r1 := TRgn p1).
+   set (r2 := TRgn p2).
+   exists (TSum (substTT 0 r2 e0) (TSum (substTT 0 r2 e2) (TAlloc r1))).
+
+   have (sumkind KEffect).
+   rip.
+
+
+ }
+
+ (*********************************************************)
  (* Allocate a reference. *)
  Case "SfStoreAlloc".
  { inverts HC.

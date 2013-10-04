@@ -52,4 +52,15 @@ Fixpoint deallocate (p1 : nat) (b : stbind) {struct b} : stbind
     end.
 
 
+Fixpoint mergeB (p1 p2 : nat) (b : stbind) {struct b} : stbind
+ := match b with
+    | StValue p v
+    => if beq_nat p p1
+          then StValue p2 v
+          else StValue p  v
+
+    |  StDead p
+    => StDead p
+    end.
+
 
