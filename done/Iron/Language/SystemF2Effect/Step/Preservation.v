@@ -342,7 +342,7 @@ Proof.
    exists se.
    set (r1 := TRgn p1).
    set (r2 := TRgn p2).
-   exists (TSum (substTT 0 r2 e0) (TSum (substTT 0 r2 e2) (TAlloc r1))).
+   exists (TSum (substTT 0 r2 e0) (TSum e2 (TAlloc r1))).
    rip.
 
    (* Store is still well formed. *)
@@ -356,10 +356,39 @@ Proof.
    - admit.
 
    (* Effect of result is subsumed by previous. *)
-   - admit.
+   - admit. (* ok *)
 
    (* Resulting state is well typed. *)
-   - admit. 
+   - eapply TcExp
+       with (e1 := substTT 0 r2 e0)
+            (e2 := TSum e2 (TAlloc r1))
+            (t1 := substTT 0 r2 t0).
+     (* Equivalence of result effect *)
+     + skip. (* ok *)
+
+     (* Expression with new region subst is well typed. *)
+     + have HTE: (nil = substTE 0 r2 nil).
+       rewrite HTE. clear HTE.
+
+       have HSE: (se  = substTE 0 r2 se)
+        by (inverts HH; symmetry; auto).
+       rewrite HSE. clear HSE.
+
+       eapply subst_type_exp.
+       eapply typex_stprops_snoc.
+
+       have HTE: (nil = liftTE 0 nil).
+       rewrite HTE. clear HTE.
+
+       have HSE: (se = liftTE 0 se)
+        by (inverts HH; symmetry; auto).
+       rewrite HSE. clear HSE.
+       eauto.
+
+       subst r2. eauto.
+
+     (* Extended frame stack is well typed. *)
+     + eapply TfConsExt; eauto.
  }
 
  (*********************************************************)

@@ -31,7 +31,17 @@ Inductive
    ,  not (In (FPriv n) fs)
    -> LiveE  fs e2
    -> TYPEF  ke te se  sp fs              t1 t2 e2
-   -> TYPEF  ke te se  sp (fs :> FPriv n) t1 t2 e2.
+   -> TYPEF  ke te se  sp (fs :> FPriv n) t1 t2 e2
+
+ | TfConsExt 
+   :  forall ke te se sp fs t0 t1 e2 p1 p2
+   ,  KindT  ke sp (TRgn p1) KRegion
+   -> KindT  ke sp (TRgn p2) KRegion
+   -> KindT  (ke :> KRegion) sp t0 KData
+   -> TYPEF  ke te se sp fs 
+                         (substTT 0 (TRgn p1) t0) t1 e2
+   -> TYPEF  ke te se sp (fs :> FExt p1 p2) 
+                         (substTT 0 (TRgn p2) t0) t1 (TSum e2 (TAlloc (TRgn p1))).
 
 Hint Constructors TYPEF.
 
@@ -42,6 +52,7 @@ Ltac inverts_typef :=
   (match goal with 
    | [ H: TYPEF _ _ _ _ (_ :> FLet  _ _) _ _ _ |- _ ] => inverts H
    | [ H: TYPEF _ _ _ _ (_ :> FPriv _)   _ _ _ |- _ ] => inverts H
+   | [ H: TYPEF _ _ _ _ (_ :> FExt  _ _) _ _ _ |- _ ] => inverts H
    end); 
  try inverts_type).
 
@@ -53,7 +64,10 @@ Lemma typef_kind_effect
  -> KindT  ke sp e KEffect.
 Proof.
  intros.
- induction H; eauto.
+ induction H; auto.
+ - eapply KiSum; eauto.
+ - eapply KiSum; auto.
+   eapply KiCon1; snorm.
 Qed.
 Hint Resolve typef_kind_effect.
 
@@ -73,6 +87,7 @@ Lemma typef_kind_t1
 Proof. 
  intros.
  induction H; auto.
+ - eapply subst_type_type; eauto.
 Qed.
 Hint Resolve typef_kind_t1.
 
