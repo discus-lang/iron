@@ -87,7 +87,7 @@ Inductive
  | SfExtendPop
    :  forall ss sp fs p1 p2 v1
    ,  STEPF  ss                      sp (fs :> FExt p1 p2) (XVal v1)
-             (map (mergeB p1 p2) ss) sp fs                 (XVal v1)
+             (map (mergeB p1 p2) ss) sp fs                 (XVal v1
 
  (* Store operators *****************************)
  (* Allocate a reference. *) 

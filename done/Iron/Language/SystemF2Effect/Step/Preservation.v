@@ -339,17 +339,17 @@ Proof.
  (* Push an extend frame on the stack. *)
  Case "SfExtendPush".
  { inverts_typec.
-   exists se.
    set (r1 := TRgn p1).
    set (r2 := TRgn p2).
+   exists se.
    exists (TSum (substTT 0 r2 e0) (TSum e2 (TAlloc r1))).
    rip.
-
-   (* Store is still well formed. *)
+   
+   (* Updated store is well formed. *)
    - eapply wfFS_region_ext; auto.
      inverts H10. auto.
 
-   (* Store is live relative to frame stack. *)
+   (* Updated store is live relative to frame stack. *)
    - admit.
 
    (* Frame stack is live relative to effect. *)
@@ -395,7 +395,38 @@ Proof.
  (* Pop and extend frame from the stack, 
     and merge the new region with the old one. *)
  Case "SfExtendPop".
- { admit.
+ { inverts_typec.
+   set (r1 := TRgn p1).
+   set (r2 := TRgn p2).
+   exists se.                             (* TODO: will need to patch store env *)
+   exists (TSum e0 (TAlloc (TRgn p1))).
+   rip.
+
+   (* Updated store is well formed. *)
+   - admit. 
+
+   (* Updated store is live relative to frame stack. *)
+   - admit.
+
+   (* Frame stack is live relative to effect. *) 
+   - admit.
+
+   (* Effect of result is subsumed by previous. *)
+   - admit.
+
+   (* Resulting state is well typed. *)
+   - eapply TcExp
+       with (e1 := TBot KEffect)
+            (e2 := TSum e0 (TAlloc (TRgn p1))).
+
+     (* Equivalence of result effect. *)
+     + skip.
+
+     (* Result value is well typed. *)
+     + eapply TxVal. eauto.
+
+     (* Popped frame stack is well typed. *)
+     + eapply 
  }
 
  (*********************************************************)
