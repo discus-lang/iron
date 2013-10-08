@@ -399,7 +399,7 @@ Proof.
    set (r1 := TRgn p1).
    set (r2 := TRgn p2).
    exists (mergeSE p1 p2 se).
-   exists (TSum e0 (TAlloc (TRgn p1))).
+   exists e0.
    rip.
 
    (* Extends of SE no longer true *)
@@ -421,19 +421,18 @@ Proof.
    - eapply TcExp
        with (t1 := substTT 0 (TRgn p1) t0)
             (e1 := TBot KEffect)
-            (e2 := TSum e0 (TAlloc (TRgn p1))).
+            (e2 := e0).
 
      (* Equivalence of result effect. *)
-     + have (KindT nil sp (TSum (TBot KEffect) 
-                          (TSum e0 (TAlloc (TRgn p1)))) KEffect).
-       inverts H0. inverts H11.
-       eapply EqSym; auto.
+     + admit.
 
      (* Result value is well typed. *)
-     + rrwrite (nil                    = mergeTE p1 p2 nil).
+     + rrwrite (nil                    = delete 0 (nil :> KRegion)).
+       rrwrite (nil                    = mergeTE p1 p2 nil).
        rrwrite (XVal (mergeV p1 p2 v1) = mergeX  p1 p2 (XVal v1)).
        rrwrite (TBot KEffect           = substTT 0 (TRgn p1) (TBot KEffect)).
-       eapply typex_merge. auto.
+      (*  eapply typex_merge. auto. *)
+       admit.
 
      (* Popped frame stack is well typed. *)
      + eapply 

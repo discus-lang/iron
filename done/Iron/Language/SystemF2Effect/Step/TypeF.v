@@ -109,7 +109,8 @@ Lemma typef_stenv_snoc
  -> TYPEF ke te se         sp fs t1 t2 e
  -> TYPEF ke te (t3 <: se) sp fs t1 t2 e.
 Proof.
- intros. induction H0; eauto.
+ intros. 
+ induction H0; eauto.
 Qed.
 Hint Resolve typef_stenv_snoc.
 

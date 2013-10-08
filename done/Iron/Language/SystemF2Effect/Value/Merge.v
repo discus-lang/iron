@@ -68,19 +68,46 @@ Hint Unfold mergeSE.
 
 
 (********************************************************************)
+Lemma mergeT_substTT
+ :  forall ke sp t k p1 p2 ix
+ ,  not (In (SRegion p2) sp)
+ -> KindT ke sp t k
+ -> mergeT p1 p2 (substTT ix (TRgn p2) t)
+ =  substTT ix (TRgn p1) t.
+Proof.
+ intros. gen ix ke k.
+ induction t; snorm;
+  try (inverts H0; espread; eauto).
+ - nope.
+ - snorm. subst. nope.
+Qed.
+
+
+.. define support set of type. 
+.. region handles that appear in type.
+.. redo above lemma based on this, instead of directly requring
+..   region set to be sp, because we want to hold this constant when popping.
+
+
 Lemma typex_merge 
- : forall ix ke te se sp x t e p1 p2
- ,  TYPEX ke te se sp 
+ : forall ix ke te se sp x t e p1 p2 k
+ ,  get ix ke = Some KRegion
+ -> In (SRegion p1) sp
+ -> KindT ke sp t k
+ -> KindT ke sp e KEffect
+ -> TYPEX (delete ix ke) te se sp 
           x                 (substTT ix (TRgn p2) t) (substTT ix (TRgn p2) e)
- -> TYPEX ke                (mergeTE p1 p2 te)       (mergeSE p1 p2 se) sp 
+ -> TYPEX (delete ix ke)    (mergeTE p1 p2 te)       (mergeSE p1 p2 se)  sp
           (mergeX  p1 p2 x) (substTT ix (TRgn p1) t) (substTT ix (TRgn p1) e).
 Proof.
- intros. gen ke te se sp t e.
+ intros. gen ke te se sp t e k.
  induction x using exp_mutind with
-  (PV := fun v => forall ke te se sp t
+  (PV := fun v => forall ke te se sp t k
       ,  get ix ke = Some KRegion
-      -> TYPEV ke te se sp v     (substTT ix (TRgn p2) t)  
-      -> TYPEV ke                (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp
+      -> In (SRegion p1) sp
+      -> KindT ke sp t k
+      -> TYPEV (delete ix ke) te se sp v (substTT ix (TRgn p2) t)  
+      -> TYPEV (delete ix ke)            (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp
                (mergeV  p1 p2 v) (substTT ix (TRgn p1) t));
   intros.
 
@@ -91,23 +118,36 @@ Proof.
    admit.
 
  - Case "VLam".
-   inverts H0.
+   inverts H2.
    destruct t0;       try (snorm; congruence).
-   inverts H7.
+   inverts H9.
    destruct t0_1;     try (snorm; congruence).
-   simpl in H1. inverts H1.
+   simpl in H3. inverts H3.
    destruct t0_1_1;   try (snorm; congruence).
-   simpl in H2. inverts H2.
+   simpl in H4. inverts H4.
    destruct t0_1_1_1; try (snorm; congruence).
-   simpl in H1. inverts H1.
+   simpl in H3. inverts H3.
+
    simpl.
-   rrwrite ( mergeT p1 p2 (substTT ix (TRgn p2) t0_1_1_2)
-           = substTT ix (TRgn p1) t0_1_1_2) by admit.
-   eapply TvLam. 
-   + admit.                                  (* fix kind  of TRgn p1 *)
-   + eapply IHx in H9; auto.
-     simpl in H9.
-     admit.
+   erewrite mergeT_substTT.
+   eapply TvLam; auto.
+   + eapply subst_type_type_ix; auto.
+     * eauto.
+     * inverts_kind. snorm. inverts H7. auto.
+   + eapply IHx in H11; auto.
+     * simpl in H11.
+       inverts_kind.
+       erewrite mergeT_substTT in H11; eauto.
+     * inverts_kind.
+       snorm.
+       inverts H8. auto.
+     * inverts_kind.
+       snorm.
+       inverts H8. eauto.
+   + eauto.
+   + inverts_kind.
+     snorm.
+     inverts H8. eauto.
 
  - Case "VLAM".
    snorm.
@@ -116,7 +156,7 @@ Proof.
  - Case "VConst".
    snorm. 
    eapply TvConst.
-   destruct c; inverts H0; snorm.
+   destruct c; inverts_type; snorm.
    + destruct t; snorm; nope.
    + destruct t; snorm; nope.
    + destruct t; snorm; nope.
