@@ -398,9 +398,12 @@ Proof.
  { inverts_typec.
    set (r1 := TRgn p1).
    set (r2 := TRgn p2).
-   exists se.                             (* TODO: will need to patch store env *)
+   exists (mergeSE p1 p2 se).
    exists (TSum e0 (TAlloc (TRgn p1))).
    rip.
+
+   (* Extends of SE no longer true *)
+   - skip.  (* BROKEN *)
 
    (* Updated store is well formed. *)
    - admit. 
@@ -416,14 +419,21 @@ Proof.
 
    (* Resulting state is well typed. *)
    - eapply TcExp
-       with (e1 := TBot KEffect)
+       with (t1 := substTT 0 (TRgn p1) t0)
+            (e1 := TBot KEffect)
             (e2 := TSum e0 (TAlloc (TRgn p1))).
 
      (* Equivalence of result effect. *)
-     + skip.
+     + have (KindT nil sp (TSum (TBot KEffect) 
+                          (TSum e0 (TAlloc (TRgn p1)))) KEffect).
+       inverts H0. inverts H11.
+       eapply EqSym; auto.
 
      (* Result value is well typed. *)
-     + eapply TxVal. eauto.
+     + rrwrite (nil                    = mergeTE p1 p2 nil).
+       rrwrite (XVal (mergeV p1 p2 v1) = mergeX  p1 p2 (XVal v1)).
+       rrwrite (TBot KEffect           = substTT 0 (TRgn p1) (TBot KEffect)).
+       eapply typex_merge. auto.
 
      (* Popped frame stack is well typed. *)
      + eapply 

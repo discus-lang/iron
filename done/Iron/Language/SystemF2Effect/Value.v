@@ -4,6 +4,7 @@ Require Export Iron.Language.SystemF2Effect.Value.Lift.
 Require Export Iron.Language.SystemF2Effect.Value.Wf.
 Require Export Iron.Language.SystemF2Effect.Value.SubstTX.
 Require Export Iron.Language.SystemF2Effect.Value.SubstVX.
+Require Export Iron.Language.SystemF2Effect.Value.Merge.
 Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
 Require Export Iron.Language.SystemF2Effect.Value.TyJudge.Unique.
 Require Export Iron.Language.SystemF2Effect.Value.TyJudge.WeakKiEnv.

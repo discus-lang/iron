@@ -44,7 +44,7 @@ Proof.
        eauto.
      + SSCase "FExt".
        exists (map (mergeB p1 p2) ss).
-       exists sp. exists fs. exists (XVal v).
+       exists sp. exists fs. exists (XVal (mergeV p1 p2 v)).
        eauto.
  }
 
