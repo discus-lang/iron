@@ -1,6 +1,7 @@
 
 Require Import Iron.Language.SystemF2Effect.Value.Exp.
 Require Import Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
+Require Import Iron.Language.SystemF2Effect.Value.Operator.SubstTX.
 
 Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
  match vv with
@@ -53,71 +54,113 @@ Hint Unfold mergeSE.
 
 
 (********************************************************************)
+
+Lemma typex_merge_substTT
+ :  forall ke te se sp x t e p1 p2
+ ,  In (SRegion p1) sp
+ -> TYPEX ke 
+          (substTE 0 (TRgn p2) te) (substTE 0 (TRgn p2) se) sp
+          (substTX 0 (TRgn p2) x) 
+          (substTT 0 (TRgn p2) t)  (substTT 0 (TRgn p2) e)
+ -> TYPEX ke 
+          (substTE 0 (TRgn p1) te) (substTE 0 (TRgn p1) se) sp
+          (substTX 0 (TRgn p1) x)
+          (substTT 0 (TRgn p1) t)  (substTT 0 (TRgn p1) e).
+Proof.
+ admit.
+Qed.
+
+(*
 Lemma typex_merge_substTT 
- : forall ix ke te se sp x t e p1 p2 k
- ,  get ix ke = Some KRegion
- -> In (SRegion p1) sp
+ : forall ke te se sp x t e p1 p2 k
+ ,  In (SRegion p1) sp
  -> freshT p2 t
- -> KindT ke sp t k
- -> KindT ke sp e KEffect
- -> TYPEX (delete ix ke) te se sp 
-          x                 (substTT ix (TRgn p2) t) (substTT ix (TRgn p2) e)
- -> TYPEX (delete ix ke)    (mergeTE p1 p2 te)       (mergeSE p1 p2 se)  sp
-          (mergeX  p1 p2 x) (substTT ix (TRgn p1) t) (substTT ix (TRgn p1) e).
+ -> freshT p2 e
+ -> KindT (ke :> KRegion) sp t k
+ -> KindT (ke :> KRegion) sp e KEffect
+ -> TYPEX ke te                    se                 sp 
+          x
+          (substTT 0 (TRgn p2) t) (substTT 0 (TRgn p2) e)
+ -> TYPEX ke (mergeTE p1 p2 te)   (mergeSE p1 p2 se)  sp
+          (mergeX p1 p2 x)
+          (substTT 0 (TRgn p1) t) (substTT 0 (TRgn p1) e).
 Proof.
  intros. gen ke te se sp t e k.
  induction x using exp_mutind with
   (PV := fun v => forall ke te se sp t k
-      ,  get ix ke = Some KRegion
-      -> In (SRegion p1) sp
+      ,  In (SRegion p1) sp
       -> freshT p2 t
-      -> KindT ke sp t k
-      -> TYPEV (delete ix ke) te se sp v (substTT ix (TRgn p2) t)  
-      -> TYPEV (delete ix ke)            (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp
-               (mergeV  p1 p2 v) (substTT ix (TRgn p1) t));
+      -> KindT (ke :> KRegion) sp t k
+      -> TYPEV ke  te                 se                sp 
+               v
+               (substTT 0 (TRgn p2) t)  
+      -> TYPEV ke  (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp
+               (mergeV  p1 p2 v)
+               (substTT 0 (TRgn p1) t));
   intros.
 
  - Case "VVar".
-   inverts_type. simpl.
+   snorm.
+   inverts_type. 
    eapply TvVar.
-   + eapply get_map with (f := mergeT p1 p2) in H5.
+   + eapply get_map with (f := mergeT p1 p2) in H4.
      unfold mergeTE.
-     rewrite H5. f_equal.
+     rewrite H4. f_equal.
      admit.                            (* ok, mergeT_substTT *)
    + admit.                            (* ok, need kindT_substTT_swap lemma *)
-   
+
  - Case "VLoc".
-   admit.
+   snorm.
+   inverts_type.
+   destruct t; snorm; try nope.
+   inverts H4.
+   destruct t1.
+   eapply TvLoc.
+   + eapply get_map with (f := mergeT p1 p2) in H9.
+     unfold mergeSE.
+     rewrite H9. f_equal.
+     simpl. f_equal.
+     admit. admit.                    (* ok, mergeT_substTT *)
+   + admit.                           (* ok, need kindT_substTT_swap lemma *)  
 
  - Case "VLam".
-   inverts H3.
+   (*
+   inverts H2.
    destruct t0;       try (snorm; congruence).
-   inverts H10.
+   inverts H9.
    destruct t0_1;     try (snorm; congruence).
-   simpl in H4. inverts H4.
+   simpl in H3. inverts H4.
    destruct t0_1_1;   try (snorm; congruence).
    simpl in H5. inverts H5.
    destruct t0_1_1_1; try (snorm; congruence).
    simpl in H4. inverts H4.
 
-   simpl.
+   snorm.
    erewrite mergeT_substTT.
    eapply TvLam; auto.
-   + eapply subst_type_type_ix; auto.
-     * eauto.
-     * inverts_kind. snorm. inverts H8. auto.
+   + inverts_kind.
+     admit. 
+     (* eapply subst_type_type_ix; auto.
+        * eauto.
+        * inverts_kind. snorm. inverts H13. auto. *)
    + eapply IHx in H12; auto.
-     * inverts_kind. snorm. inverts H8.
+     * inverts_kind. snorm. inverts H13.
        erewrite mergeT_substTT in H12; eauto.
-     * inverts_kind. snorm. 
-     * inverts_kind. snorm. inverts H8. auto.
-     * inverts_kind. snorm. inverts H8. eauto.
-   + snorm.
-   + inverts_kind. snorm. inverts H8. eauto.
+     * inverts_kind. snorm. inverts H13. auto. 
+     * inverts_kind. snorm. inverts H13. eauto.
+   + snorm. 
+   + inverts_kind. snorm. inverts H13. 
+     eauto.
+ *)
+   admit.
 
  - Case "VLAM".
-   snorm.
-   admit.
+   inverts_type.
+   destruct t;       try (snorm; congruence). snorm.
+   inverts H10.
+
+   eapply TvLAM.
+   admit.                            (* prob ok, need mergeT_liftTT lemma *)   
 
  - Case "VConst".
    snorm. 
@@ -128,10 +171,34 @@ Proof.
    + destruct t; snorm; nope.
 
  - Case "VVal".
-   admit.
+   inverts_type.
+   destruct e; try (snorm; congruence). snorm.
+   inverts H10.
+   eapply TxVal.
+   eapply IHx; eauto.
 
- - Case "XLet".
-   admit.
+ - Case "XLet". simpl.
+   destruct e; try (inverts_type; snorm; congruence). snorm.
+   inverts_type.  
+ eapply TxLet.
+   + admit.
+   + inverts_type.
+     
+
+eapply IHx1; eauto 2.
+     * admit.                                 (* ok, freshT_mergeT lemma *)
+     * inverts_kind; eauto. 
+     * inverts_type; eauto.
+       
+       
+        
+     
+   
+
+   + inverts_kind. 
+     rgwrite ( mergeTE p1 p2 te :> mergeT p1 p2 t
+             = mergeTE p1 p2 (te :> t)).
+     eapply IHx2; eauto.
 
  - Case "XApp".
    admit.
@@ -157,4 +224,4 @@ Proof.
  - Case "XWrite".
    admit.
 Qed.
-
+*)
