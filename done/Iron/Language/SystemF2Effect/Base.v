@@ -73,4 +73,14 @@ Tactic Notation "burn" "using" tactic(T)
                | repeat f_equal; burn0 using T ]).
 
 
+(* TODO: shift this to tatics lib *)
+Tactic Notation "rgwrite" constr(xx)
+ := let H2 := fresh
+    in  assert xx as H2 by have_auto; rewrite H2; clear H2.
+
+Tactic Notation "rgwrite" constr(xx) "by" tactic(T)
+ := let H := fresh 
+    in  assert xx as H  by T; rewrite H;  clear H.
+
+
 Ltac have_auto ::= burn.

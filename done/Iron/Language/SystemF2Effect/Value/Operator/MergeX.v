@@ -78,8 +78,14 @@ Proof.
   intros.
 
  - Case "VVar".
-   admit.
-
+   inverts_type. simpl.
+   eapply TvVar.
+   + eapply get_map with (f := mergeT p1 p2) in H5.
+     unfold mergeTE.
+     rewrite H5. f_equal.
+     admit.                            (* ok, mergeT_substTT *)
+   + admit.                            (* ok, need kindT_substTT_swap lemma *)
+   
  - Case "VLoc".
    admit.
 

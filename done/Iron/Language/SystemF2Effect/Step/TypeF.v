@@ -36,8 +36,10 @@ Inductive
 
  | TfConsExt 
    :  forall ke te se sp fs t0 t1 e2 p1 p2
-   ,  KindT  ke sp (TRgn p1) KRegion
-   -> KindT  ke sp (TRgn p2) KRegion
+   ,  In (SRegion p1) sp 
+   -> In (SRegion p2) sp
+   -> freshT  p2 t0      
+    -> freshFs p2 fs
    -> KindT  (ke :> KRegion) sp t0 KData
    -> TYPEF  ke te se sp fs 
                          (substTT 0 (TRgn p1) t0) t1 e2
@@ -127,6 +129,31 @@ Qed.
 Hint Resolve typef_stprops_snoc.
 
 
+Lemma freshFs_typef
+ :  forall ke te se sp fs t1 t2 e p 
+ ,  not (In (SRegion p) sp)
+ -> TYPEF ke te se sp fs t1 t2 e
+ -> freshFs p fs.
+Proof.
+ intros. gen ke te se sp t1 t2 e.
+ induction fs; intros; auto.
+ destruct a.
+ - inverts H0. 
+   eapply freshFs_cons; eauto.
+   simpl. rip. eauto.
+   admit.                        (* ok, need typeX_freshX *)
+ - inverts H0.
+   eapply freshFs_cons; eauto.
+   admit.                        (* ok, add In (SRegion p) to TsConsPriv *)
+ - inverts H0.
+   eapply freshFs_cons; eauto.
+   snorm.
+   + admit.                      (* ok, via In. *)
+   + admit.                      (* ok, via In. *)
+Qed.
+Hint Resolve freshFs_typef.
+
+
 Lemma mergeTE_rewind
  :  forall p1 p2 te t
  ,  freshT p2 t
@@ -140,26 +167,6 @@ Proof.
  rewrite HT1 at 1.
  snorm.
 Qed.
-
-
-Definition freshFreeX p2 te x
- := forall n t, (freeXX n x /\ get n te = Some t) -> freshT p2 t.
-Hint Unfold freshFreeX.
-
-Definition freshFreeV p2 te v
- := forall n t, (freeXV n v /\ get n te = Some t) -> freshT p2 t.
-Hint Unfold freshFreeV.
-
-Fixpoint   freshFreeF p2 te f :=
- match f with
- | FLet t x        => freshFreeX p2 te x
- | FPriv _         => True
- | FExt  _ _       => True
- end.
-
-Definition freshFreeFs p2 te fs 
- := Forall (freshFreeF p2 te) fs.
-Hint Unfold freshFreeFs.
 
 
 Lemma typex_merge

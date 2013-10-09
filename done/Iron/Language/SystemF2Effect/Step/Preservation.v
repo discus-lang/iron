@@ -248,12 +248,13 @@ Proof.
 
        eapply subst_type_exp with (k2 := KRegion).
        * rrwrite (liftTE 0 nil = nil).
-         rrwrite (liftTE 0 se  = se) by (inverts HH; auto).
+         rrwrite (liftTE 0 se  = se) 
+          by (inverts HH; auto).
          auto.
        * subst r. auto.
          eapply KiRgn.
-          rrwrite (SRegion p <: sp = sp ++ (nil :> SRegion p)).
-          eapply in_app_right. snorm.
+         rrwrite (SRegion p <: sp = sp ++ (nil :> SRegion p)).
+         eapply in_app_right. snorm.
 
      (* New frame stack is well typed. *)
      + eapply TfConsPriv.
@@ -282,13 +283,15 @@ Proof.
            eapply kind_wfT in HK.
            simpl in HK.
 
-           have (freeTT 0 t0 = false) by (eapply lowerTT_freeT; eauto).
+           have (freeTT 0 t0 = false) 
+            by (eapply lowerTT_freeT; eauto).
            eapply freeTT_wfT_drop; eauto.
          }
 
          rrwrite (substTT 0 r t0 = t0).
          rrwrite (substTT 0 r e2 = e2).
-         rrwrite (t1 = t0) by (eapply lowerTT_closedT; eauto).
+         rrwrite (t1 = t0) 
+          by (eapply lowerTT_closedT; eauto).
          eauto.
  }
 
@@ -373,28 +376,24 @@ Proof.
        admit. (* ok *)
 
      (* Expression with new region subst is well typed. *)
-     + have HTE: (nil = substTE 0 r2 nil).
-       rewrite HTE. clear HTE.
-
-       have HSE: (se  = substTE 0 r2 se)
+     + rgwrite (nil = substTE 0 r2 nil).
+       rgwrite (se  = substTE 0 r2 se)
         by (inverts HH; symmetry; auto).
-       rewrite HSE. clear HSE.
 
        eapply subst_type_exp.
-       eapply typex_stprops_snoc.
-
-       have HTE: (nil = liftTE 0 nil).
-       rewrite HTE. clear HTE.
-
-       have HSE: (se = liftTE 0 se)
-        by (inverts HH; symmetry; auto).
-       rewrite HSE. clear HSE.
-       eauto.
-
-       subst r2. eauto.
+       * eapply typex_stprops_snoc.
+         rgwrite (nil = liftTE 0 nil).
+         rgwrite (se  = liftTE 0 se)
+          by (inverts HH; symmetry; auto).
+         eauto.
+       * subst r2. eauto.
 
      (* Extended frame stack is well typed. *)
-     + eapply TfConsExt; eauto.
+     + have (KindT (nil :> KRegion) sp t0 KData).
+       have (not (In (SRegion p2) sp))
+        by (subst p2; auto).
+       eapply TfConsExt; eauto.
+       inverts H10. snorm.
  }
 
  (*********************************************************)
@@ -421,7 +420,7 @@ Proof.
    - admit.
 
    (* Effect of result is subsumed by previous. *)
-   - admit.
+   - admit.  (* ok, via EquivT *)
 
    (* Resulting state is well typed. *)
    - eapply TcExp
@@ -435,16 +434,15 @@ Proof.
        eapply EqSym; eauto.
 
      (* Result value is well typed. *)
-     + rrwrite (nil                    = delete 0 (nil :> KRegion)).
-       rrwrite (nil                    = mergeTE p1 p2 nil).
-       rrwrite (XVal (mergeV p1 p2 v1) = mergeX  p1 p2 (XVal v1)).
-       rrwrite (TBot KEffect           = substTT 0 (TRgn p1) (TBot KEffect)).
-       eapply typex_merge; eauto.
-       * inverts_kind; auto.
-       * admit. (* ok, add freshT p2 t0 to TfConsExt *)
+     + rgwrite (nil                    = delete 0 (nil :> KRegion)).
+       rgwrite (nil                    = mergeTE p1 p2 nil).
+       rgwrite (XVal (mergeV p1 p2 v1) = mergeX  p1 p2 (XVal v1)).
+       rgwrite (TBot KEffect           = substTT 0 (TRgn p1) (TBot KEffect)).
+       eapply typex_merge_substTT; eauto.
   
      (* Popped frame stack is well typed. *)
-     + eapply 
+     + rgwrite (nil = mergeTE p1 p2 nil).
+       eapply typef_merge; eauto.
  }
 
  (*********************************************************)
