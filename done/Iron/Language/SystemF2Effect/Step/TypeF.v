@@ -50,9 +50,9 @@ Hint Constructors TYPEF.
 
 *** New plan: define a relation between two types.
 
-    mergedT p1 p2 t0A t0B
- -> TYPEF ke te se sp fs t0A t1 e2
- -> TYPEF ke te se sp fs t0B t2 e2
+    SplitT p1 p2 t0A t0B
+ -> TYPEF  ke te se sp fs t0A t1 e2
+ -> TYPEF  ke te se sp fs t0B t2 e2
 
 ** use relation in typex_merge_substTT
 
