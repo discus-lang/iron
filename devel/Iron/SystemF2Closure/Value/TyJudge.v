@@ -1,8 +1,8 @@
 
 Require Export Iron.Language.SystemF2Effect.Type.
 Require Export Iron.Language.SystemF2Effect.Value.Exp.
-Require Export Iron.Language.SystemF2Effect.Value.Wf.
-Require Export Iron.Language.SystemF2Effect.Value.Lift.
+Require Export Iron.Language.SystemF2Effect.Value.Relation.Wf.
+Require Export Iron.Language.SystemF2Effect.Value.Operator.LiftX.
 Require Export Iron.Language.SystemF2Effect.Store.Prop.
 
 

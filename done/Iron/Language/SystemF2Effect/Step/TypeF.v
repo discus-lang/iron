@@ -1,6 +1,7 @@
 
-Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
+Require Export Iron.Language.SystemF2Effect.Value.
 Require Export Iron.Language.SystemF2Effect.Step.Frame.
+Require Export Iron.Language.SystemF2Effect.Step.FreshF.
 Require Export Iron.Language.SystemF2Effect.Store.
 Require Export Iron.Language.SystemF2Effect.Store.LiveE.
 
@@ -124,5 +125,193 @@ Proof.
  induction H; eauto.
 Qed.
 Hint Resolve typef_stprops_snoc.
+
+
+Lemma mergeTE_rewind
+ :  forall p1 p2 te t
+ ,  freshT p2 t
+ -> mergeTE p1 p2 te :> t
+ =  mergeTE p1 p2 (te :> t).
+Proof.
+ intros.
+
+ have HT1: (t = mergeT p1 p2 t)
+  by (symmetry; apply mergeT_freshT_id; auto).
+ rewrite HT1 at 1.
+ snorm.
+Qed.
+
+
+Definition freshFreeX p2 te x
+ := forall n t, (freeXX n x /\ get n te = Some t) -> freshT p2 t.
+Hint Unfold freshFreeX.
+
+Definition freshFreeV p2 te v
+ := forall n t, (freeXV n v /\ get n te = Some t) -> freshT p2 t.
+Hint Unfold freshFreeV.
+
+Fixpoint   freshFreeF p2 te f :=
+ match f with
+ | FLet t x        => freshFreeX p2 te x
+ | FPriv _         => True
+ | FExt  _ _       => True
+ end.
+
+Definition freshFreeFs p2 te fs 
+ := Forall (freshFreeF p2 te) fs.
+Hint Unfold freshFreeFs.
+
+
+Lemma typex_merge
+ :  forall ke te se sp x t e p1 p2
+ ,  freshX     p2 x
+ -> freshFreeX p2 te x
+ -> TYPEX ke te se sp x t e
+ -> TYPEX ke (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp x t e.
+Proof.
+ intros. gen ke te se sp t e.
+ induction x using exp_mutind with
+  (PV := fun v => forall ke te se sp t 
+      ,  freshV     p2 v
+      -> freshFreeV p2 te v
+      -> TYPEV ke te se sp v t
+      -> TYPEV ke (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp v t);
+  intros; inverts_type; auto.
+
+ - Case "XVar".
+   eapply TvVar; auto.
+   unfold freshFreeV in *.
+   spec H1 n. spec H1 t.
+
+   have HF: (freeXV n (VVar n)) 
+    by (unfold freeXV; symmetry; eapply beq_nat_refl).
+
+   assert (freshT p2 t).
+    eauto. clear H1.
+
+   unfold mergeTE.
+   eapply get_map with (f := mergeT p1 p2) in H4.
+   rewrite H4.
+   rewrite mergeT_freshT_id; auto.
+
+ - Case "XLoc".
+   eapply TvLoc; auto.
+   admit.                               (* ok, need freshSuppV crap *)
+
+ - Case "XLam".
+   eapply TvLam; auto.
+   snorm. rewrite mergeTE_rewind; auto.
+   eapply IHx; auto.
+   + admit.
+
+ - Case "XLAM".
+   eapply TvLAM. admit.
+
+ - Case "XLet".
+   snorm.
+   eapply TxLet; auto.
+   + eapply IHx1; auto. firstorder.
+   + rewrite mergeTE_rewind.
+     eapply IHx2; auto. admit. admit.
+ 
+ - Case "XApp".
+   snorm.
+   eapply TxApp. 
+   + eapply IHx; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+   + eapply IHx0; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+
+ - Case "XAPP".
+   admit.
+
+ - Case "XOp1".
+   eapply TxOpPrim; eauto.
+
+ - Case "XPrivate".
+   eapply TxPrivate; eauto.
+   admit.                             (* ok, comm liftTE/mergeTE *)
+
+ - Case "XExtend".
+   eapply TxExtend; eauto.
+   admit.                             (* ok, comm liftTE/mergeTE *)
+
+ - Case "XAlloc".
+   eapply TxOpAlloc; eauto.
+   + eapply IHx; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H; snorm; eauto.
+
+ - Case "XRead".
+   eapply TxOpRead; eauto.
+   + eapply IHx; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H; snorm; eauto.
+
+ - Case "XWrite".
+   eapply TxOpWrite; eauto.
+   + eapply IHx; snorm; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+   + eapply IHx0; snorm; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+Qed.
+
+
+
+Lemma typef_merge
+ :  forall ke te se sp fs t1 t2 e p1 p2
+ ,  freshFs     p2 fs
+ -> freshFreeFs p2 te fs
+ -> TYPEF ke te se sp fs t1 t2 e
+ -> TYPEF ke (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp fs t1 t2 e.
+Proof.
+ intros. gen ke te se sp t1 t2 e.
+ induction fs; intros.
+
+ Case "nil".
+ { inverts H1. eauto.  
+ }
+
+ Case "cons".
+ { destruct a.
+
+   - SCase "FLet".
+     have (freshFs p2 fs). rip.
+
+     have HF: (freshF  p2 (FLet t e0))
+      by (eapply freshFs_tail; eauto).
+     unfold freshF in HF. rip. 
+
+     inverts H1.
+     eapply TfConsLet; auto.
+     + rewrite mergeTE_rewind; auto.
+       eapply typex_merge; eauto.
+       * admit.                                  (* ok, fresh join *)
+     + eapply IHfs; auto.
+       admit.                                    (* ok, freshFree tail *)
+
+   - SCase "FPriv".
+     inverts H1.
+     eapply TfConsPriv; auto.
+     eapply IHfs; eauto.
+     admit.                                      (* ok, freshFree tail *)
+
+   - SCase "FExt".
+     inverts H1.
+     eapply TfConsExt; auto.
+     eapply IHfs; eauto.
+     admit.                                      (* ok, freshFree tail *)
+ }
+Qed.
 
 

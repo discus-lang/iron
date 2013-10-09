@@ -1,21 +1,6 @@
 
 Require Import Iron.Language.SystemF2Effect.Value.Exp.
-Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
-
-
-Fixpoint mergeT (p1 p2 : nat) (tt : ty)  : ty :=
- match tt with
- | TVar    _            => tt
- | TForall k t          => TForall k (mergeT p1 p2 t)
- | TApp    t1 t2        => TApp (mergeT p1 p2 t1) (mergeT p1 p2 t2)
- | TSum    t1 t2        => TSum (mergeT p1 p2 t1) (mergeT p1 p2 t2)
- | TBot    k            => TBot k
- | TCon0   tc0          => TCon0 tc0
- | TCon1   tc1 t1       => TCon1 tc1 (mergeT p1 p2 t1)
- | TCon2   tc2 t1 t2    => TCon2 tc2 (mergeT p1 p2 t1) (mergeT p1 p2 t2)
- | TCap (TyCapRegion p) => if beq_nat p p2 then TRgn p1 else tt
- end.
-
+Require Import Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
 
 Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
  match vv with
@@ -68,31 +53,11 @@ Hint Unfold mergeSE.
 
 
 (********************************************************************)
-Lemma mergeT_substTT
- :  forall ke sp t k p1 p2 ix
- ,  not (In (SRegion p2) sp)
- -> KindT ke sp t k
- -> mergeT p1 p2 (substTT ix (TRgn p2) t)
- =  substTT ix (TRgn p1) t.
-Proof.
- intros. gen ix ke k.
- induction t; snorm;
-  try (inverts H0; espread; eauto).
- - nope.
- - snorm. subst. nope.
-Qed.
-
-
-.. define support set of type. 
-.. region handles that appear in type.
-.. redo above lemma based on this, instead of directly requring
-..   region set to be sp, because we want to hold this constant when popping.
-
-
-Lemma typex_merge 
+Lemma typex_merge_substTT 
  : forall ix ke te se sp x t e p1 p2 k
  ,  get ix ke = Some KRegion
  -> In (SRegion p1) sp
+ -> freshT p2 t
  -> KindT ke sp t k
  -> KindT ke sp e KEffect
  -> TYPEX (delete ix ke) te se sp 
@@ -105,6 +70,7 @@ Proof.
   (PV := fun v => forall ke te se sp t k
       ,  get ix ke = Some KRegion
       -> In (SRegion p1) sp
+      -> freshT p2 t
       -> KindT ke sp t k
       -> TYPEV (delete ix ke) te se sp v (substTT ix (TRgn p2) t)  
       -> TYPEV (delete ix ke)            (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp
@@ -118,36 +84,30 @@ Proof.
    admit.
 
  - Case "VLam".
-   inverts H2.
+   inverts H3.
    destruct t0;       try (snorm; congruence).
-   inverts H9.
+   inverts H10.
    destruct t0_1;     try (snorm; congruence).
-   simpl in H3. inverts H3.
-   destruct t0_1_1;   try (snorm; congruence).
    simpl in H4. inverts H4.
+   destruct t0_1_1;   try (snorm; congruence).
+   simpl in H5. inverts H5.
    destruct t0_1_1_1; try (snorm; congruence).
-   simpl in H3. inverts H3.
+   simpl in H4. inverts H4.
 
    simpl.
    erewrite mergeT_substTT.
    eapply TvLam; auto.
    + eapply subst_type_type_ix; auto.
      * eauto.
-     * inverts_kind. snorm. inverts H7. auto.
-   + eapply IHx in H11; auto.
-     * simpl in H11.
-       inverts_kind.
-       erewrite mergeT_substTT in H11; eauto.
-     * inverts_kind.
-       snorm.
-       inverts H8. auto.
-     * inverts_kind.
-       snorm.
-       inverts H8. eauto.
-   + eauto.
-   + inverts_kind.
-     snorm.
-     inverts H8. eauto.
+     * inverts_kind. snorm. inverts H8. auto.
+   + eapply IHx in H12; auto.
+     * inverts_kind. snorm. inverts H8.
+       erewrite mergeT_substTT in H12; eauto.
+     * inverts_kind. snorm. 
+     * inverts_kind. snorm. inverts H8. auto.
+     * inverts_kind. snorm. inverts H8. eauto.
+   + snorm.
+   + inverts_kind. snorm. inverts H8. eauto.
 
  - Case "VLAM".
    snorm.

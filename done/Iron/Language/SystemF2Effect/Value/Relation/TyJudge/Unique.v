@@ -1,5 +1,5 @@
 
-Require Import Iron.Language.SystemF2Effect.Value.TyJudge.
+Require Import Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
 
 
 (* Uniqueness of typing.

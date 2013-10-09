@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
+Require Export Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
 
 
 (* A well typed expression is well formed *)

@@ -364,7 +364,13 @@ Proof.
             (e2 := TSum e2 (TAlloc r1))
             (t1 := substTT 0 r2 t0).
      (* Equivalence of result effect *)
-     + skip. (* ok *)
+     + have (KindT (nil :> KRegion) sp e0 KEffect).
+
+(*     have (KindT nil sp (substTT 0 r2 e0) KEffect).
+       have (KindT nil sp (TSum (TSum eL (TAlloc (TRgn p1))) e2) KEffect).
+       inverts_kind.
+*)
+       admit. (* ok *)
 
      (* Expression with new region subst is well typed. *)
      + have HTE: (nil = substTE 0 r2 nil).
@@ -424,16 +430,19 @@ Proof.
             (e2 := e0).
 
      (* Equivalence of result effect. *)
-     + admit.
+     + have (KindT nil sp (TSum (TBot KEffect) (TSum e0 (TAlloc (TRgn p1)))) KEffect).
+       inverts_kind.
+       eapply EqSym; eauto.
 
      (* Result value is well typed. *)
      + rrwrite (nil                    = delete 0 (nil :> KRegion)).
        rrwrite (nil                    = mergeTE p1 p2 nil).
        rrwrite (XVal (mergeV p1 p2 v1) = mergeX  p1 p2 (XVal v1)).
        rrwrite (TBot KEffect           = substTT 0 (TRgn p1) (TBot KEffect)).
-      (*  eapply typex_merge. auto. *)
-       admit.
-
+       eapply typex_merge; eauto.
+       * inverts_kind; auto.
+       * admit. (* ok, add freshT p2 t0 to TfConsExt *)
+  
      (* Popped frame stack is well typed. *)
      + eapply 
  }

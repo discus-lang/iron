@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SystemF2Effect.Value.TyJudge.
+Require Export Iron.Language.SystemF2Effect.Value.
 Require Export Iron.Language.SystemF2Effect.Store.
 Require Export Iron.Language.SystemF2Effect.Step.Frame.
 Require Export Iron.Language.SystemF2Effect.Step.TypeF.

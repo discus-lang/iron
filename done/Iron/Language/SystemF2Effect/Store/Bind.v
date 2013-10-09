@@ -1,7 +1,7 @@
 
 Require Export Iron.Language.SystemF2Effect.Value.
-Require Export Iron.Language.SystemF2Effect.Value.TyJudge.WeakStProps.
-Require Export Iron.Language.SystemF2Effect.Value.TyJudge.TypeKind.
+Require Export Iron.Language.SystemF2Effect.Value.Relation.TyJudge.WeakStProps.
+Require Export Iron.Language.SystemF2Effect.Value.Relation.TyJudge.TypeKind.
 
 
 (* Store bindings are the primitive objects we keep in the store.
