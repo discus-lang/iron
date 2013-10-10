@@ -3,6 +3,7 @@ Require Export Iron.Language.SystemF2Effect.Step.Frame.
 Require Export Iron.Language.SystemF2Effect.Store.Bind.
 
 
+(* TODO: shift this into Type utils module. *)
 Fixpoint handleOfEffect (e : ty) : option nat
  := match e with
     | TCon1 tc (TRgn p) 
@@ -34,8 +35,8 @@ Hint Resolve handleOfEffect_form_some.
 (* All region handles in this effect have corresponding 
    FUse frames in the frame stack. *)
 Definition LiveEs (fs : stack) (es : list ty)
- := Forall (fun e1 => forall p, handleOfEffect e1 = Some p
-                   -> In (FPriv p) fs)
+ := Forall (fun e1 => forall p2,  handleOfEffect e1 = Some p2
+                   -> (exists m1, In (FPriv m1 p2) fs))
            es.
 
 
@@ -50,8 +51,7 @@ Lemma liveEs_equivTs
  -> LiveEs  fs es1
  -> LiveEs  fs es2.
 Proof.
- intros.
- inverts H.
+ intros. inverts H.
  unfold LiveEs in *.
  snorm.
  apply  H4 in H. 
@@ -68,8 +68,8 @@ Proof.
  intros.
  unfold LiveE in *.
  eapply liveEs_equivTs.
-  eapply equivT_equivTs; eauto.
-  auto.
+ - eapply equivT_equivTs; eauto.
+ - auto.
 Qed.
 
 
@@ -80,8 +80,7 @@ Lemma liveEs_subsTs
  -> LiveEs fs es1
  -> LiveEs fs es2.
 Proof.
- intros.
- inverts H.
+ intros. inverts H.
  unfold LiveEs in *.
  snorm. 
  eapply H0; eauto.
@@ -97,8 +96,8 @@ Proof.
  intros.
  unfold LiveE in *.
  eapply liveEs_subsTs.
-  eapply subsT_subsTs in H; eauto.
-  auto.
+ - eapply subsT_subsTs in H; eauto.
+ - auto.
 Qed.
 Hint Resolve liveE_subsT.
 
@@ -151,8 +150,7 @@ Proof.
  intros.
  unfold LiveE in *.
  unfold LiveEs in *.
- snorm. 
- right. eauto.
+ snorm. firstorder.
 Qed.
 Hint Resolve liveE_frame_cons.
 
@@ -167,10 +165,8 @@ Proof.
  unfold LiveEs in *.
  snorm.
  spec H x0. rip.
- spec H p.  rip.
- inverts H.
-  nope.
-  auto.
+ spec H p2. rip.
+ firstorder. nope.
 Qed.
 
 
@@ -191,12 +187,12 @@ Proof.
    snorm. nope.
  - eauto.
 Qed.
-  
+
 
 Lemma liveE_phase_change
- :  forall fs p e
- ,  LiveE (fs :> FPriv p) e
- -> LiveE (fs :> FPriv p) (substTT 0 (TRgn p) e).
+ :  forall fs m1 p e
+ ,  LiveE (fs :> FPriv m1 p) e
+ -> LiveE (fs :> FPriv m1 p) (substTT 0 (TRgn p) e).
 Proof.
  intros.
  induction e; snorm;
@@ -210,32 +206,33 @@ Proof.
    + eapply liveE_sum_above_right in H; eauto.
 
  - Case "TCon1".
-   destruct e; 
+   destruct e;
     unfold LiveE; unfold LiveEs; snorm;
     try (solve [inverts H0; snorm; nope]).
+   exists m1.
+   inverts H0.
+   + snorm.
+   + nope.
 Qed.
 
 
 Lemma liveE_fPriv_in
- :  forall e p fs
- ,  handleOfEffect e = Some p
- -> LiveE fs e
- -> In (FPriv p) fs.
+ :  forall e p2 fs
+ ,  LiveE fs e
+ -> handleOfEffect e = Some p2
+ -> (exists m1, In (FPriv m1 p2) fs).
 Proof.
  intros.
  unfold LiveE  in *.
  unfold LiveEs in *.
  snorm.
- eapply handleOfEffect_form_some in H.
- destruct H as [tc]. rip.
+ eapply handleOfEffect_form_some in H0.
+ destruct H0 as [tc]. rip. 
  snorm. 
- lets D: H0 (TCon1 tc (TRgn p)). clear H0.
- eapply D. 
-  tauto. 
-  snorm. nope.
+ lets D: H (TCon1 tc (TRgn p2)). clear H.
+ eapply D. snorm. snorm. nope. 
 Qed.
 
 
 Global Opaque LiveE.
-
 

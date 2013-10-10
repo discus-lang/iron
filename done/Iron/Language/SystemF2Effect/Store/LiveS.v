@@ -11,11 +11,8 @@ Require Export Iron.Language.SystemF2Effect.Store.LiveE.
      by FPriv frames 
      or as the local region in an FExt frame are live. *)
 Definition LiveS  (ss : store) (fs : stack)
- := (forall b
-       ,  In b ss -> In (FPriv (regionOfStBind b))   fs 
-       -> isStValue b)
- /\ (forall b p1
-       ,  In b ss -> In (FExt p1 (regionOfStBind b)) fs
+ := (forall b m
+       ,  In b ss -> In (FPriv m (regionOfStBind b))   fs 
        -> isStValue b).
  
 
@@ -30,29 +27,28 @@ Lemma liveS_push_fLet
 Proof.
  unfold LiveS in *.
  intros. snorm.
- - inverts H1; nope; eauto.
- - inverts H1; nope; eauto.
+ inverts H1; nope; eauto.
 Qed.
 
 
 (* Pushing a FPriv frame with a fresh region identifier
    preserves liveness. *)
 Lemma liveS_push_fPriv
- :  forall se sp ss fs 
+ :  forall se sp ss fs m 
  ,  STORET se sp ss
  -> STOREP sp fs
  -> LiveS  ss fs
- -> LiveS  ss (fs :> FPriv (allocRegion sp)).
+ -> LiveS  ss (fs :> FPriv m (allocRegion sp)).
 Proof.
  unfold LiveS in *.
  rip.
  destruct b.
  - eauto.
- - apply H4 in H2. auto.
+ - apply H1 with (m := m) in H2. auto.
    unfold regionOfStBind in *.
    snorm.
    inverts H3; auto.
-   + inverts H1.
+   + inverts H4.
      lets F: allocRegion_fresh sp.
      remember (allocRegion sp) as p.
      
@@ -60,32 +56,11 @@ Proof.
      have HP: (regionOfStBind (StDead p) = p).
      snorm. eapply D with (p := p) in H2. tauto.
      snorm.
- - eapply H5 in H2. auto.
-   inverts H3. nope. eauto.
+   + eapply H1 in H2.
+     * nope.
+     * eauto. 
 Qed.
 
-
-(* Pusing a FExt frame preserves liveness. *)
-Lemma liveS_push_fExt
- :  forall se sp ss fs p1
- ,  STORET se sp ss
- -> STOREP sp fs
- -> LiveS  ss fs
- -> LiveS  ss (fs :> FExt p1 (allocRegion sp)).
-Proof.
- intros.
- unfold LiveS. rip.
- - inverts H3. 
-   + nope.
-   + unfold LiveS in *. 
-     rip.
- - inverts H3.
-   + inverts H4.
-     admit.                                 (* ok, nope as b wt in sp *)
-   + unfold LiveS in *.
-     rip. eauto.
-Qed.
-   
 
 (* Popping a frame preserves liveness. *)
 Lemma liveS_pop
@@ -102,31 +77,26 @@ Hint Resolve liveS_pop.
 (********************************************************************)
 (* Preservation of liveness under store modifications. *)
 
-(*
 Lemma liveS_stdead_cons
  :  forall ss p fs
- ,  ~(In (FPriv p) fs)
+ ,   (forall m, ~(In (FPriv m p) fs))
  ->  LiveS ss fs
  ->  LiveS (ss :> StDead p) fs.
 Proof.
  intros.
  unfold LiveS in *; rip.
- inverts H1.
- - unfold regionOfStBind in H2. tauto.
- - eauto.
- - inverts H1.
-   * 
+ inverts H1; firstorder.
 Qed.
 Hint Resolve liveS_stdead_cons.
-*)
+
 
 Lemma liveS_stvalue_cons
  :  forall p v fs ss
- ,  In (FPriv p) fs
+ ,  (exists m, In (FPriv m p) fs)
  -> LiveS ss                  fs
  -> LiveS (ss :> StValue p v) fs.
 Proof.
- intros.
+ intros. 
  unfold LiveS in *.
  rip; inverts H1; eauto.
 Qed.
@@ -134,7 +104,7 @@ Qed.
 
 Lemma liveS_stvalue_snoc
  :  forall p v fs ss
- ,  In (FPriv p) fs
+ ,  (exists m, In (FPriv m p) fs)
  -> LiveS ss                  fs
  -> LiveS (StValue p v <: ss) fs.
 Proof.
@@ -158,69 +128,51 @@ Lemma liveS_store_tail
  -> LiveS ss        fs.
 Proof.
  intros.
- unfold LiveS in *.
- snorm.
+ unfold LiveS in *. 
+ firstorder.
 Qed.
 Hint Resolve liveS_store_tail.
 
 
 Lemma liveS_stvalue_update
  :  forall ss fs l p v
- ,  In (FPriv p) fs
+ ,  (exists m, In (FPriv m p) fs)
  -> LiveS  ss fs
  -> LiveS (update l (StValue p v) ss) fs.
 Proof.
  intros. gen l.
  induction ss; intros.
  - unfold LiveS.
-   intros.
-   destruct l; snorm.
+   destruct l; firstorder. 
  - have (LiveS ss fs). rip.
    destruct l.
    + simpl. 
      eapply liveS_stvalue_cons; eauto.
-   + simpl.
-     unfold LiveS in *. snorm.
-     inverts H2. eauto. eauto.
+   + simpl. firstorder.
 Qed.
 
 
 Lemma liveS_deallocate
  :  forall ss fs p
- ,  ~(In (FPriv p) fs)
- -> LiveS ss (fs :> FPriv p)
+ ,  (forall m, ~(In (FPriv m p) fs))
+ -> LiveS ss (fs :> FPriv None p)
  -> LiveS (map (deallocate p) ss) fs.
 Proof.
  intros.
  induction ss.
- - unfold LiveS. snorm.
+ - firstorder. 
  - destruct a.
    + simpl.
      split_if.
      * snorm. subst.
        eapply liveS_store_tail in H0. rip.
 
-     * snorm.
-       have (LiveS ss (fs :> FPriv p)). rip.
-       unfold LiveS in IHss.
-       unfold LiveS. intros. snorm.
-       inverts H2.
-        eauto.
-        eapply IHss; auto.
-
-   + simpl.
-     have (LiveS ss (fs :> FPriv p)). rip.
-     have (LiveS (ss :> StDead n) fs).
-     clear H H0 H1.
-     unfold LiveS in *.
-     snorm.
-     inverts H.
-     * lets D: H2 (StDead n).
-       eapply D. eauto. auto.
-     * eauto.
+     * have (LiveS ss (fs :> FPriv None p)). 
+       firstorder.
+   + firstorder.
 Qed.
 
-   
+
 (********************************************************************)
 Lemma liveS_liveE_value
  :  forall ss fs e l b p
@@ -235,12 +187,15 @@ Proof.
 
  destruct b.
  - snorm. subst. exists v. eauto.
- - snorm. subst.
+ - lets D: liveE_fPriv_in HLE H.
+   destruct D as [m]. eauto.
+
+   snorm. subst.
    have (In (StDead p) ss) as HD.
    unfold LiveS in *. 
    eapply HLS in HD.
    + unfold isStValue in HD. nope.
-   + snorm.
-     eapply liveE_fPriv_in; eauto.
+   + eauto. 
 Qed.
+
 

@@ -5,9 +5,9 @@ Require Export Iron.Language.SystemF2Effect.Step.Frame.
 (********************************************************************)
 Fixpoint freshF (p : nat) (ff : frame) {struct ff} : Prop := 
  match ff with
- | FLet  t x     => freshT p t /\ freshX p x
- | FPriv p1      => beq_nat p p1 = false
- | FExt  p1 p2   => beq_nat p p1 = false /\ beq_nat p p2 = false
+ | FLet  t x           => freshT p t /\ freshX p x
+ | FPriv None      p2  => beq_nat p p2 = false
+ | FPriv (Some p1) p2  => beq_nat p p1 = false /\ beq_nat p p2 = false
  end.
 
 
@@ -19,8 +19,7 @@ Hint Unfold freshFs.
 Fixpoint   freshFreeF p2 te f {struct f} :=
  match f with
  | FLet t x        => freshFreeX p2 te x
- | FPriv _         => True
- | FExt  _ _       => True
+ | FPriv _ _       => True
  end.
 
 Definition freshFreeFs p2 te fs 
