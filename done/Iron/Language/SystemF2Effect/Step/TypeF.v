@@ -29,18 +29,18 @@ Inductive
 
  | TfConsPriv
    :  forall ke te se sp fs t1 t2 e2 n
-   ,  not (In (FPriv n) fs)
+   ,  (forall m, ~(In (FPriv m n) fs))
    -> LiveE  fs e2
-   -> TYPEF  ke te se  sp fs              t1 t2 e2
-   -> TYPEF  ke te se  sp (fs :> FPriv n) t1 t2 e2
+   -> TYPEF  ke te se sp fs                   t1 t2 e2
+   -> TYPEF  ke te se sp (fs :> FPriv None n) t1 t2 e2
 
  | TfConsExt 
    :  forall ke te se sp fs t0 t1 e2 p1 p2
    ,  In (SRegion p1) sp 
    -> In (SRegion p2) sp
    -> freshFs p2 fs
-   -> TYPEF  ke te se sp fs                 (mergeT p1 p2 t0) t1 e2
-   -> TYPEF  ke te se sp (fs :> FExt p1 p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
+   -> TYPEF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
+   -> TYPEF  ke te se sp (fs :> FPriv (Some p1) p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
 
 Hint Constructors TYPEF.
 
@@ -50,8 +50,7 @@ Ltac inverts_typef :=
  repeat (try 
   (match goal with 
    | [ H: TYPEF _ _ _ _ (_ :> FLet  _ _) _ _ _ |- _ ] => inverts H
-   | [ H: TYPEF _ _ _ _ (_ :> FPriv _)   _ _ _ |- _ ] => inverts H
-   | [ H: TYPEF _ _ _ _ (_ :> FExt  _ _) _ _ _ |- _ ] => inverts H
+   | [ H: TYPEF _ _ _ _ (_ :> FPriv _ _) _ _ _ |- _ ] => inverts H
    end); 
  try inverts_type).
 
@@ -126,15 +125,14 @@ Proof.
  - inverts H0. 
    eapply freshFs_cons; eauto.
    simpl. rip. eauto.
-   admit.                        (* ok, need typeX_freshX *)
+   admit.                                     (* ok, need typeX_freshX *)
  - inverts H0.
-   eapply freshFs_cons; eauto.
-   admit.                        (* ok, add In (SRegion p) to TsConsPriv *)
- - inverts H0.
-   eapply freshFs_cons; eauto.
-   snorm.
-   + admit.                      (* ok, via In. *)
-   + admit.                      (* ok, via In. *)
+   * eapply freshFs_cons; eauto.
+     admit.                                   (* ok, add In (SRegion p) to TsConsPriv *)
+   * eapply freshFs_cons; eauto.
+     snorm. 
+      + admit.                                (* ok, via In. *)
+      + admit.                                (* ok, via In. *)
 Qed.
 Hint Resolve freshFs_typef.
 
@@ -174,15 +172,13 @@ Proof.
 
    - SCase "FPriv".
      inverts H1.
-     eapply TfConsPriv; auto.
-     eapply IHfs; eauto.
-     admit.                                      (* ok, freshFree tail *)
+     * eapply TfConsPriv; auto.
+       eapply IHfs; eauto.
+       admit.                                    (* ok, freshFree tail *)
 
-   - SCase "FExt".
-     inverts H1.
-     eapply TfConsExt; eauto.
-     eapply IHfs; eauto.
-     admit.                                      (* ok, freshFree tail *)
+     * eapply TfConsExt; eauto.
+       eapply IHfs; eauto.
+       admit.                                    (* ok, freshFree tail *)
  }
 Qed.
 

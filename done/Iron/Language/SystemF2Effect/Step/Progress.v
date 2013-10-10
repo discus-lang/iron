@@ -34,18 +34,20 @@ Proof.
 
    - SCase "fs = cons ...".
      right.
-     destruct a as [t x | p1 | p1 p2].
+     destruct a as [t x | m1 p2].
      + SSCase "FLet".
        exists ss. exists sp. exists fs. exists (substVX 0 v x).
        eauto.
-     + SSCase "FPriv".
-       exists (map (deallocate p1) ss). 
-       exists sp. exists fs. exists (XVal v).
-       eauto.
-     + SSCase "FExt".
-       exists (map (mergeB p1 p2) ss).
-       exists sp. exists fs. exists (XVal (mergeV p1 p2 v)).
-       eauto.
+     + destruct m1 as [p1 | ].
+       * SSCase "FPriv ext".
+         exists (map (mergeB p1 p2) ss).
+         exists sp. exists fs. exists (XVal (mergeV p1 p2 v)).
+         eauto.
+
+       * SSCase "FPriv top".
+         exists (map (deallocate p2) ss). 
+         exists sp. exists fs. exists (XVal v).
+         eauto.
  }
 
 
@@ -68,6 +70,7 @@ Proof.
    SCase "v1 = XConst".
     destruct c; nope.
  }
+
 
  (*********************************************************)
  Case "XAPP".
@@ -107,7 +110,7 @@ Proof.
  { right.
    exists ss. 
    exists (SRegion (allocRegion sp) <: sp). 
-   exists (fs :> FPriv (allocRegion sp)).
+   exists (fs :> FPriv None (allocRegion sp)).
    eauto.
  }
 
@@ -121,7 +124,7 @@ Proof.
 
    exists ss.
    exists (SRegion (allocRegion sp) <: sp).
-   exists (fs :> FExt p (allocRegion sp)).
+   exists (fs :> FPriv (Some p) (allocRegion sp)).
    eauto.
  }
 
