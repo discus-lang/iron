@@ -12,22 +12,17 @@ Inductive frame : Set :=
     of the binding is being evaluated. *)
  | FLet   : ty  -> exp      -> frame
 
- (* Private region. *)
- | FPriv  : nat -> frame
-
- (* Region extension.
-    The first region is being extended with the second. *)
- | FExt   : nat -> nat -> frame.
+ (* Private region.
+    If the first argument is some region identifier then this new
+    private region will be merged with that one when leaving its scope, 
+    otherwise the region is deallocated. *)
+ | FPriv  : option nat -> nat -> frame.
 Hint Constructors frame.
 
 
-Definition isFPriv (p : nat) (f : frame)
- := f = FPriv p.
+Definition isFPriv (p2 : nat) (f : frame)
+ := exists p1, f = FPriv p1 p2.
 Hint Unfold isFPriv.
-
-
-Definition isFExt  (p1 p2 : nat) (f : frame)
- := f = FExt p1 p2.
 
 
 (* Frame stacks *)
@@ -67,27 +62,27 @@ Inductive
  | SfPrivatePush
    :  forall ss sp fs x p
    ,  p = allocRegion sp
-   -> STEPF  ss sp                 fs              (XPrivate x)
-             ss (SRegion p <: sp) (fs :> FPriv p)  (substTX 0 (TRgn p) x)
+   -> STEPF  ss sp                       fs                  (XPrivate x)
+             ss (SRegion p <: sp)       (fs :> FPriv None p) (substTX 0 (TRgn p) x)
 
  (* Pop the frame for a private region and delete it from the heap. *)
  | SfPrivatePop
    :  forall ss sp  fs v1 p
-   ,  STEPF  ss                      sp (fs :> FPriv p)(XVal v1)
-             (map (deallocate p) ss) sp  fs            (XVal v1)
+   ,  STEPF  ss                      sp (fs :> FPriv None p) (XVal v1)
+             (map (deallocate p) ss) sp  fs                  (XVal v1)
 
  (* Begin extending an existing region. *)
  | SfExtendPush
    :  forall ss sp fs x p1 p2
    ,  p2 = allocRegion sp
-   -> STEPF ss sp                  fs                (XExtend (TRgn p1) x)
-            ss (SRegion p2 <: sp) (fs :> FExt p1 p2) (substTX 0 (TRgn p2) x)
+   -> STEPF ss sp                  fs                        (XExtend (TRgn p1) x)
+            ss (SRegion p2 <: sp) (fs :> FPriv (Some p1) p2) (substTX 0 (TRgn p2) x)
 
  (* Pop the frame for a region extension and merge it with the existing one. *)
  | SfExtendPop
    :  forall ss sp fs p1 p2 v1
-   ,  STEPF  ss                      sp (fs :> FExt p1 p2) (XVal v1)
-             (map (mergeB p1 p2) ss) sp fs                 (XVal (mergeV p1 p2 v1))
+   ,  STEPF  ss                      sp (fs :> FPriv (Some p1) p2) (XVal v1)
+             (map (mergeB p1 p2) ss) sp fs                   (XVal (mergeV p1 p2 v1))
 
  (* Store operators *****************************)
  (* Allocate a reference. *) 

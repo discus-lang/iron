@@ -25,6 +25,8 @@ Definition WfFS (se : stenv) (sp : stprops) (ss : store) (fs : stack)
 
 
 (*******************************************************************)
+(* If a well formed frame stack and store is well formed,
+   then the store is also well formed by itself. *)
 Lemma wfFS_wfS 
  :  forall se sp ss fs
  ,  WfFS   se sp ss fs
@@ -32,14 +34,19 @@ Lemma wfFS_wfS
 Proof. firstorder. Qed.
 
 
+(* The region handles of private regions are present in the
+   store properties. *)
 Lemma wfFS_fpriv_sregion
- :  forall se sp ss fs p
+ :  forall se sp ss fs m1 p2
  ,  WfFS se sp ss fs
- -> In (FPriv p)   fs
- -> In (SRegion p) sp.
+ -> In (FPriv   m1 p2) fs
+ -> In (SRegion p2)    sp.
 Proof. firstorder. Qed.
 
 
+(* The length of the store enviroment is the same as the length
+   of the store. We have one entry in the store environment for
+   each binding in the store. *)
 Lemma wfFS_storem_length
  :  forall se sp ss fs
  ,  WfFS   se sp ss fs
@@ -51,39 +58,39 @@ Qed.
 Hint Resolve wfFS_storem_length.
 
 
-(* Creating a private region preserves well-formedness of the store. *)
-Lemma wfFS_region_priv
- :  forall se sp ss fs p
+(* Creating a top level private region preserves well-formedness
+   of the store. *)
+Lemma wfFS_push_priv_top
+ :  forall se sp ss fs p2
  ,  WfFS se sp ss fs
- -> WfFS se (SRegion p <: sp) ss (fs :> FPriv p).
+ -> WfFS se (SRegion p2 <: sp) ss (fs :> FPriv None p2).
 Proof. 
  intros.
  unfold WfFS in *. 
  inverts H. inverts H1. inverts H2.
  auto.
 Qed.
-Hint Resolve wfFS_region_priv.
+Hint Resolve wfFS_push_priv_top.
 
 
-(* Creating an extension region preserves well-formedness of the store. *)
-Lemma wfFS_region_ext
+(* Creating an extension region preserves well-formedness 
+   of the store. *)
+Lemma wfFS_push_priv_ext
  :  forall se sp ss fs p1 p2
- ,  WfFS  se  sp ss fs
- -> KindT nil sp (TRgn p1) KRegion
+ ,  KindT nil sp (TRgn p1) KRegion
  -> In (SRegion p1) sp
- -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FExt p1 p2).
+ -> WfFS  se  sp ss fs
+ -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FPriv (Some p1) p2).
 Proof.
  intros.
  unfold WfFS in *. 
  unfold STOREP in *. rip.
  - inverts H2.
-   nope. rip.
+   inverts H6; eauto. eauto.
  - inverts H2. 
-   inverts H7. rip. eauto.
- - inverts H2.
-   inverts H7. eauto. eauto.
+   inverts H6; eauto. eauto.
 Qed. 
-Hint Resolve wfFS_region_ext.
+Hint Resolve wfFS_push_priv_ext.
 
 
 (* Deallocating a region preserves well-formedness of the store. *)
@@ -100,6 +107,7 @@ Proof.
 Qed.
 
 
+(* Deallocating bindings preserves the well typedness of the store. *)
 Lemma storet_deallocate
  :  forall se sp ss p
  ,  STORET se sp ss
@@ -114,23 +122,20 @@ Proof.
 Qed.
 
 
-(* Deallocating the region mentioned in a use frame on the stop
-   of the stack preserves the well formedness of the store. *)
+(* Deallocating top-level region on the top of the frame stack
+   preserves the well formedness of the store. *)
 Lemma wfFS_region_deallocate
  :  forall se sp ss fs p
- ,  WfFS se sp ss                     (fs :> FPriv p)
+ ,  WfFS se sp ss                     (fs :> FPriv None p)
  -> WfFS se sp (map (deallocate p) ss) fs.
 Proof.
  intros.
  unfold WfFS in *. rip.
  - unfold STOREM in *.
-   rewrite map_length. auto.
-
- - eapply storet_deallocate. auto.
- 
- - unfold STOREP in *. snorm.
- - unfold STOREP in *. snorm. eauto.
- - unfold STOREP in *. snorm. eauto.
+   rewrite map_length; auto.
+ - eapply storet_deallocate; auto.
+ - unfold STOREP in *; snorm; eauto.
+ - unfold STOREP in *; snorm; eauto.
 Qed.
 
 
@@ -159,14 +164,13 @@ Proof.
      have (ClosedT (TRgn p)).
      eauto.
    + nope.
- - unfold STOREP in *. rip.
- - unfold STOREP in *. rip. eauto.
- - unfold STOREP in *. rip. eauto.
+ - unfold STOREP in *; snorm; eauto.
+ - unfold STOREP in *; snorm; eauto.
 Qed.
 Hint Resolve wfFS_stbind_snoc.
 
 
-(* Store with an updated binding is still well formed. *)
+(* Updating bindings preserves the well formedness of the store. *)
 Lemma wfFS_stbind_update
  :  forall se sp ss fs l p v t
  ,  get l se = Some (TRef (TRgn p) t)
@@ -183,8 +187,7 @@ Proof.
    rewrite update_length. auto.
  - unfold STORET.
    eapply Forall2_update_right; eauto.
- - unfold STOREP in *. rip.
- - unfold STOREP in *. rip. eauto.
- - unfold STOREP in *. rip. eauto.
+ - unfold STOREP in *; snorm; eauto.
+ - unfold STOREP in *; snorm; eauto.
 Qed.
 
