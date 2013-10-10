@@ -7,9 +7,7 @@ Require Export Iron.Language.SystemF2Effect.Store.LiveE.
 
 
 (********************************************************************)
-(* All store bindings in regions mentioned 
-     by FPriv frames 
-     or as the local region in an FExt frame are live. *)
+(* All store bindings in regions defined by FPriv frames are live *)
 Definition LiveS  (ss : store) (fs : stack)
  := (forall b m
        ,  In b ss -> In (FPriv m (regionOfStBind b))   fs 
