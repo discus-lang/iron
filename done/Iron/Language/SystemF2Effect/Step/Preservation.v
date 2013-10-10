@@ -94,7 +94,7 @@ Proof.
 
    (* After popping top FLet frame, 
       all store bindings mentioned by frame stack are still live. *)
-   - eapply liveS_pop_fLet; eauto.
+   - eapply liveS_pop; eauto.
 
    (* After popping top FLet frame, effects of result are still 
       to live regions. *)
@@ -150,7 +150,7 @@ Proof.
       are still live. *)
    - inverts HH. rip.
      subst p.
-     eapply liveS_push_fUse_fresh; eauto.
+     eapply liveS_push_fPriv; eauto.
 
    (* Resulting effect is to live regions. *)
    - eapply liveE_sum_above.
@@ -353,7 +353,7 @@ Proof.
      inverts H10. auto.
 
    (* Updated store is live relative to frame stack. *)
-   - admit.
+   - eapply liveS_push_fExt; auto.
 
    (* Frame stack is live relative to effect. *)
    - admit.
