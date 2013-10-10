@@ -1,8 +1,11 @@
 
 Require Import Iron.Language.SystemF2Effect.Value.Exp.
 Require Import Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
+Require Import Iron.Language.SystemF2Effect.Value.Relation.FreshX.
 Require Import Iron.Language.SystemF2Effect.Value.Operator.SubstTX.
 
+
+(********************************************************************)
 Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
  match vv with
  | VVar  _        => vv
@@ -45,183 +48,241 @@ Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
  end.
 
 
-Definition mergeTE p1 p2 te := map (mergeT p1 p2) te.
-Hint Unfold mergeTE.
-
-
-Definition mergeSE p1 p2 se := map (mergeT p1 p2) se.
-Hint Unfold mergeSE.
-
-
 (********************************************************************)
-
-Lemma typex_merge_substTT
+Lemma mergeX_typeX
  :  forall ke te se sp x t e p1 p2
  ,  In (SRegion p1) sp
- -> TYPEX ke 
-          (substTE 0 (TRgn p2) te) (substTE 0 (TRgn p2) se) sp
-          (substTX 0 (TRgn p2) x) 
-          (substTT 0 (TRgn p2) t)  (substTT 0 (TRgn p2) e)
- -> TYPEX ke 
-          (substTE 0 (TRgn p1) te) (substTE 0 (TRgn p1) se) sp
-          (substTX 0 (TRgn p1) x)
-          (substTT 0 (TRgn p1) t)  (substTT 0 (TRgn p1) e).
+ -> TYPEX ke te se sp x t e
+ -> TYPEX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp 
+          (mergeX p1 p2 x) (mergeT p1 p2 t) (mergeT p1 p2 e).
 Proof.
- admit.
-Qed.
-
-(*
-Lemma typex_merge_substTT 
- : forall ke te se sp x t e p1 p2 k
- ,  In (SRegion p1) sp
- -> freshT p2 t
- -> freshT p2 e
- -> KindT (ke :> KRegion) sp t k
- -> KindT (ke :> KRegion) sp e KEffect
- -> TYPEX ke te                    se                 sp 
-          x
-          (substTT 0 (TRgn p2) t) (substTT 0 (TRgn p2) e)
- -> TYPEX ke (mergeTE p1 p2 te)   (mergeSE p1 p2 se)  sp
-          (mergeX p1 p2 x)
-          (substTT 0 (TRgn p1) t) (substTT 0 (TRgn p1) e).
-Proof.
- intros. gen ke te se sp t e k.
- induction x using exp_mutind with
-  (PV := fun v => forall ke te se sp t k
+ intros. gen ke te se sp t e.
+ induction x using exp_mutind with 
+  (PV := fun v => forall ke te se sp t
       ,  In (SRegion p1) sp
-      -> freshT p2 t
-      -> KindT (ke :> KRegion) sp t k
-      -> TYPEV ke  te                 se                sp 
-               v
-               (substTT 0 (TRgn p2) t)  
-      -> TYPEV ke  (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp
-               (mergeV  p1 p2 v)
-               (substTT 0 (TRgn p1) t));
-  intros.
-
+      -> TYPEV ke te se sp v t
+      -> TYPEV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp
+                  (mergeV  p1 p2 v)  (mergeT  p1 p2 t)); 
+  intros; inverts_type
+   ; try (solve [snorm]).
+   
  - Case "VVar".
-   snorm.
-   inverts_type. 
+   simpl.
    eapply TvVar.
-   + eapply get_map with (f := mergeT p1 p2) in H4.
-     unfold mergeTE.
-     rewrite H4. f_equal.
-     admit.                            (* ok, mergeT_substTT *)
-   + admit.                            (* ok, need kindT_substTT_swap lemma *)
+   + unfold mergeTE. erewrite get_map; eauto.
+   + eauto.
 
  - Case "VLoc".
-   snorm.
-   inverts_type.
-   destruct t; snorm; try nope.
-   inverts H4.
-   destruct t1.
+   simpl.
    eapply TvLoc.
-   + eapply get_map with (f := mergeT p1 p2) in H9.
-     unfold mergeSE.
-     rewrite H9. f_equal.
-     simpl. f_equal.
-     admit. admit.                    (* ok, mergeT_substTT *)
-   + admit.                           (* ok, need kindT_substTT_swap lemma *)  
+   + unfold mergeTE. erewrite get_map.
+     rrwrite ( TRef (mergeT p1 p2 r) (mergeT p1 p2 t0)
+             = mergeT p1 p2 (TRef r t0)).
+     eauto. auto.
+   + rrwrite ( TRef (mergeT p1 p2 r) (mergeT p1 p2 t0)
+             = mergeT p1 p2 (TRef r t0)).
+     eauto.
 
  - Case "VLam".
-   (*
-   inverts H2.
-   destruct t0;       try (snorm; congruence).
-   inverts H9.
-   destruct t0_1;     try (snorm; congruence).
-   simpl in H3. inverts H4.
-   destruct t0_1_1;   try (snorm; congruence).
-   simpl in H5. inverts H5.
-   destruct t0_1_1_1; try (snorm; congruence).
-   simpl in H4. inverts H4.
-
-   snorm.
-   erewrite mergeT_substTT.
-   eapply TvLam; auto.
-   + inverts_kind.
-     admit. 
-     (* eapply subst_type_type_ix; auto.
-        * eauto.
-        * inverts_kind. snorm. inverts H13. auto. *)
-   + eapply IHx in H12; auto.
-     * inverts_kind. snorm. inverts H13.
-       erewrite mergeT_substTT in H12; eauto.
-     * inverts_kind. snorm. inverts H13. auto. 
-     * inverts_kind. snorm. inverts H13. eauto.
-   + snorm. 
-   + inverts_kind. snorm. inverts H13. 
-     eauto.
- *)
-   admit.
+   snorm. eapply TvLam; eauto.
+   rgwrite ( mergeTE p1 p2 te :> mergeT p1 p2 t
+           = mergeTE p1 p2 (te :> t)).
+   eauto.
 
  - Case "VLAM".
-   inverts_type.
-   destruct t;       try (snorm; congruence). snorm.
-   inverts H10.
-
+   simpl.
    eapply TvLAM.
-   admit.                            (* prob ok, need mergeT_liftTT lemma *)   
+   repeat (rewrite mergeTE_liftTE_comm).
+   rrwrite ( TBot KEffect = mergeT p1 p2 (TBot KEffect)).
+   eapply IHx; auto.
 
  - Case "VConst".
-   snorm. 
-   eapply TvConst.
-   destruct c; inverts_type; snorm.
-   + destruct t; snorm; nope.
-   + destruct t; snorm; nope.
-   + destruct t; snorm; nope.
+   destruct c; snorm.
 
- - Case "VVal".
-   inverts_type.
-   destruct e; try (snorm; congruence). snorm.
-   inverts H10.
-   eapply TxVal.
-   eapply IHx; eauto.
-
- - Case "XLet". simpl.
-   destruct e; try (inverts_type; snorm; congruence). snorm.
-   inverts_type.  
- eapply TxLet.
-   + admit.
-   + inverts_type.
-     
-
-eapply IHx1; eauto 2.
-     * admit.                                 (* ok, freshT_mergeT lemma *)
-     * inverts_kind; eauto. 
-     * inverts_type; eauto.
-       
-       
-        
-     
-   
-
-   + inverts_kind. 
-     rgwrite ( mergeTE p1 p2 te :> mergeT p1 p2 t
-             = mergeTE p1 p2 (te :> t)).
-     eapply IHx2; eauto.
-
- - Case "XApp".
-   admit.
+ - Case "XLet". 
+   snorm.
+   eapply TxLet; eauto.
+   rgwrite ( mergeTE p1 p2 te :> mergeT p1 p2 t
+           = mergeTE p1 p2 (te :> t)).
+   eauto.   
+ 
+ - Case "XApp". 
+   snorm.
+   eapply TxApp; eauto.
+   rgwrite ( TFun (mergeT p1 p2 t11) (mergeT p1 p2 e) (mergeT p1 p2 t)
+           = mergeT p1 p2 (TFun t11 e t)).
+   eauto.
 
  - Case "XAPP".
-   admit.
+   snorm.
+   rgwrite ( TBot KEffect = mergeT p1 p2 (TBot KEffect)).
+   rewrite <- mergeT_substTT_comm.
+   eapply TvAPP with (k11 := k11).
+   rgwrite ( TForall k11 (mergeT p1 p2 t12)
+           = mergeT p1 p2 (TForall k11 t12)).
+   eauto. eauto.
 
  - Case "XOp1".
-   admit.
+   snorm.
+   destruct o; snorm.
+   + inverts H7. 
+     eapply TxOpPrim. snorm.
+     rgwrite (TNat = mergeT p1 p2 TNat). eauto.
+   + inverts H7.
+     eapply TxOpPrim. snorm.
+     rgwrite (TNat = mergeT p1 p2 TNat). eauto.
 
  - Case "XPrivate".
-   admit.
+   snorm.
+   eapply TxPrivate
+    with (t := mergeT p1 p2 t0)
+         (e := mergeT p1 p2 e0).
+    + admit.                                 (* ok, pull mergeT through lowerT *)
+    + admit.                                 (* ok, pull mergeT throuh maskOnVarT *)
+    + repeat (rewrite mergeTE_liftTE_comm).
+      eapply IHx; eauto.
 
  - Case "XExtend".
-   admit.
-
- - Case "XAlloc".
-   admit.
+   snorm.
+   rewrite <- mergeT_substTT_comm.
+   eapply TxExtend
+    with (e := mergeT p1 p2 e0).            
+    + admit.                                 (* ok, pull mergeT thorugh lowerT *)
+    + eauto.
+    + repeat (rewrite mergeTE_liftTE_comm).
+      eapply IHx; eauto.
 
  - Case "XRead".
-   admit.
+   simpl.
+   eapply TxOpRead; eauto.
+   rgwrite ( TRef (mergeT p1 p2 r) (mergeT p1 p2 t)
+           = mergeT p1 p2 (TRef r t)).
+   eauto.
 
  - Case "XWrite".
-   admit.
+   simpl.
+   eapply TxOpWrite; eauto.
+   rgwrite ( TRef (mergeT p1 p2 r) (mergeT p1 p2 t2)
+           = mergeT p1 p2 (TRef r t2)).
+   eauto.
 Qed.
-*)
+
+
+
+Lemma mergeX_typeX_freshX
+ :  forall ke te se sp x t e p1 p2
+ ,  freshX     p2 x
+ -> freshFreeX p2 te x
+ -> TYPEX ke te se sp x t e
+ -> TYPEX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp x t e.
+Proof.
+ intros. gen ke te se sp t e.
+ induction x using exp_mutind with
+  (PV := fun v => forall ke te se sp t 
+      ,  freshV     p2 v
+      -> freshFreeV p2 te v
+      -> TYPEV ke te se sp v t
+      -> TYPEV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp v t);
+  intros; inverts_type; auto.
+
+ - Case "XVar".
+   eapply TvVar; auto.
+   unfold freshFreeV in *.
+   spec H1 n. spec H1 t.
+
+   have HF: (freeXV n (VVar n)) 
+    by (unfold freeXV; symmetry; eapply beq_nat_refl).
+
+   assert (freshT p2 t).
+    eauto. clear H1.
+
+   unfold mergeTE.
+   eapply get_map with (f := mergeT p1 p2) in H4.
+   rewrite H4.
+   rewrite mergeT_freshT_id; auto.
+
+ - Case "XLoc".
+   eapply TvLoc; auto.
+   admit.                                    (* ok, need freshSuppV crap *)
+
+ - Case "XLam".
+   eapply TvLam; auto.
+   snorm. rewrite mergeTE_rewind; auto.
+   eapply IHx; auto.
+   admit.                                    (* ok, freshFreeX lemma *)
+
+ - Case "XLAM".
+   eapply TvLAM.
+   snorm. repeat (rewrite mergeTE_liftTE_comm).
+   eapply IHx; auto.
+   admit.                                    (* ok freshFreeX lemma *)
+
+ - Case "XLet".
+   snorm.
+   eapply TxLet; auto.
+   + eapply IHx1; auto. firstorder.
+   + rewrite mergeTE_rewind; auto.
+     eapply IHx2; auto. 
+     admit.                                  (* ok, freshFreeX lemma *)
+  
+ - Case "XApp".
+   snorm.
+   eapply TxApp. 
+   + eapply IHx; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+   + eapply IHx0; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+
+ - Case "XAPP".
+   rgwrite (TBot KEffect = substTT 0 t (TBot KEffect)).
+   eapply TvAPP; eauto.
+   eapply IHx. snorm. 
+    admit.                                   (* ok, freshFreeV lemma *)
+    eauto.
+
+ - Case "XOp1".
+   eapply TxOpPrim; eauto.
+
+ - Case "XPrivate".
+   eapply TxPrivate; eauto.
+   repeat (rewrite mergeTE_liftTE_comm).
+   eapply IHx; snorm.
+   simpl in H0.
+   admit.                                    (* ok, freshFreeX lemma *)
+
+ - Case "XExtend".
+   eapply TxExtend; eauto.
+   repeat (rewrite mergeTE_liftTE_comm).
+   eapply IHx; snorm.
+   simpl in H0.
+   admit.                                    (* ok, freshFreeX lemma *)
+
+ - Case "XAlloc".
+   eapply TxOpAlloc; eauto.
+   + eapply IHx; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H; snorm; eauto.
+
+ - Case "XRead".
+   eapply TxOpRead; eauto.
+   + eapply IHx; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H; snorm; eauto.
+
+ - Case "XWrite".
+   eapply TxOpWrite; eauto.
+   + eapply IHx; snorm; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+   + eapply IHx0; snorm; eauto.
+     unfold freshFreeX in *.
+     unfold freshFreeV in *.
+     intros. rip. eapply H0; snorm; eauto.
+Qed.

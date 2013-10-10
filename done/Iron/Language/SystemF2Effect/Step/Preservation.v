@@ -367,14 +367,18 @@ Proof.
             (e2 := TSum e2 (TAlloc r1))
             (t1 := substTT 0 r2 t0).
      (* Equivalence of result effect *)
-     + have (KindT (nil :> KRegion) sp e0 KEffect).
-
-(*     have (KindT nil sp (substTT 0 r2 e0) KEffect).
-       have (KindT nil sp (TSum (TSum eL (TAlloc (TRgn p1))) e2) KEffect).
-       inverts_kind.
-*)
-       admit. (* ok *)
-
+     + eapply EqRefl.
+       eapply KiSum; auto.
+       * subst r2.
+         have (KindT (nil :> KRegion) sp                 e0 KEffect).
+         have (KindT (nil :> KRegion) (SRegion p2 <: sp) e0 KEffect).
+         have (KindT nil (SRegion p2 <: sp) (TRgn p2) KRegion).
+         eapply subst_type_type. eauto. eauto.
+       * apply equivT_kind_left in H0.
+         inverts_kind. subst r1.
+         eapply KiSum; auto.
+         eapply KiCon1. snorm. eauto.
+   
      (* Expression with new region subst is well typed. *)
      + rgwrite (nil = substTE 0 r2 nil).
        rgwrite (se  = substTE 0 r2 se)
@@ -393,8 +397,11 @@ Proof.
        have (not (In (SRegion p2) sp))
         by (subst p2; auto).
        eapply TfConsExt; eauto.
-       inverts H10. snorm.
- }
+       * inverts_kind. eauto.
+       * erewrite mergeT_substTT.
+         eapply typef_stprops_snoc. auto.
+         eauto. eauto.
+  }
 
  (*********************************************************)
  (* Pop and extend frame from the stack, 
@@ -403,7 +410,7 @@ Proof.
  { inverts_typec.
    set (r1 := TRgn p1).
    set (r2 := TRgn p2).
-   exists (mergeSE p1 p2 se).
+   exists (mergeTE p1 p2 se).
    exists e0.
    rip.
 
@@ -424,7 +431,7 @@ Proof.
 
    (* Resulting state is well typed. *)
    - eapply TcExp
-       with (t1 := substTT 0 (TRgn p1) t0)
+       with (t1 := mergeT p1 p2 t1)
             (e1 := TBot KEffect)
             (e2 := e0).
 
@@ -434,12 +441,11 @@ Proof.
        eapply EqSym; eauto.
 
      (* Result value is well typed. *)
-     + rgwrite (nil                    = delete 0 (nil :> KRegion)).
-       rgwrite (nil                    = mergeTE p1 p2 nil).
+     + rgwrite (nil                    = mergeTE p1 p2 nil).
        rgwrite (XVal (mergeV p1 p2 v1) = mergeX  p1 p2 (XVal v1)).
-       rgwrite (TBot KEffect           = substTT 0 (TRgn p1) (TBot KEffect)).
-       eapply typex_merge_substTT; eauto.
-  
+       rgwrite (TBot KEffect           = mergeT  p1 p2 (TBot KEffect)).
+       eapply mergeX_typeX. auto. eauto.
+
      (* Popped frame stack is well typed. *)
      + rgwrite (nil = mergeTE p1 p2 nil).
        eapply typef_merge; eauto.

@@ -38,23 +38,11 @@ Inductive
    :  forall ke te se sp fs t0 t1 e2 p1 p2
    ,  In (SRegion p1) sp 
    -> In (SRegion p2) sp
-   -> freshT  p2 t0      
-    -> freshFs p2 fs
-   -> KindT  (ke :> KRegion) sp t0 KData
-   -> TYPEF  ke te se sp fs 
-                         (substTT 0 (TRgn p1) t0) t1 e2
-   -> TYPEF  ke te se sp (fs :> FExt p1 p2) 
-                         (substTT 0 (TRgn p2) t0) t1 (TSum e2 (TAlloc (TRgn p1))).
+   -> freshFs p2 fs
+   -> TYPEF  ke te se sp fs                 (mergeT p1 p2 t0) t1 e2
+   -> TYPEF  ke te se sp (fs :> FExt p1 p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
 
 Hint Constructors TYPEF.
-
-*** New plan: define a relation between two types.
-
-    SplitT p1 p2 t0A t0B
- -> TYPEF  ke te se sp fs t0A t1 e2
- -> TYPEF  ke te se sp fs t0B t2 e2
-
-** use relation in typex_merge_substTT
 
 
 (* Invert all hypothesis that are compound typing statements. *)
@@ -96,9 +84,7 @@ Lemma typef_kind_t1
  ,  TYPEF  ke te se sp fs t1 t2 e
  -> KindT  ke sp t1 KData.
 Proof. 
- intros.
- induction H; auto.
- - eapply subst_type_type; eauto.
+ intros. induction H; eauto 2.
 Qed.
 Hint Resolve typef_kind_t1.
 
@@ -107,10 +93,7 @@ Lemma typef_kind_t2
  :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
  -> KindT  ke sp t2 KData.
-Proof. 
- intros.
- induction H; auto.
-Qed.
+Proof. intros. induction H; auto. Qed.
 Hint Resolve typef_kind_t2.
 
 
@@ -119,10 +102,7 @@ Lemma typef_stenv_snoc
  ,  ClosedT t3
  -> TYPEF ke te se         sp fs t1 t2 e
  -> TYPEF ke te (t3 <: se) sp fs t1 t2 e.
-Proof.
- intros. 
- induction H0; eauto.
-Qed.
+Proof. intros. induction H0; eauto. Qed.
 Hint Resolve typef_stenv_snoc.
 
 
@@ -130,10 +110,7 @@ Lemma typef_stprops_snoc
  :  forall ke te se sp fs t1 t2 p e
  ,  TYPEF  ke te se sp        fs t1 t2 e
  -> TYPEF  ke te se (p <: sp) fs t1 t2 e.
-Proof.
- intros. 
- induction H; eauto.
-Qed.
+Proof. intros. induction H; eauto. Qed.
 Hint Resolve typef_stprops_snoc.
 
 
@@ -162,133 +139,13 @@ Qed.
 Hint Resolve freshFs_typef.
 
 
-Lemma mergeTE_rewind
- :  forall p1 p2 te t
- ,  freshT p2 t
- -> mergeTE p1 p2 te :> t
- =  mergeTE p1 p2 (te :> t).
-Proof.
- intros.
-
- have HT1: (t = mergeT p1 p2 t)
-  by (symmetry; apply mergeT_freshT_id; auto).
- rewrite HT1 at 1.
- snorm.
-Qed.
-
-
-Lemma typex_merge
- :  forall ke te se sp x t e p1 p2
- ,  freshX     p2 x
- -> freshFreeX p2 te x
- -> TYPEX ke te se sp x t e
- -> TYPEX ke (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp x t e.
-Proof.
- intros. gen ke te se sp t e.
- induction x using exp_mutind with
-  (PV := fun v => forall ke te se sp t 
-      ,  freshV     p2 v
-      -> freshFreeV p2 te v
-      -> TYPEV ke te se sp v t
-      -> TYPEV ke (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp v t);
-  intros; inverts_type; auto.
-
- - Case "XVar".
-   eapply TvVar; auto.
-   unfold freshFreeV in *.
-   spec H1 n. spec H1 t.
-
-   have HF: (freeXV n (VVar n)) 
-    by (unfold freeXV; symmetry; eapply beq_nat_refl).
-
-   assert (freshT p2 t).
-    eauto. clear H1.
-
-   unfold mergeTE.
-   eapply get_map with (f := mergeT p1 p2) in H4.
-   rewrite H4.
-   rewrite mergeT_freshT_id; auto.
-
- - Case "XLoc".
-   eapply TvLoc; auto.
-   admit.                               (* ok, need freshSuppV crap *)
-
- - Case "XLam".
-   eapply TvLam; auto.
-   snorm. rewrite mergeTE_rewind; auto.
-   eapply IHx; auto.
-   + admit.
-
- - Case "XLAM".
-   eapply TvLAM. admit.
-
- - Case "XLet".
-   snorm.
-   eapply TxLet; auto.
-   + eapply IHx1; auto. firstorder.
-   + rewrite mergeTE_rewind.
-     eapply IHx2; auto. admit. admit.
- 
- - Case "XApp".
-   snorm.
-   eapply TxApp. 
-   + eapply IHx; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
-     intros. rip. eapply H0; snorm; eauto.
-   + eapply IHx0; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
-     intros. rip. eapply H0; snorm; eauto.
-
- - Case "XAPP".
-   admit.
-
- - Case "XOp1".
-   eapply TxOpPrim; eauto.
-
- - Case "XPrivate".
-   eapply TxPrivate; eauto.
-   admit.                             (* ok, comm liftTE/mergeTE *)
-
- - Case "XExtend".
-   eapply TxExtend; eauto.
-   admit.                             (* ok, comm liftTE/mergeTE *)
-
- - Case "XAlloc".
-   eapply TxOpAlloc; eauto.
-   + eapply IHx; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
-     intros. rip. eapply H; snorm; eauto.
-
- - Case "XRead".
-   eapply TxOpRead; eauto.
-   + eapply IHx; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
-     intros. rip. eapply H; snorm; eauto.
-
- - Case "XWrite".
-   eapply TxOpWrite; eauto.
-   + eapply IHx; snorm; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
-     intros. rip. eapply H0; snorm; eauto.
-   + eapply IHx0; snorm; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
-     intros. rip. eapply H0; snorm; eauto.
-Qed.
-
-
 
 Lemma typef_merge
  :  forall ke te se sp fs t1 t2 e p1 p2
  ,  freshFs     p2 fs
  -> freshFreeFs p2 te fs
  -> TYPEF ke te se sp fs t1 t2 e
- -> TYPEF ke (mergeTE p1 p2 te) (mergeSE p1 p2 se) sp fs t1 t2 e.
+ -> TYPEF ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp fs t1 t2 e.
 Proof.
  intros. gen ke te se sp t1 t2 e.
  induction fs; intros.
@@ -310,7 +167,7 @@ Proof.
      inverts H1.
      eapply TfConsLet; auto.
      + rewrite mergeTE_rewind; auto.
-       eapply typex_merge; eauto.
+       eapply mergeX_typeX_freshX; eauto.
        * admit.                                  (* ok, fresh join *)
      + eapply IHfs; auto.
        admit.                                    (* ok, freshFree tail *)
@@ -323,10 +180,9 @@ Proof.
 
    - SCase "FExt".
      inverts H1.
-     eapply TfConsExt; auto.
+     eapply TfConsExt; eauto.
      eapply IHfs; eauto.
      admit.                                      (* ok, freshFree tail *)
  }
 Qed.
-
 
