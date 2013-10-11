@@ -145,6 +145,32 @@ Proof.
 Qed.
 
 
+Lemma wfFS_pop_priv_ext
+ :  forall se sp ss fs p1 p2
+ ,  In (SRegion p1) sp
+ -> WfFS se sp ss (fs :> FPriv (Some p1) p2)
+ -> WfFS (mergeTE p1 p2 se) sp (mergeBs p1 p2 ss) fs.
+Proof.
+ intros.
+ inverts H0. split.
+ - eapply Forall_map.
+   eapply Forall_impl with (P := ClosedT).
+   + intros. eapply mergeT_wfT; eauto.
+   + auto.
+
+ - unfold STOREM in *.
+   unfold mergeTE. 
+   unfold mergeBs.
+   repeat (rewrite map_length). auto.
+
+ - unfold STORET.
+   eapply storeT_mergeB; auto.
+   
+ - eapply storep_pop; eauto.
+Qed.
+
+
+
 (* Appending a closed store binding to the store preserves its 
    well formedness. *)
 Lemma wfFS_stbind_snoc

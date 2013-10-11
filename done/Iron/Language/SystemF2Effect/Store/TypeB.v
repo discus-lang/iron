@@ -60,3 +60,44 @@ Proof.
  inverts H; eauto using kind_stprops_cons.
 Qed.
 Hint Resolve typeb_stprops_snoc.
+
+
+Lemma typeB_mergeT
+ :  forall ke te se sp b t p1 p2
+ ,  In (SRegion p1) sp
+ -> TYPEB  ke te se sp b t
+ -> TYPEB  ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp 
+              (mergeB p1 p2 b) (mergeT p1 p2 t).
+Proof.
+ intros.
+ destruct b.
+
+ Case "StValue".
+ { have (p2 = n \/ ~(p2 = n)) as HN.
+   inverts HN.
+   - inverts H0.
+     + snorm; subst.
+       * eapply TbValue; eauto.
+         eapply TxVal in H9.
+         eapply mergeX_typeX in H9.
+         inverts H9. eauto.
+         inverts_kind. auto.
+       * nope.
+   - inverts H0.
+     + snorm; subst.
+       * nope.
+       * eapply TbValue; eauto.
+         eapply TxVal in H10.
+         eapply mergeX_typeX in H10.
+         inverts H10. eauto. auto.
+ }
+
+ Case "StDead". 
+ { have (p2 = n \/ ~(p2 = n)) as HN.
+   inverts HN.
+   - inverts H0.
+     snorm.
+   - inverts H0.
+     snorm.
+ }
+Qed.

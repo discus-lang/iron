@@ -5,9 +5,30 @@ Require Export Iron.Language.SystemF2Effect.Store.TypeB.
 
 (* Well typed store.
    All bindings are well typed. *)
-Definition STORET (se: stenv) (sp: stprops) (ss: store)
- := Forall2 (TYPEB nil nil se sp) ss se.
+Definition STORET' (sec : stenv) (se: stenv) (sp: stprops) (ss: store)
+ := Forall2 (TYPEB nil nil sec sp) ss se.
+Hint Unfold STORET'.
+
+Definition STORET  (se  : stenv) (sp : stprops) (ss : store)
+ := STORET' se se sp ss.
 Hint Unfold STORET.
+
+
+Lemma storeT_mergeB
+ :  forall  sec se sp ss p1 p2
+ ,  In (SRegion p1) sp
+ -> STORET' sec se sp ss
+ -> STORET' (mergeTE p1 p2 sec) (mergeTE p1 p2 se) sp (mergeBs p1 p2 ss).
+Proof.
+ intros.
+ unfold STORET' in *.
+ induction H0.
+ - snorm.
+ - simpl. eapply Forall2_cons.
+   + rgwrite (nil = mergeTE p1 p2 nil).
+     eapply typeB_mergeT. auto. auto.
+   + auto.
+Qed.
 
 
 (* Weaken store properties in store typing judgement. *)
@@ -19,8 +40,8 @@ Proof.
  intros.
  unfold STORET in *.
  eapply Forall2_impl.
-  intros. eapply typeb_stprops_snoc. eauto.
- auto.
+ - intros. eapply typeb_stprops_snoc. eauto.
+ - auto.
 Qed.
 Hint Resolve storet_weak_stprops.
 
@@ -46,6 +67,7 @@ Proof.
  - snorm. subst. inverts_kind. auto.
  - snorm. subst. inverts_kind. auto.
 Qed.
+
 
 
 (* Extended store is well typed under extended store environment *)
@@ -83,6 +105,8 @@ Proof.
     subst tRef'. eauto.
    auto. 
  }
+
+ unfold STORET.
  auto.
 Qed.
 Hint Resolve storet_snoc.

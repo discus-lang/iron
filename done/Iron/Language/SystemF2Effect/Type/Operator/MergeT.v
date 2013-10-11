@@ -25,6 +25,19 @@ Hint Unfold mergeTE.
 
 
 (********************************************************************)
+Lemma mergeT_wfT
+ :  forall n t1 t2 p1 p2
+ ,  mergeT p1 p2 t1 = t2
+ -> WfT n t1
+ -> WfT n t2.
+Proof.
+ intros. gen n t2.
+ induction t1; snorm; inverts H0; rewrite <- H; eauto.
+ destruct t. snorm.
+Qed.
+Hint Resolve mergeT_wfT.
+
+
 Lemma mergeT_freshT_id
  :  forall p1 p2 t
  ,  freshT p2 t

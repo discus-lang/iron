@@ -215,6 +215,12 @@ Proof.
 Qed.
 
 
+(* We need to know that there is no p1 frame in fs 
+   because we also merge dead bindings from p2 into p1 *)
+
+** need to know there are no dead bindings in p2 
+   because we're about to merge all of region p2 into p1.
+
 Lemma liveS_mergeB
  :  forall ss fs p1 p2
  ,  LiveS ss fs
@@ -229,14 +235,25 @@ Proof.
      * subst.
        eapply liveS_stvalue_cons.
        firstorder.
-     * firstorder.
-   + Case "StDead".
-     snorm.
-     eapply liveS_stdead_cons.
-     * intros.
-       eapply liveS_dead_nopriv in H; eauto.
-     * firstorder.
-Qed.
-  
+     * have (LiveS ss fs).
+       rip.
+       eapply liveS_stvalue_cons. auto.
 
- 
+   + Case "StDead".
+     have (LiveS ss fs). rip.
+
+     have (n = p2 \/ ~(n = p2)) as HN.
+     inverts HN.
+     * simpl. snorm. 
+       eapply liveS_stdead_cons.
+
+     simpl. snorm.
+     * subst.
+
+
+     eapply liveS_stdead_cons.
+     * snorm. subst. firstorder.
+       eapply liveS_dead_nopriv; eauto. 
+     * auto.
+Qed.
+

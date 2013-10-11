@@ -40,3 +40,14 @@ Proof.
 Qed.
 Hint Resolve storep_stprops_snoc.
 
+
+Lemma storep_pop
+ :  forall sp fs f
+ ,  STOREP sp (fs :> f)
+ -> STOREP sp fs.
+Proof.
+ intros.
+ unfold STOREP in *.
+ firstorder.
+Qed.
+Hint Resolve storep_pop.
