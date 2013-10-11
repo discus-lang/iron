@@ -14,8 +14,7 @@ Theorem preservation
  -> TYPEC  nil nil se sp fs  x   t  e    
  -> STEPF  ss  sp  fs x  ss' sp' fs' x'   
  -> (exists se' e'
-    ,  extends se' se
-    /\ WfFS  se' sp' ss' fs'
+    ,  WfFS  se' sp' ss' fs'
     /\ LiveS ss' fs'    
     /\ LiveE fs' e'
     /\ SubsVisibleT  nil sp' sp  e  e'
@@ -32,8 +31,8 @@ Proof.
  Case "SfStep". 
  { inverts_typec. 
    exists se. 
-   exists e.
-   rip.
+   exists e. 
+   intuition.
 
    (* Original effect visibly subsumes effect of result. *)
    - apply subsVisibleT_refl.
@@ -42,7 +41,6 @@ Proof.
    (* Resulting configuration is well typed. *)
    - eapply TcExp; eauto.
      eapply stepp_preservation; eauto.
-     inverts HH. rip.
  }
 
 
@@ -51,13 +49,13 @@ Proof.
  Case "SfLetPush".
  { exists se.
    exists e.
-   rip.
-
+   intuition.
+   
    (* Frame stack with new FLet frame is well formed. *)
-   - unfold WfFS   in *. 
+   - inverts HH. split; auto.
      unfold STOREP in *. rip.
-     + inverts H. nope. eauto.
-     + inverts H. nope. eauto.
+     + inverts H3. nope. eauto.
+     + inverts H3. nope. eauto.
     
    (* All store bindings mentioned by frame stack are still live. *)
    - eapply liveS_push_flet; auto.
@@ -83,10 +81,10 @@ Proof.
  Case "SfLetPop".
  { exists se.
    exists e.
-   rip.
+   intuition.
 
    (* Store is still well formed. *)
-   - unfold WfFS in *.
+   - inverts HH. split; auto.
      unfold STOREP in *. 
      rip; firstorder.  
 
@@ -136,11 +134,11 @@ Proof.
    have (KindT nil sp e2 KEffect)
     by  (eapply equivT_kind_left; eauto).
    have (ClosedT e2).
-   rip.
+   intuition.
 
    (* All store bindings mentioned by resulting frame stack
       are still live. *)
-   - inverts HH. rip.
+   - inverts HH.
      subst p.
      eapply liveS_push_fpriv_allocRegion; eauto.
 
@@ -308,7 +306,8 @@ Proof.
    - destruct s.
      exists se.
      exists e2.
-     rip.
+     intuition.
+
      (* Frame stack is still well formed after popping the top FUse frame *)
      + eapply wfFS_region_deallocate; auto.
 
@@ -339,14 +338,14 @@ Proof.
    set (r2 := TRgn p2).
    exists se.
    exists (TSum (substTT 0 r2 e0) (TSum e2 (TAlloc r1))).
-   rip.
+   intuition.
    
    (* Updated store is well formed. *)
    - inverts_kind. 
      eapply wfFS_push_priv_ext; auto.
 
    (* Updated store is live relative to frame stack. *)
-   - inverts HH. rip.
+   - inverts HH.
      subst p2.
      eapply liveS_push_fpriv_allocRegion; eauto.
 
@@ -463,10 +462,7 @@ Proof.
    set (r2 := TRgn p2).
    exists (mergeTE p1 p2 se).
    exists e0.
-   rip.
-
-   (* Extends of SE no longer true *)
-   - skip.  (* BROKEN *)
+   intuition.
 
    (* Updated store is well formed. *)
    - admit. 
@@ -510,7 +506,7 @@ Proof.
    inverts H0.
    exists (TRef   (TRgn r1) t2 <: se).
    exists e2.
-   rip.
+   intuition.
 
    (* All store bindings mentioned by frame stack are still live. *)
    - remember (TRgn r1) as p.
@@ -520,11 +516,10 @@ Proof.
 
      have (LiveE fs (TAlloc p)).
 
-     assert (In (FPriv r1) fs).
-      eapply liveE_fPriv_in; eauto.
-      subst p. simpl. auto.
-     
-     eapply liveS_stvalue_snoc; auto.
+     eapply liveS_stvalue_snoc.
+     + eapply liveE_fpriv_in; eauto.
+       subst p. snorm.
+     + auto.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
@@ -560,7 +555,7 @@ Proof.
  { inverts HC.
    exists se.
    exists e2. 
-   rip.
+   intuition.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
@@ -593,7 +588,7 @@ Proof.
  { inverts HC.
    exists se.
    exists e2.
-   rip.
+   intuition.
 
    (* Resulting store is well formed. *)
    - inverts_type.
@@ -610,9 +605,9 @@ Proof.
        have (LiveE fs (TWrite p))
         by  (eapply liveE_subsT; eauto).
 
-       eapply liveE_fPriv_in with (e := TWrite p).
-        subst p. snorm. eauto.
-
+       eapply liveE_fpriv_in with (e := TWrite p).
+       * subst p. snorm. 
+       * subst p. snorm.
      + auto.
 
    (* Resulting effects are to live regions. *)

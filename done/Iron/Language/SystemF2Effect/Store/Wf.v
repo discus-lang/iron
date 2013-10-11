@@ -9,19 +9,26 @@ Require Export Iron.Language.SystemF2Effect.Store.StoreP.
 
 (*******************************************************************)
 (* Well formed store. *)
-Definition WfS  (se: stenv) (sp: stprops)  (ss: store)
- := Forall ClosedT se
- /\ STOREM se    ss
- /\ STORET se sp ss.
-Hint Unfold WfS.
+Inductive WfS   : stenv -> stprops -> store -> Prop :=
+ | WfS_
+   :  forall se sp ss
+   ,  Forall ClosedT se
+   -> STOREM se    ss
+   -> STORET se sp ss
+   -> WfS se sp ss.
+Hint Constructors WfS.
 
 
 (* Well formed store and frame stack. *)
-Definition WfFS (se : stenv) (sp : stprops) (ss : store) (fs : stack) 
- := Forall ClosedT se
- /\ STOREM se ss
- /\ STORET se sp ss
- /\ STOREP sp fs.
+Inductive WfFS : stenv -> stprops -> store -> stack -> Prop := 
+ | WfFS_
+   :  forall se sp ss fs
+   ,  Forall ClosedT se
+   -> STOREM se ss
+   -> STORET se sp ss
+   -> STOREP sp fs
+   -> WfFS se sp ss fs.
+Hint Constructors WfFS.
 
 
 (*******************************************************************)
@@ -31,7 +38,15 @@ Lemma wfFS_wfS
  :  forall se sp ss fs
  ,  WfFS   se sp ss fs
  -> WfS    se sp ss.
-Proof. firstorder. Qed.
+Proof. intros. inverts H. eauto. Qed.
+
+
+Lemma wfFS_closedT
+ :  forall se sp ss fs
+ ,  WfFS   se sp ss fs
+ -> Forall ClosedT se.
+Proof. intros. inverts H. eauto. Qed.
+Hint Resolve wfFS_closedT.
 
 
 (* The region handles of private regions are present in the
@@ -41,7 +56,7 @@ Lemma wfFS_fpriv_sregion
  ,  WfFS se sp ss fs
  -> In (FPriv   m1 p2) fs
  -> In (SRegion p2)    sp.
-Proof. firstorder. Qed.
+Proof. intros. inverts H. firstorder. Qed.
 
 
 (* The length of the store enviroment is the same as the length
@@ -51,10 +66,7 @@ Lemma wfFS_storem_length
  :  forall se sp ss fs
  ,  WfFS   se sp ss fs
  -> length se = length ss.
-Proof.
- intros.
- inverts H. rip.
-Qed.
+Proof. intros. inverts H. auto. Qed.
 Hint Resolve wfFS_storem_length.
 
 
@@ -64,12 +76,7 @@ Lemma wfFS_push_priv_top
  :  forall se sp ss fs p2
  ,  WfFS se sp ss fs
  -> WfFS se (SRegion p2 <: sp) ss (fs :> FPriv None p2).
-Proof. 
- intros.
- unfold WfFS in *. 
- inverts H. inverts H1. inverts H2.
- auto.
-Qed.
+Proof. intros. inverts H. auto. Qed.
 Hint Resolve wfFS_push_priv_top.
 
 
@@ -83,12 +90,12 @@ Lemma wfFS_push_priv_ext
  -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FPriv (Some p1) p2).
 Proof.
  intros.
- unfold WfFS in *. 
+ inverts H1. eapply WfFS_; rip.
  unfold STOREP in *. rip.
- - inverts H2.
-   inverts H6; eauto. eauto.
- - inverts H2. 
-   inverts H6; eauto. eauto.
+ - inverts H1; eauto. 
+   inverts H5. eauto.
+ - inverts H1; eauto.
+   inverts H5; eauto.
 Qed. 
 Hint Resolve wfFS_push_priv_ext.
 
@@ -130,11 +137,10 @@ Lemma wfFS_region_deallocate
  -> WfFS se sp (map (deallocate p) ss) fs.
 Proof.
  intros.
- unfold WfFS in *. rip.
+ inverts H. eapply WfFS_; rip.
  - unfold STOREM in *.
    rewrite map_length; auto.
  - eapply storet_deallocate; auto.
- - unfold STOREP in *; snorm; eauto.
  - unfold STOREP in *; snorm; eauto.
 Qed.
 
@@ -150,22 +156,20 @@ Lemma wfFS_stbind_snoc
            (StValue p v <: ss) fs.
 Proof.
  intros.
- unfold WfFS.
- inverts H1. rip.
+ inverts H1. eapply WfFS_; rip.
+ inverts_kind.
  snorm.
  rrwrite ( TRef (TRgn p) t <: se
-        = (TRef (TRgn p) t <: nil) >< se) in H4.
- apply in_app_split in H4.
- inverts H4.
+        = (TRef (TRgn p) t <: nil) >< se) in H.
+ apply in_app_split in H.
+ inverts H.
  - snorm.
  - snorm.
-   inverts H6.
+   inverts H1.
    + have (ClosedT t).
      have (ClosedT (TRgn p)).
      eauto.
    + nope.
- - unfold STOREP in *; snorm; eauto.
- - unfold STOREP in *; snorm; eauto.
 Qed.
 Hint Resolve wfFS_stbind_snoc.
 
@@ -180,14 +184,12 @@ Lemma wfFS_stbind_update
  -> WfFS se sp (update l (StValue p v) ss) fs.
 Proof.
  intros se sp ss fs l p v t HG HK HV HWF1.
- inverts HWF1. rip.
+ inverts HWF1. eapply WfFS_; rip.
  - have (length se = length ss).
    unfold STOREM.
    rewritess.
    rewrite update_length. auto.
  - unfold STORET.
    eapply Forall2_update_right; eauto.
- - unfold STOREP in *; snorm; eauto.
- - unfold STOREP in *; snorm; eauto.
 Qed.
 

@@ -61,8 +61,7 @@ Lemma steps_preservation
  -> TYPEC  nil nil se  sp  fs  x   t   e
  -> Steps  ss  sp  fs  x   ss' sp' fs' x'
  -> (exists se' e'
-    ,  extends se' se
-    /\ WfFS    se' sp' ss' fs' 
+    ,  WfFS    se' sp' ss' fs' 
     /\ LiveS   ss' fs'
     /\ LiveE   fs' e'
     /\ SubsVisibleT nil sp' sp e e'
@@ -70,33 +69,26 @@ Lemma steps_preservation
 Proof.
  intros. gen se e.
  induction H3; intros.
- - exists se. exists e. rip.
+ - exists se. exists e. 
+   intuition.
    eapply subsVisibleT_refl. 
    inverts H2. eauto.
 
  - lets D: preservation H2 H; eauto.
    destruct D  as [se2].
-   destruct H5 as [e2]. rip.
-   spec IHSteps se2. rip.
-   spec IHSteps e2.  rip.
+   destruct H5 as [e2].  rip.
+   spec IHSteps se2.     rip.
+   spec IHSteps e2.      rip.
    destruct IHSteps as [se3].
-   destruct H10     as [e3]. rip.
-   exists se3. exists e3. rip.
-   + eapply extends_trans; eauto.
-
+   destruct H9      as [e3].
+   exists se3. exists e3. 
+   intuition.
    + eapply subsVisibleT_trans; eauto.
-     assert (extends sp2 sp1).
-      eapply stepf_extends_stprops.
-     eauto.
-
      * eapply subsVisibleT_stprops_extends.
        eapply steps_extends_stprops; eauto.
        eauto.
 
      * have (extends sp2 sp1)
         by (eapply stepf_extends_stprops; eauto).
-
        eapply subsVisibleT_spVis_strengthen; eauto.
 Qed.
-
-
