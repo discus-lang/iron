@@ -18,7 +18,7 @@ Definition LiveS  (ss : store) (fs : stack)
 (* Pushing and popping continuation frames. *)
 
 (* Pushing a FLet frame preserves liveness. *)
-Lemma liveS_push_fLet
+Lemma liveS_push_flet
  :  forall ss fs t x
  ,  LiveS ss fs
  -> LiveS ss (fs :> FLet t x).
@@ -31,7 +31,7 @@ Qed.
 
 (* Pushing a FPriv frame with a fresh region identifier
    preserves liveness. *)
-Lemma liveS_push_fPriv
+Lemma liveS_push_fpriv_allocRegion
  :  forall se sp ss fs m 
  ,  STORET se sp ss
  -> STOREP sp fs
@@ -185,7 +185,7 @@ Proof.
 
  destruct b.
  - snorm. subst. exists v. eauto.
- - lets D: liveE_fPriv_in HLE H.
+ - lets D: liveE_fpriv_in HLE H.
    destruct D as [m]. eauto.
 
    snorm. subst.

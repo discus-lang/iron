@@ -59,7 +59,26 @@ Proof.
 Qed.
 
 
-Lemma liveE_equivT
+Lemma liveE_equivT_left
+ :  forall ke sp e1 e2 fs
+ ,  EquivT ke sp e1 e2 KEffect 
+ -> LiveE  fs e2
+ -> LiveE  fs e1.
+Proof.
+ intros.
+ unfold LiveE in *.
+ eapply liveEs_equivTs.
+ - eapply equivT_equivTs; auto.
+   eapply EqSym.
+   + eauto.
+   + have (KindT ke sp e2 KEffect).
+     eauto.
+   + auto.
+ - auto.
+Qed.
+
+
+Lemma liveE_equivT_right
  :  forall ke sp e1 e2 fs 
  ,  EquivT ke sp e1 e2 KEffect
  -> LiveE  fs e1
@@ -216,7 +235,7 @@ Proof.
 Qed.
 
 
-Lemma liveE_fPriv_in
+Lemma liveE_fpriv_in
  :  forall e p2 fs
  ,  LiveE fs e
  -> handleOfEffect e = Some p2

@@ -22,38 +22,30 @@ Fixpoint freeTT (n : nat) (tt: ty) : bool
 
 
 (********************************************************************)
-Lemma freeT_wfT_1
- :  forall n t
- ,  WfT    n t
- -> freeTT (S n) t = false.
-Proof.
- intros. gen n.
- induction t; 
-  try (solve [snorm; inverts H; try (erewrite IHt1); snorm; eauto 2]).
-
- - Case "TVar".
-   snorm. inverts H. 
-   destruct n; auto.
-    eapply beq_nat_false_iff. 
-    omega.
-Qed.
-
-
 Lemma freeT_wfT
  :  forall n1 n2 t
- ,  n2 > n1
+ ,  n2 >= n1
  -> WfT    n1 t
  -> freeTT n2 t = false.
 Proof.
- intros.
- destruct n2.
- - omega.
- - eapply freeT_wfT_1.
-   destruct n1; eauto.
-   + have (n2 >= n1) by omega.
-     inverts H; eauto.
+ intros. gen n1 n2.
+ induction t; intros; inverts H0; 
+  try (solve [snorm; espread; eauto]).
+ 
+ Case "TVar".
+ - snorm. eapply beq_nat_false_iff. omega. 
 Qed.
 Hint Resolve freeT_wfT.
+
+
+Lemma freeT_closedT
+ :  forall t n
+ ,  ClosedT t
+ -> freeTT n t = false.
+Proof.
+ intros. 
+ eapply freeT_wfT; eauto.
+Qed.
 
 
 Lemma freeTT_wfT_drop

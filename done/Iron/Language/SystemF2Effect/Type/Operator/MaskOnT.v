@@ -152,6 +152,19 @@ Proof.
    split_if; auto.
    + destruct t0; try (solve [snorm; rip; nope]).
 Qed.
+Hint Resolve maskOnVarT_freeTT_id.
+
+
+Lemma maskOnVarT_closedT_id
+ :  forall d t
+ ,  ClosedT t
+ -> maskOnVarT d t = t.
+Proof.
+ intros.
+ eapply maskOnVarT_freeTT_id.
+ eauto.
+Qed.
+Hint Rewrite maskOnVarT_closedT_id.
 
 
 (********************************************************************)

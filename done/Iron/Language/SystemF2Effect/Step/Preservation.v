@@ -51,31 +51,28 @@ Proof.
  Case "SfLetPush".
  { exists se.
    exists e.
-   rip. 
+   rip.
 
    (* Frame stack with new FLet frame is well formed. *)
-   - unfold WfFS in *. 
+   - unfold WfFS   in *. 
      unfold STOREP in *. rip.
-     eapply H3.
-     + inverts H. nope. auto.
-     + inverts H. nope. unfold STOREP in *. firstorder.
-     + inverts H. nope. unfold STOREP in *. firstorder.
+     + inverts H. nope. eauto.
+     + inverts H. nope. eauto.
     
    (* All store bindings mentioned by frame stack are still live. *)
-   - eapply liveS_push_fLet; auto.
+   - eapply liveS_push_flet; auto.
 
    (* Original effect visibly subsumes effect of result. *)
-   - eapply subsVisibleT_refl. 
-     inverts HC; eauto.
+   - inverts_typec.
+     eapply subsVisibleT_refl; eauto.
 
    (* Resulting configuation is well typed. *)
-   - inverts HC.
-     inverts H0.
+   - inverts_typec.
      eapply TcExp 
       with (t1 := t) (e1 := e0) (e2 := TSum e3 e2).
       + eapply EqTrans.
-         eapply EqSumAssoc; eauto.
-         auto.
+        * eapply EqSumAssoc; eauto.
+        * auto.
       + auto.
       + eapply TfConsLet; eauto.
  }
@@ -90,7 +87,8 @@ Proof.
 
    (* Store is still well formed. *)
    - unfold WfFS in *.
-     rip; unfold STOREP in *; firstorder.  
+     unfold STOREP in *. 
+     rip; firstorder.  
 
    (* After popping top FLet frame, 
       all store bindings mentioned by frame stack are still live. *)
@@ -101,26 +99,21 @@ Proof.
    - eapply liveE_pop_flet; eauto.
 
    (* Original effect visibly subsumes effect of result. *)
-   - eapply subsVisibleT_refl.
-     inverts HC; eauto.
+   - inverts_typec.
+     eapply subsVisibleT_refl; eauto.
 
    (* Resulting configuration is well typed. *)
-   - inverts HC.
-     inverts H1.
+   - inverts_typec.
      eapply TcExp  
       with (t1 := t3) (e1 := e0) (e2 := e3).
-      + inverts H0.
-        subst.
-        eapply EqTrans.
-        * eapply equivT_sum_left. eauto.
+      + eapply EqTrans.
+        * eapply equivT_sum_left; auto.
           have (KindT nil sp e0 KEffect).
           have (KindT nil sp e3 KEffect).
-          eauto.
+          eapply KiSum; eauto.
         * auto.
-      + eapply subst_val_exp. 
-        * eauto.
-        * inverts H0. auto.
-      + eauto.
+      + eapply subst_val_exp; eauto.
+      + auto.
  } 
 
 
@@ -143,18 +136,19 @@ Proof.
    have (KindT nil sp e2 KEffect)
     by  (eapply equivT_kind_left; eauto).
    have (ClosedT e2).
-
    rip.
 
    (* All store bindings mentioned by resulting frame stack
       are still live. *)
    - inverts HH. rip.
      subst p.
-     eapply liveS_push_fPriv; eauto.
+     eapply liveS_push_fpriv_allocRegion; eauto.
 
    (* Resulting effect is to live regions. *)
    - eapply liveE_sum_above.
-     + have HLL: (liftTT 1 0 e1 = maskOnVarT 0 e0)
+     + eapply liveE_phase_change.
+
+       have HLL: (liftTT 1 0 e1 = maskOnVarT 0 e0)
         by  (eapply lowerTT_some_liftTT; eauto).
        rrwrite (liftTT 1 0 e1 = e1) in HLL.
 
@@ -163,26 +157,27 @@ Proof.
 
        have (LiveE fs e1).
 
-       have HLW: (LiveE (fs :> FPriv p) e1).
+       have HLW: (LiveE (fs :> FPriv None p) e1).
        rewrite HLL in HLW.
 
-       have HL0: (LiveE (fs :> FPriv p) e0) 
+       have HL0: (LiveE (fs :> FPriv None p) e0) 
         by (eapply liveE_maskOnVarT; eauto).
 
-       eapply liveE_phase_change; eauto.
+       trivial.
 
      + have (SubsT nil sp e e2 KEffect)
         by  (eapply EqSym in H0; eauto).
 
        have (LiveE fs e2).
-       have (LiveE (fs :> FPriv p) e2).
+       have (LiveE (fs :> FPriv None p) e2).
        rrwrite (substTT 0 r e2 = e2); auto.
        
    (* Effect of result is subsumed by previous. *)
    - rrwrite ( TSum (substTT 0 r e0) (substTT 0 r e2)
              = substTT 0 r (TSum e0 e2)).
      have (ClosedT e).
-     have HE: (substTT 0 r e = e). rewrite <- HE. clear HE.
+     rgwrite (e = substTT 0 r e)
+      by (symmetry; eauto).
 
      simpl.
      set (sp' := SRegion p <: sp).
@@ -235,26 +230,24 @@ Proof.
      + rrwrite (substTT 0 r e2 = e2).
        eapply EqRefl.
         eapply KiSum; auto.
-         * eapply subst_type_type. eauto.
-           subst r. eauto.
+         * eapply subst_type_type. 
+            eauto.
+            subst r. eauto.
 
      (* Type is preserved after substituting region handle. *)
-     + have HTE: (nil = substTE 0 r nil).
-       rewrite HTE.
-
-       have HSE: (se  = substTE 0 r se)
+     + rgwrite (nil = substTE 0 r nil).
+       rgwrite (se  = substTE 0 r se)
         by (inverts HH; symmetry; auto).
-       rewrite HSE.
 
        eapply subst_type_exp with (k2 := KRegion).
        * rrwrite (liftTE 0 nil = nil).
          rrwrite (liftTE 0 se  = se) 
           by (inverts HH; auto).
          auto.
-       * subst r. auto.
+       * subst r.
          eapply KiRgn.
-         rrwrite (SRegion p <: sp = sp ++ (nil :> SRegion p)).
-         eapply in_app_right. snorm.
+         rgwrite (SRegion p <: sp = sp ++ (nil :> SRegion p)).
+         eapply in_app_right; auto.
 
      (* New frame stack is well typed. *)
      + eapply TfConsPriv.
@@ -267,7 +260,7 @@ Proof.
 
          have (not (In (SRegion (allocRegion sp)) sp)).
          have (In (SRegion p) sp).
-         rewrite H in H14. tauto.
+         rewrite H in H14. nope.
 
        (* Effect of frame stack is still to live regions *)
        * rrwrite (substTT 0 r e2 = e2).
@@ -290,7 +283,7 @@ Proof.
 
          rrwrite (substTT 0 r t0 = t0).
          rrwrite (substTT 0 r e2 = e2).
-         rrwrite (t1 = t0) 
+         rrwrite (t1 = t0)
           by (eapply lowerTT_closedT; eauto).
          eauto.
  }
@@ -307,9 +300,9 @@ Proof.
    (* No regions in store. *)
    - inverts HH. rip. 
      unfold STOREP in *. rip.
-     spec H3 p.
-     have (In (FPriv p) (fs :> FPriv p)).
-      rip. nope.
+     have (In (FPriv None p) (fs :> FPriv None p)).
+     have (In (SRegion p) nil) by firstorder.
+     nope.
 
    (* At least one region in store. *)
    - destruct s.
@@ -324,8 +317,8 @@ Proof.
      + eapply liveS_deallocate; eauto.
 
      (* New effect subsumes old one. *)
-     + eapply subsT_subsVisibleT.
-       have HE: (EquivT nil (sp :> SRegion n) e2 e KEffect).
+     + eapply subsT_subsVisibleT. 
+       have (EquivT nil (sp :> SRegion n) e2 e KEffect).
        eauto.
 
      (* Resulting configuation is well typed. *)
@@ -349,15 +342,43 @@ Proof.
    rip.
    
    (* Updated store is well formed. *)
-   - eapply wfFS_region_ext; auto.
-     inverts H10. auto.
+   - inverts_kind. 
+     eapply wfFS_push_priv_ext; auto.
 
    (* Updated store is live relative to frame stack. *)
-   - eapply liveS_push_fExt; auto.
+   - inverts HH. rip.
+     subst p2.
+     eapply liveS_push_fpriv_allocRegion; eauto.
 
    (* Frame stack is live relative to effect. *)
-   - admit.
+   - apply liveE_sum_above.
+     + assert (ClosedT eL).
+       { have (KindT nil sp (TSum (TSum eL (TAlloc (TRgn p1))) e2) KEffect).
+         inverts_kind. eauto.
+       }
 
+       have HLL: (liftTT 1 0 eL = maskOnVarT 0 e0)
+        by  (eapply lowerTT_some_liftTT; eauto).
+       rrwrite (liftTT 1 0 eL = eL) in HLL.
+
+       have (LiveE fs (TSum (TSum eL (TAlloc (TRgn p1))) e2))
+        by (eapply liveE_equivT_left; eauto).
+       have (LiveE fs eL).
+
+       apply liveE_phase_change.
+
+       have HLW: (LiveE (fs :> FPriv (Some p1) p2) eL).
+       rewrite HLL in HLW.
+
+       eapply liveE_maskOnVarT; eauto.
+
+    + have (SubsT nil sp e (TSum (TSum eL (TAlloc (TRgn p1))) e2) KEffect).
+      apply liveE_sum_above.
+      * have (SubsT nil sp e e2 KEffect).
+        eapply liveE_subsT; eauto.
+      * have (SubsT nil sp e (TAlloc (TRgn p1)) KEffect).
+        eapply liveE_subsT; eauto.
+      
    (* Effect of result is subsumed by previous. *)
    - admit. (* ok *)
 
