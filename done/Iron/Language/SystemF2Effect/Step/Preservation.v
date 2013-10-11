@@ -481,7 +481,11 @@ Proof.
    - eapply liveE_sum_above_left; eauto.
 
    (* Effect of result is subsumed by previous. *)
-   - admit.  (* ok, via EquivT *)
+   - eapply subsT_subsVisibleT.
+     set (e' := (TSum (TBot KEffect) (TSum e0 (TAlloc (TRgn p1))))).
+     have (KindT  nil sp e'   KEffect).
+     have (EquivT nil sp e e' KEffect).
+     eapply SbSumAboveRight; eauto.
 
    (* Resulting state is well typed. *)
    - eapply TcExp
