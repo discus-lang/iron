@@ -380,7 +380,37 @@ Proof.
         eapply liveE_subsT; eauto.
       
    (* Effect of result is subsumed by previous. *)
-   - admit. (* ok *)
+   - set (sp' := SRegion p2 <: sp).
+     have (KindT nil sp    (TSum (TSum eL (TAlloc (TRgn p1))) e2) KEffect).
+     have (SubsT nil sp' e (TSum (TSum eL (TAlloc (TRgn p1))) e2) KEffect)
+      by (subst sp'; eapply subsT_stprops_snoc; eauto).
+
+     inverts_kind.
+
+     assert (SubsVisibleT nil sp' sp e (substTT 0 r2 e0)) as HE1.
+     { eapply subsVisibleT_mask
+        with (n := p2); auto.
+
+       have HL: (liftTT 1 0 eL = maskOnVarT 0 e0)
+        by (apply lowerTT_some_liftTT; auto).
+
+       rewrite <- HL.
+       rgwrite (liftTT 1 0 eL = eL).
+       eapply subsT_subsVisibleT.
+       eapply SbSumAboveLeft; eauto.
+      }
+
+     assert (SubsVisibleT nil sp' sp e e2)                as HE2.
+     { eapply subsT_subsVisibleT.
+       eapply SbSumAboveRight; eauto.
+     }
+
+     assert (SubsVisibleT nil sp' sp e (TAlloc r1))       as HE3.
+     { subst r1.
+       eapply subsT_subsVisibleT.
+       eapply SbSumAboveLeft; eauto.
+     }
+     eauto.
 
    (* Resulting state is well typed. *)
    - eapply TcExp
@@ -457,7 +487,8 @@ Proof.
             (e2 := e0).
 
      (* Equivalence of result effect. *)
-     + have (KindT nil sp (TSum (TBot KEffect) (TSum e0 (TAlloc (TRgn p1)))) KEffect).
+     + have (KindT nil sp (TSum (TBot KEffect) 
+                          (TSum e0 (TAlloc (TRgn p1)))) KEffect).
        inverts_kind.
        eapply EqSym; eauto.
 

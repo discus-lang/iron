@@ -318,3 +318,9 @@ Proof.
    snorm.
 Qed.
 
+(*
+Lemma subsVisibleT_subsTT
+ :  forall ke sp1 sp2 e1 e2
+ -> SubsVisibleT (ke :> k) sp1 sp2
+*)
+
