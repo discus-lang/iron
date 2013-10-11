@@ -29,7 +29,7 @@ Inductive
 
  | TfConsPriv
    :  forall ke te se sp fs t1 t2 e2 n
-   ,  (forall m, ~(In (FPriv m n) fs))
+   ,  (forall m, ~(In (FPriv m n) fs))               (* TODO: change to use freshFs *)
    -> LiveE  fs e2
    -> TYPEF  ke te se sp fs                   t1 t2 e2
    -> TYPEF  ke te se sp (fs :> FPriv None n) t1 t2 e2
@@ -39,6 +39,7 @@ Inductive
    ,  In (SRegion p1) sp 
    -> In (SRegion p2) sp
    -> freshFs p2 fs
+   -> LiveE  fs (TSum e2 (TAlloc (TRgn p1)))
    -> TYPEF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
    -> TYPEF  ke te se sp (fs :> FPriv (Some p1) p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
 

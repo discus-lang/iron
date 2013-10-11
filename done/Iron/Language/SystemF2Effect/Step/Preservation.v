@@ -448,6 +448,13 @@ Proof.
         by (subst p2; auto).
        eapply TfConsExt; eauto.
        * inverts_kind. eauto.
+       * have (LiveE fs (TSum (TSum eL (TAlloc (TRgn p1))) e2))
+          by (eapply liveE_equivT_left; eauto).
+         eapply liveE_sum_above.
+          eapply liveE_sum_above_right; eauto.
+          eapply liveE_sum_above_left  in H4.
+          eapply liveE_sum_above_right in H4.
+          trivial.
        * erewrite mergeT_substTT.
          eapply typef_stprops_snoc. auto.
          eauto. eauto.
@@ -468,10 +475,10 @@ Proof.
    - admit. 
 
    (* Updated store is live relative to frame stack. *)
-   - admit.
+   - eapply liveS_mergeB; eauto.
 
    (* Frame stack is live relative to effect. *) 
-   - admit.
+   - eapply liveE_sum_above_left; eauto.
 
    (* Effect of result is subsumed by previous. *)
    - admit.  (* ok, via EquivT *)

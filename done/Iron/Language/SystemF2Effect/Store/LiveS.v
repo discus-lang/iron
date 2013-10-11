@@ -1,9 +1,10 @@
 
-Require Export Iron.Language.SystemF2Effect.Step.Frame.
 Require Export Iron.Language.SystemF2Effect.Store.Bind.
 Require Export Iron.Language.SystemF2Effect.Store.StoreT.
 Require Export Iron.Language.SystemF2Effect.Store.StoreP.
 Require Export Iron.Language.SystemF2Effect.Store.LiveE.
+Require Export Iron.Language.SystemF2Effect.Step.Frame.
+Require Export Iron.Language.SystemF2Effect.Step.FreshF.
 
 
 (********************************************************************)
@@ -90,33 +91,34 @@ Hint Resolve liveS_stdead_cons.
 
 Lemma liveS_stvalue_cons
  :  forall p v fs ss
- ,  (exists m, In (FPriv m p) fs)
- -> LiveS ss                  fs
+ ,  LiveS ss                  fs
  -> LiveS (ss :> StValue p v) fs.
 Proof.
  intros. 
  unfold LiveS in *.
- rip; inverts H1; eauto.
+ intros.
+ destruct b.
+ - eauto. 
+ - firstorder. nope.
 Qed.
 
 
 Lemma liveS_stvalue_snoc
  :  forall p v fs ss
- ,  (exists m, In (FPriv m p) fs)
- -> LiveS ss                  fs
+ ,  LiveS ss                  fs
  -> LiveS (StValue p v <: ss) fs.
 Proof.
  intros.
  unfold LiveS in *.
- snorm.
- rrwrite ( StValue p v <: ss 
-         = (nil :> StValue p v) >< ss) in H1.
- eapply in_app_split in H1.
- inverts H1.
+ intros.
+ destruct b.
  - eauto.
- - eauto.
-   simpl in H3. inverts H3.
-   unfold isStValue. eauto. nope.
+ - rrwrite (  StValue p v <: ss 
+           = (StValue p v <: nil) >< ss).
+   eapply in_app_split in H0.
+   inverts H0. 
+   + firstorder.
+   + firstorder. nope.
 Qed.
 
 
@@ -197,3 +199,44 @@ Proof.
 Qed.
 
 
+Lemma liveS_dead_nopriv
+ :  forall m p ss fs
+ ,  In (StDead p) ss
+ -> LiveS ss fs
+ -> ~(In (FPriv m p) fs).
+Proof.
+ intros.
+ unfold not. intros.
+ unfold LiveS in *.
+ eapply H0 in H.
+ unfold isStValue in H. 
+  firstorder. nope.
+  eauto.
+Qed.
+
+
+Lemma liveS_mergeB
+ :  forall ss fs p1 p2
+ ,  LiveS ss fs
+ -> LiveS (map (mergeB p1 p2) ss) fs. 
+Proof.
+ intros.
+ induction ss.
+ - snorm.
+ - destruct a.
+   + Case "StValue".
+     snorm.
+     * subst.
+       eapply liveS_stvalue_cons.
+       firstorder.
+     * firstorder.
+   + Case "StDead".
+     snorm.
+     eapply liveS_stdead_cons.
+     * intros.
+       eapply liveS_dead_nopriv in H; eauto.
+     * firstorder.
+Qed.
+  
+
+ 
