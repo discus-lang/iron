@@ -607,6 +607,23 @@ Qed.
 Hint Resolve in_app_split.
 
 
+Lemma in_snoc_split
+ :  forall {A} (x : A) y ys
+ ,  In x (y <: ys)
+ -> x = y \/ In x ys.
+Proof.
+ intros.
+ rrwrite (y <: ys = (nil :> y) >< ys) in H.
+ eapply in_app_split in H.
+ inverts H.
+ - tauto.
+ - inverts H0.
+   + tauto.
+   + inverts H.
+Qed.
+Hint Resolve in_snoc_split.
+
+
 Lemma in_app_left
  :  forall {A} x (xs ys: list A)
  ,  In x xs

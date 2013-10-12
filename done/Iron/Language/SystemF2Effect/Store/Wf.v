@@ -39,6 +39,7 @@ Lemma wfFS_wfS
  ,  WfFS   se sp ss fs
  -> WfS    se sp ss.
 Proof. intros. inverts H. eauto. Qed.
+Hint Resolve wfFS_wfS.
 
 
 Lemma wfFS_closedT
@@ -49,6 +50,19 @@ Proof. intros. inverts H. eauto. Qed.
 Hint Resolve wfFS_closedT.
 
 
+Lemma wfFS_typeb
+ :  forall se sp ss fs b
+ ,  WfFS se sp ss fs
+ -> In b ss
+ -> (exists t, TYPEB nil nil se sp b t).
+Proof. 
+ intros.
+ inverts H. 
+ eapply Forall2_exists_left; eauto.
+Qed.
+Hint Resolve wfFS_typeb.
+
+
 (* The region handles of private regions are present in the
    store properties. *)
 Lemma wfFS_fpriv_sregion
@@ -57,6 +71,7 @@ Lemma wfFS_fpriv_sregion
  -> In (FPriv   m1 p2) fs
  -> In (SRegion p2)    sp.
 Proof. intros. inverts H. firstorder. Qed.
+Hint Resolve wfFS_fpriv_sregion.
 
 
 (* The length of the store enviroment is the same as the length
@@ -170,7 +185,6 @@ Proof.
 Qed.
 
 
-
 (* Appending a closed store binding to the store preserves its 
    well formedness. *)
 Lemma wfFS_stbind_snoc
@@ -197,7 +211,6 @@ Proof.
      eauto.
    + nope.
 Qed.
-Hint Resolve wfFS_stbind_snoc.
 
 
 (* Updating bindings preserves the well formedness of the store. *)

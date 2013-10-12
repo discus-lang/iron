@@ -88,10 +88,6 @@ Proof.
      unfold STOREP in *. 
      rip; firstorder.  
 
-   (* After popping top FLet frame, 
-      all store bindings mentioned by frame stack are still live. *)
-   - eapply liveS_pop; eauto.
-
    (* After popping top FLet frame, effects of result are still 
       to live regions. *)
    - eapply liveE_pop_flet; eauto.
@@ -140,7 +136,7 @@ Proof.
       are still live. *)
    - inverts HH.
      subst p.
-     eapply liveS_push_fpriv_allocRegion; eauto.
+     eapply liveS_push_fpriv_none_allocRegion; eauto.
 
    (* Resulting effect is to live regions. *)
    - eapply liveE_sum_above.
@@ -347,7 +343,18 @@ Proof.
    (* Updated store is live relative to frame stack. *)
    - inverts HH.
      subst p2.
-     eapply liveS_push_fpriv_allocRegion; eauto.
+     eapply liveS_push_fpriv_some_allocRegion; eauto.
+
+     assert (SubsT nil sp e (TAlloc (TRgn p1)) KEffect).
+     { admit. }
+
+     have (LiveE fs (TAlloc (TRgn p1))).
+     (* use liveSP_from_effect *)
+
+     
+
+     admit.                                              (* ok, via equiv *)
+     
 
    (* Frame stack is live relative to effect. *)
    - apply liveE_sum_above.
@@ -475,20 +482,25 @@ Proof.
    - admit. 
 
    (* Updated store is live relative to frame stack. *)
-   - eapply liveS_mergeB; eauto.
+   - SCase "LiveS".
+     eapply liveS_mergeB.
+      eapply liveS_stack_tail; eauto.
 
    (* Frame stack is live relative to effect. *) 
-   - eapply liveE_sum_above_left; eauto.
+   - SCase "LiveE".
+     eapply liveE_sum_above_left; eauto.
 
    (* Effect of result is subsumed by previous. *)
-   - eapply subsT_subsVisibleT.
+   - SCase "SubsVisibleT".
+     eapply subsT_subsVisibleT.
      set (e' := (TSum (TBot KEffect) (TSum e0 (TAlloc (TRgn p1))))).
      have (KindT  nil sp e'   KEffect).
      have (EquivT nil sp e e' KEffect).
      eapply SbSumAboveRight; eauto.
 
    (* Resulting state is well typed. *)
-   - eapply TcExp
+   - SCase "TYPEC".
+     eapply TcExp
        with (t1 := mergeT p1 p2 t1)
             (e1 := TBot KEffect)
             (e2 := e0).
@@ -519,18 +531,16 @@ Proof.
    exists e2.
    intuition.
 
-   (* All store bindings mentioned by frame stack are still live. *)
+   (* Store is well formed after adding a binding. *)
    - remember (TRgn r1) as p.
 
      have (SubsT nil sp e (TAlloc p) KEffect)
       by  (eapply EqSym in H; eauto).
 
      have (LiveE fs (TAlloc p)).
+     subst p.
 
-     eapply liveS_stvalue_snoc.
-     + eapply liveE_fpriv_in; eauto.
-       subst p. snorm.
-     + auto.
+     eapply wfFS_stbind_snoc; auto.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)

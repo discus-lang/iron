@@ -62,3 +62,25 @@ Fixpoint mergeB (p1 p2 : nat) (b : stbind) {struct b} : stbind
 Definition mergeBs p1 p2 bs
  := map (mergeB p1 p2) bs.
 
+
+(********************************************************************)
+Lemma isStValue_stvalue
+ : forall p v
+ , isStValue (StValue p v).
+Proof.
+ intros.
+ unfold isStValue. eauto.
+Qed.
+Hint Resolve isStValue_stvalue.
+
+
+Lemma isStDead_stdead
+ : forall p
+ , isStDead (StDead p).
+Proof.
+ intros.
+ unfold isStDead. eauto.
+Qed.
+Hint Resolve isStDead_stdead.
+
+
