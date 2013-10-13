@@ -346,16 +346,14 @@ Proof.
      eapply liveS_push_fpriv_some_allocRegion; eauto.
 
      assert (SubsT nil sp e (TAlloc (TRgn p1)) KEffect).
-     { admit. }
+     { have (SubsT nil sp e (TSum (TSum eL (TAlloc (TRgn p1))) e2) KEffect).
+       eapply SbSumAboveLeft; eauto.
+     }
 
      have (LiveE fs (TAlloc (TRgn p1))).
-     (* use liveSP_from_effect *)
-
+     eapply liveSP_from_effect; eauto.
+      snorm.
      
-
-     admit.                                              (* ok, via equiv *)
-     
-
    (* Frame stack is live relative to effect. *)
    - apply liveE_sum_above.
      + assert (ClosedT eL).
@@ -479,8 +477,9 @@ Proof.
    intuition.
 
    (* Updated store is well formed. *)
-   - admit. 
-
+   - rrwrite (map (mergeB p1 p2) ss = mergeBs p1 p2 ss).
+     eapply wfFS_pop_priv_ext; eauto.
+    
    (* Updated store is live relative to frame stack. *)
    - SCase "LiveS".
      eapply liveS_mergeB.
