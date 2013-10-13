@@ -1,6 +1,7 @@
 
 Require Export Iron.Language.SystemF2Effect.Type.Exp.
 Require Export Iron.Language.SystemF2Effect.Type.Relation.KindT.
+Require Export Iron.Language.SystemF2Effect.Type.Operator.LiftTT.
 
 
 (* Region identifier is fresh with respect to a type. *)
@@ -33,3 +34,15 @@ Proof.
    + rewrite beq_nat_false_iff. firstorder.
 Qed.
 Hint Resolve freshT_kind.
+
+
+Lemma freshT_liftTT
+ :  forall p n d t
+ ,  freshT p t
+ -> freshT p (liftTT n d t).
+Proof.
+ intros. gen n d.
+ induction t; intros; snorm.
+Qed.
+Hint Resolve freshT_liftTT.
+

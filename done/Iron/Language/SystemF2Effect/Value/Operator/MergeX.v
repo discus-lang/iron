@@ -207,23 +207,20 @@ Proof.
 
  - Case "XLam".
    eapply TvLam; auto.
-   snorm. rewrite mergeTE_rewind; auto.
-   eapply IHx; auto.
-   admit.                                    (* ok, freshFreeX lemma *)
+   snorm. 
+   rewrite mergeTE_rewind; auto.
 
  - Case "XLAM".
    eapply TvLAM.
    snorm. repeat (rewrite mergeTE_liftTE_comm).
-   eapply IHx; auto.
-   admit.                                    (* ok freshFreeX lemma *)
-
+   eapply IHx; snorm; eauto. 
+   
  - Case "XLet".
    snorm.
    eapply TxLet; auto.
    + eapply IHx1; auto. firstorder.
    + rewrite mergeTE_rewind; auto.
-     eapply IHx2; auto. 
-     admit.                                  (* ok, freshFreeX lemma *)
+     eapply IHx2; eauto. 
   
  - Case "XApp".
    snorm.
@@ -240,26 +237,20 @@ Proof.
  - Case "XAPP".
    rgwrite (TBot KEffect = substTT 0 t (TBot KEffect)).
    eapply TvAPP; eauto.
-   eapply IHx. snorm. 
-    admit.                                   (* ok, freshFreeV lemma *)
-    eauto.
-
+   eapply IHx; snorm; eauto.
+ 
  - Case "XOp1".
    eapply TxOpPrim; eauto.
 
  - Case "XPrivate".
    eapply TxPrivate; eauto.
    repeat (rewrite mergeTE_liftTE_comm).
-   eapply IHx; snorm.
-   simpl in H0.
-   admit.                                    (* ok, freshFreeX lemma *)
+   eapply IHx; snorm; eauto.
 
  - Case "XExtend".
    eapply TxExtend; eauto.
    repeat (rewrite mergeTE_liftTE_comm).
-   eapply IHx; snorm.
-   simpl in H0.
-   admit.                                    (* ok, freshFreeX lemma *)
+   eapply IHx; snorm; eauto.
 
  - Case "XAlloc".
    eapply TxOpAlloc; eauto.

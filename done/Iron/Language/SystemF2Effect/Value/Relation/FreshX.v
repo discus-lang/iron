@@ -41,26 +41,6 @@ Hint Unfold freshFreeX.
 
 
 (********************************************************************)
-Lemma freshFreeX_nil
- : forall p2 x
- , freshFreeX p2 nil x.
-Proof.
- unfold freshFreeX.
- intros. snorm.
-Qed.
-Hint Resolve freshFreeX_nil.
-
-
-Lemma freshFreeV_nil
- : forall p2 x
- , freshFreeV p2 nil x.
-Proof.
- unfold freshFreeV.
- intros. snorm.
-Qed.
-Hint Resolve freshFreeV_nil.
-
-
 Lemma freshX_type
  :  forall ke te se sp x t e p
  ,  not (In (SRegion p) sp)
@@ -93,5 +73,75 @@ Proof.
   intros; rip; eauto 3.
 Qed.
 Hint Resolve freshX_effect.
+
+
+Lemma freshFreeX_nil
+ : forall p2 x
+ , freshFreeX p2 nil x.
+Proof.
+ unfold freshFreeX.
+ intros. snorm.
+Qed.
+Hint Resolve freshFreeX_nil.
+
+
+Lemma freshFreeV_nil
+ : forall p2 x
+ , freshFreeV p2 nil x.
+Proof.
+ unfold freshFreeV.
+ intros. snorm.
+Qed.
+Hint Resolve freshFreeV_nil.
+
+
+Lemma freshFreeX_XLam
+ :  forall p te t  x
+ ,  freshT p t
+ -> freshFreeV p te (VLam t x)
+ -> freshFreeX p (te :> t) x.
+Proof.
+ intros.
+ unfold freshFreeX in *.
+ unfold freshFreeV in *.
+ rip.
+ destruct n.
+ - snorm.
+ - snorm. eauto.
+Qed.
+Hint Resolve freshFreeX_XLam.
+
+
+Lemma freshFreeX_XLAM
+ :  forall p te k x
+ ,  freshFreeV p te (VLAM k x)
+ -> freshFreeX p (liftTE 0 te) x.
+Proof.
+ intros.
+ unfold freshFreeX in *.
+ unfold freshFreeV in *. 
+ rip.
+ snorm.
+ unfold liftTE in *.
+ eapply get_map_exists in H2.
+ destruct H2 as [t']. rip.
+ eapply freshT_liftTT. eauto.
+Qed.
+Hint Resolve freshFreeX_XLAM.
+
+
+Lemma freshFreeX_XLet 
+ :  forall p t te x1 x2
+ ,  freshT p t
+ -> freshFreeX p te (XLet t x1 x2) 
+ -> freshFreeX p (te :> t) x2. 
+Proof.
+ intros.
+ unfold freshFreeX in *.
+ rip. 
+ snorm.
+ eapply H0; eauto.
+Qed.
+Hint Resolve freshFreeX_XLet.
 
 

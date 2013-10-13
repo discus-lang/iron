@@ -44,6 +44,25 @@ Qed.
 Hint Resolve get_map.
 
 
+Lemma get_map_exists
+ :  forall {A B} n (f : A -> B) (xx : list A) fx
+ ,  get n (map f xx) = Some fx
+ -> exists x, get n xx = Some x /\ fx = f x.
+Proof.
+ intros. gen n.
+ induction xx; intros.
+ - nope.
+ - destruct n.
+   + simpl.
+     exists a. rip.
+     simpl in H. congruence.
+   + simpl in H.
+     simpl.
+     eapply IHxx in H. auto.
+Qed.
+Hint Resolve get_map_exists.  
+
+
 Lemma map_app 
  :  forall A B (f: A -> B) xx yy
  ,  map f (xx ++ yy)
