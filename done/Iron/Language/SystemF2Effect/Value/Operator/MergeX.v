@@ -137,8 +137,11 @@ Proof.
    eapply TxPrivate
     with (t := mergeT p1 p2 t0)
          (e := mergeT p1 p2 e0).
-    + admit.                                 (* ok, pull mergeT through lowerT *)
-    + admit.                                 (* ok, pull mergeT throuh maskOnVarT *)
+    + symmetry.
+      eapply mergeT_lowerTT. eauto.
+    + rewrite mergeT_maskOnVarT.
+      symmetry.
+      eapply mergeT_lowerTT. eauto.
     + repeat (rewrite mergeTE_liftTE_comm).
       eapply IHx; eauto.
 
@@ -147,7 +150,9 @@ Proof.
    rewrite <- mergeT_substTT_comm.
    eapply TxExtend
     with (e := mergeT p1 p2 e0).            
-    + admit.                                 (* ok, pull mergeT thorugh lowerT *)
+    + rewrite mergeT_maskOnVarT.
+      symmetry.
+      eapply mergeT_lowerTT. eauto.
     + eauto.
     + repeat (rewrite mergeTE_liftTE_comm).
       eapply IHx; eauto.
@@ -245,12 +250,14 @@ Proof.
  - Case "XPrivate".
    eapply TxPrivate; eauto.
    repeat (rewrite mergeTE_liftTE_comm).
-   eapply IHx; snorm; eauto.
+   eapply IHx; snorm.
+   eapply freshFreeX_XPrivate; eauto.
 
  - Case "XExtend".
    eapply TxExtend; eauto.
    repeat (rewrite mergeTE_liftTE_comm).
-   eapply IHx; snorm; eauto.
+   eapply IHx; snorm.
+   eapply freshFreeX_XExtend; eauto.
 
  - Case "XAlloc".
    eapply TxOpAlloc; eauto.
@@ -277,3 +284,4 @@ Proof.
      unfold freshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
 Qed.
+

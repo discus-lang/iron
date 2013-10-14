@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Effect.Type.Exp.Base.
 Require Export Iron.Language.SystemF2Effect.Type.TyEnv.
 Require Export Iron.Language.SystemF2Effect.Type.Operator.SubstTT.
+Require Export Iron.Language.SystemF2Effect.Type.Operator.MaskOnT.
 Require Export Iron.Language.SystemF2Effect.Type.Relation.FreshT.
 
 
@@ -63,6 +64,95 @@ Proof.
 Qed.
 
 
+Lemma mergeT_maskOnVarT
+ :  forall ix p1 p2 t
+ ,  maskOnVarT ix (mergeT p1 p2 t) = mergeT p1 p2 (maskOnVarT ix t).
+Proof.
+ intros. gen ix.
+ induction t; intros;
+  try (solve [try (unfold maskOnVarT); snorm; try f_equal; eauto]).
+
+ - Case "TCon1".
+   unfold maskOnVarT. simpl.
+   unfold maskOnT. snorm.
+   + firstorder. 
+     * nope.
+     * destruct t0; snorm; nope.
+       destruct t0. snorm. nope. nope.
+   + firstorder.
+     * nope.
+     * destruct t0; snorm; nope.
+
+ - Case "TCap".
+   simpl.
+   destruct t.
+   snorm.
+Qed.
+Hint Resolve mergeT_maskOnVarT.
+
+
+Lemma mergeT_lowerTT
+ :  forall d p1 p2 t1 t2
+ ,  Some t2                = lowerTT d t1
+ -> Some (mergeT p1 p2 t2) = lowerTT d (mergeT p1 p2 t1).
+Proof.
+ intros. gen d t2.
+ induction t1;
+  try (solve [snorm]).
+
+ - snorm.
+   + f_equal. f_equal. 
+     eapply IHt1 in HeqH1.
+     congruence.
+   + eapply IHt1 in HeqH1.
+     congruence.
+
+ - snorm.
+   + eapply IHt1_1 in HeqH2.
+     eapply IHt1_2 in HeqH3.
+     congruence.
+   + eapply IHt1_1 in HeqH2.
+     eapply IHt1_2 in HeqH3.
+     congruence.
+   + eapply IHt1_1 in HeqH1.
+     eapply IHt1_2 in HeqH2.
+     congruence.
+
+ - snorm.
+   + eapply IHt1_1 in HeqH2.
+     eapply IHt1_2 in HeqH3.
+     congruence.
+   + eapply IHt1_1 in HeqH2.
+     eapply IHt1_2 in HeqH3.
+     congruence.
+   + eapply IHt1_1 in HeqH1.
+     eapply IHt1_2 in HeqH2.
+     congruence.
+
+ - snorm.
+   + eapply IHt1 in HeqH1.
+     congruence.
+   + eapply IHt1 in HeqH1.
+     congruence.
+
+ - snorm.
+   + eapply IHt1_1 in HeqH2.
+     eapply IHt1_2 in HeqH3.
+     congruence.
+   + eapply IHt1_1 in HeqH2.
+     eapply IHt1_2 in HeqH3.
+     congruence.
+   + eapply IHt1_1 in HeqH1.
+     eapply IHt1_2 in HeqH2.
+     congruence.
+
+ - destruct t; snorm; nope.
+Qed.
+Hint Resolve mergeT_lowerTT. 
+
+
+
+
 Lemma mergeT_kindT
  :  forall ke sp t k p1 p2
  ,  In (SRegion p1) sp
@@ -81,7 +171,7 @@ Lemma mergeT_kindT_chop
  -> KindT ke sp t k.
 Proof.
  intros. gen ke k.
- induction t; intros; snorm; inverts_kind; eauto.
+ induction t; intros; snorm; inverts_kind; eauto 4.
 
  - eapply KiCon2.
    destruct tc. snorm. inverts H3.
@@ -148,6 +238,4 @@ Proof.
    destruct t. snorm.
 Qed.
 Hint Resolve mergeT_substTT_comm.
-
-
 

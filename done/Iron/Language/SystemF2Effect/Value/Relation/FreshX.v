@@ -145,3 +145,35 @@ Qed.
 Hint Resolve freshFreeX_XLet.
 
 
+Lemma freshFreeX_XPrivate
+ :  forall p te x 
+ ,  freshFreeX p te (XPrivate x)
+ -> freshFreeX p (liftTE 0 te) x.
+Proof.
+ intros.
+ unfold freshFreeX in *.
+ rip.
+ snorm.
+ unfold liftTE in *.
+ eapply get_map_exists in H2.
+ destruct H2 as [t']. rip.
+ eapply freshT_liftTT. eauto.
+Qed.
+
+
+Lemma freshFreeX_XExtend
+ :  forall p te t x 
+ ,  freshT p t
+ -> freshFreeX p te (XExtend t x)
+ -> freshFreeX p (liftTE 0 te) x.
+Proof.
+ intros.
+ unfold freshFreeX in *.
+ rip.
+ snorm.
+ unfold liftTE in *.
+ eapply get_map_exists in H3.
+ destruct H3 as [t']. rip.
+ eapply freshT_liftTT. eauto.
+Qed.
+
