@@ -561,7 +561,7 @@ Proof.
         have    (length se = length ss).
         rrwrite (length ss = length se).
         eauto. eauto.
-     + admit. (* cons into store *)
+     + eapply typeF_stenv_snoc; eauto.
  }
 
 

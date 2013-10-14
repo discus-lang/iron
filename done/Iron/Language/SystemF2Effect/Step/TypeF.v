@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Effect.Value.
 Require Export Iron.Language.SystemF2Effect.Step.Frame.
 Require Export Iron.Language.SystemF2Effect.Step.FreshF.
+Require Export Iron.Language.SystemF2Effect.Step.SuppF.
 Require Export Iron.Language.SystemF2Effect.Store.
 Require Export Iron.Language.SystemF2Effect.Store.LiveE.
 
@@ -99,34 +100,21 @@ Proof. intros. induction H; auto. Qed.
 Hint Resolve typef_kind_t2.
 
 
-Fixpoint suppF  (l : nat) (f : frame) {struct f} := 
- match f with
- | FLet t x   => suppX l x
- | FPriv _ _  => False
- end.
-
-Definition suppFs (l : nat) (fs : stack) 
- := exists f, In f fs /\ suppF l f.
-
-
-Lemma typeF_supp_in
- :  forall ke te se sp fs t1 t2 e l
+(********************************************************************)
+Lemma typeF_coversFs
+ :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
- -> suppFs l fs
- -> exists t, get l se = t.
+ -> coversFs se fs.
 Proof.
  intros. gen ke te se sp t1 t2 e.
- induction fs as [|f].
- - simpl in H0. firstorder.
- - intros.
-   simpl in H0. destruct H0 as [f'].
-   rip.
-   inverts H1. 
-   + admit.                              (* ok *)
-   + assert (suppFs l fs).
-     unfold suppFs.
-     exists f'. rip.
-     inverts H; eapply IHfs; eauto.
+ induction fs as [|f]; intros.
+ - eauto.
+ - eapply Forall_cons; eauto.
+   + inverts H.
+     * eapply typeX_coversX; eauto.
+     * unfold coversF; snorm.
+     * unfold coversF; snorm.
+   + inverts H; eapply IHfs; eauto.
 Qed.
 
 
@@ -140,8 +128,8 @@ Proof.
  induction H0; eauto. 
 
  - eapply TfConsExt; auto.
-   admit. (* all free in fs in se by H5. 
-             adding t3 doesn't break freshSupp, not references. *)
+   eapply freshSuppFs_coveredFs.
+   eapply typeF_coversFs; eauto. auto.
 Qed.  
 Hint Resolve typeF_stenv_snoc.
 

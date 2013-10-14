@@ -1,5 +1,7 @@
 
+Require Export Iron.Language.SystemF2Effect.Type.
 Require Export Iron.Language.SystemF2Effect.Value.Exp.
+Require Export Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
 
 
 Fixpoint suppV (l : nat) (vv : val) : Prop := 
@@ -23,3 +25,61 @@ Fixpoint suppV (l : nat) (vv : val) : Prop :=
  | XRead    t v1      => suppV l v1
  | XWrite   t v1 v2   => suppV l v1 \/ suppV l v2
  end.
+
+
+Definition coversX (se : stenv) (x : exp)
+ := forall l, suppX l x -> (exists t, get l se = Some t).
+Hint Unfold coversX.
+
+Definition coversV (se : stenv) (v : val)
+ := forall l, suppV l v -> (exists t, get l se = Some t).
+Hint Unfold coversV.
+
+
+Lemma typeX_coversX
+ :  forall ke te se sp x t e
+ ,  TYPEX  ke te se sp x t e
+ -> coversX se x.
+Proof.
+ intros. gen ke te se sp t e.
+ induction x using exp_mutind with
+  (PV := fun v => forall ke te se sp t
+      ,  TYPEV ke te se sp v t
+      -> coversV se v); intros;
+  try (solve [inverts_type; 
+             unfold coversV in *; snorm;
+             unfold coversX in *; snorm; eauto]).
+
+ - admit.
+
+ - inverts_type.  
+   unfold coversV in *. snorm.
+   unfold coversX in *. snorm.
+   admit.
+
+ - inverts_type.
+   unfold coversX in *. simpl.
+   intros. inverts H.
+   + eapply IHx1; eauto.
+   + eapply IHx2; eauto.
+
+ - inverts_type.
+   unfold coversX in *. simpl.
+   intros. inverts H.
+   + eapply IHx; eauto.
+   + eapply IHx0; eauto.
+
+ - inverts_type.
+   admit.
+
+ - inverts_type.
+   admit.
+
+ - inverts_type.
+   unfold coversX in *. simpl.
+   intros. inverts H.
+   + eapply IHx; eauto.
+   + eapply IHx0; eauto.
+Qed.
+
+

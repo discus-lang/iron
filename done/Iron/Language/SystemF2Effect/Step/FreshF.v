@@ -111,3 +111,18 @@ Qed.
 Hint Resolve freshSuppFs_tail.
 
 
+Lemma freshSuppFs_head
+ :  forall p te fs f
+ ,  freshSuppFs p te (fs :> f)
+ -> freshSuppF  p te f.
+Proof.
+ intros.
+ inverts H. auto.
+Qed.
+Hint Resolve freshSuppFs_head.
+
+
+
+
+
+
