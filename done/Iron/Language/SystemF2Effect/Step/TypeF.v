@@ -143,7 +143,7 @@ Proof.
      auto.   
     * eapply freshFs_cons; eauto.
      snorm. 
-      + lets D: (@in_not_in stprop) H4 H.
+      + lets D: (@in_not_in stprop) H5 H.
         have (p1 <> p) by congruence.
         rewrite beq_nat_false_iff. 
         auto.
@@ -194,6 +194,38 @@ Qed.
 Hint Resolve typeF_allocRegion_noprivFs. 
 
 
+
+Lemma freshSuppF_mergeTE
+ :  forall p1 p2 p3 te f
+ ,  freshSuppF p1 te f
+ -> freshSuppF p2 te f
+ -> freshSuppF p2 (mergeTE p3 p1 te) f.
+Proof.
+ intros.
+ destruct f.
+ - snorm.
+   eapply freshSuppX_mergeTE; auto.
+ - eauto. 
+Qed.
+
+
+
+Lemma freshSuppFs_mergeTE
+ :  forall p1 p2 p3 te fs
+ ,  freshSuppFs p1 te fs
+ -> freshSuppFs p2 te fs
+ -> freshSuppFs p2 (mergeTE p3 p1 te) fs.
+Proof.
+ intros.
+ unfold freshSuppFs in *.
+ induction fs; auto.
+ inverts H.
+ inverts H0. rip.
+ eapply Forall_cons; auto.
+ eapply freshSuppF_mergeTE; auto.
+Qed.
+
+
 Lemma typeF_mergeTE
  :  forall ke te se sp fs t1 t2 e p1 p2
  ,  freshFs     p2 fs
@@ -202,15 +234,15 @@ Lemma typeF_mergeTE
  -> TYPEF ke te se sp fs t1 t2 e
  -> TYPEF ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp fs t1 t2 e.
 Proof.
- intros. gen ke te se sp t1 t2 e.
- induction fs; intros.
+ intros. gen ke te se sp t1 t2 e. gen p1 p2.
+ induction fs as [|f]; intros.
 
  Case "nil".
  { inverts H2. eauto.  
  }
 
  Case "cons".
- { destruct a.
+ { destruct f.
 
    - SCase "FLet".
      have (freshFs p2 fs). rip.
@@ -226,15 +258,14 @@ Proof.
        * inverts H0; snorm.
        * inverts H1; snorm.
      + eapply IHfs; eauto.
-       admit.                    (* ok, freshSupp tail *)
-     
+
    - SCase "FPriv".
      inverts H2.
      * eapply TfConsPriv; auto.
        eapply IHfs; eauto. 
-       admit.                   (* ok, freshSupp tail *)
      * eapply TfConsExt; eauto.
-       admit.                   (* ok, freshSupp tail *)
+       have (freshSuppFs p2 se fs).
+       eapply freshSuppFs_mergeTE; auto.     
  }
 Qed.
 

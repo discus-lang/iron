@@ -41,11 +41,11 @@ Hint Unfold freshFreeX.
 
 
 Definition freshSuppV p2 se v
- := forall l t, (suppV l v /\ get l se = Some t) -> freshT p2 t.
+ := forall l t, get l se = Some t -> suppV l v -> freshT p2 t.
 Hint Unfold freshSuppV.
 
 Definition freshSuppX p2 se x
- := forall l t, (suppX l x /\ get l se = Some t) -> freshT p2 t.
+ := forall l t, get l se = Some t -> suppX l x -> freshT p2 t.
 Hint Unfold freshSuppX.
 
 
@@ -206,9 +206,137 @@ Proof.
 Qed.
 
 
+
+
 (********************************************************************)
-(*
-Lemma freshSuppX_liftTE
- :  forall p se x
- -> freshSuppX p2 
-*)
+Lemma freshSuppX_XLet_split
+ :  forall p te t x1 x2
+ ,  freshSuppX p te (XLet t x1 x2)
+ -> freshSuppX p te x1
+ /\ freshSuppX p te x2.
+Proof.
+ intros.
+ split; unfold freshSuppX in *; firstorder.
+Qed.
+
+
+Lemma freshSuppX_XLet_join
+ :  forall p te t x1 x2
+ ,  freshSuppX p te x1
+ -> freshSuppX p te x2
+ -> freshSuppX p te (XLet t x1 x2).
+Proof.
+ intros.
+ unfold freshSuppX in *; firstorder.
+Qed.
+
+
+Lemma freshSuppX_XApp_split
+ :  forall p te v1 v2
+ ,  freshSuppX p te (XApp v1 v2)
+ -> freshSuppV p te v1
+ /\ freshSuppV p te v2.
+Proof.
+ intros.
+ split; unfold freshSuppX in *; unfold freshSuppV in *; firstorder.
+Qed.
+
+
+Lemma freshSuppX_XApp_join
+ :  forall p te v1 v2
+ ,  freshSuppV p te v1
+ -> freshSuppV p te v2
+ -> freshSuppX p te (XApp v1 v2).
+Proof.
+ intros.
+ unfold freshSuppX in *; firstorder.
+Qed.
+
+
+Lemma freshSuppX_XWrite_split
+ :  forall p te v1 v2 t
+ ,  freshSuppX p te (XWrite t v1 v2)
+ -> freshSuppV p te v1
+ /\ freshSuppV p te v2.
+Proof.
+ intros.
+ split; unfold freshSuppX in *; unfold freshSuppV in *; firstorder.
+Qed.
+
+
+Lemma freshSuppX_XWrite_join
+ :  forall p te v1 v2 t
+ ,  freshSuppV p te v1
+ -> freshSuppV p te v2
+ -> freshSuppX p te (XWrite t v1 v2).
+Proof.
+ intros.
+ unfold freshSuppX in *; firstorder.
+Qed.
+
+
+(* NOTE: the firstorder tactic runs away when given an term with
+   multiple sub terms, so we need to do some split/join manually. *)
+Lemma freshSuppX_mergeTE
+ :  forall p1 p2 p3 te x
+ ,  freshSuppX p1 te x
+ -> freshSuppX p2 te x
+ -> freshSuppX p2 (mergeTE p3 p1 te) x.
+Proof.
+ intros. gen te.
+ induction x using exp_mutind with 
+  (PV := fun v => forall te
+      ,  freshSuppV p1 te v
+      -> freshSuppV p2 te v
+      -> freshSuppV p2 (mergeTE p3 p1 te) v); 
+  intros; snorm.
+
+  - firstorder.
+
+  - unfold freshSuppV in *.
+    rip.
+    simpl in H2. subst.
+    spec H l. spec H0 l. snorm.
+    unfold mergeTE in H1.
+    eapply get_map_exists in H1. 
+    destruct H1 as [t'].
+    spec H t'. spec H0 t'.
+    have (l = l). firstorder.
+    subst.
+    rewrite mergeT_freshT_id; auto.
+
+  - firstorder. 
+  - firstorder.
+  - firstorder.
+  - firstorder.
+
+  - apply freshSuppX_XLet_split in H.
+    apply freshSuppX_XLet_split in H0.
+    apply freshSuppX_XLet_join; firstorder.
+
+  - apply freshSuppX_XApp_split in H.
+    apply freshSuppX_XApp_split in H0.
+    apply freshSuppX_XApp_join; firstorder.
+
+  - firstorder.
+  - firstorder.
+  - firstorder.
+  - firstorder.
+  - firstorder.
+  - firstorder.
+
+  - apply freshSuppX_XWrite_split in H.
+    apply freshSuppX_XWrite_split in H0.
+    apply freshSuppX_XWrite_join; firstorder.
+Qed.
+
+
+
+
+
+
+
+
+
+
+

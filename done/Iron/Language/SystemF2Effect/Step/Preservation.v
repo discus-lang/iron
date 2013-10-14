@@ -443,6 +443,7 @@ Proof.
         by (subst p2; auto).
        eapply TfConsExt; eauto.
        * inverts_kind. eauto.
+       * admit. (* ok, fs checks under se *)
        * have (LiveE fs (TSum (TSum eL (TAlloc (TRgn p1))) e2))
           by (eapply liveE_equivT_left; eauto).
          eapply liveE_sum_above.
@@ -477,7 +478,8 @@ Proof.
        unfold LiveSF in H0.
        unfold LiveSP. intros.
        eapply H0 in H1. inverts H1. auto.
-     + eauto.
+     + have (LiveS ss fs).
+       auto.
 
    (* Frame stack is live relative to effect. *) 
    - SCase "LiveE".
@@ -559,7 +561,7 @@ Proof.
         have    (length se = length ss).
         rrwrite (length ss = length se).
         eauto. eauto.
-     + eauto.
+     + admit. (* cons into store *)
  }
 
 
