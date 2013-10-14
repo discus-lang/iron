@@ -18,13 +18,25 @@ Hint Unfold freshFs.
 
 Fixpoint   freshFreeF p2 te f {struct f} :=
  match f with
- | FLet t x        => freshFreeX p2 te x
+ | FLet t x        => freshFreeX p2 (te :> t) x
  | FPriv _ _       => True
  end.
 
 Definition freshFreeFs p2 te fs 
  := Forall (freshFreeF p2 te) fs.
 Hint Unfold freshFreeFs.
+
+
+Fixpoint  freshSuppF p2 se f {struct f} :=
+ match f with
+ | FLet  t x      => freshSuppX p2 se x
+ | FPriv _ _      => True
+ end.
+
+Definition freshSuppFs p2 se fs 
+ := Forall (freshSuppF p2 se) fs.
+Hint Unfold freshSuppFs.
+
 
 
 (********************************************************************)
@@ -52,10 +64,12 @@ Proof. snorm. Qed.
 Hint Resolve freshFs_cons.
 
 
+(********************************************************************)
 Lemma freshFreeF_nil
- : forall p f
- , freshFreeF p nil f.
-Proof. 
+ :  forall p f
+ ,  freshF p f
+ -> freshFreeF p nil f.
+Proof.
  intros.
  destruct f; snorm.
 Qed.
@@ -63,12 +77,37 @@ Hint Resolve freshFreeF_nil.
 
 
 Lemma freshFreeFs_nil
- : forall p fs
- , freshFreeFs p nil fs.
+ :  forall p fs
+ ,  freshFs p fs
+ -> freshFreeFs p nil fs.
 Proof.
  intros.
- induction fs; auto.
+ induction fs; eauto.
+ inverts H. rip.
 Qed.
 Hint Resolve freshFreeFs_nil.
+
+
+Lemma freshFreeFs_tail
+ :  forall p te fs f
+ ,  freshFreeFs p te (fs :> f)
+ -> freshFreeFs p te fs.
+Proof.
+ intros.
+ inverts H. auto.
+Qed.
+Hint Resolve freshFreeFs_tail.
+
+
+(********************************************************************)
+Lemma freshSuppFs_tail
+ :  forall p te fs f
+ ,  freshSuppFs p te (fs :> f)
+ -> freshSuppFs p te fs.
+Proof.
+ intros.
+ inverts H. auto.
+Qed.
+Hint Resolve freshSuppFs_tail.
 
 

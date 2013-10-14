@@ -5,18 +5,18 @@ Require Import Iron.Tactics.
 
 (********************************************************************)
 (* Lemmas: Forall *)
-Lemma Forall_impl_in
- : forall {A}
-          (P1: A -> Prop) (P2: A -> Prop)
-          (xs: list A)
- ,  (forall x, In x xs -> P1 x -> P2 x)
- -> Forall P1 xs
- -> Forall P2 xs.
+Lemma Forall_in
+ :  forall {A} (P: A -> Prop) x xs
+ ,  Forall P xs
+ -> In x xs
+ -> P x.
 Proof.
- intros.
- induction xs.
-  auto. 
-  inverts H0. intuition.
+ intros. gen x.
+ induction xs; intros.
+ - inverts H0.
+ - inverts H0.
+   + inverts H. eauto.
+   + inverts H. eauto.
 Qed.
 
 
@@ -36,6 +36,21 @@ Proof.
    simpl in H0.
    eapply IHix.
     inverts H. eapply H4. auto.
+Qed.
+
+
+Lemma Forall_impl_in
+ : forall {A}
+          (P1: A -> Prop) (P2: A -> Prop)
+          (xs: list A)
+ ,  (forall x, In x xs -> P1 x -> P2 x)
+ -> Forall P1 xs
+ -> Forall P2 xs.
+Proof.
+ intros.
+ induction xs.
+  auto. 
+  inverts H0. intuition.
 Qed.
 
 

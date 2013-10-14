@@ -673,3 +673,16 @@ Proof.
 Qed.
 Hint Resolve in_app_comm.
 
+
+Lemma in_not_in
+ :  forall {A} (y z : A) xs
+ ,    In y xs
+ -> ~(In z xs)
+ -> ~(y = z).
+Proof.
+ unfold not in *.
+ intros. subst. auto.
+Qed.     
+Hint Resolve in_not_in.
+
+

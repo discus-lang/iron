@@ -244,17 +244,7 @@ Proof.
          eapply in_app_right; auto.
 
      (* New frame stack is well typed. *)
-     + eapply TfConsPriv.
-
-       (* New region handle is not in the existing frame stack. *)
-       * unfold not. intros.
-
-         have (In (SRegion p) sp)
-          by (eapply wfFS_fpriv_sregion; eauto).
-
-         have (not (In (SRegion (allocRegion sp)) sp)).
-         have (In (SRegion p) sp).
-         rewrite H in H14. nope.
+     + eapply TfConsPriv; eauto 2.
 
        (* Effect of frame stack is still to live regions *)
        * rrwrite (substTT 0 r e2 = e2).
@@ -483,7 +473,11 @@ Proof.
    (* Updated store is live relative to frame stack. *)
    - SCase "LiveS".
      eapply liveS_mergeB.
-      eapply liveS_stack_tail; eauto.
+     + have (LiveSF ss (FPriv (Some p1) p2)).
+       unfold LiveSF in H0.
+       unfold LiveSP. intros.
+       eapply H0 in H1. inverts H1. auto.
+     + eauto.
 
    (* Frame stack is live relative to effect. *) 
    - SCase "LiveE".
@@ -518,7 +512,7 @@ Proof.
 
      (* Popped frame stack is well typed. *)
      + rgwrite (nil = mergeTE p1 p2 nil).
-       eapply typef_merge; eauto.
+       eapply typeF_mergeTE; eauto.
  }
 
  (*********************************************************)

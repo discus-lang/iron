@@ -178,21 +178,25 @@ Lemma mergeX_typeX_freshX
  :  forall ke te se sp x t e p1 p2
  ,  freshX     p2 x
  -> freshFreeX p2 te x
+ -> freshSuppX p2 se x
  -> TYPEX ke te se sp x t e
  -> TYPEX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp x t e.
 Proof.
+ admit.
+(* 
  intros. gen ke te se sp t e.
  induction x using exp_mutind with
   (PV := fun v => forall ke te se sp t 
       ,  freshV     p2 v
       -> freshFreeV p2 te v
+      -> freshSuppV p2 se v
       -> TYPEV ke te se sp v t
       -> TYPEV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp v t);
   intros; inverts_type; auto.
 
  - Case "XVar".
    eapply TvVar; auto.
-   unfold freshFreeV in *.
+   unfold freshFreeV in H1.
    spec H1 n. spec H1 t.
 
    have HF: (freeXV n (VVar n)) 
@@ -202,13 +206,20 @@ Proof.
     eauto. clear H1.
 
    unfold mergeTE.
-   eapply get_map with (f := mergeT p1 p2) in H4.
-   rewrite H4.
+   eapply get_map with (f := mergeT p1 p2) in H5.
+   rewrite H5.
    rewrite mergeT_freshT_id; auto.
 
  - Case "XLoc".
    eapply TvLoc; auto.
-   admit.                                    (* ok, need freshSuppV crap *)
+   unfold freshSuppV in H2.
+   spec H2 l.
+
+   unfold mergeTE.
+   lets D: (@get_map ty) (mergeT p1 p2) H5.
+    rewrite D. clear D.
+   rewrite mergeT_freshT_id. auto.
+   eapply H2. rip. 
 
  - Case "XLam".
    eapply TvLam; auto.
@@ -218,14 +229,21 @@ Proof.
  - Case "XLAM".
    eapply TvLAM.
    snorm. repeat (rewrite mergeTE_liftTE_comm).
-   eapply IHx; snorm; eauto. 
+   eapply IHx; snorm; eauto.
+
+   unfold freshSuppV in H2.
+   simpl in H2.
+   have (freshSuppX p2 se x).
+   admit.                              (* freshSupp lemma *)
    
  - Case "XLet".
    snorm.
    eapply TxLet; auto.
    + eapply IHx1; auto. firstorder.
+     admit.                            (* freshSupp *)
    + rewrite mergeTE_rewind; auto.
-     eapply IHx2; eauto. 
+     eapply IHx2; eauto.
+     admit.                            (* freshSupp *) 
   
  - Case "XApp".
    snorm.
@@ -283,5 +301,6 @@ Proof.
      unfold freshFreeX in *.
      unfold freshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
+*)
 Qed.
 

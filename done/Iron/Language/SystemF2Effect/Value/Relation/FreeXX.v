@@ -24,3 +24,4 @@ Fixpoint freeXV (n : nat) (vv : val) : Prop :=
  | XWrite   t v1 v2   => freeXV n v1 \/ freeXV n v2
  end.
 
+

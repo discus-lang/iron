@@ -43,6 +43,37 @@ Definition LiveS (ss : store) (fs : stack)
 Hint Unfold LiveS.
 
 
+Fixpoint noprivF (p : nat) (f : frame) {struct f} :=
+ match f with
+ | FLet t x               => True
+ | FPriv None p1          => ~(p = p1)
+ | FPriv (Some p1) p2     => ~(p = p1) /\ ~(p = p2)
+ end.
+
+Definition noprivFs (p : nat) (fs : stack)
+ := Forall (noprivF p) fs.
+
+
+Lemma noprivFs_head 
+ :  forall p fs f
+ ,  noprivFs p (fs :> f)
+ -> noprivF  p f. 
+Proof.
+ intros. inverts H. eauto.
+Qed.
+Hint Resolve noprivFs_head.
+
+
+Lemma noprivFs_tail
+ :  forall p fs f
+ ,  noprivFs p (fs :> f)
+ -> noprivFs p fs. 
+Proof.
+ intros. inverts H. eauto.
+Qed.
+Hint Resolve noprivFs_tail.
+
+
 (********************************************************************)
 (* Liveness of regions *)
 Lemma liveBP_allocRegion
@@ -70,8 +101,13 @@ Lemma liveSP_from_effect
  -> LiveS  ss fs
  -> LiveSP ss p.
 Proof.
- intros.
- admit.
+ intros. 
+ lets D: liveE_fpriv_in H0 H. clear H0 H.
+ unfold LiveS in H1.
+ unfold LiveSP. intros.
+ destruct D as [m].
+ lets D2: H1 H H0.
+ inverts D2; auto.
 Qed.
 Hint Resolve liveSP_from_effect.
 
@@ -120,6 +156,33 @@ Proof.
  inverts H0; eauto.
 Qed.
 Hint Resolve liveSF_store_cons_stvalue.
+
+
+Lemma liveSF_store_cons_stdead
+ :  forall ss p f
+ ,  noprivF p f
+ -> LiveSF ss f
+ -> LiveSF (ss :> StDead p) f.
+Proof.
+ intros.
+ unfold LiveSF in *.
+ intros.
+ inverts H1; auto.
+ destruct f; auto.
+ destruct o; auto.
+ - eapply LiveBF_FPrivSome.
+   + simpl in H. rip.
+     unfold LiveBP. intros. 
+     snorm. omega.
+   + simpl in H. rip.
+     unfold LiveBP. intros.
+     snorm. omega.
+ - eapply LiveBF_FPrivNone.
+   + simpl in H. rip.
+     unfold LiveBP. intros.
+     snorm. omega.
+Qed.
+Hint Resolve liveSF_store_cons_stdead.
 
 
 (********************************************************************)
@@ -286,28 +349,23 @@ Qed.
 Hint Resolve liveS_store_snoc_stvalue.
 
 
-(*
-Lemma liveS_stdead_cons
+Lemma liveS_store_cons_stdead
  :  forall ss p fs
-
- ->  LiveS ss fs
- ->  LiveS (ss :> StDead p) fs.
+ ,  noprivFs p fs
+ -> LiveS ss fs
+ -> LiveS (ss :> StDead p) fs.
 Proof.
  intros.
- 
- induction fs. 
+ induction fs as [| f].
  - eauto.
  - have (LiveS ss fs).
-   destruct a.
-   + firstorder. auto.
-
- unfold LiveS in *; rip.
- unfold LiveF in *.
-
- inverts H0; firstorder.
+   have (noprivFs p fs). rip.
+   have (noprivF  p f).
+   have (LiveSF ss f).
+   have (LiveSF (ss :> StDead p) f).
+   eapply liveS_stack_cons; auto.
 Qed.
-Hint Resolve liveS_stdead_cons.
-*)
+Hint Resolve liveS_store_cons_stdead.
 
 
 Lemma liveS_stvalue_update
@@ -330,9 +388,63 @@ Proof.
 Qed.
 
 
+(********************************************************************)
+
+Lemma liveSF_dead_noprivF
+ :  forall p ss f
+ ,  LiveSF ss f
+ -> In (StDead p) ss
+ -> noprivF p f.
+Proof.
+ intros.
+ unfold LiveSF in *.
+ eapply H in H0. clear H.
+ inverts H0.
+ - snorm.
+ - unfold LiveBP in *.
+   snorm.
+   have (p = p0 \/ ~(p = p0)).
+   inverts H0.
+   + have (p0 = p0).
+     rip.
+     unfold isStValue in *. 
+     firstorder. nope.
+   + auto.
+ - unfold LiveBP in *.
+   snorm.
+   have (p = p1 \/ ~(p = p1)).
+   inverts H0; auto.
+   + have (p1 = p1).
+     rip. unfold isStValue in *.
+     firstorder. nope.
+   + have (p = p2 \/ ~(p = p2)).
+     inverts H0; auto.
+     rip. unfold isStValue in *.
+     firstorder. nope.
+Qed.
+
+
+Lemma liveS_dead_noprivFs
+ :  forall p ss fs
+ ,  LiveS ss fs
+ -> In (StDead p) ss
+ -> noprivFs p fs.
+Proof.
+ intros.
+ induction fs as [|f].
+ - unfold noprivFs in *. auto.
+ - have (LiveS  ss fs). rip.
+   have (LiveSF ss f).
+   eapply Forall_cons.
+   + eapply liveSF_dead_noprivF; eauto.
+   + auto.
+Qed.
+Hint Resolve liveS_dead_noprivFs.
+
+
 Lemma liveS_deallocate
  :  forall ss fs p
- ,  (forall m, ~(In (FPriv m p) fs))
+ ,  noprivFs p fs
  -> LiveS ss (fs :> FPriv None p)
  -> LiveS (map (deallocate p) ss) fs.
 Proof.
@@ -346,33 +458,17 @@ Proof.
      split_if.
      * snorm. subst.
        eapply liveS_store_tail in H0. rip.
-       admit.                                   (* push StDead *)
-
      * have (LiveS ss (fs :> FPriv None p)). 
-       firstorder.
-   + simpl. 
-     admit.
+       rip.
+   + simpl.
+     have (LiveS ss (fs :> FPriv None p)). 
+     rip.
+     have (LiveS (ss :> StDead n) fs).
+     eapply liveS_store_cons_stdead; auto.
+     eapply liveS_dead_noprivFs.
+     * eapply H2.
+     * eauto.
 Qed.
-
-
-(********************************************************************)
-Lemma liveS_dead_nopriv
- :  forall m p ss fs
- ,  LiveS ss fs
- -> In (StDead p) ss
- -> ~(In (FPriv m p) fs).
-Proof.
- intros.
- unfold not. intros.
- unfold LiveS in *.
- lets D: H H0 H1. clear H.
- inverts D.
- - unfold LiveBP in *. firstorder.
-   nope.
- - unfold LiveBP in *. firstorder.
-   nope.
-Qed.
-Hint Resolve liveS_dead_nopriv.
 
 
 Lemma liveS_liveE_value
@@ -388,45 +484,55 @@ Proof.
 
  destruct b.
  - snorm. subst. exists v. eauto.
- - lets D: liveE_fpriv_in HLE H.
-   destruct D as [m]. eauto.
-   snorm. subst.
-
+ - simpl in H1. inverts H1. clear H2.
    have (In (StDead p) ss). clear H0.
-   snorm. subst.
-   have (In (StDead p) ss) as HD.
-   have (~(In (FPriv m p) fs)) 
-    by (eapply liveS_dead_nopriv; eauto).
-   nope.
+
+   have (noprivFs p fs).
+
+   lets D1: liveE_fpriv_in HLE H.
+   destruct D1 as [m].
+
+   lets D2: (@Forall_in frame) H0 H2. 
+   simpl in D2.
+   destruct m; firstorder.
 Qed.
 
 
 Lemma liveS_mergeB
  :  forall ss fs p1 p2
- ,  LiveS ss fs
- -> LiveS (map (mergeB p1 p2) ss) fs. 
+ ,  LiveSP ss p2
+ -> LiveS  ss fs
+ -> LiveS  (map (mergeB p1 p2) ss) fs. 
 Proof.
  intros.
- induction ss.
+ induction ss as [| b].
  - snorm.
- - destruct a.
+ - have (LiveS  ss fs).
+   have (LiveSP ss p2).
+   have (LiveBP b  p2).
+   rip. simpl.
+
+   eapply liveS_store_cons; auto.
+   clear IHss.
+
+   destruct b.
    + Case "StValue".
      snorm.
      * subst.
-       eapply liveS_store_cons_stvalue.
        firstorder.
-     * have (LiveS ss fs).
-       rip.
+     * firstorder.
 
    + Case "StDead".
-     have (LiveS ss fs). rip.
 
      have (n = p2 \/ ~(n = p2)) as HN.
      inverts HN.
-     * simpl. snorm. 
-       admit.                             (* hmm *) 
-       nope.
+     * simpl. snorm.
+        unfold LiveBP in H3.
+        snorm. unfold isStValue in H3.
+        destruct H3. destruct H3. nope.
+        nope.
+ 
      * subst.
-       admit.                             (* hmmm *)
+       simpl. snorm. nope. firstorder.
 Qed.
 

@@ -2,6 +2,7 @@
 Require Export Iron.Language.SystemF2Effect.Type.
 Require Export Iron.Language.SystemF2Effect.Value.Exp.
 Require Export Iron.Language.SystemF2Effect.Value.Relation.FreeXX.
+Require Export Iron.Language.SystemF2Effect.Value.Relation.SuppX.
 Require Export Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
 Require Export Iron.Language.SystemF2Effect.Value.Relation.TyJudge.TypeKind.
 
@@ -34,14 +35,40 @@ Definition freshFreeV p2 te v
  := forall n t, (freeXV n v /\ get n te = Some t) -> freshT p2 t.
 Hint Unfold freshFreeV.
 
-
 Definition freshFreeX p2 te x
  := forall n t, (freeXX n x /\ get n te = Some t) -> freshT p2 t.
 Hint Unfold freshFreeX.
 
 
+Definition freshSuppV p2 se v
+ := forall l t, (suppV l v /\ get l se = Some t) -> freshT p2 t.
+Hint Unfold freshSuppV.
+
+Definition freshSuppX p2 se x
+ := forall l t, (suppX l x /\ get l se = Some t) -> freshT p2 t.
+Hint Unfold freshSuppX.
+
+
 (********************************************************************)
-Lemma freshX_type
+Lemma freshX_typeX
+ :  forall ke te se sp x t e  p
+ ,  not (In (SRegion p) sp)
+ -> TYPEX ke te se sp x t e
+ -> freshX p x.
+Proof.
+ intros. gen ke te se sp t e.
+ induction x using exp_mutind with
+  (PV := fun v => forall ke te se sp t
+      ,  not (In (SRegion p) sp)
+      -> TYPEV ke te se sp v t
+      -> freshV p v);
+  intros; inverts_type; 
+  try (solve [simpl; rip; eauto]).
+Qed.
+Hint Resolve freshX_typeX. 
+
+
+Lemma freshT_typeX_type
  :  forall ke te se sp x t e p
  ,  not (In (SRegion p) sp)
  -> TYPEX ke te se sp x t e
@@ -55,10 +82,10 @@ Proof.
       -> freshT p t); 
   intros; rip; eauto 3.
 Qed.
-Hint Resolve freshX_type.
+Hint Resolve freshT_typeX_type.
 
 
-Lemma freshX_effect
+Lemma freshT_typeX_effect
  :  forall ke te se sp x t e p
  ,  not (In (SRegion p) sp)
  -> TYPEX ke te se sp x t e
@@ -72,9 +99,10 @@ Proof.
       -> freshT p t); 
   intros; rip; eauto 3.
 Qed.
-Hint Resolve freshX_effect.
+Hint Resolve freshT_typeX_effect.
 
 
+(********************************************************************)
 Lemma freshFreeX_nil
  : forall p2 x
  , freshFreeX p2 nil x.
@@ -177,3 +205,10 @@ Proof.
  eapply freshT_liftTT. eauto.
 Qed.
 
+
+(********************************************************************)
+(*
+Lemma freshSuppX_liftTE
+ :  forall p se x
+ -> freshSuppX p2 
+*)

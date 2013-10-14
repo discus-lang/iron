@@ -28,17 +28,19 @@ Inductive
    -> TYPEF  ke te         se sp (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)
 
  | TfConsPriv
-   :  forall ke te se sp fs t1 t2 e2 n
-   ,  (forall m, ~(In (FPriv m n) fs))               (* TODO: change to use freshFs *)
+   :  forall ke te se sp fs t1 t2 e2 p
+   ,  In (SRegion p) sp
+   -> noprivFs p fs
    -> LiveE  fs e2
    -> TYPEF  ke te se sp fs                   t1 t2 e2
-   -> TYPEF  ke te se sp (fs :> FPriv None n) t1 t2 e2
+   -> TYPEF  ke te se sp (fs :> FPriv None p) t1 t2 e2
 
  | TfConsExt 
    :  forall ke te se sp fs t0 t1 e2 p1 p2
    ,  In (SRegion p1) sp 
    -> In (SRegion p2) sp
-   -> freshFs p2 fs
+   -> freshFs     p2 fs
+   -> freshSuppFs p2 se fs
    -> LiveE  fs (TSum e2 (TAlloc (TRgn p1)))
    -> TYPEF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
    -> TYPEF  ke te se sp (fs :> FPriv (Some p1) p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
@@ -96,15 +98,20 @@ Lemma typef_kind_t2
 Proof. intros. induction H; auto. Qed.
 Hint Resolve typef_kind_t2.
 
-
+(*
 Lemma typef_stenv_snoc
  :  forall ke te se sp fs t1 t2 t3 e
  ,  ClosedT t3
  -> TYPEF ke te se         sp fs t1 t2 e
  -> TYPEF ke te (t3 <: se) sp fs t1 t2 e.
-Proof. intros. induction H0; eauto. Qed.
-Hint Resolve typef_stenv_snoc.
+Proof. 
+ intros.
+ induction H0; eauto. 
+ 
+ - eapply TfConsExt; auto.
 
+Hint Resolve typef_stenv_snoc.
+*)
 
 Lemma typef_stprops_snoc
  :  forall ke te se sp fs t1 t2 p e
@@ -114,7 +121,7 @@ Proof. intros. induction H; eauto. Qed.
 Hint Resolve typef_stprops_snoc.
 
 
-Lemma freshFs_typef
+Lemma freshFs_typeF
  :  forall ke te se sp fs t1 t2 e p 
  ,  not (In (SRegion p) sp)
  -> TYPEF ke te se sp fs t1 t2 e
@@ -126,23 +133,72 @@ Proof.
  - inverts H0. 
    eapply freshFs_cons; eauto.
    simpl. rip. eauto.
-   admit.                                     (* ok, need typeX_freshX *)
+   eapply freshX_typeX; eauto.
  - inverts H0.
    * eapply freshFs_cons; eauto.
-     admit.                                   (* ok, add In (SRegion p) to TsConsPriv *)
-   * eapply freshFs_cons; eauto.
+     lets D: (@in_not_in stprop) H4 H.
+     have (p <> n) by congruence.
+     simpl.
+     rewrite beq_nat_false_iff.
+     auto.   
+    * eapply freshFs_cons; eauto.
      snorm. 
-      + admit.                                (* ok, via In. *)
-      + admit.                                (* ok, via In. *)
+      + lets D: (@in_not_in stprop) H4 H.
+        have (p1 <> p) by congruence.
+        rewrite beq_nat_false_iff. 
+        auto.
+      + lets D: (@in_not_in stprop) H5 H.
+        have (p <> n) by congruence.
+        rewrite beq_nat_false_iff.
+        auto.
 Qed.
-Hint Resolve freshFs_typef.
+Hint Resolve freshFs_typeF.
 
 
+Lemma freshF_noprivF
+ : forall p f
+ , freshF p f -> noprivF p f.
+Proof.
+ intros.
+ destruct f.
+ - snorm.
+ - destruct o; snorm.
+Qed.
+Hint Resolve freshF_noprivF. 
 
-Lemma typef_merge
+
+Lemma freshFs_noprivFs
+ : forall  p fs
+ , freshFs p fs -> noprivFs p fs.
+Proof.
+ intros.
+ induction fs.
+ - unfold noprivFs. eauto.
+ - unfold noprivFs. inverts H. firstorder.
+Qed.
+Hint Resolve freshFs_noprivFs.
+
+
+Lemma typeF_allocRegion_noprivFs
+ : forall ke te se sp fs t1 t2 e p
+ ,  p = allocRegion sp
+ -> TYPEF ke te se sp fs t1 t2 e
+ -> noprivFs p fs.
+Proof.
+ intros.
+ eapply freshFs_noprivFs.
+ eapply freshFs_typeF.
+ lets D: allocRegion_fresh sp.
+ rewrite <- H in D. eauto. eauto.
+Qed.
+Hint Resolve typeF_allocRegion_noprivFs. 
+
+
+Lemma typeF_mergeTE
  :  forall ke te se sp fs t1 t2 e p1 p2
  ,  freshFs     p2 fs
  -> freshFreeFs p2 te fs
+ -> freshSuppFs p2 se fs
  -> TYPEF ke te se sp fs t1 t2 e
  -> TYPEF ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp fs t1 t2 e.
 Proof.
@@ -150,7 +206,7 @@ Proof.
  induction fs; intros.
 
  Case "nil".
- { inverts H1. eauto.  
+ { inverts H2. eauto.  
  }
 
  Case "cons".
@@ -163,23 +219,22 @@ Proof.
       by (eapply freshFs_tail; eauto).
      unfold freshF in HF. rip. 
 
-     inverts H1.
+     inverts H2.
      eapply TfConsLet; auto.
      + rewrite mergeTE_rewind; auto.
        eapply mergeX_typeX_freshX; eauto.
-       * admit.                                  (* ok, fresh join *)
-     + eapply IHfs; auto.
-       admit.                                    (* ok, freshFree tail *)
-
+       * inverts H0; snorm.
+       * inverts H1; snorm.
+     + eapply IHfs; eauto.
+       admit.                    (* ok, freshSupp tail *)
+     
    - SCase "FPriv".
-     inverts H1.
+     inverts H2.
      * eapply TfConsPriv; auto.
-       eapply IHfs; eauto.
-       admit.                                    (* ok, freshFree tail *)
-
+       eapply IHfs; eauto. 
+       admit.                   (* ok, freshSupp tail *)
      * eapply TfConsExt; eauto.
-       eapply IHfs; eauto.
-       admit.                                    (* ok, freshFree tail *)
+       admit.                   (* ok, freshSupp tail *)
  }
 Qed.
 
