@@ -176,6 +176,23 @@ Qed.
 Hint Resolve freshFs_typeF.
 
 
+Lemma freshSuppFs_typeF
+ :  forall ke te se sp fs t1 t2 e p
+ ,  not (In (SRegion p) sp)
+ -> TYPEF ke te se sp fs t1 t2 e
+ -> freshSuppFs p se fs.
+Proof.
+ intros. gen ke te se sp t1 t2 e.
+ induction fs as [|f]; intros; auto.
+ eapply Forall_cons; auto.
+ - clear IHfs.
+   destruct f; snorm; inverts H0.
+   + simpl.
+     eapply freshSuppX_typeX; eauto.
+ - inverts H0; eapply IHfs; eauto.
+Qed.
+
+
 Lemma freshF_noprivF
  : forall p f
  , freshF p f -> noprivF p f.

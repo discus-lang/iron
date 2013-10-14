@@ -39,10 +39,10 @@ Hint Resolve freshT_kind.
 Lemma freshT_liftTT
  :  forall p n d t
  ,  freshT p t
- -> freshT p (liftTT n d t).
+ =  freshT p (liftTT n d t).
 Proof.
  intros. gen n d.
- induction t; intros; snorm.
+ induction t; intros; espread; snorm; espread; eauto.
 Qed.
 Hint Resolve freshT_liftTT.
 

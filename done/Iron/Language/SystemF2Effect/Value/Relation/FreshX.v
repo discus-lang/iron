@@ -153,7 +153,7 @@ Proof.
  unfold liftTE in *.
  eapply get_map_exists in H2.
  destruct H2 as [t']. rip.
- eapply freshT_liftTT. eauto.
+ rewrite <- freshT_liftTT. eauto.
 Qed.
 Hint Resolve freshFreeX_XLAM.
 
@@ -185,7 +185,7 @@ Proof.
  unfold liftTE in *.
  eapply get_map_exists in H2.
  destruct H2 as [t']. rip.
- eapply freshT_liftTT. eauto.
+ rewrite <- freshT_liftTT. eauto.
 Qed.
 
 
@@ -202,7 +202,7 @@ Proof.
  unfold liftTE in *.
  eapply get_map_exists in H3.
  destruct H3 as [t']. rip.
- eapply freshT_liftTT. eauto.
+ rewrite <- freshT_liftTT. eauto.
 Qed.
 
 
@@ -217,7 +217,7 @@ Proof.
  unfold liftTE in H0.
  eapply get_map_exists in H0.
  destruct H0. rip.
- eapply freshT_liftTT.
+ rewrite <- freshT_liftTT.
  eauto.
 Qed.
 Hint Resolve freshSuppX_liftTE.
@@ -344,3 +344,50 @@ Proof.
     apply freshSuppX_XWrite_join; firstorder.
 Qed.
 
+
+Lemma freshSuppX_typeX
+ :  forall ke te se sp x t e p
+ ,  not (In (SRegion p) sp)
+ -> TYPEX ke te se sp x t e
+ -> freshSuppX p se x.
+Proof.
+ intros. gen ke te se sp t e.
+ induction x using exp_mutind with
+  (PV := fun v => forall ke te se sp t
+      ,  not (In (SRegion p) sp)
+      -> TYPEV ke te se sp v t
+      -> freshSuppV p se v); 
+  intros; inverts_type;
+  unfold freshSuppX in *;
+  unfold freshSuppV in *; 
+  snorm;
+  try (solve [ nope]);
+  try (solve [ eapply IHx; eauto 2]).
+
+ - subst. rewrite H2 in H0. inverts H0.
+   inverts_kind; snorm; eauto.
+
+ - eapply get_map with (f := liftTT 1 0) in H0.
+   erewrite freshT_liftTT. 
+   eapply IHx; eauto.
+
+ - inverts H1. 
+   eapply IHx1; eauto.
+   eapply IHx2; eauto.
+
+ - inverts H1.
+   eapply IHx; eauto.
+   eapply IHx0; eauto.
+ 
+ - eapply get_map with (f := liftTT 1 0) in H0.
+   erewrite freshT_liftTT. 
+   eapply IHx; eauto.
+   
+ - eapply get_map with (f := liftTT 1 0) in H0.
+   erewrite freshT_liftTT. 
+   eapply IHx; eauto.
+
+ - inverts H1.  
+   eapply IHx; eauto.
+   eapply IHx0; eauto.
+Qed.   

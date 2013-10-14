@@ -443,7 +443,7 @@ Proof.
         by (subst p2; auto).
        eapply TfConsExt; eauto.
        * inverts_kind. eauto.
-       * admit. (* ok, fs checks under se *)
+       * eapply freshSuppFs_typeF; eauto.
        * have (LiveE fs (TSum (TSum eL (TAlloc (TRgn p1))) e2))
           by (eapply liveE_equivT_left; eauto).
          eapply liveE_sum_above.

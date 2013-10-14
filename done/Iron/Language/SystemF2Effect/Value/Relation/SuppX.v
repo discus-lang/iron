@@ -50,12 +50,19 @@ Proof.
              unfold coversV in *; snorm;
              unfold coversX in *; snorm; eauto]).
 
- - admit.
+ - inverts_type.
+   unfold coversV. intros.
+   inverts_kind. snorm. subst.
+   eauto.
 
  - inverts_type.  
    unfold coversV in *. snorm.
    unfold coversX in *. snorm.
-   admit.
+   eapply IHx in H7; eauto.
+   destruct H7.
+   unfold liftTE in *.   
+   eapply get_map_exists in H0. 
+   firstorder.
 
  - inverts_type.
    unfold coversX in *. simpl.
@@ -70,10 +77,20 @@ Proof.
    + eapply IHx0; eauto.
 
  - inverts_type.
-   admit.
-
+   unfold coversX in *. snorm.
+   eapply IHx in H7; eauto.
+   destruct H7.
+   unfold liftTE in *.
+   eapply get_map_exists in H0. 
+   firstorder.
+   
  - inverts_type.
-   admit.
+   unfold coversX in *. snorm.
+   eapply IHx in H10; eauto.
+   destruct H10.
+   unfold liftTE in *.
+   eapply get_map_exists in H0. 
+   firstorder.
 
  - inverts_type.
    unfold coversX in *. simpl.
@@ -81,5 +98,4 @@ Proof.
    + eapply IHx; eauto.
    + eapply IHx0; eauto.
 Qed.
-
 
