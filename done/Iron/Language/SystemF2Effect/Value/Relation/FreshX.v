@@ -206,9 +206,23 @@ Proof.
 Qed.
 
 
-
-
 (********************************************************************)
+Lemma freshSuppX_liftTE
+ :  forall p se x
+ ,  freshSuppX p se x
+ -> freshSuppX p (liftTE 0 se) x.
+Proof.
+ intros.
+ unfold freshSuppX in *; intros.
+ unfold liftTE in H0.
+ eapply get_map_exists in H0.
+ destruct H0. rip.
+ eapply freshT_liftTT.
+ eauto.
+Qed.
+Hint Resolve freshSuppX_liftTE.
+
+
 Lemma freshSuppX_XLet_split
  :  forall p te t x1 x2
  ,  freshSuppX p te (XLet t x1 x2)
@@ -329,14 +343,4 @@ Proof.
     apply freshSuppX_XWrite_split in H0.
     apply freshSuppX_XWrite_join; firstorder.
 Qed.
-
-
-
-
-
-
-
-
-
-
 

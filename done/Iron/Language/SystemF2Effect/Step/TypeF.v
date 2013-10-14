@@ -98,8 +98,39 @@ Lemma typef_kind_t2
 Proof. intros. induction H; auto. Qed.
 Hint Resolve typef_kind_t2.
 
-(*
-Lemma typef_stenv_snoc
+
+Fixpoint suppF  (l : nat) (f : frame) {struct f} := 
+ match f with
+ | FLet t x   => suppX l x
+ | FPriv _ _  => False
+ end.
+
+Definition suppFs (l : nat) (fs : stack) 
+ := exists f, In f fs /\ suppF l f.
+
+
+Lemma typeF_supp_in
+ :  forall ke te se sp fs t1 t2 e l
+ ,  TYPEF  ke te se sp fs t1 t2 e
+ -> suppFs l fs
+ -> exists t, get l se = t.
+Proof.
+ intros. gen ke te se sp t1 t2 e.
+ induction fs as [|f].
+ - simpl in H0. firstorder.
+ - intros.
+   simpl in H0. destruct H0 as [f'].
+   rip.
+   inverts H1. 
+   + admit.                              (* ok *)
+   + assert (suppFs l fs).
+     unfold suppFs.
+     exists f'. rip.
+     inverts H; eapply IHfs; eauto.
+Qed.
+
+
+Lemma typeF_stenv_snoc
  :  forall ke te se sp fs t1 t2 t3 e
  ,  ClosedT t3
  -> TYPEF ke te se         sp fs t1 t2 e
@@ -107,11 +138,13 @@ Lemma typef_stenv_snoc
 Proof. 
  intros.
  induction H0; eauto. 
- 
- - eapply TfConsExt; auto.
 
-Hint Resolve typef_stenv_snoc.
-*)
+ - eapply TfConsExt; auto.
+   admit. (* all free in fs in se by H5. 
+             adding t3 doesn't break freshSupp, not references. *)
+Qed.  
+Hint Resolve typeF_stenv_snoc.
+
 
 Lemma typef_stprops_snoc
  :  forall ke te se sp fs t1 t2 p e

@@ -182,8 +182,6 @@ Lemma mergeX_typeX_freshX
  -> TYPEX ke te se sp x t e
  -> TYPEX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp x t e.
 Proof.
- admit.
-(* 
  intros. gen ke te se sp t e.
  induction x using exp_mutind with
   (PV := fun v => forall ke te se sp t 
@@ -219,7 +217,8 @@ Proof.
    lets D: (@get_map ty) (mergeT p1 p2) H5.
     rewrite D. clear D.
    rewrite mergeT_freshT_id. auto.
-   eapply H2. rip. 
+   eapply H2. rip.
+   snorm. 
 
  - Case "XLam".
    eapply TvLam; auto.
@@ -230,21 +229,18 @@ Proof.
    eapply TvLAM.
    snorm. repeat (rewrite mergeTE_liftTE_comm).
    eapply IHx; snorm; eauto.
-
-   unfold freshSuppV in H2.
-   simpl in H2.
-   have (freshSuppX p2 se x).
-   admit.                              (* freshSupp lemma *)
    
  - Case "XLet".
    snorm.
    eapply TxLet; auto.
-   + eapply IHx1; auto. firstorder.
-     admit.                            (* freshSupp *)
+   + eapply IHx1; eauto. firstorder.
+     eapply freshSuppX_XLet_split in H1. 
+     firstorder.
    + rewrite mergeTE_rewind; auto.
-     eapply IHx2; eauto.
-     admit.                            (* freshSupp *) 
-  
+     eapply IHx2; eauto. 
+     eapply freshSuppX_XLet_split in H1. 
+     firstorder.
+
  - Case "XApp".
    snorm.
    eapply TxApp. 
@@ -252,10 +248,14 @@ Proof.
      unfold freshFreeX in *.
      unfold freshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
+     eapply freshSuppX_XApp_split in H1.
+     firstorder.
    + eapply IHx0; eauto.
      unfold freshFreeX in *.
      unfold freshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
+     eapply freshSuppX_XApp_split in H1.
+     firstorder.
 
  - Case "XAPP".
    rgwrite (TBot KEffect = substTT 0 t (TBot KEffect)).
@@ -297,10 +297,13 @@ Proof.
      unfold freshFreeX in *.
      unfold freshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
+     eapply freshSuppX_XWrite_split in H1.
+     firstorder.
    + eapply IHx0; snorm; eauto.
      unfold freshFreeX in *.
      unfold freshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
-*)
+     eapply freshSuppX_XWrite_split in H1.
+     firstorder.
 Qed.
 
