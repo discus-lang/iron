@@ -32,20 +32,20 @@ Fixpoint FreshV (p : nat) (vv : val) : Prop :=
 
 
 Definition FreshFreeV p2 te v
- := forall n t, (freeXV n v /\ get n te = Some t) -> FreshT p2 t.
+ := forall n t, (FreeXV n v /\ get n te = Some t) -> FreshT p2 t.
 Hint Unfold FreshFreeV.
 
 Definition FreshFreeX p2 te x
- := forall n t, (freeXX n x /\ get n te = Some t) -> FreshT p2 t.
+ := forall n t, (FreeXX n x /\ get n te = Some t) -> FreshT p2 t.
 Hint Unfold FreshFreeX.
 
 
 Definition FreshSuppV p2 se v
- := forall l t, get l se = Some t -> suppV l v -> FreshT p2 t.
+ := forall l t, get l se = Some t -> SuppV l v -> FreshT p2 t.
 Hint Unfold FreshSuppV.
 
 Definition FreshSuppX p2 se x
- := forall l t, get l se = Some t -> suppX l x -> FreshT p2 t.
+ := forall l t, get l se = Some t -> SuppX l x -> FreshT p2 t.
 Hint Unfold FreshSuppX.
 
 
