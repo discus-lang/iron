@@ -46,8 +46,40 @@ Lemma mergeT_freshT_id
 Proof.
  intros. 
  induction t; snorm; rewritess; auto.
- - destruct t. snorm. nope.
+ - destruct t. snorm.
 Qed.
+
+
+Lemma mergeT_kindT
+ :  forall ke sp t k p1 p2
+ ,  In (SRegion p1) sp
+ -> KindT ke sp t k
+ -> KindT ke sp (mergeT p1 p2 t) k.
+Proof.
+ intros. induction H0; snorm; eauto.
+Qed.
+Hint Resolve mergeT_kindT.
+
+
+Lemma mergeT_kindT_chop
+ :  forall ke sp t k p1 p2
+ ,  In (SRegion p2) sp
+ -> KindT ke sp (mergeT p1 p2 t) k
+ -> KindT ke sp t k.
+Proof.
+ intros. gen ke k.
+ induction t; intros; snorm; inverts_kind; eauto 4.
+
+ - eapply KiCon2.
+   destruct tc. snorm. inverts H3.
+   destruct t1. snorm. 
+   + eauto. 
+   + destruct tc. snorm. inverts H3. eauto.
+
+ - destruct t; snorm. subst.
+   inverts_kind. eauto.
+Qed.
+Hint Resolve mergeT_kindT_chop.
 
 
 Lemma mergeT_substTT
@@ -59,36 +91,49 @@ Lemma mergeT_substTT
 Proof.
  intros. gen ix ke k.
  induction t; snorm;
-  try (inverts H0; espread; eauto).
- - nope.
+  try (inverts H0; espread; eauto; snorm).
 Qed.
 
 
-Lemma mergeT_maskOnVarT
- :  forall ix p1 p2 t
- ,  maskOnVarT ix (mergeT p1 p2 t) = mergeT p1 p2 (maskOnVarT ix t).
+Lemma mergeT_liftTT_comm
+ : forall n d p1 p2 t
+ , liftTT n d (mergeT p1 p2 t)
+ = mergeT p1 p2 (liftTT n d t).
 Proof.
- intros. gen ix.
- induction t; intros;
-  try (solve [try (unfold maskOnVarT); snorm; try f_equal; eauto]).
-
- - Case "TCon1".
-   unfold maskOnVarT. simpl.
-   unfold maskOnT. snorm.
-   + firstorder. 
-     * nope.
-     * destruct t0; snorm; nope.
-       destruct t0. snorm. nope. nope.
-   + firstorder.
-     * nope.
-     * destruct t0; snorm; nope.
-
- - Case "TCap".
-   simpl.
-   destruct t.
-   snorm.
+ intros. gen n d.
+ induction t; intros; snorm;
+  try (solve [f_equal; rewritess; auto]).
+ destruct t. snorm.
 Qed.
-Hint Resolve mergeT_maskOnVarT.
+Hint Resolve mergeT_liftTT_comm.
+
+
+Lemma mergeTE_liftTE_comm
+ : forall d p1 p2 ts
+ , liftTE d (mergeTE p1 p2 ts)
+ = mergeTE p1 p2 (liftTE d ts).
+Proof.
+ intros.
+ induction ts; snorm.
+ - rewritess. 
+   rewrite mergeT_liftTT_comm; auto.
+Qed.
+Hint Resolve mergeTE_liftTE_comm.
+
+
+Lemma mergeT_substTT_comm
+ : forall d t1 t2 p1 p2
+ , substTT d (mergeT p1 p2 t1) (mergeT p1 p2 t2)
+ = mergeT p1 p2 (substTT d t1 t2).
+Proof.
+ intros. gen d t1.
+ induction t2; intros; snorm;
+  try (solve [f_equal; repeat (rewrite mergeT_liftTT_comm); espread; auto]).
+ 
+ - Case "TCap".
+   destruct t. snorm.
+Qed.
+Hint Resolve mergeT_substTT_comm.
 
 
 Lemma mergeT_lowerTT
@@ -151,40 +196,35 @@ Qed.
 Hint Resolve mergeT_lowerTT. 
 
 
-
-
-Lemma mergeT_kindT
- :  forall ke sp t k p1 p2
- ,  In (SRegion p1) sp
- -> KindT ke sp t k
- -> KindT ke sp (mergeT p1 p2 t) k.
+Lemma mergeT_maskOnVarT
+ :  forall ix p1 p2 t
+ ,  maskOnVarT ix (mergeT p1 p2 t) 
+ =  mergeT p1 p2 (maskOnVarT ix t).
 Proof.
- intros. induction H0; snorm; eauto.
+ intros. gen ix.
+ induction t; intros;
+  try (solve [try (unfold maskOnVarT); snorm; try f_equal; eauto]).
+
+ - Case "TCon1".
+   unfold maskOnVarT. simpl.
+   unfold maskOnT. snorm.
+   + firstorder. 
+     * nope.
+     * destruct t0; snorm; nope.
+       destruct t0. snorm. nope. nope.
+   + firstorder.
+     * nope.
+     * destruct t0; snorm; nope.
+
+ - Case "TCap".
+   simpl.
+   destruct t.
+   snorm.
 Qed.
-Hint Resolve mergeT_kindT.
+Hint Resolve mergeT_maskOnVarT.
 
 
-Lemma mergeT_kindT_chop
- :  forall ke sp t k p1 p2
- ,  In (SRegion p2) sp
- -> KindT ke sp (mergeT p1 p2 t) k
- -> KindT ke sp t k.
-Proof.
- intros. gen ke k.
- induction t; intros; snorm; inverts_kind; eauto 4.
-
- - eapply KiCon2.
-   destruct tc. snorm. inverts H3.
-   destruct t1. snorm. 
-   + eauto. 
-   + destruct tc. snorm. inverts H3. eauto.
-
- - destruct t; snorm. subst.
-   inverts_kind. eauto.
-Qed.
-Hint Resolve mergeT_kindT_chop.
-
-
+(********************************************************************)
 Lemma mergeTE_rewind
  :  forall p1 p2 te t
  ,  freshT p2 t
@@ -199,43 +239,4 @@ Proof.
  snorm.
 Qed.
 
-
-Lemma mergeT_liftTT_comm
- : forall n d p1 p2 t
- , liftTT n d (mergeT p1 p2 t)
- = mergeT p1 p2 (liftTT n d t).
-Proof.
- intros. gen n d.
- induction t; intros; snorm;
-  try (solve [f_equal; rewritess; auto]).
- destruct t. snorm.
-Qed.
-Hint Resolve mergeT_liftTT_comm.
-
-
-Lemma mergeTE_liftTE_comm
- : forall d p1 p2 ts
- , liftTE d (mergeTE p1 p2 ts)
- = mergeTE p1 p2 (liftTE d ts).
-Proof.
- intros.
- induction ts; snorm.
- rewritess. rewrite mergeT_liftTT_comm. auto.
-Qed.
-Hint Resolve mergeTE_liftTE_comm.
-
-
-Lemma mergeT_substTT_comm
- : forall d t1 t2 p1 p2
- , substTT d (mergeT p1 p2 t1) (mergeT p1 p2 t2)
- = mergeT p1 p2 (substTT d t1 t2).
-Proof.
- intros. gen d t1.
- induction t2; intros; snorm;
-  try (solve [f_equal; repeat (rewrite mergeT_liftTT_comm); espread; auto]).
- 
- - Case "TCap".
-   destruct t. snorm.
-Qed.
-Hint Resolve mergeT_substTT_comm.
 

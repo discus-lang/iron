@@ -1,6 +1,5 @@
 
 Require Export Iron.Language.SystemF2Effect.Step.TypeC.
-Require Export Iron.Language.SystemF2Effect.Type.Operator.FreeTT.
 Require Export Iron.Language.SystemF2Effect.Store.LiveS.
 Require Export Iron.Language.SystemF2Effect.Store.LiveE.
 
@@ -260,9 +259,9 @@ Proof.
            eapply kind_wfT in HK.
            simpl in HK.
 
-           have (freeTT 0 t0 = false) 
+           have (~freeT 0 t0) 
             by (eapply lowerTT_freeT; eauto).
-           eapply freeTT_wfT_drop; eauto.
+           eapply freeT_wfT_drop; eauto.
          }
 
          rrwrite (substTT 0 r t0 = t0).
@@ -394,12 +393,12 @@ Proof.
        eapply SbSumAboveLeft; eauto.
       }
 
-     assert (SubsVisibleT nil sp' sp e e2)                as HE2.
+     assert (SubsVisibleT nil sp' sp e e2)          as HE2.
      { eapply subsT_subsVisibleT.
        eapply SbSumAboveRight; eauto.
      }
 
-     assert (SubsVisibleT nil sp' sp e (TAlloc r1))       as HE3.
+     assert (SubsVisibleT nil sp' sp e (TAlloc r1)) as HE3.
      { subst r1.
        eapply subsT_subsVisibleT.
        eapply SbSumAboveLeft; eauto.

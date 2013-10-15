@@ -7,7 +7,7 @@ Require Export Iron.Language.SystemF2Effect.Type.Exp.
 
 (********************************************************************)
 (* Only types of effect and closure kinds can be used in sums. *)
-Definition sumkind (k : ki) : Prop
+Definition sumkind (k : ki) : Prop 
  := k = KEffect.
 Hint Unfold sumkind.
 

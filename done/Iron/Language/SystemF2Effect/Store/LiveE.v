@@ -4,13 +4,11 @@ Require Export Iron.Language.SystemF2Effect.Store.Bind.
 
 
 (* TODO: shift this into Type utils module. *)
-Fixpoint handleOfEffect (e : ty) : option nat
- := match e with
-    | TCon1 tc (TRgn p) 
-    => if isEffectTyCon tc then Some p else None
-
-    | _                    => None
-    end.
+Fixpoint handleOfEffect (e : ty) : option nat :=
+ match e with
+ | TCon1 tc (TRgn p)  => if isEffectTyCon_b tc then Some p else None
+ | _                  => None
+ end.
 
 
 Lemma handleOfEffect_form_some
@@ -18,7 +16,7 @@ Lemma handleOfEffect_form_some
  ,  handleOfEffect e = Some p
  -> exists tc
      ,  e    = TCon1 tc (TRgn p) 
-     /\ true = isEffectTyCon tc.
+     /\ true = isEffectTyCon_b tc.
 Proof.
  intros.
  destruct e; snorm.

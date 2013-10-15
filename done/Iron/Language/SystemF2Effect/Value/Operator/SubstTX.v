@@ -9,26 +9,26 @@ Require Export Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
 (* Substitution of Types in Exps *)
 Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
   match vv with
-  | VVar _           => vv
-  | VLoc _           => vv
-  | VLam t x         => VLam (substTT d u t) (substTX d u x)
-  | VLAM k x         => VLAM k (substTX (S d) (liftTT 1 0 u) x)
-  | VConst c         => vv
+  | VVar _          => vv
+  | VLoc _          => vv
+  | VLam t x        => VLam (substTT d u t) (substTX d u x)
+  | VLAM k x        => VLAM k (substTX (S d) (liftTT 1 0 u) x)
+  | VConst c        => vv
   end
  with    substTX (d: nat) (u: ty) (xx: exp) : exp :=
   match xx with
-  | XVal v           => XVal   (substTV d u v)
-  | XLet t x1 x2     => XLet   (substTT d u t)  (substTX d u x1) (substTX d u x2)
-  | XApp v1 v2       => XApp   (substTV d u v1) (substTV d u v2)
-  | XAPP v1 t2       => XAPP   (substTV d u v1) (substTT d u t2)
+  | XVal v          => XVal   (substTV d u v)
+  | XLet t x1 x2    => XLet   (substTT d u t)  (substTX d u x1) (substTX d u x2)
+  | XApp v1 v2      => XApp   (substTV d u v1) (substTV d u v2)
+  | XAPP v1 t2      => XAPP   (substTV d u v1) (substTT d u t2)
 
-  | XOp1 op1 v       => XOp1   op1 (substTV d u v)
+  | XOp1 op1 v      => XOp1   op1 (substTV d u v)
 
-  | XPrivate x       => XPrivate (substTX (S d) (liftTT 1 0 u) x)
-  | XExtend  t x     => XExtend  (substTT d u t) (substTX (S d) (liftTT 1 0 u) x)
-  | XAlloc   t v     => XAlloc   (substTT d u t) (substTV d u v)
-  | XRead    t v     => XRead    (substTT d u t) (substTV d u v)
-  | XWrite   t v1 v2 => XWrite   (substTT d u t) (substTV d u v1) (substTV d u v2)
+  | XPrivate x      => XPrivate (substTX (S d) (liftTT 1 0 u) x)
+  | XExtend t x     => XExtend  (substTT d u t) (substTX (S d) (liftTT 1 0 u) x)
+  | XAlloc  t v     => XAlloc   (substTT d u t) (substTV d u v)
+  | XRead   t v     => XRead    (substTT d u t) (substTV d u v)
+  | XWrite  t v1 v2 => XWrite   (substTT d u t) (substTV d u v1) (substTV d u v2)
   end.  
 
 
@@ -131,13 +131,15 @@ Proof.
    + rrwrite (S ix = 1 + ix + 0).
      erewrite maskOnVarT_substTT.
 
-     * have    (freeTT 0 (liftTT 1 0 t2) = false).
+     * have    (~freeT 0 (liftTT 1 0 t2)).
+
        rrwrite (maskOnVarT 0 (liftTT 1 0 t2) = liftTT 1 0 t2)
-        by (apply maskOnVarT_freeTT_id; eauto).
+        by (apply maskOnVarT_freeT_id; eauto).
+
        rrwrite (1 + ix + 0 = 1 + 0 + ix).
        erewrite lowerTT_substTT_liftTT; eauto.
 
-     * have    (freeTT 0 (liftTT 1 0 t2) = false).
+     * have    (~freeT 0 (liftTT 1 0 t2)).
        auto.
 
    + rewrite delete_rewind.
@@ -159,7 +161,7 @@ Proof.
      rrwrite (S (0 + ix) = 1 + ix + 0).
      erewrite maskOnVarT_substTT; eauto.
      simpl.
-     erewrite maskOnVarT_freeTT_id; eauto.
+     erewrite maskOnVarT_freeT_id; eauto.
      rrwrite (ix + 0 = ix); eauto.
    + eauto using subst_type_type_ix.
 

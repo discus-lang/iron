@@ -14,6 +14,7 @@ Hint Unfold tyenv.
 Definition liftTE d te    := map (liftTT 1 d) te.
 Hint Unfold liftTE.
 
+
 (* Substitution of types in type environments. *)
 Definition substTE d t te := map (substTT d t) te.
 Hint Unfold substTE.

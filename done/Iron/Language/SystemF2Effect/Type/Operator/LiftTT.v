@@ -1,7 +1,7 @@
 
 Require Export Iron.Language.SystemF2Effect.Type.Exp.
 Require Export Iron.Language.SystemF2Effect.Type.Relation.WfT.
-Require Export Iron.Language.SystemF2Effect.Type.Operator.FreeTT.
+Require Export Iron.Language.SystemF2Effect.Type.Relation.FreeT.
 
 
 (*******************************************************************)
@@ -82,8 +82,8 @@ Hint Resolve liftTT_TVar_above.
 Lemma liftTT_isTVar_true
  :  forall n i t d
  ,  d > i
- -> true = isTVar i (liftTT n d t)
- -> true = isTVar i t.
+ -> isTVar i (liftTT n d t)
+ -> isTVar i t.
 Proof.
  intros.
   destruct t; 
@@ -91,10 +91,8 @@ Proof.
 
  - Case "TVar".
    apply isTVar_form in H0.
-   snorm.
-   + inverts H0. omega. 
-   + inverts H0. eapply beq_nat_refl.
-   + inverts H0. omega.  
+   snorm; inverts H0; unfold isTVar; snorm;
+    rewrite beq_nat_true_iff; omega.
 Qed.
 Hint Resolve liftTT_isTVar_true.
 
@@ -110,7 +108,6 @@ Proof.
 Qed.
 
 
-(* Lifting and well-formedness *)
 Lemma liftTT_wfT
  :  forall kn t d
  ,  WfT kn t
@@ -155,7 +152,8 @@ Hint Rewrite liftTT_succ : global.
 
 Lemma liftTT_plus
  : forall n m d t
- , liftTT (n + m) d t = liftTT n d (liftTT m d t).
+ , liftTT (n + m) d t 
+ = liftTT n d (liftTT m d t).
 Proof.
  intros. gen n d.
  induction m; intros.
@@ -310,23 +308,15 @@ Lemma liftTT_map_liftTT
  =  map (liftTT m2 (m1 + n2 + n1)) (map (liftTT m1 n1) ts).
 Proof.
  induction ts; simpl; f_equal; norm; auto.
-Qed.  
+Qed.
 
 
-Lemma liftTT_freeTT
- :  forall d t
- ,  freeTT d (liftTT 1 d t) = false.
+Lemma liftTT_freeT
+ : forall d t
+ , ~(freeT d (liftTT 1 d t)).
 Proof.
  intros. gen d.
- induction t; intros; 
-   try (solve [snorm]);
-   try (solve [snorm; repeat rewritess; auto]).
-
- - Case "TVar".
-   snorm.
-   apply beq_nat_false_iff. omega.
-   apply beq_nat_false_iff. omega.
-   apply beq_nat_false_iff. omega.
+ induction t; snorm; firstorder.
 Qed.
-Hint Resolve liftTT_freeTT.
+Hint Resolve liftTT_freeT.
 

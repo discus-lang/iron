@@ -1,6 +1,6 @@
 
 Require Import Iron.Language.SystemF2Effect.Type.Operator.LiftTT.
-Require Import Iron.Language.SystemF2Effect.Type.Operator.FreeTT.
+Require Import Iron.Language.SystemF2Effect.Type.Relation.FreeT.
 Require Import Iron.Language.SystemF2Effect.Type.Relation.WfT.
 Require Import Iron.Language.SystemF2Effect.Type.Exp.
 
@@ -235,37 +235,37 @@ Qed.
    appear in the type, and the variable with that index was not free. *)
 Lemma lowerTT_freeT
  :  forall n t1 t2
- ,  lowerTT n t1 = Some t2
- -> freeTT n t1  = false.
+ ,  lowerTT n t1  = Some t2
+ -> ~(freeT n t1).
 Proof.
  intros. gen n t2.
  induction t1; intros; eauto 4.
  - Case "TVar".
-   snorm. 
-    eapply beq_nat_false_iff. omega.
-    eapply beq_nat_false_iff. omega.
+   snorm; omega.
 
  - Case "TForall".
    snorm. eauto.
 
  - Case "TApp".
-   snorm.
-   erewrite IHt1_1; eauto.
-   erewrite IHt1_2; eauto.
+   snorm. unfold not. intros.
+   inverts H.
+   + cut (~freeT n t1_1); eauto.
+   + cut (~freeT n t1_2); eauto.
 
  - Case "TSum".
-   snorm.
-   erewrite IHt1_1; eauto.
-   erewrite IHt1_2; eauto.
+   snorm. unfold not. intros.
+   inverts H.
+   + cut (~freeT n t1_1); eauto.
+   + cut (~freeT n t1_2); eauto.
 
  - Case "TCon1".
-   snorm.
-   erewrite IHt1; eauto.
+   snorm. eauto.
  
  - Case "TCon2".
-   snorm.
-   erewrite IHt1_1; eauto.
-   erewrite IHt1_2; eauto.
+   snorm. unfold not. intros.
+   inverts H.
+   + cut (~freeT n t1_1); eauto.
+   + cut (~freeT n t1_2); eauto.
 Qed.
 Hint Resolve lowerTT_freeT.   
 

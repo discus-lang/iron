@@ -7,14 +7,11 @@ Require Export Iron.Language.SystemF2Effect.Type.Operator.
 (* Check whether an effect is visible relative to the region handles
    the given store properties. If an effect is some other region handle
    not in the store properties, then count that as not visible. *)
-Definition isVisibleE (sp : stprops) (t : ty) : bool
- := match t with 
-    | TCon1 tc (TRgn n)
-    => andb (isEffectTyCon tc) (hasSRegion n sp)
-
-    | otherwise
-    => true
-    end.
+Definition isVisibleE (sp : stprops) (t : ty) : bool :=
+ match t with 
+ | TCon1 tc (TRgn n) => andb (isEffectTyCon_b tc) (hasSRegion n sp)
+ | otherwise         => true
+ end.
 
 
 (* Subsumption of effects, where we only care about effects that 
@@ -41,7 +38,7 @@ Lemma isVisibleE_TCon1_false
  ,  false = isVisibleE sp t1
  -> (exists tc n
       ,  t1    = TCon1 tc (TRgn n)
-     /\ (false = isEffectTyCon tc \/ false = (hasSRegion n sp))).
+     /\ (false = isEffectTyCon_b tc \/ false = (hasSRegion n sp))).
 Proof.
  destruct t1; try nope.
 
@@ -214,12 +211,12 @@ Proof.
    eapply maskOnT_subsT_impl.
    + assert (  forall t0, true = negb (isVisibleE spVis' t0)
                        -> true = negb (isVisibleE spVis  t0)) as HV.
-      intros.
-      snorm.
-      eapply negb_true_intro.
-      eapply isVisibleE_extends_cover.
-       eauto. auto.   
-      eapply HV.
+     { intros.
+       snorm.
+       eapply negb_true_intro.
+       eapply isVisibleE_extends_cover; eauto.
+     }
+     eapply HV.
    + eauto.
 Qed.     
 
@@ -238,7 +235,8 @@ Lemma subsVisibleT_mask
  -> SubsVisibleT nil sp spVis e1 (substTT    0 r e2).
 Proof.
  intros.
- induction e2.
+ induction e2; 
+  try (solve [snorm]).
 
  - Case "TVar".
    snorm.
@@ -264,13 +262,7 @@ Proof.
    snorm.
    simpl.
    eapply subsVisibleT_sum_above; eauto.
- 
- - Case "TBot".
-   snorm.
-
- - Case "TCon0".
-   snorm.
-  
+   
  - Case "TCon1".
    snorm.
    unfold SubsVisibleT in H1.
@@ -281,7 +273,8 @@ Proof.
      unfold SubsVisibleT.
      unfold maskOnT.
      split_if; auto.
-     * apply isTVar_form in H3. subst.
+     * have HV: (isTVar 0 e2).
+       apply isTVar_form in HV. subst.
        snorm. congruence.
 
    + snorm.
@@ -313,14 +306,5 @@ Proof.
    rrwrite ( substTT 0 r (TCon2 t e2_1 e2_2)
            = TCon2 t e2_1 e2_2).
    snorm.
-     
- - Case "TCap".
-   snorm.
 Qed.
-
-(*
-Lemma subsVisibleT_subsTT
- :  forall ke sp1 sp2 e1 e2
- -> SubsVisibleT (ke :> k) sp1 sp2
-*)
 

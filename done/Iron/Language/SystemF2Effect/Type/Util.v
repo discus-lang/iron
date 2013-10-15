@@ -72,15 +72,16 @@ Lemma makeTApps_takeTCon
 Proof.
  intros. gen t1 t2.
  induction ts; intros.
-  simpl in H. subst. auto.
-  eapply IHts in H. simpl in H. auto.
+ - simpl in H. subst. auto.
+ - eapply IHts in H. simpl in H. auto.
 Qed.
 Hint Resolve makeTApps_takeTCon.
 
 
 Lemma makeTApps_rewind
  :  forall t1 t2 ts
- ,  makeTApps (TApp t1 t2) ts = makeTApps t1 (t2 :: ts).
+ ,  makeTApps (TApp t1 t2) ts 
+ =  makeTApps t1 (t2 :: ts).
 Proof. burn. Qed.
 
 
@@ -94,14 +95,15 @@ Lemma makeTApps_wfT
 Proof.
  intros. gen t1.
  induction ts; intros.
-  simpl. auto.
-  simpl.
-  inverts H0.
-  assert (ts = nil \/ (exists t ts', ts = t <: ts')) as HS.
-   apply snocable.
+ - simpl. auto.
+ - simpl.
+   inverts H0.
+   have HS: (ts = nil \/ (exists t ts', ts = t <: ts')) 
+    by (apply snocable).
    inverts HS.
-    simpl. auto. 
-    dest H0. dest H0. subst.
-    eapply IHts. auto.
-     auto.
+   + simpl. auto.
+   + dest H0. dest H0. subst.
+     eapply IHts; auto.
 Qed.
+
+

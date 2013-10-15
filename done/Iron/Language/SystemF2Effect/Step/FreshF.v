@@ -3,40 +3,50 @@ Require Export Iron.Language.SystemF2Effect.Step.Frame.
 
 
 (********************************************************************)
-Fixpoint freshF (p : nat) (ff : frame) {struct ff} : Prop := 
- match ff with
- | FLet  t x           => freshT p t /\ freshX p x
- | FPriv None      p2  => beq_nat p p2 = false
- | FPriv (Some p1) p2  => beq_nat p p1 = false /\ beq_nat p p2 = false
- end.
+(* Region identifier is not mentioned in the given stack frame. *)
+Fixpoint freshF (p : nat) (ff : frame) {struct ff} 
+ := match ff with
+    | FLet  t x           => freshT p t /\ freshX p x
+    | FPriv None      p2  => beq_nat p p2 = false
+    | FPriv (Some p1) p2  => beq_nat p p1 = false /\ beq_nat p p2 = false
+    end.
 
 
-Definition freshFs (p : nat) (fs : stack) : Prop
+(* Region identifier is not mentioned in the given stack.  *)
+Definition freshFs (p : nat) (fs : stack) 
  := Forall (freshF p) fs.
 Hint Unfold freshFs.
 
 
-Fixpoint   freshFreeF p2 te f {struct f} :=
- match f with
- | FLet t x        => freshFreeX p2 (te :> t) x
- | FPriv _ _       => True
- end.
+(* Region identifier is not mentioned in the types of the free variables
+   of the given stack frame. *)
+Fixpoint   freshFreeF (p : nat) (te : tyenv) (f : frame) {struct f}
+ := match f with
+    | FLet t x       => freshFreeX p (te :> t) x
+    | FPriv _ _      => True
+    end.
 
-Definition freshFreeFs p2 te fs 
- := Forall (freshFreeF p2 te) fs.
+
+(* Region identifier is not mentioned in the types of the free variables
+   of the given stack. *)
+Definition freshFreeFs (p : nat) (te : tyenv) (fs : stack)
+ := Forall (freshFreeF p te) fs.
 Hint Unfold freshFreeFs.
 
 
-Fixpoint  freshSuppF p2 se f {struct f} :=
- match f with
- | FLet  t x      => freshSuppX p2 se x
- | FPriv _ _      => True
- end.
+(* Region identifier is not mentioned in the types of the locations
+   used in the given stack frame. *)
+Fixpoint  freshSuppF   (p : nat) (se : stenv) (f : frame) {struct f}
+ := match f with
+    | FLet  t x      => freshSuppX p se x
+    | FPriv _ _      => True
+    end.
 
+(* Region identifier is not mentioned in the types of the locations
+   used in the given stack. *)
 Definition freshSuppFs p2 se fs 
  := Forall (freshSuppF p2 se) fs.
 Hint Unfold freshSuppFs.
-
 
 
 (********************************************************************)
@@ -120,9 +130,4 @@ Proof.
  inverts H. auto.
 Qed.
 Hint Resolve freshSuppFs_head.
-
-
-
-
-
 

@@ -2,7 +2,7 @@
 Require Import Iron.Language.SystemF2Effect.Type.Relation.KindT.
 Require Import Iron.Language.SystemF2Effect.Type.Relation.SubsT.
 Require Import Iron.Language.SystemF2Effect.Type.Relation.SubsTs.
-Require Import Iron.Language.SystemF2Effect.Type.Operator.FreeTT.
+Require Import Iron.Language.SystemF2Effect.Type.Relation.FreeT.
 Require Import Iron.Language.SystemF2Effect.Type.Operator.LiftTT.
 Require Import Iron.Language.SystemF2Effect.Type.Operator.SubstTT.
 Require Import Iron.Language.SystemF2Effect.Type.Exp.
@@ -12,20 +12,23 @@ Require Import Coq.Bool.Bool.
 (********************************************************************)
 (* Mask effects on the given region, 
    replacing with the bottom effect. *)
-Fixpoint maskOnT (p : ty -> bool) (e : ty) : ty
- := match e with
-    |  TSum t1 t2  => TSum (maskOnT p t1) (maskOnT p t2)
-    |  TCon1 tc t1 => if p e then TBot KEffect else e
-    | _            => e
-    end.
+Fixpoint maskOnT (p : ty -> bool) (e : ty) : ty :=
+ match e with
+ |  TSum t1 t2  => TSum (maskOnT p t1) (maskOnT p t2)
+ |  TCon1 tc t1 => if p e then TBot KEffect else e
+ | _            => e
+ end.
 Arguments maskOnT p e : simpl nomatch.
 
 
+(* Mask effects on the given region variable. *)
 Definition maskOnVarT    (n : nat) (e : ty) : ty
- := maskOnT (isEffectOnVar n) e.
+ := maskOnT (isEffectOnVar_b n) e.
 
+
+(* Mask effects on the given region identifier (capability) *)
 Definition maskOnCapT    (n : nat) (e : ty) : ty
- := maskOnT (isEffectOnCap n) e.
+ := maskOnT (isEffectOnCap_b n) e.
 
 
 (********************************************************************)
@@ -131,9 +134,9 @@ Hint Resolve maskOnT_idemp.
 (********************************************************************)
 (* If a given region variable is not free in a type, 
    then masking effects on that variable is identity. *)
-Lemma maskOnVarT_freeTT_id
+Lemma maskOnVarT_freeT_id
  :  forall d t 
- ,  freeTT d t = false 
+ ,  ~freeT d t
  -> maskOnVarT d t = t.
 Proof.
  intros. gen d.
@@ -152,7 +155,7 @@ Proof.
    split_if; auto.
    + destruct t0; try (solve [snorm; rip; nope]).
 Qed.
-Hint Resolve maskOnVarT_freeTT_id.
+Hint Resolve maskOnVarT_freeT_id.
 
 
 Lemma maskOnVarT_closedT_id
@@ -161,7 +164,7 @@ Lemma maskOnVarT_closedT_id
  -> maskOnVarT d t = t.
 Proof.
  intros.
- eapply maskOnVarT_freeTT_id.
+ eapply maskOnVarT_freeT_id.
  eauto.
 Qed.
 Hint Rewrite maskOnVarT_closedT_id.
@@ -194,13 +197,16 @@ Proof.
      * snorm.
        inverts HeqH0.
         congruence.
-        eapply liftTT_isTVar_true in H0. 
-         congruence. omega.
+        rewrite liftTT_isTVar_true
+          with (d := S (r + d)) in H1. 
+        congruence. omega.
+        unfold isTVar. eauto.
    + split_if.
      * snorm.
        inverts HeqH.
         congruence.
-        apply isTVar_form in H0. subst.
+        have HV: (isTVar r e).
+        apply isTVar_form in HV. subst.
         rewrite liftTT_TVar_above in H1.
         simpl in H1.
         rewrite <- beq_nat_refl in H1. 
@@ -214,7 +220,7 @@ Hint Resolve maskOnVarT_liftTT.
 (* Push masking through substitution. *)
 Lemma maskOnVarT_substTT
  :  forall d d' t1 t2
- ,  freeTT d t2 = false
+ ,  ~freeT d t2
  -> maskOnVarT d (substTT (1 + d' + d) t2 t1)
  =  substTT (1 + d' + d) (maskOnVarT d t2) (maskOnVarT d t1).
 Proof.
@@ -226,7 +232,7 @@ Proof.
    unfold maskOnVarT in *.
    snorm.
    f_equal. f_equal.
-   lets D: maskOnVarT_freeTT_id. 
+   lets D: maskOnVarT_freeT_id. 
    unfold  maskOnVarT in *.
    rewritess; auto.
  
@@ -235,11 +241,11 @@ Proof.
    snorm.
    f_equal. 
    + f_equal. 
-     lets D: maskOnVarT_freeTT_id.
+     lets D: maskOnVarT_freeT_id.
      unfold  maskOnVarT in *.
      rewritess; auto.
    + f_equal.
-     lets D: maskOnVarT_freeTT_id.
+     lets D: maskOnVarT_freeT_id.
      unfold  maskOnVarT in *.
      rewritess; auto.
 
@@ -254,29 +260,31 @@ Proof.
    unfold maskOnVarT.
    unfold maskOnT; split_if; fold maskOnT.
    + snorm.
-     apply isTVar_form in H1. subst. 
+     have HV: (isTVar d t1).
+     apply isTVar_form in HV. subst. 
      spec IHt1 d t2. rip.
      unfold maskOnT.
      snorm; try omega.
-     * inverts HeqH1.
+     * inverts HeqH2.
         congruence. 
         snorm. omega.
 
    + simpl. 
      unfold maskOnT; split_if; fold maskOnT.
 
-     * unfold isEffectOnVar in HeqH0.
-       unfold isEffectOnVar in HeqH1.
+     * unfold isEffectOnVar_b in HeqH0.
+       unfold isEffectOnVar_b in HeqH1.
        snorm.
        inverts HeqH0. 
         congruence.
-        apply isTVar_form in H1.
+        have HV: (isTVar d (substTT (S (d' + d)) t2 t1)).
+        apply isTVar_form in HV.
         destruct t1; snorm; try congruence.
          subst. snorm. nope.
          inverts H1. omega.
 
      * repeat f_equal.
-       lets D: maskOnVarT_freeTT_id. 
+       lets D: maskOnVarT_freeT_id. 
        unfold maskOnVarT in *.
        erewrite D; auto.
   
@@ -285,11 +293,11 @@ Proof.
    snorm. 
    f_equal.
    + f_equal.
-     lets D: maskOnVarT_freeTT_id. 
+     lets D: maskOnVarT_freeT_id. 
      unfold  maskOnVarT in *.
      rewritess; auto.
    + f_equal.
-     lets D: maskOnVarT_freeTT_id. 
+     lets D: maskOnVarT_freeT_id. 
      unfold  maskOnVarT in *.
      rewritess; auto.
 Qed.
