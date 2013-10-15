@@ -4,21 +4,21 @@ Require Export Iron.Language.SystemF2Effect.Step.Frame.
 
 (********************************************************************)
 (* Region identifier is not mentioned some FPriv frame. *)
-Fixpoint noprivF (p : nat) (f : frame) {struct f} :=
+Fixpoint NoPrivF (p : nat) (f : frame) {struct f} :=
  match f with
  | FLet t x               => True
  | FPriv None p1          => ~(p = p1)
  | FPriv (Some p1) p2     => ~(p = p1) /\ ~(p = p2)
  end.
 
-Definition noprivFs (p : nat) (fs : stack)
- := Forall (noprivF p) fs.
+Definition NoPrivFs (p : nat) (fs : stack)
+ := Forall (NoPrivF p) fs.
 
 
 Lemma noprivFs_head 
  :  forall p fs f
- ,  noprivFs p (fs :> f)
- -> noprivF  p f. 
+ ,  NoPrivFs p (fs :> f)
+ -> NoPrivF  p f. 
 Proof.
  intros. inverts H. eauto.
 Qed.
@@ -27,8 +27,8 @@ Hint Resolve noprivFs_head.
 
 Lemma noprivFs_tail
  :  forall p fs f
- ,  noprivFs p (fs :> f)
- -> noprivFs p fs. 
+ ,  NoPrivFs p (fs :> f)
+ -> NoPrivFs p fs. 
 Proof.
  intros. inverts H. eauto.
 Qed.
@@ -37,47 +37,47 @@ Hint Resolve noprivFs_tail.
 
 (********************************************************************)
 (* Region identifier is not mentioned in the given stack frame. *)
-Fixpoint freshF (p : nat) (ff : frame) {struct ff} :=
+Fixpoint FreshF (p : nat) (ff : frame) {struct ff} :=
  match ff with
- | FLet  t x           => freshT p t /\ freshX p x
+ | FLet  t x           => FreshT p t /\ FreshX p x
  | FPriv None      p2  => beq_nat p p2 = false
  | FPriv (Some p1) p2  => beq_nat p p1 = false /\ beq_nat p p2 = false
  end.
 
 
 (* Region identifier is not mentioned in the given stack.  *)
-Definition freshFs (p : nat) (fs : stack) 
- := Forall (freshF p) fs.
-Hint Unfold freshFs.
+Definition FreshFs (p : nat) (fs : stack) 
+ := Forall (FreshF p) fs.
+Hint Unfold FreshFs.
 
 
 Lemma freshFs_head 
  :  forall p f fs
- ,  freshFs p (fs :> f)
- -> freshFs p fs.
+ ,  FreshFs p (fs :> f)
+ -> FreshFs p fs.
 Proof. intros. inverts H. eauto. Qed.
 Hint Resolve freshFs_head.
 
 
 Lemma freshFs_tail
  :  forall p f fs
- ,  freshFs p (fs :> f)
- -> freshF  p f.
+ ,  FreshFs p (fs :> f)
+ -> FreshF  p f.
 Proof. intros. inverts H. eauto. Qed.
 Hint Resolve freshFs_tail.
 
 
 Lemma freshFs_cons
  :  forall p f fs
- ,  freshFs p fs -> freshF p f
- -> freshFs p (fs :> f).
+ ,  FreshFs p fs -> FreshF p f
+ -> FreshFs p (fs :> f).
 Proof. snorm. Qed.
 Hint Resolve freshFs_cons.
 
 
 Lemma freshF_noprivF
  : forall p f
- , freshF p f -> noprivF p f.
+ , FreshF p f -> NoPrivF p f.
 Proof.
  intros.
  destruct f.
@@ -89,12 +89,12 @@ Hint Resolve freshF_noprivF.
 
 Lemma freshFs_noprivFs
  : forall  p fs
- , freshFs p fs -> noprivFs p fs.
+ , FreshFs p fs -> NoPrivFs p fs.
 Proof.
  intros.
  induction fs.
- - unfold noprivFs. eauto.
- - unfold noprivFs. inverts H. firstorder.
+ - unfold NoPrivFs. eauto.
+ - unfold NoPrivFs. inverts H. firstorder.
 Qed.
 Hint Resolve freshFs_noprivFs.
 
@@ -104,7 +104,7 @@ Hint Resolve freshFs_noprivFs.
    of the given stack frame. *)
 Fixpoint   freshFreeF (p : nat) (te : tyenv) (f : frame) {struct f} :=
  match f with
- | FLet t x       => freshFreeX p (te :> t) x
+ | FLet t x       => FreshFreeX p (te :> t) x
  | FPriv _ _      => True
  end.
 
@@ -118,7 +118,7 @@ Hint Unfold freshFreeFs.
 
 Lemma freshFreeF_nil
  :  forall p f
- ,  freshF p f
+ ,  FreshF p f
  -> freshFreeF p nil f.
 Proof.
  intros.
@@ -129,7 +129,7 @@ Hint Resolve freshFreeF_nil.
 
 Lemma freshFreeFs_nil
  :  forall p fs
- ,  freshFs p fs
+ ,  FreshFs p fs
  -> freshFreeFs p nil fs.
 Proof.
  intros.
@@ -155,7 +155,7 @@ Hint Resolve freshFreeFs_tail.
    used in the given stack frame. *)
 Fixpoint  freshSuppF   (p : nat) (se : stenv) (f : frame) {struct f} :=
  match f with
- | FLet  t x      => freshSuppX p se x
+ | FLet  t x      => FreshSuppX p se x
  | FPriv _ _      => True
  end.
 

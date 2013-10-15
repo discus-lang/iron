@@ -9,7 +9,7 @@ Require Export Iron.Language.SystemF2Effect.Type.Relation.KindTs.
 Inductive EquivTs : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
  | EqsSum
    :  forall ke sp ts1 ts2 k
-   ,  sumkind k
+   ,  SumKind k
    -> KindTs ke sp ts1 k
    -> KindTs ke sp ts2 k
    -> Forall (fun t2 => In t2 ts1) ts2
@@ -38,7 +38,7 @@ Hint Resolve equivTs_app.
 Lemma equivTs_sumkind
  :  forall  ks sp ts1 ts2 k
  ,  EquivTs ks sp ts1 ts2 k
- -> sumkind k.
+ -> SumKind k.
 Proof. intros. inverts H; auto. Qed.
 Hint Resolve equivTs_sumkind.
 
@@ -61,7 +61,7 @@ Hint Resolve equivTs_kinds_right.
 
 Lemma equivTs_refl
  :  forall  ke sp ts k
- ,  sumkind k
+ ,  SumKind k
  -> KindTs  ke sp ts k
  -> EquivTs ke sp ts ts k.
 Proof.
@@ -76,7 +76,7 @@ Hint Resolve equivTs_refl.
 
 Lemma equivTs_sym
  :  forall ke sp ts1 ts2 k
- ,  sumkind k
+ ,  SumKind k
  -> KindTs  ke sp ts1 k
  -> KindTs  ke sp ts2 k
  -> EquivTs ke sp ts1 ts2 k

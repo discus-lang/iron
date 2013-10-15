@@ -273,7 +273,7 @@ Proof.
      unfold SubsVisibleT.
      unfold maskOnT.
      split_if; auto.
-     * have HV: (isTVar 0 e2).
+     * have HV: (IsTVar 0 e2).
        apply isTVar_form in HV. subst.
        snorm. congruence.
 

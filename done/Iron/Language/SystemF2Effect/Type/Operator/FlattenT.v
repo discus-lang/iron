@@ -32,7 +32,7 @@ Hint Resolve flattenT_kindTs.
 
 Lemma equivT_equivTs 
  :  forall  ke sp t1 t2 k
- ,  sumkind k
+ ,  SumKind k
  -> EquivT  ke sp t1 t2 k
  -> EquivTs ke sp (flattenT t1) (flattenT t2) k.
 Proof.

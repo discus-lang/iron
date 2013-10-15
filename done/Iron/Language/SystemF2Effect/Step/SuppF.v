@@ -3,39 +3,39 @@ Require Export Iron.Language.SystemF2Effect.Step.FreshF.
 
 
 (* Store location is mentioned in (supports) the given frame. *)
-Fixpoint suppF  (l : nat) (f : frame) {struct f} := 
+Fixpoint SuppF  (l : nat) (f : frame) {struct f} := 
  match f with
  | FLet t x   => suppX l x
  | FPriv _ _  => False
  end.
 
 (* Store location is mentioned in (supports) the given stack. *)
-Definition suppFs (l : nat) (fs : stack) 
- := exists f, In f fs /\ suppF l f.
+Definition SuppFs (l : nat) (fs : stack) 
+ := exists f, In f fs /\ SuppF l f.
 
 
 (* Store environment covers all locations mentioned in the given frame.
    Alternatively: all locations in the given frame point to valid
    entries in the store environment, *)
-Definition coversF  (se : stenv) (f  : frame)
- := forall l, suppF l f -> (exists t, get l se = Some t).
-Hint Unfold coversF.
+Definition CoversF  (se : stenv) (f  : frame)
+ := forall l, SuppF l f -> (exists t, get l se = Some t).
+Hint Unfold CoversF.
 
 
 (* Store environment covers all locations mentioned in the given stack. *)
-Definition coversFs (se : stenv) (fs : stack)
- := Forall (coversF se) fs.
-Hint Unfold coversFs.
+Definition CoversFs (se : stenv) (fs : stack)
+ := Forall (CoversF se) fs.
+Hint Unfold CoversFs.
 
 
 (********************************************************************)
 Lemma coversFs_head
  :  forall se fs f
- ,  coversFs se (fs :> f)
- -> coversF  se f.
+ ,  CoversFs se (fs :> f)
+ -> CoversF  se f.
 Proof.
  intros.
- unfold coversFs in *.
+ unfold CoversFs in *.
  inverts H. auto.
 Qed.
 Hint Resolve coversFs_head.
@@ -43,11 +43,11 @@ Hint Resolve coversFs_head.
 
 Lemma coversFs_tail
  :  forall se fs f
- ,  coversFs se (fs :> f)
- -> coversFs se fs.
+ ,  CoversFs se (fs :> f)
+ -> CoversFs se fs.
 Proof.
  intros.
- unfold coversFs in *.
+ unfold CoversFs in *.
  inverts H. auto.
 Qed.
 Hint Resolve coversFs_tail.
@@ -55,15 +55,15 @@ Hint Resolve coversFs_tail.
 
 Lemma freshSuppF_coversF
  :  forall p se f t
- ,  coversF se f
+ ,  CoversF se f
  -> freshSuppF p se f
  -> freshSuppF p (t <: se) f.
 Proof.
  intros.
- unfold coversF in *.
+ unfold CoversF in *.
  destruct f.
  - snorm.
-   unfold freshSuppX in *.
+   unfold FreshSuppX in *.
    rip.
    lets D: H H2. 
    destruct D as [t']. 
@@ -81,7 +81,7 @@ Qed.
 
 Lemma freshSuppFs_coveredFs
  :  forall p se fs t
- ,  coversFs se fs
+ ,  CoversFs se fs
  -> freshSuppFs p se fs
  -> freshSuppFs p (t <: se) fs.
 Proof.
@@ -89,8 +89,8 @@ Proof.
 
  induction fs as [|f].
  - snorm.
- - have (coversF  se f).
-   have (coversFs se fs).
+ - have (CoversF  se f).
+   have (CoversFs se fs).
    have (freshSuppFs p se fs).
    have (freshSuppF  p se f).
    rip.

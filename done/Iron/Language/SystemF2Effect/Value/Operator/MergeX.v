@@ -176,31 +176,31 @@ Qed.
 
 Lemma mergeX_typeX_freshX
  :  forall ke te se sp x t e p1 p2
- ,  freshX     p2 x
- -> freshFreeX p2 te x
- -> freshSuppX p2 se x
+ ,  FreshX     p2 x
+ -> FreshFreeX p2 te x
+ -> FreshSuppX p2 se x
  -> TypeX ke te se sp x t e
  -> TypeX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp x t e.
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with
   (PV := fun v => forall ke te se sp t 
-      ,  freshV     p2 v
-      -> freshFreeV p2 te v
-      -> freshSuppV p2 se v
+      ,  FreshV     p2 v
+      -> FreshFreeV p2 te v
+      -> FreshSuppV p2 se v
       -> TypeV ke te se sp v t
       -> TypeV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp v t);
   intros; inverts_type; auto.
 
  - Case "XVar".
    eapply TvVar; auto.
-   unfold freshFreeV in H1.
+   unfold FreshFreeV in H1.
    spec H1 n. spec H1 t.
 
    have HF: (freeXV n (VVar n)) 
     by (unfold freeXV; symmetry; eapply beq_nat_refl).
 
-   assert (freshT p2 t).
+   assert (FreshT p2 t).
     eauto. clear H1.
 
    unfold mergeTE.
@@ -210,7 +210,7 @@ Proof.
 
  - Case "XLoc".
    eapply TvLoc; auto.
-   unfold freshSuppV in H2.
+   unfold FreshSuppV in H2.
    spec H2 l.
 
    unfold mergeTE.
@@ -245,14 +245,14 @@ Proof.
    snorm.
    eapply TxApp. 
    + eapply IHx; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
+     unfold FreshFreeX in *.
+     unfold FreshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
      eapply freshSuppX_XApp_split in H1.
      firstorder.
    + eapply IHx0; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
+     unfold FreshFreeX in *.
+     unfold FreshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
      eapply freshSuppX_XApp_split in H1.
      firstorder.
@@ -280,28 +280,28 @@ Proof.
  - Case "XAlloc".
    eapply TxOpAlloc; eauto.
    + eapply IHx; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
+     unfold FreshFreeX in *.
+     unfold FreshFreeV in *.
      intros. rip. eapply H; snorm; eauto.
 
  - Case "XRead".
    eapply TxOpRead; eauto.
    + eapply IHx; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
+     unfold FreshFreeX in *.
+     unfold FreshFreeV in *.
      intros. rip. eapply H; snorm; eauto.
 
  - Case "XWrite".
    eapply TxOpWrite; eauto.
    + eapply IHx; snorm; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
+     unfold FreshFreeX in *.
+     unfold FreshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
      eapply freshSuppX_XWrite_split in H1.
      firstorder.
    + eapply IHx0; snorm; eauto.
-     unfold freshFreeX in *.
-     unfold freshFreeV in *.
+     unfold FreshFreeX in *.
+     unfold FreshFreeV in *.
      intros. rip. eapply H0; snorm; eauto.
      eapply freshSuppX_XWrite_split in H1.
      firstorder.

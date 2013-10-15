@@ -118,7 +118,7 @@ Proof.
    exists se.
    exists (TSum (substTT 0 r e0) (substTT 0 r e2)).
 
-   have (sumkind KEffect).
+   have (SumKind KEffect).
 
    have (KindT (nil :> KRegion) sp e0 KEffect).
 
@@ -259,7 +259,7 @@ Proof.
            eapply kind_wfT in HK.
            simpl in HK.
 
-           have (~freeT 0 t0) 
+           have (~FreeT 0 t0) 
             by (eapply lowerTT_freeT; eauto).
            eapply freeT_wfT_drop; eauto.
          }

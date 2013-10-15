@@ -19,32 +19,32 @@ Inductive SubsT : kienv -> stprops -> ty -> ty -> ki -> Prop :=
 
  | SbBot
    :  forall  ke sp t k
-   ,  sumkind k
+   ,  SumKind k
    -> KindT   ke sp t k
    -> SubsT   ke sp t (TBot k) k
 
  | SbSumAbove
    :  forall  ke sp t1 t2 t3 k
-   ,  sumkind k
+   ,  SumKind k
    -> SubsT   ke sp t1 t2 k -> SubsT  ke sp t1 t3 k
    -> SubsT   ke sp t1 (TSum t2 t3) k
 
  | SbSumBelow
    :  forall  ke sp t1 t2 t3 k
-   ,  sumkind k
+   ,  SumKind k
    -> KindT   ke sp t3 k
    -> SubsT   ke sp t1 t2 k
    -> SubsT   ke sp (TSum t1 t3) t2 k
 
  | SbSumAboveLeft
    :  forall  ke sp t1 t2 t3 k
-   ,  sumkind k
+   ,  SumKind k
    -> SubsT   ke sp t1 (TSum t2 t3) k
    -> SubsT   ke sp t1 t2 k
 
  | SbSumAboveRight
    :  forall  ke sp t1 t2 t3 k
-   ,  sumkind k
+   ,  SumKind k
    -> SubsT   ke sp t1 (TSum t2 t3) k
    -> SubsT   ke sp t1 t3 k.
 
@@ -81,7 +81,7 @@ Hint Resolve subsT_kind_right.
 Lemma subsT_sumkind_left
  :  forall ke sp t1 t2 t3 k
  ,  SubsT  ke sp (TSum t1 t2) t3 k
- -> sumkind k.
+ -> SumKind k.
 Proof.
  intros.
  inverts H; eauto.
@@ -92,7 +92,7 @@ Hint Resolve subsT_sumkind_left.
 Lemma subsT_sumkind_right
  :  forall ke sp t1 t2 t3 k
  ,  SubsT  ke sp t1 (TSum t2 t3) k
- -> sumkind k.
+ -> SumKind k.
 Proof.
  intros.
  inverts H; eauto.
@@ -156,7 +156,7 @@ Hint Resolve subsT_sum_comm_above.
 
 Lemma subsT_sum_left
  : forall ke sp t1 t1' t2 k
- ,  sumkind k
+ ,  SumKind k
  -> KindT  ke sp t2 k
  -> SubsT  ke sp t1 t1' k
  -> SubsT  ke sp (TSum t1 t2) (TSum t1' t2) k.
@@ -169,7 +169,7 @@ Hint Resolve subsT_sum_left.
 
 Lemma subsT_sum_right
  :  forall ke sp t1 t2 t2' k
- ,  sumkind k
+ ,  SumKind k
  -> KindT   ke sp t1 k
  -> SubsT  ke sp t2 t2' k
  -> SubsT  ke sp (TSum t1 t2) (TSum t1 t2') k.
@@ -182,7 +182,7 @@ Hint Resolve subsT_sum_right.
 
 Lemma subsT_sum_merge
  :  forall ke sp t1 t1' t2 t2' k
- ,  sumkind k
+ ,  SumKind k
  -> SubsT  ke sp t1 t1' k
  -> SubsT  ke sp t2 t2' k
  -> SubsT  ke sp (TSum t1 t2) (TSum t1' t2') k.

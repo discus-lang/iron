@@ -82,8 +82,8 @@ Hint Resolve liftTT_TVar_above.
 Lemma liftTT_isTVar_true
  :  forall n i t d
  ,  d > i
- -> isTVar i (liftTT n d t)
- -> isTVar i t.
+ -> IsTVar i (liftTT n d t)
+ -> IsTVar i t.
 Proof.
  intros.
   destruct t; 
@@ -91,7 +91,7 @@ Proof.
 
  - Case "TVar".
    apply isTVar_form in H0.
-   snorm; inverts H0; unfold isTVar; snorm;
+   snorm; inverts H0; unfold IsTVar; snorm;
     rewrite beq_nat_true_iff; omega.
 Qed.
 Hint Resolve liftTT_isTVar_true.
@@ -313,7 +313,7 @@ Qed.
 
 Lemma liftTT_freeT
  : forall d t
- , ~(freeT d (liftTT 1 d t)).
+ , ~(FreeT d (liftTT 1 d t)).
 Proof.
  intros. gen d.
  induction t; snorm; firstorder.

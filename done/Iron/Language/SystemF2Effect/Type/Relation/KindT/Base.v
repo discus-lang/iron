@@ -7,15 +7,15 @@ Require Export Iron.Language.SystemF2Effect.Type.Exp.
 
 (********************************************************************)
 (* Only types of effect and closure kinds can be used in sums. *)
-Definition sumkind (k : ki) : Prop 
+Definition SumKind (k : ki) : Prop 
  := k = KEffect.
-Hint Unfold sumkind.
+Hint Unfold SumKind.
 
 
 (* Region kinds cannot be the result of type applications. *)
-Definition appkind (k : ki) : Prop
+Definition AppKind (k : ki) : Prop
  := ~ (k = KRegion).
-Hint Unfold appkind.
+Hint Unfold AppKind.
 
 
 (* Kinds judgement assigns a kind to a type *)
@@ -32,20 +32,20 @@ Inductive KindT : kienv -> stprops -> ty -> ki -> Prop :=
 
   | KiApp 
     :  forall ke sp t1 t2 k11 k12
-    ,  appkind k12
+    ,  AppKind k12
     -> KindT ke sp t1 (KFun k11 k12)
     -> KindT ke sp t2 k11
     -> KindT ke sp (TApp t1 t2) k12
 
   | KiSum
     :  forall ke sp k t1 t2
-    ,  sumkind k
+    ,  SumKind k
     -> KindT ke sp t1 k -> KindT ke sp t2 k
     -> KindT ke sp (TSum t1 t2) k
 
   | KiBot
     :  forall ke sp k
-    ,  sumkind k
+    ,  SumKind k
     -> KindT ke sp (TBot k) k
 
   | KiCon0
@@ -123,11 +123,11 @@ Qed.
 Hint Resolve kind_region.
 
 
-(* Well kinded sums have sumkind *)
+(* Well kinded sums have SumKind *)
 Lemma kind_sumkind
  :  forall ke sp t1 t2 k
  ,  KindT ke sp (TSum t1 t2) k
- -> sumkind k.
+ -> SumKind k.
 Proof.
  intros.
  inverts H. auto.

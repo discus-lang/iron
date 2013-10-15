@@ -99,7 +99,7 @@ Hint Resolve maskOnTs_kind.
 (* Equivalence *)
 Lemma maskOnTs_maskOnT_equivTs
  :  forall ke sp p t k
- ,  sumkind k
+ ,  SumKind k
  -> KindT   ke sp t k
  -> EquivTs ke sp (flattenT (maskOnT p t)) (maskOnTs p (flattenT t)) k.
 Proof.

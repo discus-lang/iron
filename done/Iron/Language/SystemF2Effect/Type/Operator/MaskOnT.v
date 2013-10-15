@@ -23,12 +23,12 @@ Arguments maskOnT p e : simpl nomatch.
 
 (* Mask effects on the given region variable. *)
 Definition maskOnVarT    (n : nat) (e : ty) : ty
- := maskOnT (isEffectOnVar_b n) e.
+ := maskOnT (isEffectOnVar n) e.
 
 
 (* Mask effects on the given region identifier (capability) *)
 Definition maskOnCapT    (n : nat) (e : ty) : ty
- := maskOnT (isEffectOnCap_b n) e.
+ := maskOnT (isEffectOnCap n) e.
 
 
 (********************************************************************)
@@ -136,7 +136,7 @@ Hint Resolve maskOnT_idemp.
    then masking effects on that variable is identity. *)
 Lemma maskOnVarT_freeT_id
  :  forall d t 
- ,  ~freeT d t
+ ,  ~FreeT d t
  -> maskOnVarT d t = t.
 Proof.
  intros. gen d.
@@ -200,12 +200,12 @@ Proof.
         rewrite liftTT_isTVar_true
           with (d := S (r + d)) in H1. 
         congruence. omega.
-        unfold isTVar. eauto.
+        unfold IsTVar. eauto.
    + split_if.
      * snorm.
        inverts HeqH.
         congruence.
-        have HV: (isTVar r e).
+        have HV: (IsTVar r e).
         apply isTVar_form in HV. subst.
         rewrite liftTT_TVar_above in H1.
         simpl in H1.
@@ -220,7 +220,7 @@ Hint Resolve maskOnVarT_liftTT.
 (* Push masking through substitution. *)
 Lemma maskOnVarT_substTT
  :  forall d d' t1 t2
- ,  ~freeT d t2
+ ,  ~FreeT d t2
  -> maskOnVarT d (substTT (1 + d' + d) t2 t1)
  =  substTT (1 + d' + d) (maskOnVarT d t2) (maskOnVarT d t1).
 Proof.
@@ -260,7 +260,7 @@ Proof.
    unfold maskOnVarT.
    unfold maskOnT; split_if; fold maskOnT.
    + snorm.
-     have HV: (isTVar d t1).
+     have HV: (IsTVar d t1).
      apply isTVar_form in HV. subst. 
      spec IHt1 d t2. rip.
      unfold maskOnT.
@@ -272,12 +272,12 @@ Proof.
    + simpl. 
      unfold maskOnT; split_if; fold maskOnT.
 
-     * unfold isEffectOnVar_b in HeqH0.
-       unfold isEffectOnVar_b in HeqH1.
+     * unfold isEffectOnVar in HeqH0.
+       unfold isEffectOnVar in HeqH1.
        snorm.
        inverts HeqH0. 
         congruence.
-        have HV: (isTVar d (substTT (S (d' + d)) t2 t1)).
+        have HV: (IsTVar d (substTT (S (d' + d)) t2 t1)).
         apply isTVar_form in HV.
         destruct t1; snorm; try congruence.
          subst. snorm. nope.

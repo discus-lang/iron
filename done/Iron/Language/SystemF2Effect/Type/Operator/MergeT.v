@@ -41,7 +41,7 @@ Hint Resolve mergeT_wfT.
 
 Lemma mergeT_freshT_id
  :  forall p1 p2 t
- ,  freshT p2 t
+ ,  FreshT p2 t
  -> mergeT p1 p2 t = t.
 Proof.
  intros. 
@@ -84,7 +84,7 @@ Hint Resolve mergeT_kindT_chop.
 
 Lemma mergeT_substTT
  :  forall ke sp t k p1 p2 ix
- ,  freshT p2 t
+ ,  FreshT p2 t
  -> KindT ke sp t k
  -> mergeT p1 p2 (substTT ix (TRgn p2) t)
  =  substTT ix (TRgn p1) t.
@@ -227,7 +227,7 @@ Hint Resolve mergeT_maskOnVarT.
 (********************************************************************)
 Lemma mergeTE_rewind
  :  forall p1 p2 te t
- ,  freshT p2 t
+ ,  FreshT p2 t
  -> mergeTE p1 p2 te :> t
  =  mergeTE p1 p2 (te :> t).
 Proof.

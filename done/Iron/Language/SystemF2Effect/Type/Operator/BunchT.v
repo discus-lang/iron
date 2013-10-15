@@ -18,7 +18,7 @@ Fixpoint bunchT (k : ki) (tt : list ty) : ty
 (********************************************************************)
 Lemma bunchT_kindT
  :  forall ke sp ts k
- ,  sumkind k
+ ,  SumKind k
  -> KindTs ke sp ts k
  -> KindT  ke sp (bunchT k ts) k.
 Proof.
@@ -51,7 +51,7 @@ Hint Resolve bunchT_kindTs.
 
 Lemma bunchT_singleton
  :  forall ke sp t k
- ,  sumkind k
+ ,  SumKind k
  -> KindT ke sp t k
  -> EquivT ke sp (bunchT k (t :: nil)) t k.
 Proof.
@@ -66,7 +66,7 @@ Qed.
 
 Lemma bunchT_sum
  :  forall ke sp ts1 ts2 k
- ,  sumkind k
+ ,  SumKind k
  -> KindTs ke sp ts1 k
  -> KindTs ke sp ts2 k
  -> EquivT ke sp (bunchT k (ts2 >< ts1)) 
@@ -89,7 +89,7 @@ Hint Resolve bunchT_sum.
 
 Lemma bunchT_flattenT_sum
  :  forall ke sp k t1 t2
- ,  sumkind k
+ ,  SumKind k
  -> EquivT ke sp (bunchT k (flattenT t1)) t1 k
  -> EquivT ke sp (bunchT k (flattenT t2)) t2 k
  -> EquivT ke sp (bunchT k (flattenT t2 >< flattenT t1)) (TSum t1 t2) k.
@@ -103,7 +103,7 @@ Qed.
 
 Lemma bunchT_flattenT
  :  forall ke sp t k
- ,  sumkind k
+ ,  SumKind k
  -> KindT   ke sp t k
  -> EquivT  ke sp (bunchT k (flattenT t)) t k.
 Proof.
@@ -127,7 +127,7 @@ Hint Resolve bunchT_flattenT.
    by 'flattenT . bunchT', then the EqsSum check fails.  
 Lemma flattenT_bunchT
  :  forall  ke sp ts k
- ,  sumkind k
+ ,  SumKind k
  -> KindTs  ke sp ts k
  -> EquivTs ke sp (flattenT (bunchT k ts)) ts k.
 *)

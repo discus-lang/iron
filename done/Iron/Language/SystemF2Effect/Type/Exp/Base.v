@@ -49,68 +49,68 @@ Notation TRef R T    := (TCon2 TyConRef R T).
 (* Predicates to test whether types have specific forms. *)
 
 (* Check whether a type is a variable with the given index. *)
-Definition isTVar_b   (n : nat) (t : ty) :=
+Definition isTVar   (n : nat) (t : ty) :=
  match t with
  | TVar n' => beq_nat n n'
  | _       => false
  end.
 
 
-Definition isTVar  (n : nat) (t : ty)
- := isTVar_b n t = true.
+Definition IsTVar  (n : nat) (t : ty)
+ := isTVar n t = true.
 
 
 (* If we know a type is a variable, then it is one.. *)
 Lemma isTVar_form
  :  forall i t
- ,  isTVar i t
+ ,  IsTVar i t
  -> t    = TVar i.
 Proof.
  intros.
  destruct t; snorm; try nope.
- unfold isTVar in *. snorm.
+ unfold IsTVar in *. snorm.
 Qed.
 Hint Resolve isTVar_form.
 
 
 (* Check whether a type is a region handle with the given index. *)
-Definition isTRgn_b (n : nat) (t : ty) :=
+Definition isTRgn (n : nat) (t : ty) :=
  match t with
  | TRgn n' => beq_nat n n'
  | _       => false
  end.
 
 
-Definition isTRgn   (n : nat) (t : ty) 
- := isTRgn_b n t = true.
-Hint Unfold isTRgn.
+Definition IsTRgn   (n : nat) (t : ty) 
+ := isTRgn n t = true.
+Hint Unfold IsTRgn.
 
 
 (* If we know a tpye is a region handle, then it is one.. *)
 Lemma isTRgn_form
  :  forall i t
- ,  isTRgn i t
+ ,  IsTRgn i t
  -> t    = TRgn i.
 Proof.
  intros.
  destruct t; snorm; try nope.
- destruct t. unfold isTRgn in *. snorm. subst. auto.
+ destruct t. unfold IsTRgn in *. snorm. subst. auto.
 Qed.
 Hint Resolve isTRgn_form.
 
 
 (* Check whether a type is an effect on the given region variable. *)
-Definition isEffectOnVar_b (n : nat) (t : ty) := 
+Definition isEffectOnVar (n : nat) (t : ty) := 
  match t with
- | TCon1 tc t1 => andb (isEffectTyCon_b tc) (isTVar_b n t1)
+ | TCon1 tc t1 => andb (isEffectTyCon_b tc) (isTVar n t1)
  | _           => false
  end.
 
 
 (* Check whether a type is an effect on the given region handle. *)
-Definition isEffectOnCap_b (n : nat) (t : ty) :=
+Definition isEffectOnCap (n : nat) (t : ty) :=
  match t with 
- | TCon1 tc t1 => andb (isEffectTyCon_b tc) (isTRgn_b n t1)
+ | TCon1 tc t1 => andb (isEffectTyCon_b tc) (isTRgn n t1)
  | _           => false
  end.
 

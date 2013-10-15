@@ -13,8 +13,8 @@ Hint Constructors tycap.
 
 
 (* Check if two capabilities are equal. *)
-Fixpoint eq_tycap (tc1 : tycap) (tc2 : tycap) : Prop :=
+Fixpoint EqTyCap (tc1 : tycap) (tc2 : tycap) : Prop :=
  match tc1, tc2 with
- | TyCapRegion n1, TyCapRegion n2 => eq_nat n1 n1
+ | TyCapRegion n1, TyCapRegion n2 => n1 = n2
  end.
 

@@ -17,11 +17,11 @@ Proof.
  - Case "VLam".
    lets D: IHv H8. rip.
     eapply KiApp.
-     unfold appkind. congruence.
+     unfold AppKind. congruence.
      eapply KiApp.
-     unfold appkind. congruence.
+     unfold AppKind. congruence.
      eapply KiApp.
-     unfold appkind. congruence.
+     unfold AppKind. congruence.
      eapply KiCon0. simpl. eauto.
    auto. auto. auto.
 

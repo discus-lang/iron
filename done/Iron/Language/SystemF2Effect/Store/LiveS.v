@@ -128,7 +128,7 @@ Hint Resolve liveSF_store_cons_stvalue.
 
 Lemma liveSF_store_cons_stdead
  :  forall ss p f
- ,  noprivF p f
+ ,  NoPrivF p f
  -> LiveSF ss f
  -> LiveSF (ss :> StDead p) f.
 Proof.
@@ -319,7 +319,7 @@ Hint Resolve liveS_store_snoc_stvalue.
 
 Lemma liveS_store_cons_stdead
  :  forall ss p fs
- ,  noprivFs p fs
+ ,  NoPrivFs p fs
  -> LiveS ss fs
  -> LiveS (ss :> StDead p) fs.
 Proof.
@@ -327,8 +327,8 @@ Proof.
  induction fs as [| f].
  - eauto.
  - have (LiveS ss fs).
-   have (noprivFs p fs). rip.
-   have (noprivF  p f).
+   have (NoPrivFs p fs). rip.
+   have (NoPrivF  p f).
    have (LiveSF ss f).
    have (LiveSF (ss :> StDead p) f).
    eapply liveS_stack_cons; auto.
@@ -361,7 +361,7 @@ Lemma liveSF_dead_noprivF
  :  forall p ss f
  ,  LiveSF ss f
  -> In (StDead p) ss
- -> noprivF p f.
+ -> NoPrivF p f.
 Proof.
  intros.
  unfold LiveSF in *.
@@ -395,11 +395,11 @@ Lemma liveS_dead_noprivFs
  :  forall p ss fs
  ,  LiveS ss fs
  -> In (StDead p) ss
- -> noprivFs p fs.
+ -> NoPrivFs p fs.
 Proof.
  intros.
  induction fs as [|f].
- - unfold noprivFs in *. auto.
+ - unfold NoPrivFs in *. auto.
  - have (LiveS  ss fs). rip.
    have (LiveSF ss f).
    eapply Forall_cons.
@@ -411,7 +411,7 @@ Hint Resolve liveS_dead_noprivFs.
 
 Lemma liveS_deallocRegion
  :  forall ss fs p
- ,  noprivFs p fs
+ ,  NoPrivFs p fs
  -> LiveS ss (fs :> FPriv None p)
  -> LiveS (map (deallocRegion p) ss) fs.
 Proof.
@@ -454,7 +454,7 @@ Proof.
  - simpl in H1. inverts H1. clear H2.
    have (In (StDead p) ss). clear H0.
 
-   have (noprivFs p fs).
+   have (NoPrivFs p fs).
 
    lets D1: liveE_fpriv_in HLE H.
    destruct D1 as [m].

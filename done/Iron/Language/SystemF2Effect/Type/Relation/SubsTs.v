@@ -11,7 +11,7 @@ Require Export Iron.Language.SystemF2Effect.Type.Operator.BunchT.
 Inductive SubsTs  : kienv -> stprops -> list ty -> list ty -> ki -> Prop :=
  | SbsSum 
    :  forall ke sp ts1 ts2 k
-   ,  sumkind k
+   ,  SumKind k
    -> KindTs ke sp ts1 k
    -> KindTs ke sp ts2 k
    -> Forall (fun t2 => In t2 ts1) ts2
@@ -38,7 +38,7 @@ Qed.
 Lemma subsTs_sumkind
  :  forall ke sp ts1 ts2 k
  ,  SubsTs ke sp ts1 ts2 k
- -> sumkind k.
+ -> SumKind k.
 Proof. intros. inverts H; auto. Qed.
 Hint Resolve subsTs_sumkind.
 
@@ -61,7 +61,7 @@ Hint Resolve subsTs_kinds_right.
 
 Lemma subsTs_refl
  :  forall ke sp ts k
- ,  sumkind k
+ ,  SumKind k
  -> KindTs ke sp ts k
  -> SubsTs ke sp ts ts k.
 Proof.
@@ -86,7 +86,7 @@ Qed.
 
 Lemma equivTs_subsTs
  :  forall ke sp t1 t2 k
- ,  sumkind k
+ ,  SumKind k
  -> EquivTs ke sp t1 t2 k
  -> SubsTs  ke sp t1 t2 k.
 Proof.
@@ -98,7 +98,7 @@ Qed.
 
 Lemma equivT_subsTs
  :  forall ke sp t1 t2 k
- ,  sumkind k
+ ,  SumKind k
  -> EquivT ke sp t1 t2 k
  -> SubsTs ke sp (flattenT t1) (flattenT t2) k.
 Proof.
@@ -110,7 +110,7 @@ Qed.
 
 Lemma subsT_subsTs 
  :  forall ke sp t1 t2 k
- ,  sumkind k
+ ,  SumKind k
  -> SubsT  ke sp t1             t2           k
  -> SubsTs ke sp (flattenT t1) (flattenT t2) k.
 Proof.
@@ -167,7 +167,7 @@ Proof.
  intros.
  induction ts1.
  - nope.
- - have (sumkind k)        by inverts H; auto.
+ - have (SumKind k)        by inverts H; auto.
    have (KindT ke sp a  k) by inverts H; eauto.
    have (KindT ke sp t2 k) by inverts H; eauto.
    simpl.
@@ -192,13 +192,13 @@ Lemma subsTs_subsT
 Proof.
  intros. gen ke sp ts1.
  induction ts2; intros.
-  - have (sumkind k)   by inverts H; auto.
+  - have (SumKind k)   by inverts H; auto.
     simpl.
     eapply SbBot; auto.
      eapply bunchT_kindT; auto.
       inverts H. norm.
 
-  - have (sumkind k)   by inverts H; auto.
+  - have (SumKind k)   by inverts H; auto.
     simpl.
     eapply SbSumAbove; auto.
     + eapply subsTs_subsT_1; auto.

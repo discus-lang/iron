@@ -236,7 +236,7 @@ Qed.
 Lemma lowerTT_freeT
  :  forall n t1 t2
  ,  lowerTT n t1  = Some t2
- -> ~(freeT n t1).
+ -> ~(FreeT n t1).
 Proof.
  intros. gen n t2.
  induction t1; intros; eauto 4.
@@ -249,14 +249,14 @@ Proof.
  - Case "TApp".
    snorm. unfold not. intros.
    inverts H.
-   + cut (~freeT n t1_1); eauto.
-   + cut (~freeT n t1_2); eauto.
+   + cut (~FreeT n t1_1); eauto.
+   + cut (~FreeT n t1_2); eauto.
 
  - Case "TSum".
    snorm. unfold not. intros.
    inverts H.
-   + cut (~freeT n t1_1); eauto.
-   + cut (~freeT n t1_2); eauto.
+   + cut (~FreeT n t1_1); eauto.
+   + cut (~FreeT n t1_2); eauto.
 
  - Case "TCon1".
    snorm. eauto.
@@ -264,8 +264,8 @@ Proof.
  - Case "TCon2".
    snorm. unfold not. intros.
    inverts H.
-   + cut (~freeT n t1_1); eauto.
-   + cut (~freeT n t1_2); eauto.
+   + cut (~FreeT n t1_1); eauto.
+   + cut (~FreeT n t1_2); eauto.
 Qed.
 Hint Resolve lowerTT_freeT.   
 

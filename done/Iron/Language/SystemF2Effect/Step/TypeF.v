@@ -31,7 +31,7 @@ Inductive
  | TfConsPriv
    :  forall ke te se sp fs t1 t2 e2 p
    ,  In (SRegion p) sp
-   -> noprivFs p fs
+   -> NoPrivFs p fs
    -> LiveE  fs e2
    -> TypeF  ke te se sp fs                   t1 t2 e2
    -> TypeF  ke te se sp (fs :> FPriv None p) t1 t2 e2
@@ -40,7 +40,7 @@ Inductive
    :  forall ke te se sp fs t0 t1 e2 p1 p2
    ,  In (SRegion p1) sp 
    -> In (SRegion p2) sp
-   -> freshFs     p2 fs
+   -> FreshFs     p2 fs
    -> freshSuppFs p2 se fs
    -> LiveE  fs (TSum e2 (TAlloc (TRgn p1)))
    -> TypeF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
@@ -104,7 +104,7 @@ Hint Resolve typeF_kindT_t2.
 Lemma typeF_coversFs
  :  forall ke te se sp fs t1 t2 e
  ,  TypeF  ke te se sp fs t1 t2 e
- -> coversFs se fs.
+ -> CoversFs se fs.
 Proof.
  intros. gen ke te se sp t1 t2 e.
  induction fs as [|f]; intros.
@@ -112,8 +112,8 @@ Proof.
  - eapply Forall_cons; eauto.
    + inverts H.
      * eapply typeX_coversX; eauto.
-     * unfold coversF; snorm.
-     * unfold coversF; snorm.
+     * unfold CoversF; snorm.
+     * unfold CoversF; snorm.
    + inverts H; eapply IHfs; eauto.
 Qed.
 
@@ -146,7 +146,7 @@ Lemma typeF_freshFs
  :  forall ke te se sp fs t1 t2 e p 
  ,  not (In (SRegion p) sp)
  -> TypeF ke te se sp fs t1 t2 e
- -> freshFs p fs.
+ -> FreshFs p fs.
 Proof.
  intros. gen ke te se sp t1 t2 e.
  induction fs; intros; auto.
@@ -197,7 +197,7 @@ Lemma typeF_allocRegion_noprivFs
  : forall ke te se sp fs t1 t2 e p
  ,  p = allocRegion sp
  -> TypeF ke te se sp fs t1 t2 e
- -> noprivFs p fs.
+ -> NoPrivFs p fs.
 Proof.
  intros.
  eapply freshFs_noprivFs.
@@ -210,7 +210,7 @@ Hint Resolve typeF_allocRegion_noprivFs.
 
 Lemma typeF_mergeTE
  :  forall ke te se sp fs t1 t2 e p1 p2
- ,  freshFs     p2 fs
+ ,  FreshFs     p2 fs
  -> freshFreeFs p2 te fs
  -> freshSuppFs p2 se fs
  -> TypeF ke te se sp fs t1 t2 e
@@ -227,11 +227,11 @@ Proof.
  { destruct f.
 
    - SCase "FLet".
-     have (freshFs p2 fs). rip.
+     have (FreshFs p2 fs). rip.
 
-     have HF: (freshF  p2 (FLet t e0))
+     have HF: (FreshF  p2 (FLet t e0))
       by (eapply freshFs_tail; eauto).
-     unfold freshF in HF. rip. 
+     unfold FreshF in HF. rip. 
 
      inverts H2.
      eapply TfConsLet; auto.

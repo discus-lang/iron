@@ -131,7 +131,7 @@ Proof.
    + rrwrite (S ix = 1 + ix + 0).
      erewrite maskOnVarT_substTT.
 
-     * have    (~freeT 0 (liftTT 1 0 t2)).
+     * have    (~FreeT 0 (liftTT 1 0 t2)).
 
        rrwrite (maskOnVarT 0 (liftTT 1 0 t2) = liftTT 1 0 t2)
         by (apply maskOnVarT_freeT_id; eauto).
@@ -139,7 +139,7 @@ Proof.
        rrwrite (1 + ix + 0 = 1 + 0 + ix).
        erewrite lowerTT_substTT_liftTT; eauto.
 
-     * have    (~freeT 0 (liftTT 1 0 t2)).
+     * have    (~FreeT 0 (liftTT 1 0 t2)).
        auto.
 
    + rewrite delete_rewind.
