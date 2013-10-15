@@ -298,7 +298,7 @@ Proof.
 
      (* After popping top FUse,
         all store bindings mentioned by frame stack are still live. *)
-     + eapply liveS_deallocate; eauto.
+     + eapply liveS_deallocRegion; eauto.
 
      (* New effect subsumes old one. *)
      + eapply subsT_subsVisibleT. 
@@ -442,7 +442,7 @@ Proof.
         by (subst p2; auto).
        eapply TfConsExt; eauto.
        * inverts_kind. eauto.
-       * eapply freshSuppFs_typeF; eauto.
+       * eapply typeF_freshSuppFs; eauto.
        * have (LiveE fs (TSum (TSum eL (TAlloc (TRgn p1))) e2))
           by (eapply liveE_equivT_left; eauto).
          eapply liveE_sum_above.
@@ -451,7 +451,7 @@ Proof.
           eapply liveE_sum_above_right in H4.
           trivial.
        * erewrite mergeT_substTT.
-         eapply typef_stprops_snoc. auto.
+         eapply typeF_stprops_snoc. auto.
          eauto. eauto.
   }
 

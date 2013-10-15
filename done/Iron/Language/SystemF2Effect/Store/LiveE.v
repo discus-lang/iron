@@ -3,32 +3,6 @@ Require Export Iron.Language.SystemF2Effect.Step.Frame.
 Require Export Iron.Language.SystemF2Effect.Store.Bind.
 
 
-(* TODO: shift this into Type utils module. *)
-Fixpoint handleOfEffect (e : ty) : option nat :=
- match e with
- | TCon1 tc (TRgn p)  => if isEffectTyCon_b tc then Some p else None
- | _                  => None
- end.
-
-
-Lemma handleOfEffect_form_some
- :  forall e p
- ,  handleOfEffect e = Some p
- -> exists tc
-     ,  e    = TCon1 tc (TRgn p) 
-     /\ true = isEffectTyCon_b tc.
-Proof.
- intros.
- destruct e; snorm.
- - destruct e; snorm. 
-   destruct t0; snorm.
-   exists t. rip.
- - destruct e; snorm.
-   destruct t0; snorm.
-Qed.
-Hint Resolve handleOfEffect_form_some.
-
-
 (********************************************************************)
 (* All region handles in this effect have corresponding 
    FUse frames in the frame stack. *)

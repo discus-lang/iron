@@ -7,14 +7,13 @@ Require Export Iron.Language.SystemF2Effect.Store.Bind.
    All types in the store typing have a corresponding binding in the store.
    We don't want entries in the store typing that don't have corresponding
    bindings in the store. *)
-
 Definition STOREM (se: stenv) (ss: store)
  := length se = length ss.
 Hint Unfold STOREM.
 
 
 (* Extended store environment models the extended store *)
-Lemma storem_snoc
+Lemma storeM_snoc
  :  forall se ss t stv
  ,  STOREM se ss
  -> STOREM (t <: se) (stv <: ss).
@@ -24,4 +23,4 @@ Proof.
  have (length se = length ss). 
  burn.
 Qed.
-Hint Resolve storem_snoc.
+Hint Resolve storeM_snoc.

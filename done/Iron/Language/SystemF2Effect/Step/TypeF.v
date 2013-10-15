@@ -60,7 +60,7 @@ Ltac inverts_typef :=
 
 
 (********************************************************************)
-Lemma typef_kind_effect
+Lemma typeF_kindT_effect
  :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
  -> KindT  ke sp e KEffect.
@@ -71,33 +71,33 @@ Proof.
  - eapply KiSum; auto.
    eapply KiCon1; snorm.
 Qed.
-Hint Resolve typef_kind_effect.
+Hint Resolve typeF_kindT_effect.
 
 
-Lemma typef_kind_wfT
+Lemma typeF_kindT_wfT
  :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
  -> WfT (length ke) e.
 Proof. eauto. Qed.
-Hint Resolve typef_kind_wfT.
+Hint Resolve typeF_kindT_wfT.
 
 
-Lemma typef_kind_t1
+Lemma typeF_kindT_t1
  :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
  -> KindT  ke sp t1 KData.
 Proof. 
  intros. induction H; eauto 2.
 Qed.
-Hint Resolve typef_kind_t1.
+Hint Resolve typeF_kindT_t1.
 
 
-Lemma typef_kind_t2
+Lemma typeF_kindT_t2
  :  forall ke te se sp fs t1 t2 e
  ,  TYPEF  ke te se sp fs t1 t2 e
  -> KindT  ke sp t2 KData.
 Proof. intros. induction H; auto. Qed.
-Hint Resolve typef_kind_t2.
+Hint Resolve typeF_kindT_t2.
 
 
 (********************************************************************)
@@ -134,15 +134,15 @@ Qed.
 Hint Resolve typeF_stenv_snoc.
 
 
-Lemma typef_stprops_snoc
+Lemma typeF_stprops_snoc
  :  forall ke te se sp fs t1 t2 p e
  ,  TYPEF  ke te se sp        fs t1 t2 e
  -> TYPEF  ke te se (p <: sp) fs t1 t2 e.
 Proof. intros. induction H; eauto. Qed.
-Hint Resolve typef_stprops_snoc.
+Hint Resolve typeF_stprops_snoc.
 
 
-Lemma freshFs_typeF
+Lemma typeF_freshFs
  :  forall ke te se sp fs t1 t2 e p 
  ,  not (In (SRegion p) sp)
  -> TYPEF ke te se sp fs t1 t2 e
@@ -173,10 +173,10 @@ Proof.
         rewrite beq_nat_false_iff.
         auto.
 Qed.
-Hint Resolve freshFs_typeF.
+Hint Resolve typeF_freshFs.
 
 
-Lemma freshSuppFs_typeF
+Lemma typeF_freshSuppFs
  :  forall ke te se sp fs t1 t2 e p
  ,  not (In (SRegion p) sp)
  -> TYPEF ke te se sp fs t1 t2 e
@@ -193,30 +193,6 @@ Proof.
 Qed.
 
 
-Lemma freshF_noprivF
- : forall p f
- , freshF p f -> noprivF p f.
-Proof.
- intros.
- destruct f.
- - snorm.
- - destruct o; snorm.
-Qed.
-Hint Resolve freshF_noprivF. 
-
-
-Lemma freshFs_noprivFs
- : forall  p fs
- , freshFs p fs -> noprivFs p fs.
-Proof.
- intros.
- induction fs.
- - unfold noprivFs. eauto.
- - unfold noprivFs. inverts H. firstorder.
-Qed.
-Hint Resolve freshFs_noprivFs.
-
-
 Lemma typeF_allocRegion_noprivFs
  : forall ke te se sp fs t1 t2 e p
  ,  p = allocRegion sp
@@ -225,43 +201,11 @@ Lemma typeF_allocRegion_noprivFs
 Proof.
  intros.
  eapply freshFs_noprivFs.
- eapply freshFs_typeF.
+ eapply typeF_freshFs.
  lets D: allocRegion_fresh sp.
  rewrite <- H in D. eauto. eauto.
 Qed.
 Hint Resolve typeF_allocRegion_noprivFs. 
-
-
-
-Lemma freshSuppF_mergeTE
- :  forall p1 p2 p3 te f
- ,  freshSuppF p1 te f
- -> freshSuppF p2 te f
- -> freshSuppF p2 (mergeTE p3 p1 te) f.
-Proof.
- intros.
- destruct f.
- - snorm.
-   eapply freshSuppX_mergeTE; auto.
- - eauto. 
-Qed.
-
-
-
-Lemma freshSuppFs_mergeTE
- :  forall p1 p2 p3 te fs
- ,  freshSuppFs p1 te fs
- -> freshSuppFs p2 te fs
- -> freshSuppFs p2 (mergeTE p3 p1 te) fs.
-Proof.
- intros.
- unfold freshSuppFs in *.
- induction fs; auto.
- inverts H.
- inverts H0. rip.
- eapply Forall_cons; auto.
- eapply freshSuppF_mergeTE; auto.
-Qed.
 
 
 Lemma typeF_mergeTE

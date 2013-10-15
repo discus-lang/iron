@@ -5,6 +5,7 @@ Require Export Iron.Language.SystemF2Effect.Step.Frame.
 Require Export Iron.Language.SystemF2Effect.Step.TypeF.
 
 
+(********************************************************************)
 (* Type of an expression in a frame context. *)
 Inductive TYPEC 
    :  kienv -> tyenv 
@@ -29,7 +30,8 @@ Ltac inverts_typec :=
    try inverts_typef).
 
 
-Lemma typec_kind_effect
+(********************************************************************)
+Lemma typeC_kindT_effect
  :  forall ke te se sp fs x t e
  ,  TYPEC  ke te se sp fs x t e
  -> KindT  ke sp e KEffect.

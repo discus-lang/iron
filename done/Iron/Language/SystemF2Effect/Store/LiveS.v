@@ -7,7 +7,6 @@ Require Export Iron.Language.SystemF2Effect.Step.FreshF.
 
 
 (********************************************************************)
-
 Definition LiveBP  (b : stbind) (p : nat) 
  := regionOfStBind b = p -> isStValue b.
 Hint Unfold LiveBP.
@@ -41,37 +40,6 @@ Definition LiveSF  (ss : store) (f : frame)
 Definition LiveS (ss : store) (fs : stack)
  := forall b f, In b ss -> In f fs -> LiveBF b f.
 Hint Unfold LiveS.
-
-
-Fixpoint noprivF (p : nat) (f : frame) {struct f} :=
- match f with
- | FLet t x               => True
- | FPriv None p1          => ~(p = p1)
- | FPriv (Some p1) p2     => ~(p = p1) /\ ~(p = p2)
- end.
-
-Definition noprivFs (p : nat) (fs : stack)
- := Forall (noprivF p) fs.
-
-
-Lemma noprivFs_head 
- :  forall p fs f
- ,  noprivFs p (fs :> f)
- -> noprivF  p f. 
-Proof.
- intros. inverts H. eauto.
-Qed.
-Hint Resolve noprivFs_head.
-
-
-Lemma noprivFs_tail
- :  forall p fs f
- ,  noprivFs p (fs :> f)
- -> noprivFs p fs. 
-Proof.
- intros. inverts H. eauto.
-Qed.
-Hint Resolve noprivFs_tail.
 
 
 (********************************************************************)
@@ -389,7 +357,6 @@ Qed.
 
 
 (********************************************************************)
-
 Lemma liveSF_dead_noprivF
  :  forall p ss f
  ,  LiveSF ss f
@@ -442,11 +409,11 @@ Qed.
 Hint Resolve liveS_dead_noprivFs.
 
 
-Lemma liveS_deallocate
+Lemma liveS_deallocRegion
  :  forall ss fs p
  ,  noprivFs p fs
  -> LiveS ss (fs :> FPriv None p)
- -> LiveS (map (deallocate p) ss) fs.
+ -> LiveS (map (deallocRegion p) ss) fs.
 Proof.
  intros.
  induction ss.

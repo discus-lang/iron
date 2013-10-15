@@ -116,10 +116,10 @@ Hint Resolve wfFS_push_priv_ext.
 
 
 (* Deallocating a region preserves well-formedness of the store. *)
-Lemma typeb_deallocate
+Lemma typeB_deallocate
  :  forall ke te se sp p b t
  ,  TYPEB  ke te se sp b t
- -> TYPEB  ke te se sp (deallocate p b) t.
+ -> TYPEB  ke te se sp (deallocRegion p b) t.
 Proof.
  intros.
  destruct b.
@@ -130,17 +130,18 @@ Qed.
 
 
 (* Deallocating bindings preserves the well typedness of the store. *)
-Lemma storet_deallocate
+Lemma storeT_deallocate
  :  forall se sp ss p
  ,  STORET se sp ss
- -> STORET se sp (map (deallocate p) ss).
+ -> STORET se sp (map (deallocRegion p) ss).
 Proof.
  intros.
  unfold STORET in *.
  eapply Forall2_map_left.
  eapply Forall2_impl.
-  intros.
-  eapply typeb_deallocate. eauto. auto.
+ - intros.
+    eapply typeB_deallocate. eauto. 
+ - auto.
 Qed.
 
 
@@ -149,13 +150,13 @@ Qed.
 Lemma wfFS_region_deallocate
  :  forall se sp ss fs p
  ,  WfFS se sp ss                     (fs :> FPriv None p)
- -> WfFS se sp (map (deallocate p) ss) fs.
+ -> WfFS se sp (map (deallocRegion p) ss) fs.
 Proof.
  intros.
  inverts H. eapply WfFS_; rip.
  - unfold STOREM in *.
    rewrite map_length; auto.
- - eapply storet_deallocate; auto.
+ - eapply storeT_deallocate; auto.
  - unfold STOREP in *; snorm; eauto.
 Qed.
 
@@ -181,7 +182,7 @@ Proof.
  - unfold STORET.
    eapply storeT_mergeB; auto.
    
- - eapply storep_pop; eauto.
+ - eapply storeP_pop; eauto.
 Qed.
 
 

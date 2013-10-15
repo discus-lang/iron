@@ -68,8 +68,8 @@ Inductive
  (* Pop the frame for a private region and delete it from the heap. *)
  | SfPrivatePop
    :  forall ss sp  fs v1 p
-   ,  STEPF  ss                      sp (fs :> FPriv None p) (XVal v1)
-             (map (deallocate p) ss) sp  fs                  (XVal v1)
+   ,  STEPF  ss                         sp (fs :> FPriv None p) (XVal v1)
+             (map (deallocRegion p) ss) sp  fs                  (XVal v1)
 
  (* Begin extending an existing region. *)
  | SfExtendPush
@@ -108,8 +108,9 @@ Inductive
 Hint Constructors STEPF.
 
 
+
 (********************************************************************)
-Lemma stepf_extends_stprops
+Lemma stepF_extends_stprops
  :  forall  ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
  ,  STEPF   ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
  -> extends sp2 sp1.

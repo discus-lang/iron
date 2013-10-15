@@ -37,6 +37,7 @@ Hint Constructors STEPP.
 
 
 (********************************************************************)
+(* Preservation for pure single step rules. *)
 Lemma stepp_preservation
  :  forall se sp x x' t e
  ,  STEPP  x x'

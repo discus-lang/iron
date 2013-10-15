@@ -45,7 +45,7 @@ Proof.
          eauto.
 
        * SSCase "FPriv top".
-         exists (map (deallocate p2) ss). 
+         exists (map (deallocRegion p2) ss). 
          exists sp. exists fs. exists (XVal v).
          eauto.
  }

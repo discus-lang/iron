@@ -33,6 +33,14 @@ Definition takeTApps (tt: ty) : (ty * list ty)
  := (takeTCon tt, takeTArgs tt).
 
 
+(* Take the region identifier from an effect, if any. *)
+Fixpoint handleOfEffect (e : ty) : option nat :=
+ match e with
+ | TCon1 tc (TRgn p)  => if isEffectTyCon_b tc then Some p else None
+ | _                  => None
+ end.
+
+
 (********************************************************************)
 Lemma makeTApps_snoc
  : forall t1 t2 t3 ts
@@ -106,4 +114,21 @@ Proof.
      eapply IHts; auto.
 Qed.
 
+
+Lemma handleOfEffect_form_some
+ :  forall e p
+ ,  handleOfEffect e = Some p
+ -> exists tc
+     ,  e    = TCon1 tc (TRgn p) 
+     /\ true = isEffectTyCon_b tc.
+Proof.
+ intros.
+ destruct e; snorm.
+ - destruct e; snorm. 
+   destruct t0; snorm.
+   exists t. rip.
+ - destruct e; snorm.
+   destruct t0; snorm.
+Qed.
+Hint Resolve handleOfEffect_form_some.
 

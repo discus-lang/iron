@@ -2,20 +2,27 @@
 Require Export Iron.Language.SystemF2Effect.Step.FreshF.
 
 
+(* Store location is mentioned in (supports) the given frame. *)
 Fixpoint suppF  (l : nat) (f : frame) {struct f} := 
  match f with
  | FLet t x   => suppX l x
  | FPriv _ _  => False
  end.
 
+(* Store location is mentioned in (supports) the given stack. *)
 Definition suppFs (l : nat) (fs : stack) 
  := exists f, In f fs /\ suppF l f.
 
 
+(* Store environment covers all locations mentioned in the given frame.
+   Alternatively: all locations in the given frame point to valid
+   entries in the store environment, *)
 Definition coversF  (se : stenv) (f  : frame)
  := forall l, suppF l f -> (exists t, get l se = Some t).
 Hint Unfold coversF.
 
+
+(* Store environment covers all locations mentioned in the given stack. *)
 Definition coversFs (se : stenv) (fs : stack)
  := Forall (coversF se) fs.
 Hint Unfold coversFs.
@@ -46,7 +53,7 @@ Qed.
 Hint Resolve coversFs_tail.
 
 
-Lemma freshSuppF_covered
+Lemma freshSuppF_coversF
  :  forall p se f t
  ,  coversF se f
  -> freshSuppF p se f
@@ -91,7 +98,6 @@ Proof.
    unfold freshSuppFs.
    eapply Forall_cons; auto.
    
-   eapply freshSuppF_covered; auto.
+   eapply freshSuppF_coversF; auto.
 Qed.
-
 

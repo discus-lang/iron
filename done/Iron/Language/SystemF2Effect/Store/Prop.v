@@ -23,12 +23,16 @@ Fixpoint regionOfStProp (s : stprop) : option nat :=
  end.
 
 
-Definition isSRegion (r : nat) (pp : stprop) : bool
- := match pp with
-    | SRegion r' => beq_nat r r'
-    end.
+(* Check if this is a store property with the given
+   region identifier. *)
+Definition isSRegion (r : nat) (pp : stprop) : bool := 
+ match pp with
+ | SRegion r' => beq_nat r r'
+ end.
 
 
+(* Check if any of the given store properties include this
+   region identifier *)
 Definition hasSRegion (r : nat) (sp : stprops) 
  := elem (isSRegion r) sp.
 

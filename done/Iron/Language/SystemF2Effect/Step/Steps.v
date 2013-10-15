@@ -46,11 +46,12 @@ Lemma steps_extends_stprops
 Proof.
  intros. 
  induction H. eauto.
- eapply stepf_extends_stprops in H.
+ eapply stepF_extends_stprops in H.
  eapply extends_trans; eauto.
 Qed.
 
 
+(* Preservation for multi-step evaluation. *)
 Lemma steps_preservation
  :  forall se  sp  ss  fs  x  
                sp' ss' fs' x'  
@@ -89,6 +90,6 @@ Proof.
        eauto.
 
      * have (extends sp2 sp1)
-        by (eapply stepf_extends_stprops; eauto).
+        by (eapply stepF_extends_stprops; eauto).
        eapply subsVisibleT_spVis_strengthen; eauto.
 Qed.

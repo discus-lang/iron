@@ -16,7 +16,7 @@ Definition STOREP  (sp : stprops) (fs : stack)
 
 
 (* Weaken frame stack in store properties. *)
-Lemma storep_snoc
+Lemma storeP_snoc
  :  forall sp fs p
  ,  STOREP sp fs
  -> STOREP (SRegion p <: sp) (fs :> FPriv None p).
@@ -28,20 +28,20 @@ Proof.
      inverts HN; eauto.
  - inverts H0; nope; eauto.
 Qed.
-Hint Resolve storep_snoc.
+Hint Resolve storeP_snoc.
 
 
-Lemma storep_stprops_snoc
+Lemma storeP_stprops_snoc
  :  forall sp fs p
  ,  STOREP sp fs
  -> STOREP (p <: sp) fs.
 Proof.
  unfold STOREP in *. rip; eauto.
 Qed.
-Hint Resolve storep_stprops_snoc.
+Hint Resolve storeP_stprops_snoc.
 
 
-Lemma storep_pop
+Lemma storeP_pop
  :  forall sp fs f
  ,  STOREP sp (fs :> f)
  -> STOREP sp fs.
@@ -50,4 +50,4 @@ Proof.
  unfold STOREP in *.
  firstorder.
 Qed.
-Hint Resolve storep_pop.
+Hint Resolve storeP_pop.
