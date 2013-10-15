@@ -53,14 +53,14 @@ Hint Unfold freshSuppX.
 Lemma freshX_typeX
  :  forall ke te se sp x t e  p
  ,  not (In (SRegion p) sp)
- -> TYPEX ke te se sp x t e
+ -> TypeX ke te se sp x t e
  -> freshX p x.
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with
   (PV := fun v => forall ke te se sp t
       ,  not (In (SRegion p) sp)
-      -> TYPEV ke te se sp v t
+      -> TypeV ke te se sp v t
       -> freshV p v);
   intros; inverts_type; 
   try (solve [simpl; rip; eauto]).
@@ -71,14 +71,14 @@ Hint Resolve freshX_typeX.
 Lemma freshT_typeX_type
  :  forall ke te se sp x t e p
  ,  not (In (SRegion p) sp)
- -> TYPEX ke te se sp x t e
+ -> TypeX ke te se sp x t e
  -> freshT p t.
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with 
   (PV := fun v => forall ke te se sp t
       ,  not (In (SRegion p) sp)
-      -> TYPEV ke te se sp v t
+      -> TypeV ke te se sp v t
       -> freshT p t); 
   intros; rip; eauto 3.
 Qed.
@@ -88,14 +88,14 @@ Hint Resolve freshT_typeX_type.
 Lemma freshT_typeX_effect
  :  forall ke te se sp x t e p
  ,  not (In (SRegion p) sp)
- -> TYPEX ke te se sp x t e
+ -> TypeX ke te se sp x t e
  -> freshT p e.
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with 
   (PV := fun v => forall ke te se sp t
       ,  not (In (SRegion p) sp)
-      -> TYPEV ke te se sp v t
+      -> TypeV ke te se sp v t
       -> freshT p t); 
   intros; rip; eauto 3.
 Qed.
@@ -348,14 +348,14 @@ Qed.
 Lemma freshSuppX_typeX
  :  forall ke te se sp x t e p
  ,  not (In (SRegion p) sp)
- -> TYPEX ke te se sp x t e
+ -> TypeX ke te se sp x t e
  -> freshSuppX p se x.
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with
   (PV := fun v => forall ke te se sp t
       ,  not (In (SRegion p) sp)
-      -> TYPEV ke te se sp v t
+      -> TypeV ke te se sp v t
       -> freshSuppV p se v); 
   intros; inverts_type;
   unfold freshSuppX in *;

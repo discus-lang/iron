@@ -16,9 +16,9 @@ Lemma progress
  :   forall se ss sp fs x1 t1 e1
  ,   WfFS   se sp ss fs
  ->  LiveS  ss fs -> LiveE fs e1
- ->  TYPEC  nil nil se sp fs x1 t1 e1
+ ->  TypeC  nil nil se sp fs x1 t1 e1
  ->  done fs x1
-  \/ (exists ss' sp' fs' x1', STEPF ss sp fs x1 ss' sp' fs' x1').
+  \/ (exists ss' sp' fs' x1', StepF ss sp fs x1 ss' sp' fs' x1').
 Proof.
  intros se ss sp fs x1 t1 e1 HW HLS HLE HC.
  gen t1 e1.
@@ -163,11 +163,11 @@ Proof.
    have (exists b, get l ss = Some b).
     dest b.
 
-   unfold STORET in *.
+   unfold StoreT in *.
 
    destruct b.
    (* Store binding contains a value. *)
-   - have HB: (TYPEB nil nil se sp (StValue n0 v) (TRef (TRgn n) t0))
+   - have HB: (TypeB nil nil se sp (StValue n0 v) (TRef (TRgn n) t0))
       by (eapply Forall2_get_get_same; eauto).
      inverts HB.
      exists (XVal v).
@@ -175,7 +175,7 @@ Proof.
     
    (* Store binding is dead, 
       can't happen due to binding liveness constraints LiveE/LiveE *)
-   - have HB: (TYPEB nil nil se sp (StDead n0)    (TRef (TRgn n) t0))
+   - have HB: (TypeB nil nil se sp (StDead n0)    (TRef (TRgn n) t0))
       by (eapply Forall2_get_get_same; eauto).
      inverts HB.
 
@@ -214,14 +214,14 @@ Proof.
 
      destruct b.
      (* Original binding contains a live value that can be overwritten. *)
-     + have HB: (TYPEB nil nil se sp (StValue n1 v) (TRef (TRgn n) t2))
+     + have HB: (TypeB nil nil se sp (StValue n1 v) (TRef (TRgn n) t2))
         by (eapply Forall2_get_get_same; eauto).
        inverts HB.
        eauto.
    
      (* Original binding is dead,
         can't happen due to binding liveness constraints. *)
-     + have HB: (TYPEB nil nil se sp (StDead n1)    (TRef (TRgn n) t2))
+     + have HB: (TypeB nil nil se sp (StDead n1)    (TRef (TRgn n) t2))
         by (eapply Forall2_get_get_same; eauto).
        inverts HB.
 

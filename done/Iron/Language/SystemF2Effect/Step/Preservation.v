@@ -10,14 +10,14 @@ Theorem preservation
  :  forall se sp sp' ss ss' fs fs' x x' t e
  ,  WfFS   se sp ss  fs
  -> LiveS ss fs -> LiveE  fs e
- -> TYPEC  nil nil se sp fs  x   t  e    
- -> STEPF  ss  sp  fs x  ss' sp' fs' x'   
+ -> TypeC  nil nil se sp fs  x   t  e    
+ -> StepF  ss  sp  fs x  ss' sp' fs' x'   
  -> (exists se' e'
     ,  WfFS  se' sp' ss' fs'
     /\ LiveS ss' fs'    
     /\ LiveE fs' e'
     /\ SubsVisibleT  nil sp' sp  e  e'
-    /\ TYPEC nil nil se' sp' fs' x' t e').
+    /\ TypeC nil nil se' sp' fs' x' t e').
 Proof.
  intros se sp sp' ss ss' fs fs' x x' t e.
  intros HH HLS HLE HC HS. 
@@ -52,7 +52,7 @@ Proof.
    
    (* Frame stack with new FLet frame is well formed. *)
    - inverts HH. split; auto.
-     unfold STOREP in *. rip.
+     unfold StoreP in *. rip.
      + inverts H3. nope. eauto.
      + inverts H3. nope. eauto.
     
@@ -84,7 +84,7 @@ Proof.
 
    (* Store is still well formed. *)
    - inverts HH. split; auto.
-     unfold STOREP in *. 
+     unfold StoreP in *. 
      rip; firstorder.  
 
    (* After popping top FLet frame, effects of result are still 
@@ -282,7 +282,7 @@ Proof.
 
    (* No regions in store. *)
    - inverts HH. rip. 
-     unfold STOREP in *. rip.
+     unfold StoreP in *. rip.
      have (In (FPriv None p) (fs :> FPriv None p)).
      have (In (SRegion p) nil) by firstorder.
      nope.
@@ -493,7 +493,7 @@ Proof.
      eapply SbSumAboveRight; eauto.
 
    (* Resulting state is well typed. *)
-   - SCase "TYPEC".
+   - SCase "TypeC".
      eapply TcExp
        with (t1 := mergeT p1 p2 t1)
             (e1 := TBot KEffect)

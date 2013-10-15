@@ -6,15 +6,15 @@ Require Import Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
    Checking an expression always returns a unique type an effect. *)
 Lemma typex_unique
  :  forall ke te se sp x t1 e1 t2 e2
- ,  TYPEX  ke te se sp x t1 e1
- -> TYPEX  ke te se sp x t2 e2
+ ,  TypeX  ke te se sp x t1 e1
+ -> TypeX  ke te se sp x t2 e2
  -> t1 = t2 /\ e1 = e2.
 Proof.
  intros. gen ke te se sp t1 e1 t2 e2.
  induction x using exp_mutind with 
   (PV := fun v1 => forall ke te se sp t1 t1'
-      ,  TYPEV ke te se sp v1 t1
-      -> TYPEV ke te se sp v1 t1'
+      ,  TypeV ke te se sp v1 t1
+      -> TypeV ke te se sp v1 t1'
       -> t1 = t1');
   intros; 
    try (solve [inverts_type; try congruence]);

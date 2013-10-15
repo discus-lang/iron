@@ -46,7 +46,7 @@ Hint Unfold LiveS.
 (* Liveness of regions *)
 Lemma liveBP_allocRegion
  :  forall se sp b t
- ,  TYPEB   nil nil se sp b t
+ ,  TypeB   nil nil se sp b t
  -> LiveBP  b (allocRegion sp).
 Proof.
  unfold LiveBP.

@@ -52,16 +52,16 @@ Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
 Lemma mergeX_typeX
  :  forall ke te se sp x t e p1 p2
  ,  In (SRegion p1) sp
- -> TYPEX ke te se sp x t e
- -> TYPEX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp 
+ -> TypeX ke te se sp x t e
+ -> TypeX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp 
           (mergeX p1 p2 x) (mergeT p1 p2 t) (mergeT p1 p2 e).
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with 
   (PV := fun v => forall ke te se sp t
       ,  In (SRegion p1) sp
-      -> TYPEV ke te se sp v t
-      -> TYPEV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp
+      -> TypeV ke te se sp v t
+      -> TypeV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp
                   (mergeV  p1 p2 v)  (mergeT  p1 p2 t)); 
   intros; inverts_type
    ; try (solve [snorm]).
@@ -179,8 +179,8 @@ Lemma mergeX_typeX_freshX
  ,  freshX     p2 x
  -> freshFreeX p2 te x
  -> freshSuppX p2 se x
- -> TYPEX ke te se sp x t e
- -> TYPEX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp x t e.
+ -> TypeX ke te se sp x t e
+ -> TypeX ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp x t e.
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with
@@ -188,8 +188,8 @@ Proof.
       ,  freshV     p2 v
       -> freshFreeV p2 te v
       -> freshSuppV p2 se v
-      -> TYPEV ke te se sp v t
-      -> TYPEV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp v t);
+      -> TypeV ke te se sp v t
+      -> TypeV ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp v t);
   intros; inverts_type; auto.
 
  - Case "XVar".

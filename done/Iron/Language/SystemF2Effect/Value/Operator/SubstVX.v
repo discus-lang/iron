@@ -62,17 +62,17 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
 Lemma subst_val_exp_ix
  :  forall ix ke te se sp x1 t1 e1 v2 t2
  ,  get  ix te = Some t2
- -> TYPEX ke te             se sp x1 t1 e1
- -> TYPEV ke (delete ix te) se sp v2 t2
- -> TYPEX ke (delete ix te) se sp (substVX ix v2 x1) t1 e1.
+ -> TypeX ke te             se sp x1 t1 e1
+ -> TypeV ke (delete ix te) se sp v2 t2
+ -> TypeX ke (delete ix te) se sp (substVX ix v2 x1) t1 e1.
 Proof.
  intros. gen ke te se sp t1 e1 v2 t2. gen ix.
  induction x1 using exp_mutind with 
   (PV := fun v1 => forall ix ke te se sp t1 t2 v2
       ,  get ix te = Some t2
-      -> TYPEV ke te             se sp v1 t1
-      -> TYPEV ke (delete ix te) se sp v2 t2
-      -> TYPEV ke (delete ix te) se sp (substVV ix v2 v1) t1)
+      -> TypeV ke te             se sp v1 t1
+      -> TypeV ke (delete ix te) se sp v2 t2
+      -> TypeV ke (delete ix te) se sp (substVV ix v2 v1) t1)
   ; intros; simpl; inverts_type; eauto.
 
  - Case "VVar".
@@ -132,9 +132,9 @@ Qed.
 
 Lemma subst_val_exp
  :  forall ke te se sp x1 t1 e1 v2 t2
- ,  TYPEX  ke (te :> t2) se sp x1                t1 e1
- -> TYPEV  ke te se         sp v2                t2
- -> TYPEX  ke te se         sp (substVX 0 v2 x1) t1 e1.
+ ,  TypeX  ke (te :> t2) se sp x1                t1 e1
+ -> TypeV  ke te se         sp v2                t2
+ -> TypeX  ke te se         sp (substVX 0 v2 x1) t1 e1.
 Proof.
  intros.
  rrwrite (te = delete 0 (te :> t2)). 

@@ -18,7 +18,7 @@ Inductive Steps
    :  forall ss1 sp1 fs1 x1
              ss2 sp2 fs2 x2
              ss3 sp3 fs3 x3 
-   ,  STEPF  ss1 sp1 fs1 x1  ss2 sp2 fs2 x2  
+   ,  StepF  ss1 sp1 fs1 x1  ss2 sp2 fs2 x2  
    -> Steps  ss2 sp2 fs2 x2  ss3 sp3 fs3 x3 
    -> Steps  ss1 sp1 fs1 x1  ss3 sp3 fs3 x3.
 
@@ -59,14 +59,14 @@ Lemma steps_preservation
  ,  WfFS   se  sp  ss  fs 
  -> LiveS  ss  fs  
  -> LiveE  fs  e 
- -> TYPEC  nil nil se  sp  fs  x   t   e
+ -> TypeC  nil nil se  sp  fs  x   t   e
  -> Steps  ss  sp  fs  x   ss' sp' fs' x'
  -> (exists se' e'
     ,  WfFS    se' sp' ss' fs' 
     /\ LiveS   ss' fs'
     /\ LiveE   fs' e'
     /\ SubsVisibleT nil sp' sp e e'
-    /\ TYPEC    nil nil se' sp' fs' x' t e').
+    /\ TypeC    nil nil se' sp' fs' x' t e').
 Proof.
  intros. gen se e.
  induction H3; intros.

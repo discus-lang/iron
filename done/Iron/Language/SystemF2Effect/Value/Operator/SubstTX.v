@@ -37,18 +37,18 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
 Lemma subst_type_exp_ix
  :  forall ix ke te se sp x1 t1 e1 t2 k2
  ,  get ix ke = Some k2
- -> TYPEX ke te se sp x1 t1 e1
+ -> TypeX ke te se sp x1 t1 e1
  -> KindT (delete ix ke) sp t2 k2
- -> TYPEX (delete ix ke)     (substTE ix t2 te)  (substTE ix t2 se) sp
+ -> TypeX (delete ix ke)     (substTE ix t2 te)  (substTE ix t2 se) sp
           (substTX ix t2 x1) (substTT ix t2 t1)  (substTT ix t2 e1).
 Proof.
  intros. gen ix ke te se sp t1 t2 e1. gen k2.
  induction x1 using exp_mutind with 
   (PV := fun v => forall ix ke te se sp t1 t2 k3
       ,  get ix ke = Some k3
-      -> TYPEV ke te se sp v t1
+      -> TypeV ke te se sp v t1
       -> KindT (delete ix ke) sp t2 k3
-      -> TYPEV (delete ix ke)   (substTE ix t2 te) (substTE ix t2 se) sp
+      -> TypeV (delete ix ke)   (substTE ix t2 te) (substTE ix t2 se) sp
                (substTV ix t2 v)(substTT ix t2 t1));
   intros; simpl; inverts_type; eauto.
 
@@ -197,9 +197,9 @@ Qed.
 
 Lemma subst_type_exp
  :  forall ke te se sp x1 t1 e1 t2 k2
- ,  TYPEX (ke :> k2) te se sp x1 t1 e1
+ ,  TypeX (ke :> k2) te se sp x1 t1 e1
  -> KindT  ke sp t2 k2
- -> TYPEX  ke (substTE 0 t2 te) (substTE 0 t2 se) sp
+ -> TypeX  ke (substTE 0 t2 te) (substTE 0 t2 se) sp
               (substTX 0 t2 x1) (substTT 0 t2 t1) (substTT 0 t2 e1).
 Proof.
  intros. 

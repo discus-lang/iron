@@ -7,43 +7,43 @@ Require Export Iron.Language.SystemF2Effect.Store.Bind.
 (********************************************************************)
 (* Small Step Evaluation (pure rules)
    These are pure transitions that don't depend on the store. *)
-Inductive STEPP : exp  -> exp -> Prop :=
+Inductive StepP : exp  -> exp -> Prop :=
 
  (* Value application. *)
  | SpAppSubst
    :  forall t11 x12 v2
-   ,  STEPP (XApp (VLam t11 x12) v2)
+   ,  StepP (XApp (VLam t11 x12) v2)
             (substVX 0 v2 x12)
 
  (* Type application. *)
  | SpAPPSubst
    :  forall k11 x12 t2      
-   ,  STEPP (XAPP (VLAM k11 x12) t2)
+   ,  StepP (XAPP (VLAM k11 x12) t2)
             (substTX 0 t2 x12)
 
  (* Take the successor of a natural. *)
  | SpSucc
    :  forall n
-   ,  STEPP (XOp1 OSucc (VConst (CNat n)))
+   ,  StepP (XOp1 OSucc (VConst (CNat n)))
             (XVal (VConst (CNat (S n))))
 
  (* Test a natural for zero. *)
  | SpIsZero
    :  forall n
-   ,  STEPP (XOp1 OIsZero (VConst (CNat n)))
+   ,  StepP (XOp1 OIsZero (VConst (CNat n)))
             (XVal (VConst (CBool (beq_nat n 0)))).
 
-Hint Constructors STEPP.
+Hint Constructors StepP.
 
 
 (********************************************************************)
 (* Preservation for pure single step rules. *)
 Lemma stepp_preservation
  :  forall se sp x x' t e
- ,  STEPP  x x'
+ ,  StepP  x x'
  -> Forall ClosedT se
- -> TYPEX  nil nil se sp x  t e
- -> TYPEX  nil nil se sp x' t e.
+ -> TypeX  nil nil se sp x  t e
+ -> TypeX  nil nil se sp x' t e.
 Proof.
  intros se sp x x' t e HS HC HT. gen t e.
  induction HS; intros; inverts_type; rip.

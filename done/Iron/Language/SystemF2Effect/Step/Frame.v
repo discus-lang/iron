@@ -33,7 +33,7 @@ Hint Unfold stack.
 (********************************************************************)
 (* Context sensitive reductions. *)
 Inductive 
- STEPF :  store -> stprops -> stack -> exp 
+ StepF :  store -> stprops -> stack -> exp 
        -> store -> stprops -> stack -> exp 
        -> Prop :=
 
@@ -41,20 +41,20 @@ Inductive
  (* Pure evaluation in a context. *)
  | SfStep
    :  forall ss sp fs x x'
-   ,  STEPP           x           x'
-   -> STEPF  ss sp fs x  ss sp fs x'
+   ,  StepP           x           x'
+   -> StepF  ss sp fs x  ss sp fs x'
 
  (* Let contexts ********************************)
  (* Push the continuation for a let-expression onto the stack. *)
  | SfLetPush
    :  forall ss sp fs t x1 x2
-   ,  STEPF  ss sp  fs               (XLet t x1 x2)
+   ,  StepF  ss sp  fs               (XLet t x1 x2)
              ss sp (fs :> FLet t x2)  x1
 
  (* Substitute value of the bound variable into the let body. *)
  | SfLetPop
    :  forall ss sp  fs t v1 x2
-   ,  STEPF  ss sp (fs :> FLet t x2) (XVal v1)
+   ,  StepF  ss sp (fs :> FLet t x2) (XVal v1)
              ss sp  fs               (substVX 0 v1 x2)
 
  (* Region operators ****************************)
@@ -62,57 +62,57 @@ Inductive
  | SfPrivatePush
    :  forall ss sp fs x p
    ,  p = allocRegion sp
-   -> STEPF  ss sp                       fs                  (XPrivate x)
+   -> StepF  ss sp                       fs                  (XPrivate x)
              ss (SRegion p <: sp)       (fs :> FPriv None p) (substTX 0 (TRgn p) x)
 
  (* Pop the frame for a private region and delete it from the heap. *)
  | SfPrivatePop
    :  forall ss sp  fs v1 p
-   ,  STEPF  ss                         sp (fs :> FPriv None p) (XVal v1)
+   ,  StepF  ss                         sp (fs :> FPriv None p) (XVal v1)
              (map (deallocRegion p) ss) sp  fs                  (XVal v1)
 
  (* Begin extending an existing region. *)
  | SfExtendPush
    :  forall ss sp fs x p1 p2
    ,  p2 = allocRegion sp
-   -> STEPF ss sp                  fs                        (XExtend (TRgn p1) x)
+   -> StepF ss sp                  fs                        (XExtend (TRgn p1) x)
             ss (SRegion p2 <: sp) (fs :> FPriv (Some p1) p2) (substTX 0 (TRgn p2) x)
 
  (* Pop the frame for a region extension and merge it with the existing one. *)
  | SfExtendPop
    :  forall ss sp fs p1 p2 v1
-   ,  STEPF  ss                      sp (fs :> FPriv (Some p1) p2) (XVal v1)
+   ,  StepF  ss                      sp (fs :> FPriv (Some p1) p2) (XVal v1)
              (map (mergeB p1 p2) ss) sp fs                   (XVal (mergeV p1 p2 v1))
 
  (* Store operators *****************************)
  (* Allocate a reference. *) 
  | SfStoreAlloc
    :  forall ss sp fs r1 v1
-   ,  STEPF  ss                    sp  fs (XAlloc (TRgn r1) v1)
+   ,  StepF  ss                    sp  fs (XAlloc (TRgn r1) v1)
              (StValue r1 v1 <: ss) sp  fs (XVal (VLoc (length ss)))
 
  (* Read from a reference. *)
  | SfStoreRead
    :  forall ss sp fs l v r
    ,  get l ss = Some (StValue r v)
-   -> STEPF ss                     sp  fs (XRead (TRgn r)  (VLoc l)) 
+   -> StepF ss                     sp  fs (XRead (TRgn r)  (VLoc l)) 
             ss                     sp  fs (XVal v)
 
  (* Write to a reference. *)
  | SfStoreWrite
    :  forall ss sp fs l r v1 v2 
    ,  get l ss = Some (StValue r v1)
-   -> STEPF  ss sp fs                 (XWrite (TRgn r) (VLoc l) v2)
+   -> StepF  ss sp fs                 (XWrite (TRgn r) (VLoc l) v2)
              (update l (StValue r v2) ss) sp fs (XVal (VConst CUnit)).
 
-Hint Constructors STEPF.
+Hint Constructors StepF.
 
 
 
 (********************************************************************)
 Lemma stepF_extends_stprops
  :  forall  ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
- ,  STEPF   ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
+ ,  StepF   ss1 sp1 fs1 x1  ss2 sp2 fs2 x2
  -> extends sp2 sp1.
 Proof.
  intros. 

@@ -12,29 +12,29 @@ Require Export Iron.Language.SystemF2Effect.Store.LiveE.
    The frame stack is like a continuation that takes an expression of
    a certain type and produces a new expression. *)
 Inductive
- TYPEF :  kienv -> tyenv 
+ TypeF :  kienv -> tyenv 
        -> stenv -> stprops 
        -> stack -> ty -> ty 
        -> ty -> Prop := 
  | TfNil 
    :  forall ke te se sp t
    ,  KindT  ke sp t KData
-   -> TYPEF  ke te se sp nil t t (TBot KEffect)
+   -> TypeF  ke te se sp nil t t (TBot KEffect)
 
  | TfConsLet
    :  forall ke te se sp fs t1 x2 t2 e2 t3 e3
    ,  KindT  ke sp t1 KData
-   -> TYPEX  ke (te :> t1) se sp                    x2 t2 e2
-   -> TYPEF  ke te         se sp fs                 t2 t3 e3
-   -> TYPEF  ke te         se sp (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)
+   -> TypeX  ke (te :> t1) se sp                    x2 t2 e2
+   -> TypeF  ke te         se sp fs                 t2 t3 e3
+   -> TypeF  ke te         se sp (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)
 
  | TfConsPriv
    :  forall ke te se sp fs t1 t2 e2 p
    ,  In (SRegion p) sp
    -> noprivFs p fs
    -> LiveE  fs e2
-   -> TYPEF  ke te se sp fs                   t1 t2 e2
-   -> TYPEF  ke te se sp (fs :> FPriv None p) t1 t2 e2
+   -> TypeF  ke te se sp fs                   t1 t2 e2
+   -> TypeF  ke te se sp (fs :> FPriv None p) t1 t2 e2
 
  | TfConsExt 
    :  forall ke te se sp fs t0 t1 e2 p1 p2
@@ -43,18 +43,18 @@ Inductive
    -> freshFs     p2 fs
    -> freshSuppFs p2 se fs
    -> LiveE  fs (TSum e2 (TAlloc (TRgn p1)))
-   -> TYPEF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
-   -> TYPEF  ke te se sp (fs :> FPriv (Some p1) p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
+   -> TypeF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
+   -> TypeF  ke te se sp (fs :> FPriv (Some p1) p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
 
-Hint Constructors TYPEF.
+Hint Constructors TypeF.
 
 
 (* Invert all hypothesis that are compound typing statements. *)
 Ltac inverts_typef :=
  repeat (try 
   (match goal with 
-   | [ H: TYPEF _ _ _ _ (_ :> FLet  _ _) _ _ _ |- _ ] => inverts H
-   | [ H: TYPEF _ _ _ _ (_ :> FPriv _ _) _ _ _ |- _ ] => inverts H
+   | [ H: TypeF _ _ _ _ (_ :> FLet  _ _) _ _ _ |- _ ] => inverts H
+   | [ H: TypeF _ _ _ _ (_ :> FPriv _ _) _ _ _ |- _ ] => inverts H
    end); 
  try inverts_type).
 
@@ -62,7 +62,7 @@ Ltac inverts_typef :=
 (********************************************************************)
 Lemma typeF_kindT_effect
  :  forall ke te se sp fs t1 t2 e
- ,  TYPEF  ke te se sp fs t1 t2 e
+ ,  TypeF  ke te se sp fs t1 t2 e
  -> KindT  ke sp e KEffect.
 Proof.
  intros.
@@ -76,7 +76,7 @@ Hint Resolve typeF_kindT_effect.
 
 Lemma typeF_kindT_wfT
  :  forall ke te se sp fs t1 t2 e
- ,  TYPEF  ke te se sp fs t1 t2 e
+ ,  TypeF  ke te se sp fs t1 t2 e
  -> WfT (length ke) e.
 Proof. eauto. Qed.
 Hint Resolve typeF_kindT_wfT.
@@ -84,7 +84,7 @@ Hint Resolve typeF_kindT_wfT.
 
 Lemma typeF_kindT_t1
  :  forall ke te se sp fs t1 t2 e
- ,  TYPEF  ke te se sp fs t1 t2 e
+ ,  TypeF  ke te se sp fs t1 t2 e
  -> KindT  ke sp t1 KData.
 Proof. 
  intros. induction H; eauto 2.
@@ -94,7 +94,7 @@ Hint Resolve typeF_kindT_t1.
 
 Lemma typeF_kindT_t2
  :  forall ke te se sp fs t1 t2 e
- ,  TYPEF  ke te se sp fs t1 t2 e
+ ,  TypeF  ke te se sp fs t1 t2 e
  -> KindT  ke sp t2 KData.
 Proof. intros. induction H; auto. Qed.
 Hint Resolve typeF_kindT_t2.
@@ -103,7 +103,7 @@ Hint Resolve typeF_kindT_t2.
 (********************************************************************)
 Lemma typeF_coversFs
  :  forall ke te se sp fs t1 t2 e
- ,  TYPEF  ke te se sp fs t1 t2 e
+ ,  TypeF  ke te se sp fs t1 t2 e
  -> coversFs se fs.
 Proof.
  intros. gen ke te se sp t1 t2 e.
@@ -121,8 +121,8 @@ Qed.
 Lemma typeF_stenv_snoc
  :  forall ke te se sp fs t1 t2 t3 e
  ,  ClosedT t3
- -> TYPEF ke te se         sp fs t1 t2 e
- -> TYPEF ke te (t3 <: se) sp fs t1 t2 e.
+ -> TypeF ke te se         sp fs t1 t2 e
+ -> TypeF ke te (t3 <: se) sp fs t1 t2 e.
 Proof. 
  intros.
  induction H0; eauto. 
@@ -136,8 +136,8 @@ Hint Resolve typeF_stenv_snoc.
 
 Lemma typeF_stprops_snoc
  :  forall ke te se sp fs t1 t2 p e
- ,  TYPEF  ke te se sp        fs t1 t2 e
- -> TYPEF  ke te se (p <: sp) fs t1 t2 e.
+ ,  TypeF  ke te se sp        fs t1 t2 e
+ -> TypeF  ke te se (p <: sp) fs t1 t2 e.
 Proof. intros. induction H; eauto. Qed.
 Hint Resolve typeF_stprops_snoc.
 
@@ -145,7 +145,7 @@ Hint Resolve typeF_stprops_snoc.
 Lemma typeF_freshFs
  :  forall ke te se sp fs t1 t2 e p 
  ,  not (In (SRegion p) sp)
- -> TYPEF ke te se sp fs t1 t2 e
+ -> TypeF ke te se sp fs t1 t2 e
  -> freshFs p fs.
 Proof.
  intros. gen ke te se sp t1 t2 e.
@@ -179,7 +179,7 @@ Hint Resolve typeF_freshFs.
 Lemma typeF_freshSuppFs
  :  forall ke te se sp fs t1 t2 e p
  ,  not (In (SRegion p) sp)
- -> TYPEF ke te se sp fs t1 t2 e
+ -> TypeF ke te se sp fs t1 t2 e
  -> freshSuppFs p se fs.
 Proof.
  intros. gen ke te se sp t1 t2 e.
@@ -196,7 +196,7 @@ Qed.
 Lemma typeF_allocRegion_noprivFs
  : forall ke te se sp fs t1 t2 e p
  ,  p = allocRegion sp
- -> TYPEF ke te se sp fs t1 t2 e
+ -> TypeF ke te se sp fs t1 t2 e
  -> noprivFs p fs.
 Proof.
  intros.
@@ -213,8 +213,8 @@ Lemma typeF_mergeTE
  ,  freshFs     p2 fs
  -> freshFreeFs p2 te fs
  -> freshSuppFs p2 se fs
- -> TYPEF ke te se sp fs t1 t2 e
- -> TYPEF ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp fs t1 t2 e.
+ -> TypeF ke te se sp fs t1 t2 e
+ -> TypeF ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp fs t1 t2 e.
 Proof.
  intros. gen ke te se sp t1 t2 e. gen p1 p2.
  induction fs as [|f]; intros.

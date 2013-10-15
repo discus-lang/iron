@@ -5,24 +5,24 @@ Require Export Iron.Language.SystemF2Effect.Store.TypeB.
 (********************************************************************)
 (* Well typed store.
    All bindings are well typed. *)
-Definition STORET' (sec : stenv) (se: stenv) (sp: stprops) (ss: store)
- := Forall2 (TYPEB nil nil sec sp) ss se.
-Hint Unfold STORET'.
+Definition StoreT' (sec : stenv) (se: stenv) (sp: stprops) (ss: store)
+ := Forall2 (TypeB nil nil sec sp) ss se.
+Hint Unfold StoreT'.
 
-Definition STORET  (se  : stenv) (sp : stprops) (ss : store)
- := STORET' se se sp ss.
-Hint Unfold STORET.
+Definition StoreT  (se  : stenv) (sp : stprops) (ss : store)
+ := StoreT' se se sp ss.
+Hint Unfold StoreT.
 
 
 (********************************************************************)
 Lemma storeT_mergeB
  :  forall  sec se sp ss p1 p2
  ,  In (SRegion p1) sp
- -> STORET' sec se sp ss
- -> STORET' (mergeTE p1 p2 sec) (mergeTE p1 p2 se) sp (mergeBs p1 p2 ss).
+ -> StoreT' sec se sp ss
+ -> StoreT' (mergeTE p1 p2 sec) (mergeTE p1 p2 se) sp (mergeBs p1 p2 ss).
 Proof.
  intros.
- unfold STORET' in *.
+ unfold StoreT' in *.
  induction H0.
  - snorm.
  - simpl. eapply Forall2_cons.
@@ -35,11 +35,11 @@ Qed.
 (* Weaken store properties in store typing judgement. *)
 Lemma storeT_weak_stprops
  :  forall se sp ss p
- ,  STORET se sp ss
- -> STORET se (SRegion p <: sp) ss.
+ ,  StoreT se sp ss
+ -> StoreT se (SRegion p <: sp) ss.
 Proof.
  intros.
- unfold STORET in *.
+ unfold StoreT in *.
  eapply Forall2_impl.
  - intros. eapply typeB_stprops_snoc. eauto.
  - auto.
@@ -51,7 +51,7 @@ Hint Resolve storeT_weak_stprops.
    in the store properties. *)
 Lemma storeT_handles_in_stprops
  :  forall se sp ss
- ,  STORET se sp ss
+ ,  StoreT se sp ss
  -> Forall (fun s => forall p
                   ,  regionOfStBind s = p 
                   -> In (SRegion p) sp) 
@@ -59,10 +59,10 @@ Lemma storeT_handles_in_stprops
 Proof.
  intros.
  snorm.
- unfold STORET in *.
+ unfold StoreT in *.
  have (exists ix, get ix ss = Some x).
   dest ix.
- have (exists t, TYPEB nil nil se sp x t).
+ have (exists t, TypeB nil nil se sp x t).
   dest t.
  inverts H3.
  - snorm. subst. inverts_kind. auto.
@@ -75,14 +75,14 @@ Qed.
 Lemma storeT_snoc
  :  forall se sp ss r1 v1 t2
  ,  KindT  nil sp (TRgn r1) KRegion
- -> TYPEV  nil nil se sp v1 t2
- -> STORET                       se  sp                   ss
- -> STORET (TRef (TRgn r1) t2 <: se) sp (StValue r1 v1 <: ss).
+ -> TypeV  nil nil se sp v1 t2
+ -> StoreT                       se  sp                   ss
+ -> StoreT (TRef (TRgn r1) t2 <: se) sp (StValue r1 v1 <: ss).
 Proof.
  intros.
  set (tRef' := TRef (TRgn r1) t2).
 
- assert (TYPEB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
+ assert (TypeB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
  { apply TbValue; auto.
    - apply typev_stenv_snoc.
      subst tRef'.
@@ -95,17 +95,17 @@ Proof.
        auto. auto. auto.
  }
 
- assert (Forall2 (TYPEB nil nil (tRef' <: se) sp) ss se).
+ assert (Forall2 (TypeB nil nil (tRef' <: se) sp) ss se).
  { lets D: (@Forall2_impl stbind ty) 
-                (TYPEB nil nil se sp) 
-                (TYPEB nil nil (tRef' <: se) sp)
+                (TypeB nil nil se sp) 
+                (TypeB nil nil (tRef' <: se) sp)
                 ss se H1.
    intros.
    apply typeB_stenv_snoc. auto. subst tRef'. eauto.
    auto.
  }
 
- unfold STORET.
+ unfold StoreT.
  auto.
 Qed.
 Hint Resolve storeT_snoc.

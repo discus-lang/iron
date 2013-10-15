@@ -38,13 +38,13 @@ Hint Unfold coversV.
 
 Lemma typeX_coversX
  :  forall ke te se sp x t e
- ,  TYPEX  ke te se sp x t e
+ ,  TypeX  ke te se sp x t e
  -> coversX se x.
 Proof.
  intros. gen ke te se sp t e.
  induction x using exp_mutind with
   (PV := fun v => forall ke te se sp t
-      ,  TYPEV ke te se sp v t
+      ,  TypeV ke te se sp v t
       -> coversV se v); intros;
   try (solve [inverts_type; 
              unfold coversV in *; snorm;

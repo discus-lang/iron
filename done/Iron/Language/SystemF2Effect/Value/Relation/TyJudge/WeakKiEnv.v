@@ -6,15 +6,15 @@ Require Import Iron.Language.SystemF2Effect.Value.Relation.TyJudge.
 (* Weakening Kind Env in Type Judgement. *)
 Lemma type_kienv_insert
  :  forall ke te se sp x1 t1 e1 k2 ix
- ,  TYPEX  ke te se sp x1 t1 e1
- -> TYPEX (insert ix k2 ke) (liftTE ix te)   (liftTE ix se)   sp
+ ,  TypeX  ke te se sp x1 t1 e1
+ -> TypeX (insert ix k2 ke) (liftTE ix te)   (liftTE ix se)   sp
           (liftTX ix x1)    (liftTT 1 ix t1) (liftTT 1 ix e1).
 Proof.
  intros. gen ix ke te se sp t1 e1 k2.
  induction x1 using exp_mutind with 
   (PV := fun v => forall ix ke te se sp k2 t3
-               ,  TYPEV ke te se sp v t3
-               -> TYPEV (insert ix k2 ke) (liftTE ix te)   (liftTE ix se) sp
+               ,  TypeV ke te se sp v t3
+               -> TypeV (insert ix k2 ke) (liftTE ix te)   (liftTE ix se) sp
                         (liftTV ix v)     (liftTT 1 ix t3));
    intros; inverts_type.
 
@@ -146,8 +146,8 @@ Qed.
 
 Lemma type_kienv_weaken1
  :  forall ke te se sp x1 t1 e1 k2
- ,  TYPEX  ke te se sp x1 t1 e1
- -> TYPEX (ke :> k2)    (liftTE 0 te)   (liftTE 0 se)   sp
+ ,  TypeX  ke te se sp x1 t1 e1
+ -> TypeX (ke :> k2)    (liftTE 0 te)   (liftTE 0 se)   sp
           (liftTX 0 x1) (liftTT 1 0 t1) (liftTT 1 0 e1).
 Proof.
  intros.
@@ -160,12 +160,12 @@ Qed.
 
 Lemma typev_kienv_weaken1
  :  forall ke te se sp v1 t1 k2
- ,  TYPEV  ke te se sp v1 t1
- -> TYPEV (ke :> k2)    (liftTE 0 te) (liftTE 0 se) sp
+ ,  TypeV  ke te se sp v1 t1
+ -> TypeV (ke :> k2)    (liftTE 0 te) (liftTE 0 se) sp
           (liftTV 0 v1) (liftTT 1 0 t1).
 Proof.
  intros.
- have HX: (TYPEX ke te se sp (XVal v1) t1 (TBot KEffect)).
+ have HX: (TypeX ke te se sp (XVal v1) t1 (TBot KEffect)).
  eapply type_kienv_weaken1 in HX.
  simpl in HX.
  inverts HX. eauto.

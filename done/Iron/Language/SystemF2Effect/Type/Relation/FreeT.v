@@ -6,7 +6,7 @@ Require Import Coq.Bool.Bool.
 
 (********************************************************************)
 (* Type variable is free in type *)
-Fixpoint freeT (n : nat) (tt: ty)  {struct tt} := 
+Fixpoint freeT (n : nat) (tt : ty) {struct tt} := 
  match tt with
  | TVar ix        => n = ix
  | TForall k t    => freeT (S n) t
