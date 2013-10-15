@@ -102,7 +102,7 @@ Hint Resolve freshFs_noprivFs.
 (*********************************************************************)
 (* Region identifier is not mentioned in the types of the free variables
    of the given stack frame. *)
-Fixpoint   freshFreeF (p : nat) (te : tyenv) (f : frame) {struct f} :=
+Fixpoint   FreshFreeF (p : nat) (te : tyenv) (f : frame) {struct f} :=
  match f with
  | FLet t x       => FreshFreeX p (te :> t) x
  | FPriv _ _      => True
@@ -111,15 +111,15 @@ Fixpoint   freshFreeF (p : nat) (te : tyenv) (f : frame) {struct f} :=
 
 (* Region identifier is not mentioned in the types of the free variables
    of the given stack. *)
-Definition freshFreeFs (p : nat) (te : tyenv) (fs : stack)
- := Forall (freshFreeF p te) fs.
-Hint Unfold freshFreeFs.
+Definition FreshFreeFs (p : nat) (te : tyenv) (fs : stack)
+ := Forall (FreshFreeF p te) fs.
+Hint Unfold FreshFreeFs.
 
 
 Lemma freshFreeF_nil
  :  forall p f
  ,  FreshF p f
- -> freshFreeF p nil f.
+ -> FreshFreeF p nil f.
 Proof.
  intros.
  destruct f; snorm.
@@ -130,7 +130,7 @@ Hint Resolve freshFreeF_nil.
 Lemma freshFreeFs_nil
  :  forall p fs
  ,  FreshFs p fs
- -> freshFreeFs p nil fs.
+ -> FreshFreeFs p nil fs.
 Proof.
  intros.
  induction fs; eauto.
@@ -141,8 +141,8 @@ Hint Resolve freshFreeFs_nil.
 
 Lemma freshFreeFs_tail
  :  forall p te fs f
- ,  freshFreeFs p te (fs :> f)
- -> freshFreeFs p te fs.
+ ,  FreshFreeFs p te (fs :> f)
+ -> FreshFreeFs p te fs.
 Proof.
  intros.
  inverts H. auto.
@@ -153,7 +153,7 @@ Hint Resolve freshFreeFs_tail.
 (********************************************************************)
 (* Region identifier is not mentioned in the types of the locations
    used in the given stack frame. *)
-Fixpoint  freshSuppF   (p : nat) (se : stenv) (f : frame) {struct f} :=
+Fixpoint  FreshSuppF   (p : nat) (se : stenv) (f : frame) {struct f} :=
  match f with
  | FLet  t x      => FreshSuppX p se x
  | FPriv _ _      => True
@@ -162,15 +162,15 @@ Fixpoint  freshSuppF   (p : nat) (se : stenv) (f : frame) {struct f} :=
 
 (* Region identifier is not mentioned in the types of the locations
    used in the given stack. *)
-Definition freshSuppFs p2 se fs 
- := Forall (freshSuppF p2 se) fs.
-Hint Unfold freshSuppFs.
+Definition FreshSuppFs p2 se fs 
+ := Forall (FreshSuppF p2 se) fs.
+Hint Unfold FreshSuppFs.
 
 
 Lemma freshSuppFs_tail
  :  forall p te fs f
- ,  freshSuppFs p te (fs :> f)
- -> freshSuppFs p te fs.
+ ,  FreshSuppFs p te (fs :> f)
+ -> FreshSuppFs p te fs.
 Proof.
  intros.
  inverts H. auto.
@@ -180,8 +180,8 @@ Hint Resolve freshSuppFs_tail.
 
 Lemma freshSuppFs_head
  :  forall p te fs f
- ,  freshSuppFs p te (fs :> f)
- -> freshSuppF  p te f.
+ ,  FreshSuppFs p te (fs :> f)
+ -> FreshSuppF  p te f.
 Proof.
  intros.
  inverts H. auto.
@@ -191,9 +191,9 @@ Hint Resolve freshSuppFs_head.
 
 Lemma freshSuppF_mergeTE
  :  forall p1 p2 p3 te f
- ,  freshSuppF p1 te f
- -> freshSuppF p2 te f
- -> freshSuppF p2 (mergeTE p3 p1 te) f.
+ ,  FreshSuppF p1 te f
+ -> FreshSuppF p2 te f
+ -> FreshSuppF p2 (mergeTE p3 p1 te) f.
 Proof.
  intros.
  destruct f.
@@ -205,12 +205,12 @@ Qed.
 
 Lemma freshSuppFs_mergeTE
  :  forall p1 p2 p3 te fs
- ,  freshSuppFs p1 te fs
- -> freshSuppFs p2 te fs
- -> freshSuppFs p2 (mergeTE p3 p1 te) fs.
+ ,  FreshSuppFs p1 te fs
+ -> FreshSuppFs p2 te fs
+ -> FreshSuppFs p2 (mergeTE p3 p1 te) fs.
 Proof.
  intros.
- unfold freshSuppFs in *.
+ unfold FreshSuppFs in *.
  induction fs; auto.
  inverts H.
  inverts H0. rip.

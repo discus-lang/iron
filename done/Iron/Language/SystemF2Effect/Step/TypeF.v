@@ -41,7 +41,7 @@ Inductive
    ,  In (SRegion p1) sp 
    -> In (SRegion p2) sp
    -> FreshFs     p2 fs
-   -> freshSuppFs p2 se fs
+   -> FreshSuppFs p2 se fs
    -> LiveE  fs (TSum e2 (TAlloc (TRgn p1)))
    -> TypeF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
    -> TypeF  ke te se sp (fs :> FPriv (Some p1) p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
@@ -180,7 +180,7 @@ Lemma typeF_freshSuppFs
  :  forall ke te se sp fs t1 t2 e p
  ,  not (In (SRegion p) sp)
  -> TypeF ke te se sp fs t1 t2 e
- -> freshSuppFs p se fs.
+ -> FreshSuppFs p se fs.
 Proof.
  intros. gen ke te se sp t1 t2 e.
  induction fs as [|f]; intros; auto.
@@ -211,8 +211,8 @@ Hint Resolve typeF_allocRegion_noprivFs.
 Lemma typeF_mergeTE
  :  forall ke te se sp fs t1 t2 e p1 p2
  ,  FreshFs     p2 fs
- -> freshFreeFs p2 te fs
- -> freshSuppFs p2 se fs
+ -> FreshFreeFs p2 te fs
+ -> FreshSuppFs p2 se fs
  -> TypeF ke te se sp fs t1 t2 e
  -> TypeF ke (mergeTE p1 p2 te) (mergeTE p1 p2 se) sp fs t1 t2 e.
 Proof.
@@ -246,7 +246,7 @@ Proof.
      * eapply TfConsPriv; auto.
        eapply IHfs; eauto. 
      * eapply TfConsExt; eauto.
-       have (freshSuppFs p2 se fs).
+       have (FreshSuppFs p2 se fs).
        eapply freshSuppFs_mergeTE; auto.     
  }
 Qed.

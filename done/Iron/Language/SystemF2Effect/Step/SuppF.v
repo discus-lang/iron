@@ -56,8 +56,8 @@ Hint Resolve coversFs_tail.
 Lemma freshSuppF_coversF
  :  forall p se f t
  ,  CoversF se f
- -> freshSuppF p se f
- -> freshSuppF p (t <: se) f.
+ -> FreshSuppF p se f
+ -> FreshSuppF p (t <: se) f.
 Proof.
  intros.
  unfold CoversF in *.
@@ -82,8 +82,8 @@ Qed.
 Lemma freshSuppFs_coveredFs
  :  forall p se fs t
  ,  CoversFs se fs
- -> freshSuppFs p se fs
- -> freshSuppFs p (t <: se) fs.
+ -> FreshSuppFs p se fs
+ -> FreshSuppFs p (t <: se) fs.
 Proof.
  intros. 
 
@@ -91,11 +91,11 @@ Proof.
  - snorm.
  - have (CoversF  se f).
    have (CoversFs se fs).
-   have (freshSuppFs p se fs).
-   have (freshSuppF  p se f).
+   have (FreshSuppFs p se fs).
+   have (FreshSuppF  p se f).
    rip.
     
-   unfold freshSuppFs.
+   unfold FreshSuppFs.
    eapply Forall_cons; auto.
    
    eapply freshSuppF_coversF; auto.
