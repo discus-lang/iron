@@ -535,6 +535,7 @@ Proof.
      subst r.
 
      eapply wfFS_stbind_snoc; auto.
+     inverts_kind. auto.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)
@@ -608,6 +609,7 @@ Proof.
    (* Resulting store is well formed. *)
    - inverts_type.
      eapply wfFS_stbind_update; eauto.
+     inverts_kind; auto.
 
    (* All store bindings mentioned by frame stack are still live. *)
    - eapply liveS_stvalue_update.

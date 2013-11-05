@@ -10,7 +10,7 @@ Inductive TypeB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
     mentioned in the store properties. *)
  | TbValue
    :  forall ke te se sp p v t
-   ,  KindT  ke sp (TRgn p) KRegion
+   ,  In (SRegion p) sp
    -> TypeV  ke te se sp v t
    -> TypeB  ke te se sp (StValue p v) (TRef (TRgn p) t)
 
@@ -20,7 +20,7 @@ Inductive TypeB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
     so there is no opportunity to treat it has having the wrong type. *)
  | TbDead 
    :  forall ke te se sp p t
-   ,  KindT  ke sp (TRgn p) KRegion
+   ,  In (SRegion p) sp
    -> TypeB  ke te se sp (StDead p)    (TRef (TRgn p) t).
 
 Hint Constructors TypeB.

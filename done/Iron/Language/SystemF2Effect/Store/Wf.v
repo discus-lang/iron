@@ -99,18 +99,17 @@ Hint Resolve wfFS_push_priv_top.
    of the store. *)
 Lemma wfFS_push_priv_ext
  :  forall se sp ss fs p1 p2
- ,  KindT nil sp (TRgn p1) KRegion
- -> In (SRegion p1) sp
+ ,  In (SRegion p1) sp
  -> WfFS  se  sp ss fs
  -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FPriv (Some p1) p2).
 Proof.
  intros.
- inverts H1. eapply WfFS_; rip.
+ inverts H0. eapply WfFS_; rip.
  unfold StoreP in *. rip.
- - inverts H1; eauto. 
-   inverts H5. eauto.
- - inverts H1; eauto.
-   inverts H5; eauto.
+ - inverts H0; eauto. 
+   inverts H4. eauto.
+ - inverts H0; eauto.
+   inverts H4; eauto.
 Qed. 
 Hint Resolve wfFS_push_priv_ext.
 
@@ -190,27 +189,16 @@ Qed.
    well formedness. *)
 Lemma wfFS_stbind_snoc
  :  forall se sp ss fs p v t
- ,  KindT  nil sp (TRgn p) KRegion
+ ,  In (SRegion p) sp
  -> TypeV  nil nil se sp v t
  -> WfFS           se sp ss fs
  -> WfFS   (TRef (TRgn p) t <: se) sp 
            (StValue p v <: ss) fs.
 Proof.
  intros.
- inverts H1. eapply WfFS_; rip.
- inverts_kind.
- snorm.
- rrwrite ( TRef (TRgn p) t <: se
-        = (TRef (TRgn p) t <: nil) >< se) in H.
- apply in_app_split in H.
- inverts H.
- - snorm.
- - snorm.
-   inverts H1.
-   + have (ClosedT t).
-     have (ClosedT (TRgn p)).
-     eauto.
-   + nope.
+ inverts H1.
+ eapply WfFS_; rip.
+ eapply Forall_snoc; eauto.
 Qed.
 
 
@@ -218,7 +206,7 @@ Qed.
 Lemma wfFS_stbind_update
  :  forall se sp ss fs l p v t
  ,  get l se = Some (TRef (TRgn p) t)
- -> KindT nil sp (TRgn p) KRegion
+ -> In (SRegion p) sp
  -> TypeV nil nil se sp v t
  -> WfFS se sp ss fs
  -> WfFS se sp (update l (StValue p v) ss) fs.

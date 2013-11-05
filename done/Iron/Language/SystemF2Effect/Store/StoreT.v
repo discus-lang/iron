@@ -74,7 +74,7 @@ Qed.
 (* Extended store is well typed under extended store environment *)
 Lemma storeT_snoc
  :  forall se sp ss p1 v1 t2
- ,  KindT  nil sp (TRgn p1) KRegion
+ ,  In (SRegion p1) sp
  -> TypeV  nil nil se sp v1 t2
  -> StoreT                       se  sp                   ss
  -> StoreT (TRef (TRgn p1) t2 <: se) sp (StValue p1 v1 <: ss).
