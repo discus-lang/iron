@@ -40,8 +40,8 @@ Hint Resolve noprivFs_tail.
 Fixpoint FreshF (p : nat) (ff : frame) {struct ff} :=
  match ff with
  | FLet  t x           => FreshT p t /\ FreshX p x
- | FPriv None      p2  => beq_nat p p2 = false
- | FPriv (Some p1) p2  => beq_nat p p1 = false /\ beq_nat p p2 = false
+ | FPriv None      p2  => ~(p = p2)
+ | FPriv (Some p1) p2  => ~(p = p1)  /\ ~(p = p2)
  end.
 
 

@@ -4,7 +4,7 @@ Require Export Iron.Language.SystemF2Effect.Value.Exp.
 
 Fixpoint FreeXV (n : nat) (vv : val) : Prop :=
  match vv with
- | VVar n'            => beq_nat n n' = true
+ | VVar n'            => n = n'
  | VLoc _             => False
  | VLam t x           => FreeXX (S n) x
  | VLAM k x           => FreeXX n x

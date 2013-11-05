@@ -197,8 +197,8 @@ Proof.
    unfold FreshFreeV in H1.
    spec H1 n. spec H1 t.
 
-   have HF: (FreeXV n (VVar n)) 
-    by (unfold FreeXV; symmetry; eapply beq_nat_refl).
+   have (FreeXV n (VVar n))
+    by (unfold FreeXV; auto).
 
    assert (FreshT p2 t).
     eauto. clear H1.

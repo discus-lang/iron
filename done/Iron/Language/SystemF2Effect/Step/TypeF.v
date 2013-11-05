@@ -159,19 +159,13 @@ Proof.
    * eapply freshFs_cons; eauto.
      lets D: (@in_not_in stprop) H4 H.
      have (p <> n) by congruence.
-     simpl.
-     rewrite beq_nat_false_iff.
-     auto.   
+     simpl. auto.
     * eapply freshFs_cons; eauto.
      snorm. 
       + lets D: (@in_not_in stprop) H5 H.
-        have (p1 <> p) by congruence.
-        rewrite beq_nat_false_iff. 
-        auto.
+        congruence.
       + lets D: (@in_not_in stprop) H5 H.
-        have (p <> n) by congruence.
-        rewrite beq_nat_false_iff.
-        auto.
+        congruence.
 Qed.
 Hint Resolve typeF_freshFs.
 
