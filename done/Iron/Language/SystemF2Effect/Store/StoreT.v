@@ -73,16 +73,16 @@ Qed.
 
 (* Extended store is well typed under extended store environment *)
 Lemma storeT_snoc
- :  forall se sp ss r1 v1 t2
- ,  KindT  nil sp (TRgn r1) KRegion
+ :  forall se sp ss p1 v1 t2
+ ,  KindT  nil sp (TRgn p1) KRegion
  -> TypeV  nil nil se sp v1 t2
  -> StoreT                       se  sp                   ss
- -> StoreT (TRef (TRgn r1) t2 <: se) sp (StValue r1 v1 <: ss).
+ -> StoreT (TRef (TRgn p1) t2 <: se) sp (StValue p1 v1 <: ss).
 Proof.
  intros.
- set (tRef' := TRef (TRgn r1) t2).
+ set (tRef' := TRef (TRgn p1) t2).
 
- assert (TypeB nil nil (tRef' <: se) sp (StValue r1 v1) tRef').
+ assert (TypeB nil nil (tRef' <: se) sp (StValue p1 v1) tRef').
  { apply TbValue; auto.
    - apply typev_stenv_snoc.
      subst tRef'.

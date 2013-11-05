@@ -87,23 +87,23 @@ Inductive
  (* Store operators *****************************)
  (* Allocate a reference. *) 
  | SfStoreAlloc
-   :  forall ss sp fs r1 v1
-   ,  StepF  ss                    sp  fs (XAlloc (TRgn r1) v1)
-             (StValue r1 v1 <: ss) sp  fs (XVal (VLoc (length ss)))
+   :  forall ss sp fs p1 v1
+   ,  StepF  ss                    sp  fs (XAlloc (TRgn p1) v1)
+             (StValue p1 v1 <: ss) sp  fs (XVal (VLoc (length ss)))
 
  (* Read from a reference. *)
  | SfStoreRead
-   :  forall ss sp fs l v r
-   ,  get l ss = Some (StValue r v)
-   -> StepF ss                     sp  fs (XRead (TRgn r)  (VLoc l)) 
+   :  forall ss sp fs l v p
+   ,  get l ss = Some (StValue p v)
+   -> StepF ss                     sp  fs (XRead (TRgn p)  (VLoc l)) 
             ss                     sp  fs (XVal v)
 
  (* Write to a reference. *)
  | SfStoreWrite
-   :  forall ss sp fs l r v1 v2 
-   ,  get l ss = Some (StValue r v1)
-   -> StepF  ss sp fs                 (XWrite (TRgn r) (VLoc l) v2)
-             (update l (StValue r v2) ss) sp fs (XVal (VConst CUnit)).
+   :  forall ss sp fs l p v1 v2 
+   ,  get l ss = Some (StValue p v1)
+   -> StepF  ss sp fs                 (XWrite (TRgn p) (VLoc l) v2)
+             (update l (StValue p v2) ss) sp fs (XVal (VConst CUnit)).
 
 Hint Constructors StepF.
 

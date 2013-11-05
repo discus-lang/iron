@@ -74,23 +74,23 @@ Hint Resolve isTVar_form.
 
 
 (* Check whether a type is a region handle with the given index. *)
-Definition isTRgn (n : nat) (t : ty) :=
+Definition isTRgn (p : nat) (t : ty) :=
  match t with
- | TRgn n' => beq_nat n n'
+ | TRgn p' => beq_nat p p'
  | _       => false
  end.
 
 
-Definition IsTRgn   (n : nat) (t : ty) 
- := isTRgn n t = true.
+Definition IsTRgn   (p : nat) (t : ty) 
+ := isTRgn p t = true.
 Hint Unfold IsTRgn.
 
 
 (* If we know a tpye is a region handle, then it is one.. *)
 Lemma isTRgn_form
- :  forall i t
- ,  IsTRgn i t
- -> t    = TRgn i.
+ :  forall p t
+ ,  IsTRgn p t
+ -> t    = TRgn p.
 Proof.
  intros.
  destruct t; snorm; try nope.
@@ -108,9 +108,9 @@ Definition isEffectOnVar (n : nat) (t : ty) :=
 
 
 (* Check whether a type is an effect on the given region handle. *)
-Definition isEffectOnCap (n : nat) (t : ty) :=
+Definition isEffectOnCap (p : nat) (t : ty) :=
  match t with 
- | TCon1 tc t1 => andb (isEffectTyCon_b tc) (isTRgn n t1)
+ | TCon1 tc t1 => andb (isEffectTyCon_b tc) (isTRgn p t1)
  | _           => false
  end.
 

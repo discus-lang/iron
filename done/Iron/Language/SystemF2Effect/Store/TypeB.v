@@ -9,19 +9,19 @@ Inductive TypeB : kienv -> tyenv -> stenv -> stprops -> stbind -> ty -> Prop :=
     Requiring that the region handle is well kinded ensures that it's 
     mentioned in the store properties. *)
  | TbValue
-   :  forall ke te se sp n v t
-   ,  KindT  ke sp (TRgn n) KRegion
+   :  forall ke te se sp p v t
+   ,  KindT  ke sp (TRgn p) KRegion
    -> TypeV  ke te se sp v t
-   -> TypeB  ke te se sp (StValue n v) (TRef (TRgn n) t)
+   -> TypeB  ke te se sp (StValue p v) (TRef (TRgn p) t)
 
  (* After a store binding has been dealloated,
     we can treat the location has having any type we want.
     The progress theorem guarantees these dead bindings will never be read,
     so there is no opportunity to treat it has having the wrong type. *)
  | TbDead 
-   :  forall ke te se sp n t
-   ,  KindT  ke sp (TRgn n) KRegion
-   -> TypeB  ke te se sp (StDead n)    (TRef (TRgn n) t).
+   :  forall ke te se sp p t
+   ,  KindT  ke sp (TRgn p) KRegion
+   -> TypeB  ke te se sp (StDead p)    (TRef (TRgn p) t).
 
 Hint Constructors TypeB.
 

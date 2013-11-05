@@ -36,9 +36,9 @@ Definition SubsVisibleT ke sp spVis e e'
 Lemma isVisibleE_TCon1_false
  :  forall sp t1
  ,  false = isVisibleE sp t1
- -> (exists tc n
-      ,  t1    = TCon1 tc (TRgn n)
-     /\ (false = isEffectTyCon_b tc \/ false = (hasSRegion n sp))).
+ -> (exists tc p
+      ,  t1    = TCon1 tc (TRgn p)
+     /\ (false = isEffectTyCon_b tc \/ false = (hasSRegion p sp))).
 Proof.
  destruct t1; try nope.
 
@@ -228,9 +228,9 @@ Qed.
    Because the region handle will have been freshly allocated, 
    it won't appear in the previous set of store properties. *)
 Lemma subsVisibleT_mask
- :  forall sp spVis r n e1 e2
- ,  hasSRegion n spVis = false
- -> r = TRgn n
+ :  forall sp spVis r p e1 e2
+ ,  hasSRegion p spVis = false
+ -> r = TRgn p
  -> SubsVisibleT nil sp spVis e1 (maskOnVarT 0 e2)
  -> SubsVisibleT nil sp spVis e1 (substTT    0 r e2).
 Proof.
@@ -242,7 +242,7 @@ Proof.
    snorm.
    subst.
    have (ClosedT (TVar  0)). nope.
-   have (ClosedT (TVar n0)). nope.
+   have (ClosedT (TVar  n)). nope.
 
  - Case "TForall".
    simpl in H1.

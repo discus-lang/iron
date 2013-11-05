@@ -19,22 +19,22 @@ Definition stprops
 (* Take a region back from a store property *)
 Fixpoint regionOfStProp (s : stprop) : option nat :=
  match s with
- | SRegion n       => Some n
+ | SRegion p      => Some p
  end.
 
 
 (* Check if this is a store property with the given
    region identifier. *)
-Definition isSRegion (r : nat) (pp : stprop) : bool := 
+Definition isSRegion (p : nat) (pp : stprop) : bool := 
  match pp with
- | SRegion r' => beq_nat r r'
+ | SRegion p' => beq_nat p p'
  end.
 
 
 (* Check if any of the given store properties include this
    region identifier *)
-Definition hasSRegion (r : nat) (sp : stprops) 
- := elem (isSRegion r) sp.
+Definition hasSRegion (p : nat) (sp : stprops) 
+ := elem (isSRegion p) sp.
 
 
 (********************************************************************)
@@ -44,18 +44,18 @@ Definition allocRegion (sp : stprops) : nat
 
 
 Lemma allocRegion_weaken
- :  forall sp s n
- ,  allocRegion sp        >= n
- -> allocRegion (sp :> s) >= n.
+ :  forall sp s p
+ ,  allocRegion sp        >= p
+ -> allocRegion (sp :> s) >= p.
 Proof.
  intros.
-  destruct n.
+  destruct p.
   omega.
   unfold allocRegion in *.
    snorm.
-   have (max_list (catOptions (map regionOfStProp sp)) >= n) 
+   have (max_list (catOptions (map regionOfStProp sp)) >= p) 
     by omega. clear H.
-   cut  (max n0 (max_list (catOptions (map regionOfStProp sp))) >= n).
+   cut  (max n (max_list (catOptions (map regionOfStProp sp))) >= p).
     intros. omega.
     apply max_weaken_left. 
     auto.
@@ -68,7 +68,7 @@ Hint Resolve allocRegion_weaken.
 Lemma allocRegion_above
  : forall sp
  , Forall (fun s => match regionOfStProp s with
-                    | Some n => allocRegion sp > n
+                    | Some p => allocRegion sp > p
                     | None   => True
                     end)
           sp.

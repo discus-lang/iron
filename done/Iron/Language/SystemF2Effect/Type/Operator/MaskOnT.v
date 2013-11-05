@@ -27,8 +27,8 @@ Definition maskOnVarT    (n : nat) (e : ty) : ty
 
 
 (* Mask effects on the given region identifier (capability) *)
-Definition maskOnCapT    (n : nat) (e : ty) : ty
- := maskOnT (isEffectOnCap n) e.
+Definition maskOnCapT    (p : nat) (e : ty) : ty
+ := maskOnT (isEffectOnCap p) e.
 
 
 (********************************************************************)
@@ -78,9 +78,9 @@ Hint Resolve maskOnVarT_kind.
 
 (* Masking effects on capabilities in a type preserves its kind. *)
 Lemma maskOnCapT_kind
- :  forall ke sp t k n
+ :  forall ke sp t k p
  ,  KindT  ke sp t k
- -> KindT  ke sp (maskOnCapT n t) k.
+ -> KindT  ke sp (maskOnCapT p t) k.
 Proof.
  intros.
  unfold maskOnVarT.

@@ -382,7 +382,7 @@ Proof.
 
      assert (SubsVisibleT nil sp' sp e (substTT 0 r2 e0)) as HE1.
      { eapply subsVisibleT_mask
-        with (n := p2); auto.
+        with (p := p2); auto.
 
        have HL: (liftTT 1 0 eL = maskOnVarT 0 e0)
         by (apply lowerTT_some_liftTT; auto).
@@ -521,18 +521,18 @@ Proof.
  Case "SfStoreAlloc".
  { inverts HC.
    inverts H0.
-   exists (TRef   (TRgn r1) t2 <: se).
+   exists (TRef   (TRgn p1) t2 <: se).
    exists e2.
    intuition.
 
    (* Store is well formed after adding a binding. *)
-   - remember (TRgn r1) as p.
+   - remember (TRgn p1) as r.
 
-     have (SubsT nil sp e (TAlloc p) KEffect)
+     have (SubsT nil sp e (TAlloc r) KEffect)
       by  (eapply EqSym in H; eauto).
 
-     have (LiveE fs (TAlloc p)).
-     subst p.
+     have (LiveE fs (TAlloc r)).
+     subst r.
 
      eapply wfFS_stbind_snoc; auto.
 
@@ -548,7 +548,7 @@ Proof.
 
    (* Resulting configuation is well typed. *)
    - eapply TcExp
-      with (t1 := TRef (TRgn r1) t2)
+      with (t1 := TRef (TRgn p1) t2)
            (e1 := TBot KEffect)
            (e2 := e2).
      + eapply EqSym.
@@ -612,17 +612,17 @@ Proof.
    (* All store bindings mentioned by frame stack are still live. *)
    - eapply liveS_stvalue_update.
      + inverts_type.
-       remember (TRgn r) as p.
+       remember (TRgn p) as r.
 
-       have (SubsT nil sp e (TWrite p) KEffect)
+       have (SubsT nil sp e (TWrite r) KEffect)
         by  (eapply EqSym in H0; eauto).
 
-       have (LiveE fs (TWrite p))
+       have (LiveE fs (TWrite r))
         by  (eapply liveE_subsT; eauto).
 
-       eapply liveE_fpriv_in with (e := TWrite p).
-       * subst p. snorm. 
-       * subst p. snorm.
+       eapply liveE_fpriv_in with (e := TWrite r).
+       * subst r. snorm. 
+       * subst r. snorm.
      + auto.
 
    (* Resulting effects are to live regions. *)
