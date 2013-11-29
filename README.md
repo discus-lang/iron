@@ -5,6 +5,7 @@ Iron Lambda is a collection of Coq formalizations for functional languages of in
 
 * The home page is on a [separate site](http://iron.ouroborus.net). 
 * The absence of bugs has been mechanically verified, hence there is no bug tracker.
+* Comments on style, or requests for more information should go to  iron [at] ouroborus.net.
 
 
 -------------------------------------------------------------------------------
