@@ -2,27 +2,8 @@
 Iron Lambda.
 http://iron.ouroborus.net
 
-Iron Lambda is a collection of Coq formalisations for functional languages
-of various complexities. The aim of the project was to get the proofs done
-and not worry much about using the coolest new approaches.
-
-All proofs use straight deBruijn indices for binders, which aren't too bad
-once you understand what lifting lemmas are required. They use a 
-"semi-Chilpala" approach to mechanisation -- most lemmas are added to the
-global hint and rewrite databases, but if the proof script of a particular
-lemma was already of a sane length, then we haven't invested time writing
-tricky LTac code to make it smaller.
-
-Coding style guidelines:
-
- * Verbose comments explaining what the main definitions and theorems 
-   are for. The scripts should be digestable by intermediate Coq users.
- 
- * No unicode or infix operators for judgement forms.
-   When *I* use them in *my* proofs they make perfect sense, but when you
-   use them in yours they're completely unreadable.
-
- * Uses bullets and the 'Case' tactic to add structure.
+Iron Lambda is a collection of Coq formalizations for functional languages
+of increasing complexity. All proofs use straight deBruijn indices for binders.
 
 -------------------------------------------------------------------------------
 Proofs that are "done" have at least Progress and Preservation theorems.
@@ -65,17 +46,7 @@ Proofs that are "done" have at least Progress and Preservation theorems.
   All data is allocated into the store and can be updated with primitive
   polymorphic update operators.
 
-
--------------------------------------------------------------------------------
-Proofs that are still being developed.  
-
  SystemF2Effect
-  SystemF2 with a region and effect system.
-
- SimplePCFa.
-  Formalisation of STLC using frame stacks instead of Felleisen style
-  evaluation contexts.
-
- DiscipleKernel
-  The kernel of the Disciplined Disciple Compiler's core language.
-
+  SystemF2 with a region and effect system. Mutable references are allocated
+  in regions in the store, and their lifetime follows the lexical structure
+  of the code. 
