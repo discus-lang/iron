@@ -2474,26 +2474,26 @@ Ltac auto_star := try solve [ auto | intuition eauto ].
     by lemmas (or proofs terms) which auto will be able to use
     for solving the goal. *)
 
-Tactic Notation "auto" "~" :=
+Tactic Notation "auto~" :=
   auto_tilde.
-Tactic Notation "auto" "~" constr(E1) :=
+Tactic Notation "auto~" constr(E1) :=
   lets: E1; auto_tilde.
-Tactic Notation "auto" "~" constr(E1) constr(E2) :=
+Tactic Notation "auto~" constr(E1) constr(E2) :=
   lets: E1 E2; auto_tilde.
-Tactic Notation "auto" "~" constr(E1) constr(E2) constr(E3) :=
+Tactic Notation "auto~" constr(E1) constr(E2) constr(E3) :=
   lets: E1 E2 E3; auto_tilde.
 
 (** [auto*] is a notation for tactic [auto_star]. It may be followed
     by lemmas (or proofs terms) which auto will be able to use
     for solving the goal. *)
 
-Tactic Notation "auto" "*" :=
+Tactic Notation "auto*" :=
   auto_star.
-Tactic Notation "auto" "*" constr(E1) :=
+Tactic Notation "auto*" constr(E1) :=
   lets: E1; auto_star.
-Tactic Notation "auto" "*" constr(E1) constr(E2) :=
+Tactic Notation "auto*" constr(E1) constr(E2) :=
   lets: E1 E2; auto_star.
-Tactic Notation "auto" "*" constr(E1) constr(E2) constr(E3) :=
+Tactic Notation "auto*" constr(E1) constr(E2) constr(E3) :=
   lets: E1 E2 E3; auto_star.
 
 
