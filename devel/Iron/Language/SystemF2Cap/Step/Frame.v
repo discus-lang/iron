@@ -84,6 +84,12 @@ Inductive
    ,  StepF  ss                      sp (fs :> FPriv (Some p1) p2) (XVal v1)
              (map (mergeB p1 p2) ss) sp fs                   (XVal (mergeV p1 p2 v1))
 
+ (* Run a suspended computation *****************)
+ | SfRun
+   :  forall ss sp fs x
+   ,  StepF  ss sp fs (XRun (VBox x))
+             ss sp fs x
+
  (* Store operators *****************************)
  (* Allocate a reference. *) 
  | SfStoreAlloc

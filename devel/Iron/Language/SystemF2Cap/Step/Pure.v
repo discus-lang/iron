@@ -33,6 +33,7 @@ Inductive StepP : exp  -> exp -> Prop :=
    ,  StepP (XOp1 OIsZero (VConst (CNat n)))
             (XVal (VConst (CBool (beq_nat n 0)))).
 
+
 Hint Constructors StepP.
 
 

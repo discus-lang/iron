@@ -132,6 +132,12 @@ Proof.
      rewrite (liftTE_liftTE 0 ix).
      eapply IHx1. auto.
 
+ - Case "XRun".
+   simpl. eapply TxRun.
+   rrwrite ( TSusp (liftTT 1 ix e1) (liftTT 1 ix t1)
+           = liftTT 1 ix (TSusp e1 t1)).
+   eauto.
+
  - Case "XAlloc".
    eapply TxOpAlloc; eauto using kind_kienv_insert.
 

@@ -54,6 +54,8 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
   |  XPrivate x        => XPrivate   (substVX d (liftTV 0 u) x)
   |  XExtend  tR x     => XExtend tR (substVX d (liftTV 0 u) x)
 
+  |  XRun     v        => XRun       (substVV d u v)
+
   |  XAlloc   tR v2    => XAlloc  tR (substVV d u v2)
   |  XRead    tR v1    => XRead   tR (substVV d u v1)
   |  XWrite   tR v1 v2 => XWrite  tR (substVV d u v1) (substVV d u v2)

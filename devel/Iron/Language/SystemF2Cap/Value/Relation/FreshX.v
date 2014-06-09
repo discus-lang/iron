@@ -26,6 +26,7 @@ Fixpoint FreshV (p : nat) (vv : val) : Prop :=
  | XOp1     op v    => FreshV p v
  | XPrivate x       => FreshX p x
  | XExtend  t x     => FreshT p t  /\ FreshX p x
+ | XRun     v       => FreshV p v
  | XAlloc   t v     => FreshT p t  /\ FreshV p v
  | XRead    t v     => FreshT p t  /\ FreshV p v
  | XWrite   t v1 v2 => FreshT p t  /\ FreshV p v1 /\ FreshV p v2
@@ -334,6 +335,7 @@ Proof.
     apply freshSuppX_XApp_split in H0.
     apply freshSuppX_XApp_join; firstorder.
 
+  - firstorder.
   - firstorder.
   - firstorder.
   - firstorder.

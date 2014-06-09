@@ -516,6 +516,38 @@ Proof.
        eapply typeF_mergeTE; eauto.
  }
 
+
+ (*********************************************************)
+ (* Run a suspension. *)
+ Case "SfRun".
+ { inverts HC.
+   inverts H0. inverts H7.
+   exists se. exists (TSum e1 e2).
+
+   have (KindT nil sp e KEffect)            as KS2.
+   have (KindT nil sp (TSum e1 e2) KEffect) as KS1.
+   inverts_kind.
+
+   rip; try (inverts HH; auto).
+
+   (* Frame stack is live *)
+   - eapply liveE_equivT_left.
+      eapply H.
+      auto.
+
+   (* Effect of result is subsumed by previous. *)
+   - apply subsT_subsVisibleT.
+     apply SbEquiv. 
+     apply EqSym; auto.
+
+   (* Resulting state is well typed. *)
+   - apply TcExp
+      with (t1 := t1)
+           (e1 := e1)
+           (e2 := e2); auto.
+ }
+
+
  (*********************************************************)
  (* Allocate a reference. *)
  Case "SfStoreAlloc".

@@ -22,6 +22,7 @@ Fixpoint SuppV (l : nat) (vv : val) : Prop :=
  | XOp1     op v      => SuppV l v
  | XPrivate x         => SuppX l x
  | XExtend  t x       => SuppX l x
+ | XRun     v         => SuppV l v
  | XAlloc   t v1      => SuppV l v1
  | XRead    t v1      => SuppV l v1
  | XWrite   t v1 v2   => SuppV l v1 \/ SuppV l v2

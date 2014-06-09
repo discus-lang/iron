@@ -63,6 +63,10 @@ Proof.
    spec IHx H11 H13.
    rip; congruence.
 
+ - Case "XBox".
+   spec IHx H6 H5.
+   rip; congruence.
+
  - Case "XAlloc".
    spec IHx H10 H11.
    subst. burn.

@@ -20,6 +20,7 @@ Fixpoint FreeXV (n : nat) (vv : val) : Prop :=
  | XOp1     op v      => FreeXV n v
  | XPrivate x         => FreeXX n x
  | XExtend  t x       => FreeXX n x
+ | XRun     v         => FreeXV n v
  | XAlloc   t v1      => FreeXV n v1
  | XRead    t v1      => FreeXV n v1
  | XWrite   t v1 v2   => FreeXV n v1 \/ FreeXV n v2

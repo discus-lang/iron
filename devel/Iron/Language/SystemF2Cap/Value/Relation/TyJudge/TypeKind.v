@@ -75,6 +75,12 @@ Proof.
       eapply H2. eauto.
       eapply KiCon1; snorm.
  
+ - Case "XRun".
+   spec IHv H5. rip.
+   inverts_kind.
+   + snorm. inverts H4. auto.
+   + inverts IHv. snorm. congruence.
+
  - Case "XAlloc".
    rip.
     eapply KiCon2; eauto. snorm.

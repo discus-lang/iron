@@ -38,6 +38,9 @@ Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
  |  XExtend  t x   
  => XExtend  (mergeT p1 p2 t)  (mergeX p1 p2 x)
 
+ |  XRun v
+ => XRun     (mergeV p1 p2 v)
+
  |  XAlloc t v     
  => XAlloc   (mergeT p1 p2 t)  (mergeV p1 p2 v)
 
@@ -158,10 +161,17 @@ Proof.
     + repeat (rewrite mergeTE_liftTE_comm).
       eapply IHx; eauto.
 
+ - Case "XRun".
+   snorm.
+   eapply TxRun.
+   rgwrite ( TSusp (mergeT p1 p2 e) (mergeT p1 p2 t)
+           = mergeT p1 p2 (TSusp e t)).
+   eauto.
+
  - Case "XRead".
    simpl.
    eapply TxOpRead; eauto.
-   rgwrite ( TRef (mergeT p1 p2 r) (mergeT p1 p2 t)
+   rgwrite ( TRef (mergeT p1 p2 r)  (mergeT p1 p2 t)
            = mergeT p1 p2 (TRef r t)).
    eauto.
 

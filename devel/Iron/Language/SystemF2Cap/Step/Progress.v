@@ -130,6 +130,17 @@ Proof.
 
 
  (*********************************************************)
+ Case "XRun".
+ { right.
+   inverts_typec.
+   exists ss. exists sp. exists fs.
+   destruct v; nope.
+   - exists e. auto.
+   - destruct c; nope.
+ }
+
+
+ (*********************************************************)
  Case "XAlloc".
  { right. 
    inverts_typec. 

@@ -135,6 +135,12 @@ Inductive
     -> TypeX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x2 t e
     -> TypeX ke te se  sp (XExtend r1 x2) (substTT 0 r1 t) (TSum eL (TAlloc r1))
 
+  (* Effect Reflection **************************)
+  | TxRun 
+    :  forall ke te se sp v1 t1 e1
+    ,  TypeV  ke te se sp v1 (TSusp e1 t1)
+    -> TypeX  ke te se sp (XRun v1) t1 e1
+
   (* Store Operators ****************************)
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
@@ -186,10 +192,10 @@ Ltac inverts_type :=
    | [ H: TypeX _ _ _ _ (XAPP   _ _)   _ _  |- _ ] => inverts H 
    | [ H: TypeX _ _ _ _ (XPrivate _)   _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XExtend  _ _) _ _  |- _ ] => inverts H
+   | [ H: TypeX _ _ _ _ (XRun   _)     _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XAlloc _ _)   _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XRead  _ _)   _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XWrite _ _ _) _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XOp1   _ _)   _ _  |- _ ] => inverts H 
    end).
-
 

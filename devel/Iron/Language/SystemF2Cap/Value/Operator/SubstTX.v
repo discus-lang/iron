@@ -28,6 +28,8 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
   | XPrivate x      => XPrivate (substTX (S d) (liftTT 1 0 u) x)
   | XExtend  t x    => XExtend  (substTT d u t) (substTX (S d) (liftTT 1 0 u) x)
 
+  | XRun v          => XRun     (substTV d u v)
+
   | XAlloc  t v     => XAlloc   (substTT d u t) (substTV d u v)
   | XRead   t v     => XRead    (substTT d u t) (substTV d u v)
   | XWrite  t v1 v2 => XWrite   (substTT d u t) (substTV d u v1) (substTV d u v2)
@@ -181,6 +183,12 @@ Proof.
                = insert 0 KRegion (delete ix ke)).
        eapply kind_kienv_insert. auto.
      * eauto.
+
+ - Case "XRun".
+   eapply TxRun; fold substTT.
+   rrwrite ( TSusp (substTT ix t2 e1) (substTT ix t2 t1)
+           = substTT ix t2 (TSusp e1 t1)).
+    eauto using subst_type_type_ix.
 
  - Case "XAlloc".
    eapply TxOpAlloc; fold substTT.

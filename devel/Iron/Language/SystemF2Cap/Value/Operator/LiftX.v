@@ -25,6 +25,8 @@ Fixpoint liftTV (d: nat) (vv: val) : val :=
 
   |  XPrivate x        => XPrivate (liftTX (S d) x)
   |  XExtend  tR x     => XExtend  (liftTT 1 d tR) (liftTX (S d) x)
+
+  |  XRun v            => XRun     (liftTV d v)
  
   |  XAlloc   tR v     => XAlloc   (liftTT 1 d tR) (liftTV d v)
   |  XRead    tR v     => XRead    (liftTT 1 d tR) (liftTV d v)
@@ -60,6 +62,8 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
 
   | XPrivate x        => XPrivate    (liftXX n d x)
   | XExtend  tR x     => XExtend  tR (liftXX n d x)
+
+  | XRun v            => XRun        (liftXV n d v)
 
   | XAlloc   tR v     => XAlloc   tR (liftXV n d v)
   | XRead    tR v     => XRead    tR (liftXV n d v)
