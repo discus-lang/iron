@@ -68,14 +68,6 @@ Proof.
   rewrite delete_rewind.
   eapply IHt1; eauto.
    apply kind_kienv_weaken; auto.
-
- Case "TCon2".
-  eapply KiCon2.
-  destruct tc. simpl in *. inverts H4.
-  destruct t.  simpl in *. eauto.
-  eauto.
-  destruct tc. simpl in *. inverts H4.
-  eauto.
 Qed.
 
 

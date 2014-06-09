@@ -73,18 +73,22 @@ Definition isEffectTyCon_b (tc : tycon1) :=
 (********************************************************************)
 (* Type constructors with at least two applied arguments. *)
 Inductive tycon2 : Type :=
- | TyConRef    : tycon2.
+ | TyConRef    : tycon2
+ | TyConSusp   : tycon2.
 Hint Constructors tycon2.
 
 
 Fixpoint kindOfTyCon2 (tc : tycon2) :=
  match tc with
  | TyConRef      => KFun KRegion (KFun KData KData)
+ | TyConSusp     => KFun KEffect (KFun KData KData)
  end.
 
 
 Fixpoint tycon2_beq tc1 tc2 :=
  match tc1, tc2 with
  | TyConRef,     TyConRef  => true
+ | TyConSusp,    TyConSusp => true
+ | _,            _         => false
  end.
 

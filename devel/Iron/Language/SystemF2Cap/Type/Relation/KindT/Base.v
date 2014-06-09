@@ -101,22 +101,20 @@ Proof.
  intros.
  destruct t; burn.
 
-  Case "TApp".
+ - Case "TApp".
    inverts_kind.
    false. auto.
 
-  Case "TCon0".
+ - Case "TCon0".
    destruct t; nope.
 
-  Case "TCon1".
+ - Case "TCon1".
    destruct t; nope.
 
-  Case "TCon2".
+ - Case "TCon2".
    destruct t1; nope.
-   inverts_kind.
-    destruct tc. simpl in *. nope.
 
-  Case "TCap".
+ - Case "TCap".
    destruct t.
    exists n. auto.
 Qed.

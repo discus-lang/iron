@@ -17,13 +17,6 @@ Proof.
  - Case "TForall".
    apply KiForall.
    rewrite insert_rewind. auto.
-
- - Case "TCon2".
-   eapply KiCon2.
-   destruct t1.
-    destruct tc. eauto.
-   destruct tc. eauto.
-   destruct tc. eauto.
 Qed.
 
 
@@ -36,3 +29,4 @@ Proof.
  rrwrite (ke :> k2 = insert 0 k2 ke).
  apply kind_kienv_insert. auto.
 Qed.
+

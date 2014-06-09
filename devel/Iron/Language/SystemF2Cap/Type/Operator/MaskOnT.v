@@ -50,15 +50,6 @@ Proof.
       inverts H4. auto.
    + destruct t; snorm;
       inverts H4; eapply KiCon1; simpl; eauto.
-
- - Case "TCon2".
-   destruct tc.
-   snorm. inverts H2.
-   spec IHt1 H5.
-   spec IHt2 H7.
-   eapply KiCon2. 
-    destruct t1. snorm.
-    eauto. eauto.
 Qed.
 Hint Resolve maskOnT_kind.
 
@@ -328,3 +319,4 @@ Proof.
      * snorm.
      * nope.
 Qed.
+

@@ -101,11 +101,6 @@ Proof.
     eapply KiForall.
     rewrite delete_rewind.
     eauto.
-
- - Case "TCon2".
-   inverts_kind. snorm.
-   eapply KiCon2; eauto.
-    destruct tc; destruct t; eauto.
 Qed.
 
 

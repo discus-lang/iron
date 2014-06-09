@@ -10,12 +10,6 @@ Lemma kind_stprops_snoc
 Proof.
  intros. gen ke k.
  induction t; intros; inverts_kind; burn.
-
- Case "TCon2".
-  destruct tc. norm. inverts H2. 
-  eapply KiCon2.
-  destruct t1. simpl in *. eauto.
-  eauto. eauto.
 Qed.
 Hint Resolve kind_stprops_snoc.
 
@@ -27,10 +21,5 @@ Lemma kind_stprops_cons
 Proof.
  intros. gen ke k.
  induction t; intros; inverts_kind; burn.
-  
- Case "TCon2".
-  destruct tc. snorm. inverts H2.
-  eapply KiCon2; eauto.
-  destruct t1. snorm.
 Qed.
 Hint Resolve kind_stprops_cons.

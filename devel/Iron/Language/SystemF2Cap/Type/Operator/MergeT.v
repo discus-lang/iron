@@ -70,12 +70,6 @@ Proof.
  intros. gen ke k.
  induction t; intros; snorm; inverts_kind; eauto 4.
 
- - eapply KiCon2.
-   destruct tc. snorm. inverts H3.
-   destruct t1. snorm. 
-   + eauto. 
-   + destruct tc. snorm. inverts H3. eauto.
-
  - destruct t; snorm. subst.
    inverts_kind. eauto.
 Qed.

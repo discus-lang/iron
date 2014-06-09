@@ -33,6 +33,8 @@ Notation TRead  R    := (TCon1 TyConRead  R).
 Notation TWrite R    := (TCon1 TyConWrite R).
 Notation TAlloc R    := (TCon1 TyConAlloc R).
 
+(* Suspension type *)
+
 (* Function type. *)
 Notation TFun A E B  := (TApp (TApp (TApp (TCon0 TyConFun) A) E) B).
 
@@ -42,7 +44,8 @@ Notation TBool       := (TCon0 TyConBool).
 Notation TNat        := (TCon0 TyConNat).
 
 (* Reference to a value in some region. *)
-Notation TRef R T    := (TCon2 TyConRef R T).
+Notation TRef  R T   := (TCon2 TyConRef  R T).
+Notation TSusp E T   := (TCon2 TyConSusp E T).
 
 
 (********************************************************************)

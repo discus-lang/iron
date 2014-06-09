@@ -77,11 +77,10 @@ Proof.
     eapply KiCon1; eauto. snorm.
   
  - Case "XRead".
-   spec IHv H9.
-   inverts_kind; rip.
-    destruct tc. norm. inverts H1. auto. 
-    destruct tc. norm. inverts H1.
-    eapply KiCon1. simpl in *. eauto. eauto.
+   rip. spec IHv H9.
+   inverts_kind.
+   + snorm. inverts H4. auto.
+   + eapply KiCon1. simpl. eauto. auto.
 
  - Case "XWrite".
    rip. eapply KiCon1; eauto. snorm.
