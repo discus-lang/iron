@@ -8,6 +8,7 @@ Fixpoint SuppV (l : nat) (vv : val) : Prop :=
  match vv with
  | VVar n'            => False
  | VLoc l'            => l = l'
+ | VBox   x           => SuppX l x
  | VLam t x           => SuppX l x
  | VLAM k x           => SuppX l x
  | VConst _           => False

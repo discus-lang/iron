@@ -12,6 +12,7 @@ Fixpoint FreshV (p : nat) (vv : val) : Prop :=
  match vv with 
  | VVar     _       => True
  | VLoc     _       => True
+ | VBox     x       => FreshX p x
  | VLam     t x     => FreshT p t  /\ FreshX p x
  | VLAM     k x     => FreshX p x
  | VConst   _       => True
@@ -323,6 +324,7 @@ Proof.
   - firstorder.
   - firstorder.
   - firstorder.
+  - firstorder.
 
   - apply freshSuppX_XLet_split in H.
     apply freshSuppX_XLet_split in H0.
@@ -391,3 +393,4 @@ Proof.
    eapply IHx; eauto.
    eapply IHx0; eauto.
 Qed.   
+

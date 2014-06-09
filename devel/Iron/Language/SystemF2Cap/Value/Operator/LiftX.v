@@ -9,6 +9,7 @@ Fixpoint liftTV (d: nat) (vv: val) : val :=
   match vv with
   |  VVar _            => vv
   |  VLoc _            => vv
+  |  VBox   x          => VBox     (liftTX d x)
   |  VLam t x          => VLam     (liftTT 1 d t) (liftTX d x)
   |  VLAM k x          => VLAM k   (liftTX (S d) x)
   |  VConst c          => vv
@@ -24,6 +25,7 @@ Fixpoint liftTV (d: nat) (vv: val) : val :=
 
   |  XPrivate x        => XPrivate (liftTX (S d) x)
   |  XExtend  tR x     => XExtend  (liftTT 1 d tR) (liftTX (S d) x)
+ 
   |  XAlloc   tR v     => XAlloc   (liftTT 1 d tR) (liftTV d v)
   |  XRead    tR v     => XRead    (liftTT 1 d tR) (liftTV d v)
   |  XWrite   tR v1 v2 => XWrite   (liftTT 1 d tR) (liftTV d v1) (liftTV d v2)
@@ -42,8 +44,9 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
         else vv
 
   | VLoc l            => VLoc   l
+  | VBox     x        => VBox      (liftXX n d x)  
   | VLam t1 x1        => VLam   t1 (liftXX n (S d) x1)
-  | VLAM k x          => VLAM   k (liftXX n d x)
+  | VLAM k x          => VLAM   k  (liftXX n d x)
   | VConst c          => VConst c
   end
  with   liftXX (n: nat) (d: nat) (xx: exp) {struct xx} : exp :=
@@ -57,6 +60,7 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
 
   | XPrivate x        => XPrivate    (liftXX n d x)
   | XExtend  tR x     => XExtend  tR (liftXX n d x)
+
   | XAlloc   tR v     => XAlloc   tR (liftXV n d v)
   | XRead    tR v     => XRead    tR (liftXV n d v)
   | XWrite   tR v1 v2 => XWrite   tR (liftXV n d v1) (liftXV n d v2)

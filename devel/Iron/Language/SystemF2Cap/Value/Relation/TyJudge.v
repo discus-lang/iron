@@ -46,6 +46,12 @@ Inductive
     -> KindT  ke sp       (TRef r t) KData       
     -> TypeV  ke te se sp (VLoc l)   (TRef r t)
 
+  (* A boxed expression, with a reified effect. *)
+  | TvBox 
+    :  forall ke te se sp x t e
+    ,  TypeX  ke te se sp x t e
+    -> TypeV  ke te se sp (VBox x) (TSusp e t)
+
   (* Value abstraction.
      The body is checked in an environment extended with the type of
      of the formal parameter. *)
@@ -112,7 +118,7 @@ Inductive
     -> KindT  ke sp t2 k11
     -> TypeX  ke te se sp (XAPP v1 t2) (substTT 0 t2 t12) (TBot KEffect)
 
-  (* Store Operators ******************)
+  (* Region Creation ***************************)
   (* Create a private region. *)
   | TxPrivate
     :  forall ke te se sp x t tL e eL
@@ -129,6 +135,7 @@ Inductive
     -> TypeX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x2 t e
     -> TypeX ke te se  sp (XExtend r1 x2) (substTT 0 r1 t) (TSum eL (TAlloc r1))
 
+  (* Store Operators ****************************)
   (* Allocate a new heap binding. *)
   | TxOpAlloc 
     :  forall ke te se sp r1 v2 t2
@@ -151,7 +158,7 @@ Inductive
     -> TypeV  ke te se sp v2 t2
     -> TypeX  ke te se sp (XWrite r1 v1 v2) TUnit (TWrite r1)
 
-  (* Primtive Operators ***************)
+  (* Primtive Operators *************************)
   | TxOpPrim
     :  forall ke te se sp op v1 t11 t12 e
     ,  typeOfOp1 op = TFun t11 t12 e
@@ -169,6 +176,7 @@ Ltac inverts_type :=
   (match goal with 
    | [ H: TypeV _ _ _ _ (VVar   _)     _    |- _ ] => inverts H
    | [ H: TypeV _ _ _ _ (VLoc   _)     _    |- _ ] => inverts H
+   | [ H: TypeV _ _ _ _ (VBox   _)     _    |- _ ] => inverts H
    | [ H: TypeV _ _ _ _ (VLam   _ _)   _    |- _ ] => inverts H
    | [ H: TypeV _ _ _ _ (VLAM   _ _)   _    |- _ ] => inverts H
    | [ H: TypeV _ _ _ _ (VConst _)     _    |- _ ] => inverts H

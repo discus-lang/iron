@@ -14,6 +14,10 @@ Proof.
       -> KindT  ke sp t KData);
    intros; inverts_type; eauto 1.
 
+ - Case "VBox".
+   spec IHv H5. rip.
+   eapply KiCon2. simpl. eauto. auto. auto.
+
  - Case "VLam".
    lets D: IHv H8. rip.
     eapply KiApp.

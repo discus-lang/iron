@@ -11,7 +11,8 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
   match vv with
   | VVar _          => vv
   | VLoc _          => vv
-  | VLam t x        => VLam (substTT d u t) (substTX d u x)
+  | VBox   x        => VBox   (substTX d u x)      
+  | VLam t x        => VLam   (substTT d u t) (substTX d u x)
   | VLAM k x        => VLAM k (substTX (S d) (liftTT 1 0 u) x)
   | VConst c        => vv
   end
@@ -25,7 +26,8 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
   | XOp1 op1 v      => XOp1   op1 (substTV d u v)
 
   | XPrivate x      => XPrivate (substTX (S d) (liftTT 1 0 u) x)
-  | XExtend t x     => XExtend  (substTT d u t) (substTX (S d) (liftTT 1 0 u) x)
+  | XExtend  t x    => XExtend  (substTT d u t) (substTX (S d) (liftTT 1 0 u) x)
+
   | XAlloc  t v     => XAlloc   (substTT d u t) (substTV d u v)
   | XRead   t v     => XRead    (substTT d u t) (substTV d u v)
   | XWrite  t v1 v2 => XWrite   (substTT d u t) (substTV d u v1) (substTV d u v2)
@@ -63,6 +65,10 @@ Proof.
            = substTT ix t2 (TRef r t)).
    unfold substTE; eauto.
    eauto using subst_type_type_ix.
+
+ - Case "VBox".
+   eapply TvBox; fold substTT.
+    eauto using subst_type_type_ix.
 
  - Case "VLam".
    simpl. apply TvLam.

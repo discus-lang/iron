@@ -25,7 +25,9 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
      | Lt  => VVar ix
      end
 
-  | VLoc l            => vv
+  | VLoc l           => vv
+
+  | VBox x           => VBox       (substVX d u x)
 
   (* Increase the depth as we move across a lambda.
      Also lift free references in the exp being substituted
@@ -51,6 +53,7 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
 
   |  XPrivate x        => XPrivate   (substVX d (liftTV 0 u) x)
   |  XExtend  tR x     => XExtend tR (substVX d (liftTV 0 u) x)
+
   |  XAlloc   tR v2    => XAlloc  tR (substVV d u v2)
   |  XRead    tR v1    => XRead   tR (substVV d u v1)
   |  XWrite   tR v1 v2 => XWrite  tR (substVV d u v1) (substVV d u v2)
@@ -140,5 +143,4 @@ Proof.
  rrwrite (te = delete 0 (te :> t2)). 
  eapply subst_val_exp_ix; burn.
 Qed.
-
 

@@ -10,6 +10,7 @@ Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
  match vv with
  | VVar  _        => vv
  | VLoc  _        => vv
+ | VBox  x        => VBox     (mergeX p1 p2 x)
  | VLam  t x      => VLam     (mergeT p1 p2 t) (mergeX p1 p2 x)
  | VLAM  k x      => VLAM k   (mergeX p1 p2 x)
  | VConst c       => vv
@@ -171,7 +172,6 @@ Proof.
            = mergeT p1 p2 (TRef r t2)).
    eauto.
 Qed.
-
 
 
 Lemma mergeX_typeX_freshX

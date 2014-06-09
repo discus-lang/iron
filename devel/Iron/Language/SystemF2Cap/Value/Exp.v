@@ -30,6 +30,7 @@ Hint Constructors op1.
 Inductive val : Type := 
   | VVar     : nat   -> val
   | VLoc     : nat   -> val
+  | VBox     : exp   -> val
   | VLam     : ty    -> exp -> val
   | VLAM     : ki    -> exp -> val
   | VConst   : const -> val
@@ -44,10 +45,11 @@ with     exp : Type :=
   (* Pure operators *)
   | XOp1     : op1 -> val -> exp
 
-  (* Store operators *)
+  (* Region creation *)
   | XPrivate : exp -> exp
   | XExtend  : ty  -> exp -> exp
 
+  (* Store operators *)
   | XAlloc   : ty  -> val -> exp
   | XRead    : ty  -> val -> exp
   | XWrite   : ty  -> val -> val -> exp.
@@ -63,6 +65,7 @@ Lemma exp_mutind : forall
     (PV : val -> Prop)
  ,  (forall n,                                     PV (VVar   n))
  -> (forall l,                                     PV (VLoc   l))
+ -> (forall x,          PX x                    -> PV (VBox   x))
  -> (forall t x,        PX x                    -> PV (VLam   t x))
  -> (forall k x,        PX x                    -> PV (VLAM   k x))
  -> (forall c,                                     PV (VConst c))
@@ -79,7 +82,7 @@ Lemma exp_mutind : forall
  ->  forall x, PX x.
 Proof. 
  intros PX PV.
- intros hVar hLoc hLam hLAM hConst 
+ intros hVar hLoc hBox hLam hLAM hConst 
         hVal hLet hApp hAPP hOp1
         hPrivate hExtend
         hAlloc hRead hWrite.
@@ -104,6 +107,7 @@ Proof.
  case v; intros.
  apply hVar.
  apply hLoc.
+ apply hBox. apply IHX.
  apply hLam. apply IHX.
  apply hLAM. apply IHX.
  apply hConst.

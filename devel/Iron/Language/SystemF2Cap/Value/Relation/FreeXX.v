@@ -6,6 +6,7 @@ Fixpoint FreeXV (n : nat) (vv : val) : Prop :=
  match vv with
  | VVar n'            => n = n'
  | VLoc _             => False
+ | VBox   x           => FreeXX n x
  | VLam t x           => FreeXX (S n) x
  | VLAM k x           => FreeXX n x
  | VConst _           => False

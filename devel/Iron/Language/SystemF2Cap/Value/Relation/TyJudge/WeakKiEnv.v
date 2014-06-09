@@ -32,6 +32,9 @@ Proof.
    apply get_map; auto.
    eauto using kind_kienv_insert.
 
+ - Case "XBox".
+   eapply TvBox; eauto using kind_kienv_insert.
+
  - Case "VLam".
    simpl.
    apply TvLam.

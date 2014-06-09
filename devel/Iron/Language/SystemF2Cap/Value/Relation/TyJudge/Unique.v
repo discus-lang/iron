@@ -20,6 +20,10 @@ Proof.
    try (solve [inverts_type; try congruence]);
    inverts_type; auto.
 
+ - Case "VBox".
+   spec IHx H6 H5.
+   rip.
+
  - Case "VLam".
    spec IHx H9 H10. 
    burn.
@@ -67,3 +71,4 @@ Proof.
    spec IHx H10 H11.
    inverts IHx. auto.
 Qed.
+
