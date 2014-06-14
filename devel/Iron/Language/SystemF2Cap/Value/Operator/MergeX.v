@@ -137,7 +137,6 @@ Proof.
      rgwrite (TNat = mergeT p1 p2 TNat). eauto.
 
  - Case "XPrivate".
-   snorm.
    eapply TxPrivate
     with (t := mergeT p1 p2 t0)
          (e := mergeT p1 p2 e0).
@@ -146,11 +145,15 @@ Proof.
     + rewrite mergeT_maskOnVarT.
       symmetry.
       eapply mergeT_lowerTT. eauto.
-    + snorm. 
-      admit. (* not sure *)
-    + repeat (rewrite mergeTE_liftTE_comm).
-      admit. (* ok *)
-      (* eapply IHx; eauto. *)
+    + eapply Forall_map.
+      snorm.
+    + fold mergeX.
+      repeat (rewrite mergeTE_liftTE_comm).
+      unfold mergeTE at 1.
+      rewrite <- map_app.
+      rrwrite ( map (mergeT p1 p2) (liftTE 0 te >< ts)
+              = mergeTE p1 p2 (liftTE 0 te >< ts)).
+      eapply IHx. auto. auto.
 
  - Case "XExtend".
    snorm.
@@ -235,7 +238,7 @@ Proof.
 
  - Case "XLam".
    eapply TvLam; auto.
-   snorm. 
+   snorm.
    rewrite mergeTE_rewind; auto.
 
  - Case "XLAM".
@@ -281,11 +284,13 @@ Proof.
  - Case "XPrivate".
    eapply TxPrivate; eauto.
    repeat (rewrite mergeTE_liftTE_comm).
-   admit. (* not sure *)
-  (*
-   eapply IHx; snorm.
-   eapply freshFreeX_XPrivate; eauto.
-*)
+   rewrite mergeTE_rewind_app.
+   eapply IHx; auto.
+   snorm.
+   eapply freshFreeX_XPrivate.
+   simpl in H. rip. rip.
+   simpl in H. rip.
+
  - Case "XExtend".
    eapply TxExtend; eauto.
    repeat (rewrite mergeTE_liftTE_comm).

@@ -234,3 +234,17 @@ Proof.
 Qed.
 
 
+Lemma mergeTE_rewind_app
+ :  forall p1 p2 te1 te2
+ ,  Forall (FreshT p2) te2
+ -> mergeTE p1 p2 te1  >< te2
+ =  mergeTE p1 p2 (te1 >< te2).
+Proof.
+ intros.
+ induction te2.
+ - snorm.
+ - simpl.
+   erewrite IHte2. f_equal.
+   symmetry. eapply mergeT_freshT_id. snorm. snorm.
+Qed.
+

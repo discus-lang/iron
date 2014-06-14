@@ -24,7 +24,7 @@ Fixpoint FreshV (p : nat) (vv : val) : Prop :=
  | XApp     v1 v2   => FreshV p v1 /\ FreshV p v2
  | XAPP     v1 t2   => FreshV p v1 /\ FreshT p t2
  | XOp1     op v    => FreshV p v
- | XPrivate ts x    => FreshX p x
+ | XPrivate ts x    => Forall (FreshT p) ts /\ FreshX p x
  | XExtend  t x     => FreshT p t  /\ FreshX p x
  | XRun     v       => FreshV p v
  | XAlloc   t v     => FreshT p t  /\ FreshV p v
@@ -66,6 +66,9 @@ Proof.
       -> FreshV p v);
   intros; inverts_type; 
   try (solve [simpl; rip; eauto]).
+
+  - Case "XPrivate".
+    simpl. rip; eauto. snorm. eauto.
 Qed.
 Hint Resolve freshX_typeX. 
 
@@ -175,19 +178,45 @@ Qed.
 Hint Resolve freshFreeX_XLet.
 
 
-Lemma freshFreeX_XPrivate
+Lemma freshFreeX_XPrivate_ts
  :  forall p te ts x 
- ,  FreshFreeX p te (XPrivate ts x)
- -> FreshFreeX p (liftTE 0 te) x.
+ ,  Forall (FreshT p) ts
+ -> FreshFreeX p te (XPrivate ts x)
+ -> FreshFreeX p ts x.
 Proof.
  intros.
  unfold FreshFreeX in *.
  rip.
- snorm.
- unfold liftTE in *.
- eapply get_map_exists in H2.
- destruct H2 as [t']. rip.
- rewrite <- freshT_liftTT. eauto.
+ snorm. eapply H. eauto.
+Qed.
+
+
+
+Lemma freshFreeX_XPrivate
+ :  forall p te ts x
+ ,  Forall (FreshT p) ts
+ -> FreshFreeX p te (XPrivate ts x) 
+ -> FreshFreeX p (liftTE 0 te >< ts) x.
+Proof.
+ intros.
+ unfold FreshFreeX. rip.
+
+ have HE:  ( (exists n1, get n1 (liftTE 0 te) = Some t /\ n = n1 + length ts)
+         \/  (           get n ts             = Some t)) by admit. (* fine, get lemma *)
+ inverts HE.
+
+ - destruct H1. rip.
+   rip. clear H3.
+   unfold liftTE in *.
+   eapply get_map_exists in H4.
+   destruct H4 as [x']. rip.
+   rewrite <- freshT_liftTT.
+
+   unfold FreshFreeX in H0.
+   eapply H0. rip.
+   simpl. eauto. auto.
+
+ - snorm. eauto.
 Qed.
 
 
