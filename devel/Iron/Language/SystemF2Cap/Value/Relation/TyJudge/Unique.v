@@ -56,7 +56,7 @@ Proof.
    rip; congruence.
 
  - Case "XPrivate".
-   spec IHx H8 H10.
+   spec IHx H12 H15.
    rip; congruence.
 
  - Case "XExtend".

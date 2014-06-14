@@ -20,7 +20,7 @@ Fixpoint SuppV (l : nat) (vv : val) : Prop :=
  | XApp     v1 v2     => SuppV l v1 \/ SuppV l v2
  | XAPP     v1  t2    => SuppV l v1
  | XOp1     op v      => SuppV l v
- | XPrivate x         => SuppX l x
+ | XPrivate ts x      => SuppX l x
  | XExtend  t x       => SuppX l x
  | XRun     v         => SuppV l v
  | XAlloc   t v1      => SuppV l v1
@@ -80,8 +80,8 @@ Proof.
 
  - inverts_type.
    unfold CoversX in *. snorm.
-   eapply IHx in H7; eauto.
-   destruct H7.
+   eapply IHx in H11; eauto.
+   destruct H11.
    unfold liftTE in *.
    eapply get_map_exists in H0. 
    firstorder.

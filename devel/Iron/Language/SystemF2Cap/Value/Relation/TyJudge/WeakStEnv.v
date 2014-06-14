@@ -27,7 +27,7 @@ Proof.
 
  - Case "XPrivate".
    eapply TxPrivate with (t := t) (e := e); eauto.
-   spec IHx H8 H. clear H8.
+   spec IHx H12 H. clear H12.
    unfold liftTE in *.
    simpl. norm.
    rrwrite (liftTT 1 0 t2 = t2).

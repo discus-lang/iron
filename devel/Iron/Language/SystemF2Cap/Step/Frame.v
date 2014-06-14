@@ -60,9 +60,9 @@ Inductive
  (* Region operators ****************************)
  (* Create a private region. *)
  | SfPrivatePush
-   :  forall ss sp fs x p
+   :  forall ss sp ts fs x p
    ,  p = allocRegion sp
-   -> StepF  ss sp                       fs                  (XPrivate x)
+   -> StepF  ss sp                       fs                  (XPrivate ts x)
              ss (SRegion p <: sp)       (fs :> FPriv None p) (substTX 0 (TRgn p) x)
 
  (* Pop the frame for a private region and delete it from the heap. *)

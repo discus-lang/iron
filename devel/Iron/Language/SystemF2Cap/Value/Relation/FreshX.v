@@ -24,7 +24,7 @@ Fixpoint FreshV (p : nat) (vv : val) : Prop :=
  | XApp     v1 v2   => FreshV p v1 /\ FreshV p v2
  | XAPP     v1 t2   => FreshV p v1 /\ FreshT p t2
  | XOp1     op v    => FreshV p v
- | XPrivate x       => FreshX p x
+ | XPrivate ts x    => FreshX p x
  | XExtend  t x     => FreshT p t  /\ FreshX p x
  | XRun     v       => FreshV p v
  | XAlloc   t v     => FreshT p t  /\ FreshV p v
@@ -176,8 +176,8 @@ Hint Resolve freshFreeX_XLet.
 
 
 Lemma freshFreeX_XPrivate
- :  forall p te x 
- ,  FreshFreeX p te (XPrivate x)
+ :  forall p te ts x 
+ ,  FreshFreeX p te (XPrivate ts x)
  -> FreshFreeX p (liftTE 0 te) x.
 Proof.
  intros.
@@ -395,4 +395,5 @@ Proof.
    eapply IHx; eauto.
    eapply IHx0; eauto.
 Qed.   
+
 

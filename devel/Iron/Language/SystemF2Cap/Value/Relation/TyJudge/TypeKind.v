@@ -63,7 +63,7 @@ Proof.
     rip.
 
  - Case "XPrivate".
-   spec IHv H7. rip.
+   spec IHv H11. rip.
    eapply lower_type_type; eauto.
    eapply lower_type_type; eauto.
 

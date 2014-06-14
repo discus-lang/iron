@@ -51,10 +51,11 @@ Fixpoint substVV (d: nat) (u: val) (vv: val) : val :=
 
   |  XOp1 op v1        => XOp1 op (substVV d u v1)
 
-  |  XPrivate x        => XPrivate   (substVX d (liftTV 0 u) x)
-  |  XExtend  tR x     => XExtend tR (substVX d (liftTV 0 u) x)
+  |  XPrivate ts x     => XPrivate ts (substVX (d + length ts) 
+                                               (liftXV (length ts) 0 (liftTV 0 u)) x)
+  |  XExtend  tR x     => XExtend  tR (substVX d (liftTV 0 u) x)
 
-  |  XRun     v        => XRun       (substVV d u v)
+  |  XRun     v        => XRun        (substVV d u v)
 
   |  XAlloc   tR v2    => XAlloc  tR (substVV d u v2)
   |  XRead    tR v1    => XRead   tR (substVV d u v1)
@@ -110,16 +111,20 @@ Proof.
     eauto using typev_tyenv_weaken1.
 
  - Case "XPrivate".
-   eapply (IHx1 ix) in H9.
+   eapply (IHx1 (ix + length ts)) in H13.
    + eapply TxPrivate; eauto.
-     unfold liftTE. rewrite map_delete. eauto.
-   + eapply get_map. eauto.
-   + unfold liftTE. 
+     unfold liftTE in *. rewrite map_delete.
+     rewrite delete_app. eauto.
+   + eapply get_app_left_some.
+     eapply get_map. eauto.
+   + unfold liftTE.
+     rewrite <- delete_app.
      rewrite <- map_delete.
      rrwrite ( map (liftTT 1 0) (delete ix te)
              = liftTE 0 (delete ix te)).
-     lets D: typev_kienv_weaken1 H1.
-     eauto using typev_kienv_weaken1.
+     lets D1: typev_kienv_weaken1 H1.
+     lets D2: typev_tyenv_weaken_append D1.
+     eapply D2.
 
  - Case "XExtend".
    eapply (IHx1 ix) in H12.
@@ -131,7 +136,7 @@ Proof.
      rrwrite ( map (liftTT 1 0) (delete ix te)
              = liftTE 0 (delete ix te)).
      lets D: typev_kienv_weaken1 H1.
-     eauto using typev_kienv_weaken1.
+     eapply D.
 Qed.
 
 

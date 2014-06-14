@@ -23,8 +23,8 @@ Fixpoint liftTV (d: nat) (vv: val) : val :=
 
   |  XOp1   op1 v      => XOp1     op1 (liftTV d v)
 
-  |  XPrivate x        => XPrivate (liftTX (S d) x)
-  |  XExtend  tR x     => XExtend  (liftTT 1 d tR) (liftTX (S d) x)
+  |  XPrivate ts x     => XPrivate (liftTE (S d) ts) (liftTX (S d) x)
+  |  XExtend  tR x     => XExtend  (liftTT 1 d tR)   (liftTX (S d) x)
 
   |  XRun v            => XRun     (liftTV d v)
  
@@ -60,8 +60,8 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
 
   | XOp1   op1 v      => XOp1     op1 (liftXV n d v)
 
-  | XPrivate x        => XPrivate    (liftXX n d x)
-  | XExtend  tR x     => XExtend  tR (liftXX n d x)
+  | XPrivate ts x     => XPrivate    ts (liftXX n d x)
+  | XExtend  tR x     => XExtend  tR    (liftXX n d x)
 
   | XRun v            => XRun        (liftXV n d v)
 
@@ -85,6 +85,19 @@ Proof.
   snorm; f_equal; try omega; burn.
 Qed.
 Hint Rewrite liftXX_zero : global.
+
+
+Lemma liftXV_zero
+ : forall d v
+ , liftXV 0 d v = v.
+Proof.
+ intros.
+ have (liftXX 0 d (XVal v) = XVal v) 
+  by (eapply liftXX_zero).
+ snorm.
+ congruence.
+Qed.
+Hint Rewrite liftXV_zero : global.
 
 
 (* Commutivity of lifting. *)
@@ -136,5 +149,18 @@ Proof.
   rewrite <- IHm.
   rewrite liftXX_comm.
   burn.
+Qed.
+
+
+Lemma liftXV_plus
+ : forall n m v
+ , liftXV n 0 (liftXV m 0 v) = liftXV (n + m) 0 v.
+Proof.
+ intros.
+ have ( liftXX n 0 (liftXX m 0 (XVal v)) 
+      = liftXX (n + m) 0 (XVal v))
+  by (eapply liftXX_plus).
+ snorm.
+ congruence.
 Qed.
 

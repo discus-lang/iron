@@ -41,7 +41,9 @@ Proof.
    have ( liftTE 0 (insert ix t2 te)
         = insert ix (liftTT 1 0 t2) (liftTE 0 te))
     by (unfold liftTE; rewrite map_insert; auto).
-   rewritess. eauto.
+   rewritess. 
+   admit. (* prob ok, insert lemma *)
+   (* eauto. *)
 
  - Case "XExtend".
    eapply TxExtend; eauto.
@@ -82,6 +84,25 @@ Qed.
 
 (* We can several new types onto the environment stack provided
    we lift referenes to existing types across the new one. *)
+Lemma typev_tyenv_weaken_append
+ :  forall ke te se sp te' v t1
+ ,  TypeV  ke te se sp v t1
+ -> TypeV  ke (te >< te') se sp (liftXV (length te') 0 v) t1.
+Proof.
+ intros.
+ induction te'; simpl.
+ - burn. 
+
+ - rrwrite (S (length te') = length te' + 1).
+   rrwrite (length te' + 1 = 1 + length te').
+   rewrite <- liftXV_plus.
+   eapply typev_tyenv_weaken1.
+   auto.
+Qed.
+
+
+(* We can several new types onto the environment stack provided
+   we lift referenes to existing types across the new one. *)
 Lemma type_tyenv_weaken_append
  :  forall ke te se sp te' x t1 e1
  ,  TypeX  ke te se sp x t1 e1
@@ -95,6 +116,6 @@ Proof.
     rrwrite (length te' + 1 = 1 + length te').
     rewrite <- liftXX_plus.
     eapply type_tyenv_weaken1.
-    burn.
+    auto.
 Qed.
 

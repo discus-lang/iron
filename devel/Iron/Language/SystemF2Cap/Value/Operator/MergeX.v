@@ -32,8 +32,8 @@ Fixpoint mergeV (p1 p2 : nat) (vv : val) : val :=
  |  XOp1 op v      
  => XOp1 op  (mergeV p1 p2 v)
 
- |  XPrivate x     
- => XPrivate (mergeX p1 p2 x)
+ |  XPrivate ts x     
+ => XPrivate (map (mergeT p1 p2) ts) (mergeX p1 p2 x)
 
  |  XExtend  t x   
  => XExtend  (mergeT p1 p2 t)  (mergeX p1 p2 x)
@@ -146,8 +146,11 @@ Proof.
     + rewrite mergeT_maskOnVarT.
       symmetry.
       eapply mergeT_lowerTT. eauto.
+    + snorm. 
+      admit. (* not sure *)
     + repeat (rewrite mergeTE_liftTE_comm).
-      eapply IHx; eauto.
+      admit. (* ok *)
+      (* eapply IHx; eauto. *)
 
  - Case "XExtend".
    snorm.
@@ -278,9 +281,11 @@ Proof.
  - Case "XPrivate".
    eapply TxPrivate; eauto.
    repeat (rewrite mergeTE_liftTE_comm).
+   admit. (* not sure *)
+  (*
    eapply IHx; snorm.
    eapply freshFreeX_XPrivate; eauto.
-
+*)
  - Case "XExtend".
    eapply TxExtend; eauto.
    repeat (rewrite mergeTE_liftTE_comm).

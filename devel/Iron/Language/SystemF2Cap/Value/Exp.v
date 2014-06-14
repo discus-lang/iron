@@ -46,7 +46,7 @@ with     exp : Type :=
   | XOp1     : op1 -> val -> exp
 
   (* Region creation *)
-  | XPrivate : exp -> exp
+  | XPrivate : list ty -> exp -> exp
   | XExtend  : ty  -> exp -> exp
 
   (* Effect reflection *)
@@ -77,7 +77,7 @@ Lemma exp_mutind : forall
  -> (forall v1 v2,      PV v1 -> PV v2          -> PX (XApp   v1 v2))
  -> (forall v t,        PV v                    -> PX (XAPP   v  t))
  -> (forall o v,        PV v                    -> PX (XOp1 o   v))
- -> (forall x,          PX x                    -> PX (XPrivate x))
+ -> (forall ts x,       PX x                    -> PX (XPrivate ts x))
  -> (forall t x,        PX x                    -> PX (XExtend  t x))
  -> (forall v,          PV v                    -> PX (XRun   v))
  -> (forall r v,        PV v                    -> PX (XAlloc r v))

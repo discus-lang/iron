@@ -121,11 +121,12 @@ Inductive
   (* Region Creation ***************************)
   (* Create a private region. *)
   | TxPrivate
-    :  forall ke te se sp x t tL e eL
+    :  forall ke te se sp x t tL e eL ts
     ,  lowerTT 0 t                = Some tL
     -> lowerTT 0 (maskOnVarT 0 e) = Some eL
-    -> TypeX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x            t  e
-    -> TypeX ke              te            se            sp (XPrivate x) tL eL
+    -> Forall (fun t => KindT (nil :> KRegion) sp t KEffect) ts
+    -> TypeX  (ke :> KRegion) (liftTE 0 te >< ts) (liftTE 0 se) sp x               t  e
+    -> TypeX  ke              te                  se            sp (XPrivate ts x) tL eL
 
   (* Extend an existing region. *)
   | TxExtend
@@ -190,7 +191,7 @@ Ltac inverts_type :=
    | [ H: TypeX _ _ _ _ (XLet   _ _ _) _ _  |- _ ] => inverts H 
    | [ H: TypeX _ _ _ _ (XApp   _ _)   _ _  |- _ ] => inverts H 
    | [ H: TypeX _ _ _ _ (XAPP   _ _)   _ _  |- _ ] => inverts H 
-   | [ H: TypeX _ _ _ _ (XPrivate _)   _ _  |- _ ] => inverts H
+   | [ H: TypeX _ _ _ _ (XPrivate _ _) _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XExtend  _ _) _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XRun   _)     _ _  |- _ ] => inverts H
    | [ H: TypeX _ _ _ _ (XAlloc _ _)   _ _  |- _ ] => inverts H
