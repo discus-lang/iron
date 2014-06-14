@@ -13,9 +13,12 @@ Proof.
   (PV := fun v => forall ke te se sp t p
       ,  TypeV ke te se sp v t
       -> TypeV ke te se (p <: sp) v t);
-  intros; inverts_type; 
+  intros; inverts_type;
   eauto using kind_stprops_snoc.
-  admit. (* ok push sp into forall *)
+
+  - Case "XPrivate".
+    eapply TxPrivate; eauto.
+    snorm.
 Qed.
 Hint Resolve typex_stprops_snoc.
 
@@ -45,7 +48,10 @@ Proof.
       -> TypeV ke te se (sp :> p) v t);
   intros; inverts_type; 
   eauto using kind_stprops_cons.
-  admit. (* ok push sp into forall *)
+
+  - Case "XPrivate".
+    eapply TxPrivate; eauto.
+    snorm.
 Qed.
 Hint Resolve typex_stprops_cons.
 
