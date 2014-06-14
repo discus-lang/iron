@@ -60,7 +60,7 @@ Fixpoint liftXV (n: nat) (d: nat) (vv: val) {struct vv} : val :=
 
   | XOp1   op1 v      => XOp1     op1 (liftXV n d v)
 
-  | XPrivate ts x     => XPrivate    ts (liftXX n d x)
+  | XPrivate ts x     => XPrivate    ts (liftXX n (d + length ts) x)
   | XExtend  tR x     => XExtend  tR    (liftXX n d x)
 
   | XRun v            => XRun        (liftXV n d v)

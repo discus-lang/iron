@@ -41,9 +41,10 @@ Proof.
    have ( liftTE 0 (insert ix t2 te)
         = insert ix (liftTT 1 0 t2) (liftTE 0 te))
     by (unfold liftTE; rewrite map_insert; auto).
-   rewritess. 
-   admit. (* prob ok, insert lemma *)
-   (* eauto. *)
+   rewritess.
+   rewrite insert_app.
+   eapply IHx.
+   auto.
 
  - Case "XExtend".
    eapply TxExtend; eauto.
