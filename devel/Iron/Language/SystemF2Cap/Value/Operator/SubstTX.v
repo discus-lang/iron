@@ -25,7 +25,8 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
 
   | XOp1 op1 v      => XOp1   op1 (substTV d u v)
 
-  | XPrivate ts x   => XPrivate (map (substTT d u) ts) (substTX (S d) (liftTT 1 0 u) x)
+  | XPrivate ts x   => XPrivate ts (substTX (S d) (liftTT 1 0 u) x)
+
   | XExtend  t  x   => XExtend  (substTT d u t) (substTX (S d) (liftTT 1 0 u) x)
 
   | XRun v          => XRun     (substTV d u v)
@@ -150,13 +151,24 @@ Proof.
      * have    (~FreeT 0 (liftTT 1 0 t2)).
        auto.
 
-   + admit.        (* fix subst type into private effs *)
+   + auto.
 
    + rewrite delete_rewind.
      rewrite (liftTE_substTE 0 ix).
      rewrite (liftTE_substTE 0 ix).
-     admit.        (* fix subst *)
-     (* eauto using kind_kienv_weaken. *)
+    
+     rrwrite (ts = substTE (1 + 0 + ix) (liftTT 1 0 t2) (liftTE 0 ts))
+      by admit. (* fine. ts has only 1 free var, so subst above this is identity. *)
+
+     unfold substTE at 1.
+     unfold substTE at 1.
+     rewrite <- map_app.
+     rrwrite ( map (substTT (1 + 0 + ix) (liftTT 1 0 t2)) (liftTE 0 te >< liftTE 0 ts)
+             = substTE (1 + 0 + ix) (liftTT 1 0 t2) (liftTE 0 te >< liftTE 0 ts)).
+     eapply IHx1.
+     eauto.
+     eauto using kind_kienv_weaken.
+     admit.    (* fine. ts has only 1 free var, so subst above this is identity. *)
 
  - Case "XExtend".
    have H0: (ix = 0 + ix).

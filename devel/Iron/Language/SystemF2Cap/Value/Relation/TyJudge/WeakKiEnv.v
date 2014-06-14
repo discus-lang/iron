@@ -106,14 +106,21 @@ Proof.
      rewrite maskOnVarT_liftTT.
      eapply lowerTT_liftTT_succ. auto.
 
-   + admit. (* ok, liftTE (S ix) ts = ts, as only 1 member in env *)
+   + assert (Forall (WfT 1) ts).
+      snorm. 
+      have (KindT (nil :> KRegion) sp x KEffect).
+      rrwrite (1 = length (nil :> KRegion)).
+      eapply kind_wfT. eauto.
+
+     snorm.     
+     admit. (* fine. liftTE (S ix) ts = ts. as WfT 1 x *)
 
    + rewrite insert_rewind.
      rewrite (liftTE_liftTE 0 ix).
      rewrite (liftTE_liftTE 0 ix).
 
-     admit. (* ok, only 1 member in env *)
-(*     eapply IHx1.
+     admit. (* prob ok. only 1 member in tenv of ts *)
+(*   eapply IHx1.
      have (liftTT 1 0 t1 = t).
      have (liftTT 1 0 e1 = maskOnVarT 0 e).
      repeat rewritess.
