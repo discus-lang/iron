@@ -200,3 +200,26 @@ Ltac inverts_type :=
    | [ H: TypeX _ _ _ _ (XOp1   _ _)   _ _  |- _ ] => inverts H 
    end).
 
+
+Lemma typex_tenv_effect_strengthen
+ :  forall ke se sp ts x t e
+ ,  Forall (fun t1 => KindT ke sp t1 KEffect) ts
+ -> TypeX ke ts  se sp x t e
+ -> TypeX ke nil se sp x t e.
+Proof.
+ intros.
+ admit. (* effect strengthen lemma *)
+Qed.
+
+
+
+
+
+
+
+
+
+
+
+
+

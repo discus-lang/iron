@@ -180,19 +180,21 @@ Proof.
 
        have HS: (SubsT        nil sp' e e1 KEffect)
         by (subst sp'; eauto).
-      
+
        apply lowerTT_some_liftTT in H5.
+       apply lowerTT_some_liftTT in H6.
 
        assert   (SubsVisibleT nil sp' sp (liftTT 1 0 e) (liftTT 1 0 e1)) as HV.
         rrwrite (liftTT 1 0 e  = e).
         rrwrite (liftTT 1 0 e1 = e1).
         eapply subsT_subsVisibleT.
         auto.
-       admit. (* not sure *)
-(*       rewrite H5 in HV.
-       rrwrite (liftTT  1 0 e = e) in HV.
-       rrwrite (substTT 0 r e = e).
-       eapply subsVisibleT_mask; eauto. *)
+
+       rrwrite (substTT 0 r e  = e).
+       rrwrite (liftTT  1 0 e  = e) in HV.
+       rrwrite (liftTT  1 0 e1 = maskOnVarT 0 e0) in HV.    
+
+       eapply subsVisibleT_mask; eauto.
      }
 
      assert (SubsVisibleT nil sp' sp (substTT 0 r e) (substTT 0 r e2)).
@@ -236,8 +238,12 @@ Proof.
        * rrwrite (liftTE 0 nil = nil).
          rrwrite (liftTE 0 se  = se) 
           by (inverts HH; auto).
-         admit. (* broken, needs more ts *)
-        (* auto. *)
+
+         eapply typex_stprops_snoc.
+         rrwrite (nil >< ts = ts) in H14.
+         eapply typex_tenv_effect_strengthen.
+          eauto. auto.
+
        * subst r.
          eapply KiRgn.
          rgwrite (SRegion p <: sp = sp ++ (nil :> SRegion p)).
