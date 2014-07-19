@@ -659,7 +659,7 @@ Proof.
      have (LiveE fs (TWrite (TRgn p)))
       by  (eapply liveE_subsT; eauto).
 
-     have (handleOfEffect (TWrite (TRgn p)) = Some p).
+     have (rgnOfEffect (TWrite (TRgn p)) = Some p).
      lets D: liveE_fpriv_in fs H4; auto.
      destruct D as [m].
      destruct H5 as [ts].

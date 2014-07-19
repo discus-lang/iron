@@ -34,9 +34,17 @@ Definition takeTApps (tt: ty) : (ty * list ty)
 
 
 (* Take the region identifier from an effect, if any. *)
-Fixpoint handleOfEffect (e : ty) : option nat :=
+Fixpoint rgnOfEffect (e : ty) : option nat :=
  match e with
  | TCon1 tc (TRgn p)  => if isEffectTyCon_b tc then Some p else None
+ | _                  => None
+ end.
+
+
+(* Take the variable from an effect, if any. *)
+Fixpoint varOfEffect (e : ty) : option nat :=
+ match e with
+ | TCon1 tc (TVar n)  => if isEffectTyCon_b tc then Some n else None
  | _                  => None
  end.
 
@@ -115,9 +123,9 @@ Proof.
 Qed.
 
 
-Lemma handleOfEffect_form_some
+Lemma rgnOfEffect_form_some
  :  forall e p
- ,  handleOfEffect e = Some p
+ ,  rgnOfEffect e = Some p
  -> exists tc
      ,  e    = TCon1 tc (TRgn p) 
      /\ true = isEffectTyCon_b tc.
@@ -130,5 +138,5 @@ Proof.
  - destruct e; snorm.
    destruct t0; snorm.
 Qed.
-Hint Resolve handleOfEffect_form_some.
+Hint Resolve rgnOfEffect_form_some.
 

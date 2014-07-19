@@ -201,6 +201,8 @@ Proof.
 
  - Case "XRun".
    eapply TxRun; fold substTT.
+   
+
    rrwrite ( TSusp (substTT ix t2 e1) (substTT ix t2 t1)
            = substTT ix t2 (TSusp e1 t1)).
     eauto using subst_type_type_ix.

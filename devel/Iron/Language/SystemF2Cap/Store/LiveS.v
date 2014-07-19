@@ -64,7 +64,7 @@ Qed.
 (********************************************************************)
 Lemma liveSP_from_effect
  :  forall e p fs ss
- ,  handleOfEffect e = Some p
+ ,  rgnOfEffect e = Some p
  -> LiveE  fs e
  -> LiveS  ss fs
  -> LiveSP ss p.
@@ -443,7 +443,7 @@ Lemma liveS_liveE_value
  :  forall ss fs e l b p
  ,  LiveS ss fs
  -> LiveE fs e
- -> handleOfEffect e = Some p
+ -> rgnOfEffect e    = Some p
  -> get l ss         = Some b
  -> regionOfStBind b = p
  -> exists v, b = StValue p v.

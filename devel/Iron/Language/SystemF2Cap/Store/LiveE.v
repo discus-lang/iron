@@ -1,4 +1,5 @@
 
+Require Export Iron.Language.SystemF2Cap.Kind.
 Require Export Iron.Language.SystemF2Cap.Step.Frame.
 Require Export Iron.Language.SystemF2Cap.Store.Bind.
 
@@ -7,13 +8,15 @@ Require Export Iron.Language.SystemF2Cap.Store.Bind.
 (* All region handles in this effect have corresponding 
    FUse frames in the frame stack. *)
 
-(* Atomic effect is live relative to the frame stack, which means
-   there is a frame which defines the target region. *)
-Definition LiveE1_stack (fs : stack) (e : ty)
- :=  forall p2
-  ,  handleOfEffect e = Some p2
-  -> (exists m1 ts, In (FPriv m1 p2 ts) fs).
 
+(* Atomic effect is permitted by a capability in the frame stack.
+   The effect refers to a region handle. *)
+Definition LiveE1_stack (fs : stack) (e : ty) 
+ := forall p2
+ ,  rgnOfEffect e = Some p2
+ -> (exists m1 ts, In (FPriv m1 p2 ts) fs).  (* add (In e ts) *)
+
+(* Effects are live relative to stack. *)
 Definition LiveEs (fs : stack) (es : list ty)
  := Forall (fun e1 => LiveE1_stack fs e1) es.
 
@@ -181,7 +184,7 @@ Proof.
  unfold LiveE1_stack in *.
  snorm.
  spec H x.
- apply handleOfEffect_form_some in H1.
+ apply rgnOfEffect_form_some in H1.
  destruct H1 as [tc]. rip.
  eapply maskOnVar_effect_remains in H0.
  - eapply H in H0; eauto.
@@ -221,18 +224,20 @@ Qed.
 Lemma liveE_fpriv_in
  :  forall e p2 fs
  ,  LiveE fs e
- -> handleOfEffect e = Some p2
+ -> rgnOfEffect e = Some p2
  -> (exists m1 ts, In (FPriv m1 p2 ts) fs).
 Proof.
  intros.
  unfold LiveE  in *.
  unfold LiveEs in *.
  snorm.
- eapply handleOfEffect_form_some in H0.
+ eapply rgnOfEffect_form_some in H0.
  destruct H0 as [tc]. rip. 
  snorm. 
  lets D: H (TCon1 tc (TRgn p2)). clear H.
- eapply D. snorm. snorm. nope. 
+ eapply D.
+ - snorm.
+ - snorm. nope. 
 Qed.
 
 
