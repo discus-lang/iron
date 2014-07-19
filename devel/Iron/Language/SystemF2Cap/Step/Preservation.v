@@ -150,10 +150,10 @@ Proof.
 
        have (LiveE fs e1).
 
-       have HLW: (LiveE (fs :> FPriv None p) e1).
+       have HLW: (LiveE (fs :> FPriv None p ts) e1).
        rewrite HLL in HLW.
 
-       have HL0: (LiveE (fs :> FPriv None p) e0) 
+       have HL0: (LiveE (fs :> FPriv None p ts) e0) 
         by (eapply liveE_maskOnVarT; eauto).
 
        trivial.
@@ -162,7 +162,7 @@ Proof.
         by  (eapply EqSym in H0; eauto).
 
        have (LiveE fs e2).
-       have (LiveE (fs :> FPriv None p) e2).
+       have (LiveE (fs :> FPriv None p ts) e2).
        rrwrite (substTT 0 r e2 = e2); auto.
        
    (* Effect of result is subsumed by previous. *)
@@ -290,7 +290,7 @@ Proof.
    (* No regions in store. *)
    - inverts HH. rip. 
      unfold StoreP in *. rip.
-     have (In (FPriv None p) (fs :> FPriv None p)).
+     have (In (FPriv None p ts) (fs :> FPriv None p ts)).
      have (In (SRegion p) nil) by firstorder.
      nope.
 
@@ -301,7 +301,7 @@ Proof.
      intuition.
 
      (* Frame stack is still well formed after popping the top FUse frame *)
-     + eapply wfFS_region_deallocate; auto.
+     + eapply wfFS_region_deallocate; eauto.
 
      (* After popping top FUse,
         all store bindings mentioned by frame stack are still live. *)
@@ -367,7 +367,7 @@ Proof.
 
        apply liveE_phase_change.
 
-       have HLW: (LiveE (fs :> FPriv (Some p1) p2) eL).
+       have HLW: (LiveE (fs :> FPriv (Some p1) p2 nil) eL).
        rewrite HLL in HLW.
 
        eapply liveE_maskOnVarT; eauto.
@@ -480,7 +480,7 @@ Proof.
    (* Updated store is live relative to frame stack. *)
    - SCase "LiveS".
      eapply liveS_mergeB.
-     + have (LiveSF ss (FPriv (Some p1) p2)).
+     + have (LiveSF ss (FPriv (Some p1) p2 ts)).
        unfold LiveSF in H0.
        unfold LiveSP. intros.
        eapply H0 in H1. inverts H1. auto.
@@ -651,20 +651,22 @@ Proof.
      inverts_kind; auto.
 
    (* All store bindings mentioned by frame stack are still live. *)
-   - eapply liveS_stvalue_update.
-     + inverts_type.
-       remember (TRgn p) as r.
+   - inverts_type.
 
-       have (SubsT nil sp e (TWrite r) KEffect)
-        by  (eapply EqSym in H0; eauto).
+     have (SubsT nil sp e (TWrite (TRgn p)) KEffect)
+      by  (eapply EqSym in H0; eauto).
 
-       have (LiveE fs (TWrite r))
-        by  (eapply liveE_subsT; eauto).
+     have (LiveE fs (TWrite (TRgn p)))
+      by  (eapply liveE_subsT; eauto).
 
-       eapply liveE_fpriv_in with (e := TWrite r).
-       * subst r. snorm. 
-       * subst r. snorm.
-     + auto.
+     have (handleOfEffect (TWrite (TRgn p)) = Some p).
+     lets D: liveE_fpriv_in fs H4; auto.
+     destruct D as [m].
+     destruct H5 as [ts].
+
+     eapply liveS_stvalue_update.
+     exists m. eauto.
+     auto.
 
    (* Resulting effects are to live regions. *)
    - have  (SubsT nil sp e e2 KEffect)

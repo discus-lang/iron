@@ -11,15 +11,15 @@ Require Export Iron.Language.SystemF2Cap.Store.Bind.
    and still have any region handles in the expression being well typed,
    along with dangling references into that region. *)
 Definition StoreP  (sp : stprops) (fs : stack)
- := (forall m1 p2, In (FPriv  m1       p2) fs -> In (SRegion p2) sp)
- /\ (forall p1 p2, In (FPriv (Some p1) p2) fs -> In (SRegion p1) sp).
+ := (forall m1 p2 ts, In (FPriv  m1       p2 ts) fs -> In (SRegion p2) sp)
+ /\ (forall p1 p2 ts, In (FPriv (Some p1) p2 ts) fs -> In (SRegion p1) sp).
 
 
 (* Weaken frame stack in store properties. *)
 Lemma storeP_snoc
- :  forall sp fs p
+ :  forall sp fs p ts
  ,  StoreP sp fs
- -> StoreP (SRegion p <: sp) (fs :> FPriv None p).
+ -> StoreP (SRegion p <: sp) (fs :> FPriv None p ts).
 Proof.
  unfold StoreP in *. rip.
  - inverts H0. inverts H.

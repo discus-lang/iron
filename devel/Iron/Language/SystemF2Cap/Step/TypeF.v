@@ -29,22 +29,22 @@ Inductive
    -> TypeF  ke te         se sp (fs :> FLet t1 x2) t1 t3 (TSum e2 e3)
 
  | TfConsPriv
-   :  forall ke te se sp fs t1 t2 e2 p
+   :  forall ke te se sp fs t1 t2 e2 p ts
    ,  In (SRegion p) sp
    -> NoPrivFs p fs
    -> LiveE  fs e2
-   -> TypeF  ke te se sp fs                   t1 t2 e2
-   -> TypeF  ke te se sp (fs :> FPriv None p) t1 t2 e2
+   -> TypeF  ke te se sp fs                      t1 t2 e2
+   -> TypeF  ke te se sp (fs :> FPriv None p ts) t1 t2 e2
 
  | TfConsExt 
-   :  forall ke te se sp fs t0 t1 e2 p1 p2
+   :  forall ke te se sp fs t0 t1 e2 p1 p2 ts
    ,  In (SRegion p1) sp 
    -> In (SRegion p2) sp
    -> FreshFs     p2 fs
    -> FreshSuppFs p2 se fs
    -> LiveE  fs (TSum e2 (TAlloc (TRgn p1)))
    -> TypeF  ke te se sp fs                         (mergeT p1 p2 t0) t1 e2
-   -> TypeF  ke te se sp (fs :> FPriv (Some p1) p2) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
+   -> TypeF  ke te se sp (fs :> FPriv (Some p1) p2 ts) t0 t1 (TSum e2 (TAlloc (TRgn p1))).
 
 Hint Constructors TypeF.
 
@@ -53,8 +53,8 @@ Hint Constructors TypeF.
 Ltac inverts_typef :=
  repeat (try 
   (match goal with 
-   | [ H: TypeF _ _ _ _ (_ :> FLet  _ _) _ _ _ |- _ ] => inverts H
-   | [ H: TypeF _ _ _ _ (_ :> FPriv _ _) _ _ _ |- _ ] => inverts H
+   | [ H: TypeF _ _ _ _ (_ :> FLet  _ _)   _ _ _ |- _ ] => inverts H
+   | [ H: TypeF _ _ _ _ (_ :> FPriv _ _ _) _ _ _ |- _ ] => inverts H
    end); 
  try inverts_type).
 
@@ -157,7 +157,7 @@ Proof.
    eapply freshX_typeX; eauto.
  - inverts H0.
    * eapply freshFs_cons; eauto.
-     lets D: (@in_not_in stprop) H4 H.
+     lets D: (@in_not_in stprop) H9 H.
      have (p <> n) by congruence.
      simpl. auto.
     * eapply freshFs_cons; eauto.

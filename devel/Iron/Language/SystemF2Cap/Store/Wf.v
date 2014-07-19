@@ -66,9 +66,9 @@ Hint Resolve wfFS_typeb.
 (* The region handles of private regions are present in the
    store properties. *)
 Lemma wfFS_fpriv_sregion
- :  forall se sp ss fs m1 p2
+ :  forall se sp ss fs m1 p2 ts
  ,  WfFS se sp ss fs
- -> In (FPriv   m1 p2) fs
+ -> In (FPriv   m1 p2 ts) fs
  -> In (SRegion p2)    sp.
 Proof. intros. inverts H. firstorder. Qed.
 Hint Resolve wfFS_fpriv_sregion.
@@ -88,9 +88,9 @@ Hint Resolve wfFS_storem_length.
 (* Creating a top level private region preserves well-formedness
    of the store. *)
 Lemma wfFS_push_priv_top
- :  forall se sp ss fs p2
+ :  forall se sp ss fs p2 ts
  ,  WfFS se sp ss fs
- -> WfFS se (SRegion p2 <: sp) ss (fs :> FPriv None p2).
+ -> WfFS se (SRegion p2 <: sp) ss (fs :> FPriv None p2 ts).
 Proof. intros. inverts H. auto. Qed.
 Hint Resolve wfFS_push_priv_top.
 
@@ -98,10 +98,10 @@ Hint Resolve wfFS_push_priv_top.
 (* Creating an extension region preserves well-formedness 
    of the store. *)
 Lemma wfFS_push_priv_ext
- :  forall se sp ss fs p1 p2
+ :  forall se sp ss fs p1 p2 ts
  ,  In (SRegion p1) sp
  -> WfFS  se  sp ss fs
- -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FPriv (Some p1) p2).
+ -> WfFS  se  (SRegion p2 <: sp) ss (fs :> FPriv (Some p1) p2 ts).
 Proof.
  intros.
  inverts H0. eapply WfFS_; rip.
@@ -147,8 +147,8 @@ Qed.
 (* Deallocating top-level region on the top of the frame stack
    preserves the well formedness of the store. *)
 Lemma wfFS_region_deallocate
- :  forall se sp ss fs p
- ,  WfFS se sp ss                     (fs :> FPriv None p)
+ :  forall se sp ss fs p ts
+ ,  WfFS se sp ss (fs :> FPriv None p ts)
  -> WfFS se sp (map (deallocRegion p) ss) fs.
 Proof.
  intros.
@@ -161,9 +161,9 @@ Qed.
 
 
 Lemma wfFS_pop_priv_ext
- :  forall se sp ss fs p1 p2
+ :  forall se sp ss fs p1 p2 ts
  ,  In (SRegion p1) sp
- -> WfFS se sp ss (fs :> FPriv (Some p1) p2)
+ -> WfFS se sp ss (fs :> FPriv (Some p1) p2 ts)
  -> WfFS (mergeTE p1 p2 se) sp (mergeBs p1 p2 ss) fs.
 Proof.
  intros.

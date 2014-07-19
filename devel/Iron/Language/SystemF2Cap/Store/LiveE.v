@@ -8,7 +8,7 @@ Require Export Iron.Language.SystemF2Cap.Store.Bind.
    FUse frames in the frame stack. *)
 Definition LiveEs (fs : stack) (es : list ty)
  := Forall (fun e1 => forall p2,  handleOfEffect e1 = Some p2
-                   -> (exists m1, In (FPriv m1 p2) fs))
+                   -> (exists m1 ts, In (FPriv m1 p2 ts) fs))
            es.
 
 
@@ -141,7 +141,10 @@ Proof.
  intros.
  unfold LiveE in *.
  unfold LiveEs in *.
- snorm. firstorder.
+ snorm.
+ lets D: H H0 H1.
+ shift m1. shift ts.
+ firstorder.
 Qed.
 Hint Resolve liveE_frame_cons.
 
@@ -181,9 +184,9 @@ Qed.
 
 
 Lemma liveE_phase_change
- :  forall fs m1 p e
- ,  LiveE (fs :> FPriv m1 p) e
- -> LiveE (fs :> FPriv m1 p) (substTT 0 (TRgn p) e).
+ :  forall fs m1 p ts e
+ ,  LiveE (fs :> FPriv m1 p ts) e
+ -> LiveE (fs :> FPriv m1 p ts) (substTT 0 (TRgn p) e).
 Proof.
  intros.
  induction e; snorm;
@@ -202,7 +205,7 @@ Proof.
     try (solve [inverts H0; snorm; nope]).
    exists m1.
    inverts H0.
-   + snorm.
+   + exists ts. snorm.
    + nope.
 Qed.
 
@@ -211,7 +214,7 @@ Lemma liveE_fpriv_in
  :  forall e p2 fs
  ,  LiveE fs e
  -> handleOfEffect e = Some p2
- -> (exists m1, In (FPriv m1 p2) fs).
+ -> (exists m1 ts, In (FPriv m1 p2 ts) fs).
 Proof.
  intros.
  unfold LiveE  in *.

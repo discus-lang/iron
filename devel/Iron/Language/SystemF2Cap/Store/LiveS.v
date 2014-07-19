@@ -21,14 +21,14 @@ Inductive  LiveBF : stbind -> frame -> Prop :=
    ,  LiveBF  b (FLet t x)
 
  | LiveBF_FPrivNone 
-   :  forall b p
+   :  forall b p ts
    ,  LiveBP b p             
-   -> LiveBF b (FPriv None p)
+   -> LiveBF b (FPriv None p ts)
  
  | LiveBF_FPrivSome
-   :  forall b p1 p2
+   :  forall b p1 p2 ts
    ,  LiveBP b p1 -> LiveBP b p2
-   -> LiveBF b (FPriv (Some p1) p2).
+   -> LiveBF b (FPriv (Some p1) p2 ts).
 Hint Constructors LiveBF.
 
 Definition LiveBK  (b : stbind) (fs : stack)
@@ -74,6 +74,7 @@ Proof.
  unfold LiveS in H1.
  unfold LiveSP. intros.
  destruct D as [m].
+ destruct H0 as [ts].
  lets D2: H1 H H0.
  inverts D2; auto.
 Qed.
@@ -168,10 +169,10 @@ Qed.
 
 
 Lemma liveS_push_fpriv_none_allocRegion
- :  forall se sp ss fs 
+ :  forall se sp ss fs ts
  ,  WfFS   se sp ss fs 
  -> LiveS  ss fs
- -> LiveS  ss (fs :> FPriv None (allocRegion sp)).
+ -> LiveS  ss (fs :> FPriv None (allocRegion sp) ts).
 Proof.
  unfold LiveS in *. rip.
  inverts H2; eauto.
@@ -183,11 +184,11 @@ Qed.
 
 
 Lemma liveS_push_fpriv_some_allocRegion
- :  forall se sp ss fs p1
- ,  WfFS   se sp ss fs
+ :  forall se sp ss fs p1 ts
+ ,  WfFS   se sp ss fs 
  -> LiveSP ss p1
  -> LiveS  ss fs
- -> LiveS  ss (fs :> FPriv (Some p1) (allocRegion sp)).
+ -> LiveS  ss (fs :> FPriv (Some p1) (allocRegion sp) ts).
 Proof.
  rip.
  unfold LiveS. intros.
@@ -337,8 +338,8 @@ Hint Resolve liveS_store_cons_stdead.
 
 
 Lemma liveS_stvalue_update
- :  forall ss fs l p v
- ,  (exists m, In (FPriv m p) fs)
+ :  forall ss fs l p v ts
+ ,  (exists m, In (FPriv m p ts) fs)
  -> LiveS  ss fs
  -> LiveS (update l (StValue p v) ss) fs.
 Proof.
@@ -410,9 +411,9 @@ Hint Resolve liveS_dead_noprivFs.
 
 
 Lemma liveS_deallocRegion
- :  forall ss fs p
+ :  forall ss fs p ts
  ,  NoPrivFs p fs
- -> LiveS ss (fs :> FPriv None p)
+ -> LiveS ss (fs :> FPriv None p ts)
  -> LiveS (map (deallocRegion p) ss) fs.
 Proof.
  intros.
@@ -425,10 +426,10 @@ Proof.
      split_if.
      * snorm. subst.
        eapply liveS_store_tail in H0. rip.
-     * have (LiveS ss (fs :> FPriv None p)). 
+     * have (LiveS ss (fs :> FPriv None p ts)). 
        rip.
    + simpl.
-     have (LiveS ss (fs :> FPriv None p)). 
+     have (LiveS ss (fs :> FPriv None p ts)). 
      rip.
      have (LiveS (ss :> StDead n) fs).
      eapply liveS_store_cons_stdead; auto.
@@ -458,6 +459,7 @@ Proof.
 
    lets D1: liveE_fpriv_in HLE H.
    destruct D1 as [m].
+   destruct H2 as [ts].
 
    lets D2: (@Forall_in frame) H0 H2. 
    simpl in D2.
@@ -498,7 +500,7 @@ Proof.
         snorm. unfold isStValue in H3.
         destruct H3. destruct H3. nope.
         nope.
- 
+
      * subst.
        simpl. snorm. nope. firstorder.
 Qed.

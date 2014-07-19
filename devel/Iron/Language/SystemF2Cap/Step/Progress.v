@@ -110,7 +110,7 @@ Proof.
  { right.
    exists ss. 
    exists (SRegion (allocRegion sp) <: sp). 
-   exists (fs :> FPriv None (allocRegion sp)).
+   exists (fs :> FPriv None (allocRegion sp) l).
    eauto.
  }
 
@@ -124,7 +124,7 @@ Proof.
 
    exists ss.
    exists (SRegion (allocRegion sp) <: sp).
-   exists (fs :> FPriv (Some p) (allocRegion sp)).
+   exists (fs :> FPriv (Some p) (allocRegion sp) nil).
    eauto.
  }
 

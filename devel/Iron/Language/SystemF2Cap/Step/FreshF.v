@@ -7,8 +7,8 @@ Require Export Iron.Language.SystemF2Cap.Step.Frame.
 Fixpoint NoPrivF (p : nat) (f : frame) {struct f} :=
  match f with
  | FLet t x               => True
- | FPriv None p1          => ~(p = p1)
- | FPriv (Some p1) p2     => ~(p = p1) /\ ~(p = p2)
+ | FPriv None      p1 ts  => ~(p = p1)
+ | FPriv (Some p1) p2 ts  => ~(p = p1) /\ ~(p = p2)
  end.
 
 Definition NoPrivFs (p : nat) (fs : stack)
@@ -39,9 +39,9 @@ Hint Resolve noprivFs_tail.
 (* Region identifier is not mentioned in the given stack frame. *)
 Fixpoint FreshF (p : nat) (ff : frame) {struct ff} :=
  match ff with
- | FLet  t x           => FreshT p t /\ FreshX p x
- | FPriv None      p2  => ~(p = p2)
- | FPriv (Some p1) p2  => ~(p = p1)  /\ ~(p = p2)
+ | FLet  t x              => FreshT p t /\ FreshX p x
+ | FPriv None      p2 ts  => ~(p = p2)
+ | FPriv (Some p1) p2 ts  => ~(p = p1)  /\ ~(p = p2)
  end.
 
 
@@ -104,8 +104,8 @@ Hint Resolve freshFs_noprivFs.
    of the given stack frame. *)
 Fixpoint   FreshFreeF (p : nat) (te : tyenv) (f : frame) {struct f} :=
  match f with
- | FLet t x       => FreshFreeX p (te :> t) x
- | FPriv _ _      => True
+ | FLet t x     => FreshFreeX p (te :> t) x
+ | FPriv _ _ _  => True
  end.
 
 
@@ -156,7 +156,7 @@ Hint Resolve freshFreeFs_tail.
 Fixpoint  FreshSuppF   (p : nat) (se : stenv) (f : frame) {struct f} :=
  match f with
  | FLet  t x      => FreshSuppX p se x
- | FPriv _ _      => True
+ | FPriv _ _ _    => True
  end.
 
 

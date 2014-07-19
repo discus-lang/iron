@@ -5,8 +5,8 @@ Require Export Iron.Language.SystemF2Cap.Step.FreshF.
 (* Store location is mentioned in (supports) the given frame. *)
 Fixpoint SuppF  (l : nat) (f : frame) {struct f} := 
  match f with
- | FLet t x   => SuppX l x
- | FPriv _ _  => False
+ | FLet t x     => SuppX l x
+ | FPriv _ _ _  => False
  end.
 
 (* Store location is mentioned in (supports) the given stack. *)
