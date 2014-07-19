@@ -191,6 +191,47 @@ Proof.
 Qed.
 
 
+Lemma get_app_first_length
+ :  forall {A} n (xs1 xs2 : list A) x
+ ,  n < length xs2
+ -> get n (xs1 >< xs2) = Some x
+ -> get n xs2          = Some x.
+Proof.
+ intros. gen n.
+ induction xs2; intros.
+ - simpl. snorm. nope.
+ - destruct n.
+   + simpl. auto.
+   + simpl. eapply IHxs2. 
+     snorm.
+     snorm.
+Qed.
+
+
+Lemma get_app_second_length
+ :  forall {A} n (xs1 xs2 : list A) x
+ ,  n >= length xs2
+ -> get n (xs1 >< xs2) = Some x
+ -> (exists n1, get n1 xs1 = Some x /\ n = n1 + length xs2).
+Proof.
+  admit. (* fine. list lemma *)
+Qed.
+
+
+Lemma get_app_or
+ :  forall {A} n (xs1 xs2 : list A) (x : A)
+ ,  get    n (xs1 >< xs2) = Some x
+ -> (exists n1, get n1 xs1 = Some x /\ n = n1 + length xs2)
+ \/ (           get n  xs2 = Some x).
+Proof.
+ intros.
+ have S: (n < length xs2 \/ n >= length xs2) by omega.
+ inverts S.
+ 
+ - right. eapply get_app_first_length; eauto.
+ - left.  eapply get_app_second_length; eauto.
+Qed.    
+
 
 Lemma freshFreeX_XPrivate
  :  forall p te ts x
@@ -201,8 +242,10 @@ Proof.
  intros.
  unfold FreshFreeX. rip.
 
- have HE:  ( (exists n1, get n1 (liftTE 0 te) = Some t /\ n = n1 + length ts)
-         \/  (           get n ts             = Some t)) by admit. (* fine, get lemma *)
+ assert  (   (exists n1, get n1 (liftTE 0 te) = Some t /\ n = n1 + length ts)
+         \/  (           get n ts             = Some t)) as HE.
+ eapply get_app_or; auto.
+
  inverts HE.
 
  - destruct H1. rip.

@@ -112,20 +112,26 @@ Proof.
       rrwrite (1 = length (nil :> KRegion)).
       eapply kind_wfT. eauto.
 
-     snorm.     
-     admit. (* fine. liftTE (S ix) ts = ts. as WfT 1 x *)
+     unfold liftTE.
+     eapply Forall_map.
+     snorm.
+     have (WfT 1 x).
+     have (KindT (nil :> KRegion) sp x KEffect).
+     rrwrite (S ix = 1 + ix).
+     rewrite liftTT_wfT_1; auto.
 
    + rewrite insert_rewind.
      rewrite (liftTE_liftTE 0 ix).
      rewrite (liftTE_liftTE 0 ix).
 
-     admit. (* prob ok. only 1 member in tenv of ts *)
-(*   eapply IHx1.
-     have (liftTT 1 0 t1 = t).
-     have (liftTT 1 0 e1 = maskOnVarT 0 e).
-     repeat rewritess.
-     auto.  *)
-
+     rrwrite (1 + (0 + ix) = S ix).
+     assert  ( liftTE (S ix) (liftTE 0 te) >< liftTE (S ix) ts
+             = liftTE (S ix) (liftTE 0 te  >< ts)) as HL.
+       unfold liftTE.
+       snorm.
+     rewrite HL.
+     eapply IHx1.
+     auto.
 
  - Case "XExtend".
    simpl.
