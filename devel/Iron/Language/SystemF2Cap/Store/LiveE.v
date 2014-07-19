@@ -6,11 +6,16 @@ Require Export Iron.Language.SystemF2Cap.Store.Bind.
 (********************************************************************)
 (* All region handles in this effect have corresponding 
    FUse frames in the frame stack. *)
-Definition LiveEs (fs : stack) (es : list ty)
- := Forall (fun e1 => forall p2,  handleOfEffect e1 = Some p2
-                   -> (exists m1 ts, In (FPriv m1 p2 ts) fs))
-           es.
 
+(* Atomic effect is live relative to the frame stack, which means
+   there is a frame which defines the target region. *)
+Definition LiveE1_stack (fs : stack) (e : ty)
+ :=  forall p2
+  ,  handleOfEffect e = Some p2
+  -> (exists m1 ts, In (FPriv m1 p2 ts) fs).
+
+Definition LiveEs (fs : stack) (es : list ty)
+ := Forall (fun e1 => LiveE1_stack fs e1) es.
 
 Definition LiveE  (fs : stack) (e : ty)
  := LiveEs fs (flattenT e).
@@ -26,8 +31,6 @@ Proof.
  intros. inverts H.
  unfold LiveEs in *.
  snorm.
- apply  H4 in H. 
- eapply H0 in H; eauto.
 Qed.
 
 
@@ -74,7 +77,6 @@ Proof.
  intros. inverts H.
  unfold LiveEs in *.
  snorm. 
- eapply H0; eauto.
 Qed.
 
 
@@ -115,7 +117,7 @@ Proof.
  intros.
  unfold LiveE  in *. 
  unfold LiveEs in *.
- snorm. eauto.
+ snorm.
 Qed.
 Hint Resolve liveE_sum_above_left.
 
@@ -128,7 +130,7 @@ Proof.
  intros.
  unfold LiveE  in *.
  unfold LiveEs in *.
- snorm. eauto.
+ snorm. 
 Qed.
 
 
@@ -142,7 +144,10 @@ Proof.
  unfold LiveE in *.
  unfold LiveEs in *.
  snorm.
- lets D: H H0 H1.
+ have  (LiveE1_stack fs x). clear H.
+ unfold LiveE1_stack in *.
+ intros.
+ lets D: H1 H.
  shift m1. shift ts.
  firstorder.
 Qed.
@@ -158,6 +163,7 @@ Proof.
  unfold LiveE in *.
  unfold LiveEs in *.
  snorm.
+ unfold LiveE1_stack in *.
  spec H x0. rip.
  spec H p2. rip.
  firstorder. nope.
@@ -170,8 +176,9 @@ Lemma liveE_maskOnVarT
  -> LiveE  fs e.
 Proof.
  intros.
- unfold LiveE in *.
+ unfold LiveE  in *.
  unfold LiveEs in *.
+ unfold LiveE1_stack in *.
  snorm.
  spec H x.
  apply handleOfEffect_form_some in H1.
@@ -190,8 +197,9 @@ Lemma liveE_phase_change
 Proof.
  intros.
  induction e; snorm;
-  try (solve [unfold LiveE in *;
-              unfold LiveEs in *;
+  try (solve [unfold LiveE        in *;
+              unfold LiveEs       in *;
+              unfold LiveE1_stack in *;
               snorm; inverts H0; nope]).
 
  - Case "TSum".
@@ -201,7 +209,7 @@ Proof.
 
  - Case "TCon1".
    destruct e;
-    unfold LiveE; unfold LiveEs; snorm;
+    unfold LiveE; unfold LiveEs; unfold LiveE1_stack; snorm;
     try (solve [inverts H0; snorm; nope]).
    exists m1.
    inverts H0.
