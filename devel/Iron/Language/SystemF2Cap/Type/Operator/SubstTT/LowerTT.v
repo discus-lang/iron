@@ -89,12 +89,15 @@ Proof.
 
  - Case "TVar".
    inverts_kind. snorm.
-    SCase "n > ix".
-     eapply KiVar.
-     rewrite <- H4.
+   + SCase "n < ix".
+     eapply KiVar. shift o. snorm.
+
+   + SCase "n > ix".
+     eapply KiVar. shift o.
+     rewrite <- H.
      destruct n.
-      simpl. burn.
-      simpl. norm. 
+     * simpl. burn.
+     * simpl. norm. 
 
  - Case "TForall".
    inverts_kind. snorm. 

@@ -22,13 +22,13 @@ Hint Unfold AppKind.
 Inductive KindT : kienv -> stprops -> ty -> ki -> Prop :=
   | KiVar
     :  forall ke sp i k
-    ,  get i ke = Some k
+    ,  (exists o, get i ke = Some (o, k))
     -> KindT ke sp (TVar i) k
 
   | KiForall
     :  forall ke sp k t
-    ,  KindT (ke :> k) sp t KData
-    -> KindT ke        sp (TForall k t) KData
+    ,  KindT (ke :> (OAbs, k)) sp t KData
+    -> KindT ke    sp (TForall k t) KData
 
   | KiApp 
     :  forall ke sp t1 t2 k11 k12

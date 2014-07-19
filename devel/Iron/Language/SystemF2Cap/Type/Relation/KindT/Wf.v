@@ -5,12 +5,16 @@ Require Export Iron.Language.SystemF2Cap.Type.Relation.KindT.Base.
 (* A well kinded type is well formed *)
 Lemma kind_wfT
  :  forall ke sp t k
- ,  KindT   ke sp t k
+ ,  KindT  ke sp t k
  -> WfT (length ke) t.
 Proof.
  intros ke sp t k HK. gen ke sp k.
  induction t; intros; inverts_kind; burn.
- lets D: IHt H4. burn.
+
+ - destruct H2 as [o].
+   eauto.
+
+ - lets D: IHt H4. burn.
 Qed.
 Hint Resolve kind_wfT.
 
@@ -44,7 +48,7 @@ Lemma kind_empty_is_closed
  -> ClosedT t.
 Proof.
  intros.
- have (@length ki nil = 0).
+ have (@length (role * ki) nil = 0).
   rewrite <- H0.
   eapply kind_wfT. eauto.
 Qed.

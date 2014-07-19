@@ -71,8 +71,8 @@ Lemma subsT_kind_right
 Proof.
  intros.
  induction H; eauto.
-  inverts IHSubsT. eauto.
-  inverts IHSubsT. eauto.
+ - inverts IHSubsT. eauto.
+ - inverts IHSubsT. eauto.
 Qed.
 Hint Resolve subsT_kind_right.
 
@@ -170,7 +170,7 @@ Hint Resolve subsT_sum_left.
 Lemma subsT_sum_right
  :  forall ke sp t1 t2 t2' k
  ,  SumKind k
- -> KindT   ke sp t1 k
+ -> KindT  ke sp t1 k
  -> SubsT  ke sp t2 t2' k
  -> SubsT  ke sp (TSum t1 t2) (TSum t1 t2') k.
 Proof.
@@ -242,14 +242,16 @@ Proof.
  - Case "SbBot".
    eapply SbBot; auto.
    have (ClosedT t).
-   eapply kind_kienv_weaken in H0.
+   destruct k2 as [o2 k2].
+   lets D: kind_kienv_weaken o2 k2 H0.
    rrwrite (liftTT 1 0 t = t).
    eauto.
 
  - Case "SbSumAbove".
    eapply SbSumBelow; auto.
    have (ClosedT t3).
-   eapply kind_kienv_weaken in H0.
+   destruct k2 as [o2 k2].
+   lets D: kind_kienv_weaken o2 k2 H0.
    rrwrite (liftTT 1 0 t3 = t3).
    eauto.
 Qed.

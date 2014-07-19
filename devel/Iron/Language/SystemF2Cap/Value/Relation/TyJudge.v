@@ -72,8 +72,9 @@ Inductive
      annotation. *) 
   | TvLAM
     :  forall ke te se sp k1 t2 x2
-    ,  TypeX (ke :> k1) (liftTE 0 te) (liftTE 0 se) sp x2 t2 (TBot KEffect)
-    -> TypeV ke          te            se   sp (VLAM k1 x2) (TForall k1 t2)
+    ,  TypeX (ke :> (OAbs, k1)) 
+             (liftTE 0 te) (liftTE 0 se) sp x2 t2 (TBot KEffect)
+    -> TypeV ke        te            se  sp (VLAM k1 x2) (TForall k1 t2)
 
   (* Primitive constants. 
      We get the types of these from the 'typeOfConst' function so we can
@@ -124,16 +125,16 @@ Inductive
     :  forall ke te se sp x t tL e eL ts
     ,  lowerTT 0 t                = Some tL
     -> lowerTT 0 (maskOnVarT 0 e) = Some eL
-    -> Forall (fun t => KindT (nil :> KRegion) sp t KEffect) ts
-    -> TypeX  (ke :> KRegion) (liftTE 0 te >< ts) (liftTE 0 se) sp x               t  e
-    -> TypeX  ke              te                  se            sp (XPrivate ts x) tL eL
+    -> Forall (fun t => KindT (nil :> (OCon, KRegion)) sp t KEffect) ts
+    -> TypeX  (ke :> (OCon, KRegion)) (liftTE 0 te >< ts) (liftTE 0 se) sp x       t  e
+    -> TypeX  ke                      te                  se    sp (XPrivate ts x) tL eL
 
   (* Extend an existing region. *)
   | TxExtend
     :  forall ke te se sp r1 x2 t e eL
     ,  lowerTT 0 (maskOnVarT 0 e) = Some eL
     -> KindT ke sp r1 KRegion
-    -> TypeX (ke :> KRegion) (liftTE 0 te) (liftTE 0 se) sp x2 t e
+    -> TypeX (ke :> (OCon, KRegion)) (liftTE 0 te) (liftTE 0 se) sp x2 t e
     -> TypeX ke te se  sp (XExtend r1 x2) (substTT 0 r1 t) (TSum eL (TAlloc r1))
 
   (* Effect Reflection **************************)

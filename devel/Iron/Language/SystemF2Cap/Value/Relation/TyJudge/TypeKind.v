@@ -71,9 +71,9 @@ Proof.
    spec IHv H10. rip.
    + eapply subst_type_type; eauto.
    + eapply KiSum; auto. 
-     eapply lower_type_type with (k1 := KRegion).
-      eapply H2. eauto.
-      eapply KiCon1; snorm.
+     * eapply lower_type_type with (k1 := (OCon, KRegion)).
+       eapply H2. eauto.
+     * eapply KiCon1; snorm.
  
  - Case "XRun".
    spec IHv H5. rip.

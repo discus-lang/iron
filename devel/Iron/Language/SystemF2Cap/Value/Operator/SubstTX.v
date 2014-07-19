@@ -40,17 +40,17 @@ Fixpoint substTV (d: nat) (u: ty) (vv: val) : val :=
 (********************************************************************)
 (* Substitution of types in exps. *)
 Lemma subst_type_exp_ix
- :  forall ix ke te se sp x1 t1 e1 t2 k2
- ,  get ix ke = Some k2
+ :  forall ix ke te se sp x1 t1 e1 t2 o2 k2
+ ,  get ix ke = Some (o2, k2)
  -> TypeX ke te se sp x1 t1 e1
  -> KindT (delete ix ke) sp t2 k2
  -> TypeX (delete ix ke)     (substTE ix t2 te)  (substTE ix t2 se) sp
           (substTX ix t2 x1) (substTT ix t2 t1)  (substTT ix t2 e1).
 Proof.
- intros. gen ix ke te se sp t1 t2 e1. gen k2.
+ intros. gen ix ke te se sp t1 t2 e1. gen o2 k2.
  induction x1 using exp_mutind with 
-  (PV := fun v => forall ix ke te se sp t1 t2 k3
-      ,  get ix ke = Some k3
+  (PV := fun v => forall ix ke te se sp t1 t2 o3 k3 
+      ,  get ix ke = Some (o3, k3)
       -> TypeV ke te se sp v t1
       -> KindT (delete ix ke) sp t2 k3
       -> TypeV (delete ix ke)   (substTE ix t2 te) (substTE ix t2 se) sp
@@ -156,7 +156,7 @@ Proof.
    + rewrite delete_rewind.
      rewrite (liftTE_substTE 0 ix).
      rewrite (liftTE_substTE 0 ix).
-    
+
      rrwrite (ts = substTE (1 + 0 + ix) (liftTT 1 0 t2) (liftTE 0 ts))
       by admit. (* fine. ts has only 1 free var, so subst above this is identity. *)
 
@@ -194,8 +194,8 @@ Proof.
      eapply IHx1.
      * eauto.
      * simpl. 
-       rrwrite ( delete ix ke :> KRegion 
-               = insert 0 KRegion (delete ix ke)).
+       rrwrite ( delete ix ke :> (OCon, KRegion)
+               = insert 0 (OCon, KRegion) (delete ix ke)).
        eapply kind_kienv_insert. auto.
      * eauto.
 
@@ -225,14 +225,14 @@ Qed.
 
 
 Lemma subst_type_exp
- :  forall ke te se sp x1 t1 e1 t2 k2
- ,  TypeX (ke :> k2) te se sp x1 t1 e1
+ :  forall ke te se sp x1 t1 e1 t2 o2 k2
+ ,  TypeX (ke :> (o2, k2)) te se sp x1 t1 e1
  -> KindT  ke sp t2 k2
  -> TypeX  ke (substTE 0 t2 te) (substTE 0 t2 se) sp
               (substTX 0 t2 x1) (substTT 0 t2 t1) (substTT 0 t2 e1).
 Proof.
  intros. 
- rrwrite (ke = delete 0 (ke :> k2)).
+ rrwrite (ke = delete 0 (ke :> (o2, k2))).
  eapply subst_type_exp_ix; burn.
 Qed.
 

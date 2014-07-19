@@ -160,53 +160,62 @@ Proof.
 
  - Case "EqRefl".
    have (ClosedT t).
-   eapply kind_kienv_weaken in H.
-   rrwrite (liftTT 1 0 t = t).
-   eauto.
+   destruct k2 as [o2 k2].
+   lets D: kind_kienv_weaken o2 k2 H.
+   rrwrite (liftTT 1 0 t = t). auto.
 
  - Case "EqSym".
    have (nil = @nil (list ki)).
    eapply EqSym.
     + have (ClosedT t1).
-      eapply kind_kienv_weaken in H.
+      destruct k2 as [o2 k2].
+      lets D: kind_kienv_weaken o2 k2 H.
       rrwrite (liftTT 1 0 t1 = t1). eauto.
     + have (ClosedT t2).
-      eapply kind_kienv_weaken in H0.
+      destruct k2 as [o2 k2].
+      lets D: kind_kienv_weaken o2 k2 H0.
       rrwrite (liftTT 1 0 t2 = t2). eauto.
     + auto.
 
  - Case "EqSumBot".
    eapply EqSumBot; auto.
    have (ClosedT t).
-   eapply kind_kienv_weaken in H0.
+   destruct k2 as [o2 k2].
+   lets D: kind_kienv_weaken o2 k2 H0.
    rrwrite (liftTT 1 0 t = t). eauto.
 
  - Case "EqSumIdemp".
    eapply EqSumIdemp; auto.
    have (ClosedT t).
+   destruct k2 as [o2 k2].
    eapply kind_kienv_weaken in H0.
    rrwrite (liftTT 1 0 t = t). eauto.
 
  - Case "EqSumComm".
    eapply EqSumComm; auto.
-   have (ClosedT t1).
-    eapply kind_kienv_weaken in H0.
-    rrwrite (liftTT 1 0 t1 = t1). eauto.
-   have (ClosedT t2).
-    eapply kind_kienv_weaken in H1.
-    rrwrite (liftTT 1 0 t2 = t2). eauto.
+   + have (ClosedT t1).
+     destruct k2 as [o2 k2].
+     lets D: kind_kienv_weaken o2 k2 H0.
+     rrwrite (liftTT 1 0 t1 = t1). eauto.
+   + have (ClosedT t2).
+     destruct k2 as [o2 k2].
+     lets D: kind_kienv_weaken o2 k2 H1.
+     rrwrite (liftTT 1 0 t2 = t2). eauto.
 
  - Case "EqSumAssoc".
    eapply EqSumAssoc; auto.
-   have (ClosedT t1).
-    eapply kind_kienv_weaken in H0.
-    rrwrite (liftTT 1 0 t1 = t1). eauto.
-   have (ClosedT t2).
-    eapply kind_kienv_weaken in H1.
-    rrwrite (liftTT 1 0 t2 = t2). eauto.
-   have (ClosedT t3).
-    eapply kind_kienv_weaken in H2.
-    rrwrite (liftTT 1 0 t3 = t3). eauto.
+   + have (ClosedT t1).
+     destruct k2 as [o2 k2].
+     lets D: kind_kienv_weaken o2 k2 H0.
+     rrwrite (liftTT 1 0 t1 = t1). eauto.
+   + have (ClosedT t2).
+     destruct k2 as [o2 k2].
+     lets D: kind_kienv_weaken o2 k2 H1.
+     rrwrite (liftTT 1 0 t2 = t2). eauto.
+   + have (ClosedT t3).
+     destruct k2 as [o2 k2].
+     lets d: kind_kienv_weaken o2 k2 H2.
+     rrwrite (liftTT 1 0 t3 = t3). eauto.
 Qed.
 Hint Resolve equivT_closed_kenv_cons.
 

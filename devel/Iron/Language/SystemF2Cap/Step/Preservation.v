@@ -120,7 +120,7 @@ Proof.
 
    have (SumKind KEffect).
 
-   have (KindT (nil :> KRegion) sp e0 KEffect).
+   have (KindT (nil :> (OCon, KRegion)) sp e0 KEffect).
 
    have (KindT nil sp e1 KEffect)
     by  (eapply equivT_kind_left; eauto).
@@ -262,7 +262,7 @@ Proof.
           The initial type and effect are closed, so substituting
           the region handle into them doesn't do anything. *)
        * assert (ClosedT t0).
-         { have HK: (KindT  (nil :> KRegion) sp t0 KData).
+         { have HK: (KindT  (nil :> (OCon, KRegion)) sp t0 KData).
            eapply kind_wfT in HK.
            simpl in HK.
 
@@ -421,8 +421,8 @@ Proof.
      + eapply EqRefl.
        eapply KiSum; auto.
        * subst r2.
-         have (KindT (nil :> KRegion) sp                 e0 KEffect).
-         have (KindT (nil :> KRegion) (SRegion p2 <: sp) e0 KEffect).
+         have (KindT (nil :> (OCon, KRegion)) sp                 e0 KEffect).
+         have (KindT (nil :> (OCon, KRegion)) (SRegion p2 <: sp) e0 KEffect).
          have (KindT nil (SRegion p2 <: sp) (TRgn p2) KRegion).
          eapply subst_type_type. eauto. eauto.
        * apply equivT_kind_left in H0.
@@ -444,7 +444,7 @@ Proof.
        * subst r2. eauto.
 
      (* Extended frame stack is well typed. *)
-     + have (KindT (nil :> KRegion) sp t0 KData).
+     + have (KindT (nil :> (OCon, KRegion)) sp t0 KData).
        have (not (In (SRegion p2) sp))
         by (subst p2; auto).
        eapply TfConsExt; eauto.

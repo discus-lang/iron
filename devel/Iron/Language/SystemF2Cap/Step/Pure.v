@@ -33,7 +33,6 @@ Inductive StepP : exp  -> exp -> Prop :=
    ,  StepP (XOp1 OIsZero (VConst (CNat n)))
             (XVal (VConst (CBool (beq_nat n 0)))).
 
-
 Hint Constructors StepP.
 
 
@@ -49,22 +48,23 @@ Proof.
  intros se sp x x' t e HS HC HT. gen t e.
  induction HS; intros; inverts_type; rip.
 
- Case "SpAppSubst".
-  eapply subst_val_exp; eauto.
+ - Case "SpAppSubst".
+   eapply subst_val_exp; eauto.
 
- Case "SpAPPSubst".
-  rrwrite (TBot KEffect = substTT 0 t2 (TBot KEffect)).
-  have HTE: (nil = substTE 0 t2 nil).
-  have HSE: (se  = substTE 0 t2 se) by (symmetry; auto).
-  rewrite HTE. rewrite HSE.
-  eapply subst_type_exp; eauto.
+ - Case "SpAPPSubst".
+   rrwrite (TBot KEffect = substTT 0 t2 (TBot KEffect)).
+   have HTE: (nil = substTE 0 t2 nil).
+   have HSE: (se  = substTE 0 t2 se) by (symmetry; auto).
+   rewrite HTE. rewrite HSE.
+
+   lets D: subst_type_exp H4 H8.
    rrwrite (liftTE 0 se = se).
-   snorm.
+   simpl in D. simpl. auto.
 
- Case "SpSucc".
-  snorm. inverts H5. auto.
+ - Case "SpSucc".
+   snorm. inverts H5. auto.
 
- Case "SpIsZero".
-  snorm. inverts H5. auto.
+ - Case "SpIsZero".
+   snorm. inverts H5. auto.
 Qed.
 

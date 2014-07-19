@@ -5,17 +5,17 @@ Require Import Iron.Language.SystemF2Cap.Value.Relation.TyJudge.
 
 (* Weakening Kind Env in Type Judgement. *)
 Lemma type_kienv_insert
- :  forall ke te se sp x1 t1 e1 k2 ix
+ :  forall ke te se sp x1 t1 e1 o2 k2 ix
  ,  TypeX  ke te se sp x1 t1 e1
- -> TypeX (insert ix k2 ke) (liftTE ix te)   (liftTE ix se)   sp
-          (liftTX ix x1)    (liftTT 1 ix t1) (liftTT 1 ix e1).
+ -> TypeX (insert ix (o2, k2) ke) (liftTE ix te)   (liftTE ix se)   sp
+          (liftTX ix x1)          (liftTT 1 ix t1) (liftTT 1 ix e1).
 Proof.
- intros. gen ix ke te se sp t1 e1 k2.
+ intros. gen ix ke te se sp t1 e1. gen o2 k2.
  induction x1 using exp_mutind with 
-  (PV := fun v => forall ix ke te se sp k2 t3
+  (PV := fun v => forall ix ke te se sp o2 k2 t3
                ,  TypeV ke te se sp v t3
-               -> TypeV (insert ix k2 ke) (liftTE ix te)   (liftTE ix se) sp
-                        (liftTV ix v)     (liftTT 1 ix t3));
+               -> TypeV (insert ix (o2, k2) ke) (liftTE ix te)   (liftTE ix se) sp
+                        (liftTV ix v)           (liftTT 1 ix t3));
    intros; inverts_type.
 
  - Case "VVar".
@@ -108,15 +108,15 @@ Proof.
 
    + assert (Forall (WfT 1) ts).
       snorm. 
-      have (KindT (nil :> KRegion) sp x KEffect).
-      rrwrite (1 = length (nil :> KRegion)).
+      have (KindT (nil :> (OCon, KRegion)) sp x KEffect).
+      rrwrite (1 = length (nil :> (OCon, KRegion))).
       eapply kind_wfT. eauto.
 
      unfold liftTE.
      eapply Forall_map.
      snorm.
      have (WfT 1 x).
-     have (KindT (nil :> KRegion) sp x KEffect).
+     have (KindT (nil :> (OCon, KRegion)) sp x KEffect).
      rrwrite (S ix = 1 + ix).
      rewrite liftTT_wfT_1; auto.
 
@@ -127,11 +127,11 @@ Proof.
      rrwrite (1 + (0 + ix) = S ix).
      assert  ( liftTE (S ix) (liftTE 0 te) >< liftTE (S ix) ts
              = liftTE (S ix) (liftTE 0 te  >< ts)) as HL.
-       unfold liftTE.
+     * unfold liftTE.
        snorm.
-     rewrite HL.
-     eapply IHx1.
-     auto.
+     * rewrite HL.
+       eapply IHx1.
+       auto.
 
  - Case "XExtend".
    simpl.
@@ -172,13 +172,13 @@ Qed.
 
 
 Lemma type_kienv_weaken1
- :  forall ke te se sp x1 t1 e1 k2
+ :  forall ke te se sp x1 t1 e1 o2 k2
  ,  TypeX  ke te se sp x1 t1 e1
- -> TypeX (ke :> k2)    (liftTE 0 te)   (liftTE 0 se)   sp
-          (liftTX 0 x1) (liftTT 1 0 t1) (liftTT 1 0 e1).
+ -> TypeX (ke :> (o2, k2)) (liftTE 0 te)   (liftTE 0 se)   sp
+          (liftTX 0 x1)    (liftTT 1 0 t1) (liftTT 1 0 e1).
 Proof.
  intros.
- assert (ke :> k2 = insert 0 k2 ke) as HI.
+ assert (ke :> (o2, k2) = insert 0 (o2, k2) ke) as HI.
   simpl. destruct ke; auto.
  rewrite HI.
  eapply type_kienv_insert; auto.
@@ -186,10 +186,10 @@ Qed.
 
 
 Lemma typev_kienv_weaken1
- :  forall ke te se sp v1 t1 k2
+ :  forall ke te se sp v1 t1 o2 k2
  ,  TypeV  ke te se sp v1 t1
- -> TypeV (ke :> k2)    (liftTE 0 te) (liftTE 0 se) sp
-          (liftTV 0 v1) (liftTT 1 0 t1).
+ -> TypeV (ke :> (o2, k2)) (liftTE 0 te) (liftTE 0 se) sp
+          (liftTV 0 v1)    (liftTT 1 0 t1).
 Proof.
  intros.
  have HX: (TypeX ke te se sp (XVal v1) t1 (TBot KEffect)).
