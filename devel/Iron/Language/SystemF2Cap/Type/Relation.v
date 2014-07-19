@@ -8,4 +8,4 @@ Require Export Iron.Language.SystemF2Cap.Type.Relation.SubsTs.
 Require Export Iron.Language.SystemF2Cap.Type.Relation.SubsVisibleT.
 Require Export Iron.Language.SystemF2Cap.Type.Relation.FreeT.
 Require Export Iron.Language.SystemF2Cap.Type.Relation.FreshT.
-Require Export Iron.Language.SystemF2Cap.Type.Relation.PermitsT.
+Require Export Iron.Language.SystemF2Cap.Type.Relation.PermitT.

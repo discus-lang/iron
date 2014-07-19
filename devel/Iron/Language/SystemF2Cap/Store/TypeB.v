@@ -1,4 +1,5 @@
 
+Require Export Iron.Language.SystemF2Cap.Type.
 Require Export Iron.Language.SystemF2Cap.Store.Bind.
 
 

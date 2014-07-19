@@ -6,7 +6,7 @@ Require Import Iron.Language.SystemF2Cap.Type.Operator.FlattenT.
 Require Import Iron.Language.SystemF2Cap.Type.Operator.SubstTT.
 
 (* Atomic effect is permitted by a capability in the type environment. *)
-Definition PermitsT_atomic (ke : kienv) (te : tyenv) (e : ty) 
+Definition PermitT_atomic (ke : kienv) (te : tyenv) (e : ty) 
  := forall n
  ,  varOfEffect e = Some n
  -> (get n ke  = Some (OCon, KRegion) /\ In e te)
@@ -14,12 +14,12 @@ Definition PermitsT_atomic (ke : kienv) (te : tyenv) (e : ty)
 
 (* All atomic effect in this list are permitted by capabilities in
    the type environment. *)
-Definition PermitsT_list   (ke : kienv) (te : tyenv) (es : list ty)
- := Forall (PermitsT_atomic ke te)  es.
+Definition PermitT_list   (ke : kienv) (te : tyenv) (es : list ty)
+ := Forall (PermitT_atomic ke te)  es.
 
 (* Effect is permitted by the type environment. *)
-Definition PermitsT        (ke : kienv) (te : tyenv) (e : ty)
- := PermitsT_list ke te (flattenT e).
+Definition PermitT        (ke : kienv) (te : tyenv) (e : ty)
+ := PermitT_list ke te (flattenT e).
 
 (*
 Lemma permitsT_subst_exp_ix_atomic
