@@ -1,7 +1,7 @@
 
-Require Import Iron.Language.SystemF2.SubstTypeType.
-Require Import Iron.Language.SystemF2.SubstTypeExp.
-Require Import Iron.Language.SystemF2.TyJudge.
+Require Import Iron.Language.SystemF2r.SubstTypeType.
+Require Import Iron.Language.SystemF2r.SubstTypeExp.
+Require Import Iron.Language.SystemF2r.TyJudge.
 
 
 (* Substitution of exps in exps preserves typing *)

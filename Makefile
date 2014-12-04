@@ -19,7 +19,7 @@ root_done \
  	done/Iron/Language/SystemF2Effect.vo
 
 root_devel \
- =	
+ =	devel/Iron/Language/SystemF2r.vo
 
 # -------------------------------------------------------------------
 .PHONY : all
