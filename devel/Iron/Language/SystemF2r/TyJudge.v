@@ -87,9 +87,12 @@ Theorem type_kind
 Proof.
  intros. gen ev t.
  induction x; intros; inverts_type; eauto.
- 
+
+ (*** EXTRA CODE ***)
  apply IHx in H2.
  apply KIForall. simpl in H2.
+ unfold withKind in H2. destruct ev. simpl in H2.
+ simpl. auto.
 
  Case "XAPP".
   apply IHx in H4. inverts H4.
