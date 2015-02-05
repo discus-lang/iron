@@ -7,27 +7,28 @@ Require Export Iron.Language.SystemF2r.Ki.
 Inductive KIND : kienv -> ty -> ki -> Prop :=
  | KIConFun
    :  forall ke
-   ,  KIND ke (TCon TyConFun) (KFun KStar (KFun KStar KStar))
+   ,  KIND ke (TCon TyConFun) (KFun KData (KFun KData KData))
 
  | KIConData
    :  forall ke i k
    ,  KIND ke (TCon (TyConData i k)) k
 
  | KIVar
-   :  forall ke i k
-   ,  get i ke = Some k
-   -> KIND ke (TVar i) k
+   :  forall ke i k 
+   ,  keAtK  i ke k
+   -> KIND   ke (TVar i) k
 
  | KIForall
-   :  forall ke t
-   ,  KIND (ke :> KStar) t           KStar
-   -> KIND ke            (TForall t) KStar
+   :  forall ke ke' t
+   ,  keK    KData ke ke'
+   -> KIND   ke' t KData
+   -> KIND   ke  (TForall t) KData
 
  | KIApp 
    :  forall ke t1 t2 k11 k12
-   ,  KIND ke t1 (KFun k11 k12)
-   -> KIND ke t2 k11
-   -> KIND ke (TApp t1 t2) k12.
+   ,  KIND   ke t1 (KFun k11 k12)
+   -> KIND   ke t2 k11
+   -> KIND   ke (TApp t1 t2) k12.
 Hint Constructors KIND.
 
 
@@ -46,17 +47,20 @@ Ltac inverts_kind :=
 Lemma kind_wfT
  :  forall ke t k
  ,  KIND ke t k
- -> wfT  (length ke) t.
+ -> wfT  (keSize ke) t.
 Proof.
  intros ke t k HK. gen ke k.
- induction t; intros; inverts_kind; burn. 
+ induction t; intros; inverts_kind; eauto.
+ - eapply WfT_TVar.    unfold keKi in *. unfold keSize in *. eauto.
+ - eapply WfT_TForall. unfold keK  in *. unfold keSize in *.
+   eapply IHt in H2. admit.
 Qed.
 Hint Resolve kind_wfT.
 
 
 Lemma kind_wfT_Forall
  :  forall ks ts
- ,  Forall (fun t => KIND ks t KStar) ts
+ ,  Forall (fun t => KIND ks t KData) ts
  -> Forall (wfT (length ks)) ts.
 Proof.
  intros. repeat nforall. eauto.
@@ -93,19 +97,30 @@ Hint Resolve kind_empty_is_closed.
 
 (* Weakening kind environments. *)
 Lemma kind_kienv_insert
- :  forall ke ix t k1 k2
- ,  KIND ke t k1
- -> KIND (insert ix k2 ke) (liftTT 1 ix t) k1.
+ :  forall ke ke' i t k1 k2
+ ,  keKi i k2 ke ke' 
+ -> KIND ke t k1
+ -> KIND ke' (liftTT 1 i t) k1.
 Proof.
- intros. gen ix ke k1.
+ intros. gen i ke ke' k1.
  induction t; intros; simpl; inverts_kind; eauto.
 
  Case "TVar".
-  lift_cases; intros; repeat nnat; auto.
-
+  unfold keAtK in *.
+  unfold keKi  in *.
+  subst.
+  lift_cases; intros; repeat nnat; auto. 
+  eapply KIVar. unfold keAtK. eauto.
+  eapply KIVar. unfold keAtK. eauto.
+  
  Case "TForall".
-  apply KIForall.
-  rewrite insert_rewind. auto.
+  unfold keKi in *.
+  unfold keK  in *.
+  subst.
+  eapply KIForall.
+  unfold keK in *. eauto. 
+  rewrite insert_rewind.
+  eapply IHt. eauto. auto.
 Qed.
 
 
@@ -117,6 +132,7 @@ Proof.
  intros.
  assert (ke :> k2 = insert 0 k2 ke). simpl.
    destruct ke; auto.
- rewrite H0. apply kind_kienv_insert. auto.
+ rewrite H0. eapply kind_kienv_insert. 
+ unfold keKi. eauto. auto.
 Qed.
 

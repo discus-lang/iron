@@ -7,30 +7,11 @@ Require Export Iron.Language.SystemF2r.KiJudge.
 
 (* Builtin in types. *)
 Definition tUnit 
- := TCon (TyConData 0 KStar).
+ := TCon (TyConData 0 KData).
 
 Definition tFun (t1: ty) (t2: ty)
  := TApp (TApp (TCon TyConFun) t1) t2.
 Hint Unfold tFun.
-
-
-Inductive env : Type :=
- Env : kienv -> tyenv -> env.
-
-Fixpoint kinds (ev : env) 
- := match ev with Env ke te => ke end.
-
-Fixpoint types (ev : env) 
- := match ev with Env ke te => te end.
-
-Fixpoint withKind (ev : env) (k : ki)
- := match ev with Env ke te => Env (ke :> k) te end. 
-
-Fixpoint withType (ev : env) (t : ty)
- := match ev with Env ke te => Env ke (te :> t) end.
-
-Fixpoint liftTypes (n : nat) (ev : env) 
- := match ev with Env ke te => Env ke (liftTE 0 te) end.
 
 
 (* Type judgement assigns a type to an expression. *)
@@ -54,8 +35,9 @@ Inductive TYPE : env -> exp -> ty -> Prop :=
    -> TYPE ev (XApp x1 x2) t12
 
  | TYLAM
-   :  forall ev x1 t1
-   ,  TYPE (liftTypes 0 (withKind ev KStar)) x1 t1
+   :  forall ev ev' x1 t1
+   ,  ev' = liftTypes 0 (withKind ev KStar)
+   -> TYPE ev' x1 t1
    -> TYPE ev (XLAM x1) (TForall t1)
 
  | TYAPP
@@ -87,6 +69,9 @@ Theorem type_kind
 Proof.
  intros. gen ev t.
  induction x; intros; inverts_type; eauto.
+
+ Case "TYLAM".
+  apply KIForall.
 
  (*** EXTRA CODE ***)
  apply IHx in H2.
