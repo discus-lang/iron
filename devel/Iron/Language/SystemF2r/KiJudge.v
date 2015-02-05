@@ -1,6 +1,7 @@
 
 Require Export Iron.Language.SystemF2r.Ty.
 Require Export Iron.Language.SystemF2r.Ki.
+Require Export Iron.Language.SystemF2r.Collection.
 
 
 (* Kinds judgement assigns a kind to a type *)
@@ -15,12 +16,12 @@ Inductive KIND : kienv -> ty -> ki -> Prop :=
 
  | KIVar
    :  forall ke i k 
-   ,  keAtK  i ke k
+   ,  has    i k ke
    -> KIND   ke (TVar i) k
 
  | KIForall
    :  forall ke ke' t
-   ,  keK    KData ke ke'
+   ,  also   0 KData ke ke'
    -> KIND   ke' t KData
    -> KIND   ke  (TForall t) KData
 
@@ -47,13 +48,12 @@ Ltac inverts_kind :=
 Lemma kind_wfT
  :  forall ke t k
  ,  KIND ke t k
- -> wfT  (keSize ke) t.
+ -> wfT  (length ke) t.
 Proof.
  intros ke t k HK. gen ke k.
  induction t; intros; inverts_kind; eauto.
- - eapply WfT_TVar.    unfold keKi in *. unfold keSize in *. eauto.
- - eapply WfT_TForall. unfold keK  in *. unfold keSize in *.
-   eapply IHt in H2. admit.
+ eapply WfT_TForall. eapply IHt in H2.
+ admit.
 Qed.
 Hint Resolve kind_wfT.
 
@@ -98,7 +98,7 @@ Hint Resolve kind_empty_is_closed.
 (* Weakening kind environments. *)
 Lemma kind_kienv_insert
  :  forall ke ke' i t k1 k2
- ,  keKi i k2 ke ke' 
+ ,  also i k2 ke ke' 
  -> KIND ke t k1
  -> KIND ke' (liftTT 1 i t) k1.
 Proof.
@@ -106,6 +106,21 @@ Proof.
  induction t; intros; simpl; inverts_kind; eauto.
 
  Case "TVar".
+  lift_cases; intros; repeat nnat; auto.
+  eapply KIVar. 
+
+
+ (******
+   ** for larger environment use 
+        type : relation ty -> relation env
+        kind : relation ki -> relation env
+
+        type (has i t) env env'
+        kind (has i k) env env'
+
+       
+
+unfold has.
   unfold keAtK in *.
   unfold keKi  in *.
   subst.
@@ -136,3 +151,4 @@ Proof.
  unfold keKi. eauto. auto.
 Qed.
 
+*****)
