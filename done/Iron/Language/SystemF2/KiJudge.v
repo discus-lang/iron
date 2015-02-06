@@ -3,6 +3,7 @@ Require Export Iron.Language.SystemF2.Ty.
 Require Export Iron.Language.SystemF2.Ki.
 
 
+
 (* Kinds judgement assigns a kind to a type *)
 Inductive KIND : kienv -> ty -> ki -> Prop :=
  | KIConFun

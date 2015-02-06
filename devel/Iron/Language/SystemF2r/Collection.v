@@ -1,4 +1,9 @@
+(* Typeclassopedia, Brent Yorgey, 2013 
 
+   Stack overflow questions: 
+   https://stackoverflow.com/questions/27703340/multiple-typeclass-inheritance-in-coq
+   https://stackoverflow.com/questions/7990301/building-a-class-hierarchy-in-coq
+*)
 
 Require Import Morphisms.
 Require Import Coq.Classes.RelationClasses.
@@ -29,13 +34,31 @@ Defined.
 
 
 (* Collections ******************************************************)
-(* TODO: rename to sequence *)
+(* 
+Definition env = tyenv * kienv * stenv
+
+Instance Sharded env ty
+  ... 
+
+Instance Sharded env ki
+  ... 
+
+Class Sharded  {C : Type} {A : Type}
+    (ins     : nat -> A -> C -> C}
+    (idx     : nat -> A -> C -> option A}
+*)
+
+
+(* TODO: rename to Sequence *)
 Class Collection {C : Type -> Type} {A : Type}
     (empty   : C A)
     (size    : C A -> nat)
-    (append  : C A -> C A -> C A)         (* TODO: derive from ins/idx *)
+    (append  : C A -> C A -> C A)         (* TODO: derive from ins/idx ? *)
     (ins     : nat -> A -> C A -> C A)
     (idx     : nat -> C A -> option A)
+
+(* `(F       : Foldable (C A) foldr) *)
+
    `(M       : Monoid (C A) empty append)
 := {
  size_empty  : size empty = 0;
@@ -80,7 +103,7 @@ Definition has  {A} {C} `{Collection C A}
   := idx i c = Some x.
 
 
-Lemma also_has_below {C} {A} `{Collection C A} 
+Lemma also_has_above {C} {A} `{Collection C A} 
  : forall n i x1 x2 (xx : C A) xx'
  ,  n < i
  -> has  n x1 xx
@@ -89,7 +112,9 @@ Lemma also_has_below {C} {A} `{Collection C A}
 Proof.
  intros. gen n xx.
  induction i; intros.
- (** - destruct xx'. doesn't work, not inductive 
+ - destruct xx'. 
+
+doesn't work, not inductive 
  - nope.
  - unfold has  in *. 
    unfold also in *.

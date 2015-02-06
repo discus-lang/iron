@@ -107,13 +107,20 @@ Proof.
 
  Case "TVar".
   lift_cases; intros; repeat nnat; auto.
-  eapply KIVar. 
+  eapply KIVar.
+
+ admit.
+ admit. 
+ admit.
+Qed.
+
+ 
 
 
  (******
    ** for larger environment use 
-        type : relation ty -> relation env
-        kind : relation ki -> relation env
+        type : relation tyenv -> relation env
+        kind : relation kienv -> relation env
 
         type (has i t) env env'
         kind (has i k) env env'
