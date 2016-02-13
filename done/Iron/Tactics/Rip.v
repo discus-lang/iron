@@ -10,7 +10,7 @@ Ltac rip
      (repeat
        (match goal with
                               |- forall _, _ => intros;     rip
-        |                        |- _ /\ _   => split;      rip
+        |                        |- _ /\ _   => split;     rip
         | [H: _ /\ _             |- _ ]      => inverts H;  rip
         | [H1: ?a -> ?b, H2: ?a  |-  _]      => spec H1 H2; rip
         end)); try auto.

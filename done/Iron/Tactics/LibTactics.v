@@ -2539,14 +2539,6 @@ Tactic Notation "induction" "~" constr(H) :=
   induction H; auto_tilde.
 Tactic Notation "inversion" "~" constr(H) :=
   inversion H; auto_tilde.
-Tactic Notation "split" "~" :=
-  split; auto_tilde.
-Tactic Notation "subst" "~" :=
-  subst; auto_tilde.
-Tactic Notation "right" "~" := 
-  right; auto_tilde.
-Tactic Notation "left" "~" := 
-  left; auto_tilde.
 Tactic Notation "constructor" "~" := 
   constructor; auto_tilde.
 Tactic Notation "constructors" "~" := 
@@ -2750,16 +2742,10 @@ Tactic Notation "induction" "*" constr(H) :=
   induction H; auto_star.
 Tactic Notation "inversion" "*" constr(H) :=
   inversion H; auto_star.
-Tactic Notation "split" "*" :=
-  split; auto_star.
 Tactic Notation "subs" "*" :=
   subst; auto_star.
 Tactic Notation "subst" "*" :=
   subst; auto_star.
-Tactic Notation "right" "*" := 
-  right; auto_star.
-Tactic Notation "left" "*" := 
-  left; auto_star.
 Tactic Notation "constructor" "*" := 
   constructor; auto_star.
 Tactic Notation "constructors" "*" := 

@@ -3,10 +3,14 @@
 # Coq binaries to use when building
 COQDEP		= coqdep
 COQC		= coqc
-THREADS		= 16
+THREADS		= 4
 
 
 # -- Roots ----------------------------------------------------------
+root_lib \
+ = 	lib/Base/Class/Functor.vo \
+ 	lib/Base/Class/Monoid.vo
+
 root_done \
  =	done/Iron/Language/Simple.vo \
  	done/Iron/Language/SimplePCF.vo \
@@ -19,7 +23,9 @@ root_done \
  	done/Iron/Language/SystemF2Effect.vo
 
 root_devel \
- =
+ =	
+
+
 # 	devel/Iron/Language/SystemF2r.vo
 
 # -------------------------------------------------------------------
@@ -33,6 +39,9 @@ all:
 .PHONY: proof
 proof: $(root_done)
 
+.PHONY: lib
+libf:  $(root_lib)
+
 .PHONY: done
 proof: $(root_done)
 
@@ -42,7 +51,9 @@ proof: $(root_devel)
 # Start the Coq ide
 .PHONY: start
 start: 
-	coqide -R done/Iron -as Iron -R devel/Iron -as Iron &
+	coqide -R done/Iron   -as Iron \
+	       -R  devel/Iron -as Iron \
+	       -R  lib/Base   -as Base &
 
 # Build dependencies for Coq proof scripts.
 .PHONY: deps
@@ -50,7 +61,8 @@ deps: make/proof.deps
 
 # Find Coq proof scripts
 src_coq_v \
- = 	$(shell find done  -name "*.v" -follow) \
+ =  	$(shell find lib   -name "*.v" -follow) \
+ 	$(shell find done  -name "*.v" -follow) \
  	$(shell find devel -name "*.v" -follow)
 
 # Coqc makes a .vo and a .glob from each .v file.
@@ -58,7 +70,10 @@ src_coq_vo	= $(patsubst %.v,%.vo,$(src_coq_v))
 	
 make/proof.deps : $(src_coq_v)
 	@echo "* Building proof dependencies"
-	@$(COQDEP) -R done/Iron -as Iron -R devel/Iron -as Iron $(src_coq_v) > make/proof.deps
+	@$(COQDEP) -R done/Iron  -as Iron \
+	           -R devel/Iron -as Iron \
+	           -R lib/Base   -as Base \
+ 	           $(src_coq_v) > make/proof.deps
 	@cp make/proof.deps make/proof.deps.inc
 
 
@@ -75,7 +90,10 @@ clean :
 # Rules 
 %.vo %.glob : %.v
 	@echo "* Checking $<"
-	@$(COQC) -R done/Iron Iron -R devel/Iron Iron $<
+	@$(COQC) -R done/Iron  Iron \
+	         -R devel/Iron Iron \
+	         -R lib/Base   Base \
+	         $<
 
 
 # Include the dependencies.

@@ -1,7 +1,7 @@
 
 Require Import Iron.Data.List.Base.
 Require Import Iron.Data.List.Map.
-
+Require Import Omega.
 
 Lemma match_option
  : forall {A} {B} (f: A -> B) (xs: list A) ix y
@@ -22,3 +22,4 @@ Proof.
    rewrite map_length in HeqX. exfalso. omega.
    auto.
 Qed.
+
