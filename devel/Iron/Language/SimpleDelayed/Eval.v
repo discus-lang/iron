@@ -95,7 +95,7 @@ Proof.
        = map stripB (bs :> BBind n t0 v2)) as D2.
   rewrite D2 in H9. clear D2.
 
-  eapply type_strip in H9.
+  eapply subst_exp_exp in H9; eauto.
   lets S3: IHHE3 H9.
   clear IHHE3.
   lets T3: preservation_steps H9 S3.
