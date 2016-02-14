@@ -49,3 +49,35 @@ Proof.
 Qed.
 
 
+Definition isXLam (x1: exp): Prop := 
+ (exists bs n t x, x1 = XLam bs n t x).
+
+
+Lemma isXLam_true
+ : forall bs n t x, isXLam (XLam bs n t x).
+Proof.
+ intros.
+ unfold isXLam.
+ exists bs. exists n. exists t. exists x.
+ trivial.
+Qed.
+Hint Resolve isXLam_true.
+
+Lemma isXLam_XVar
+ : forall n
+ , ~isXLam (XVar n).
+Proof. 
+ intros. intuition. nope.
+Qed.
+Hint Resolve isXLam_XVar.
+
+
+Lemma isXLam_XApp
+ : forall x1 x2
+ , ~isXLam (XApp x1 x2).
+Proof.
+ intros. intuition. nope.
+Qed.
+Hint Resolve isXLam_XApp.
+
+

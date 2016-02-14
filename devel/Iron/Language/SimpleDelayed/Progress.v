@@ -4,7 +4,6 @@ Require Import Iron.Language.SimpleDelayed.TypeX.
 Require Import Iron.Language.SimpleDelayed.Exp.
 
 
-
 Lemma done_lam 
  :  forall x t1 t2
  ,  TypeX nil x (TFun t1 t2)
@@ -68,7 +67,7 @@ Proof.
        left. eapply DoneApp. 
        split. eapply DoneVar.
        auto.
-   
+
      * SSCase "x1 is a lambda".
        right.
        have (Done x2 \/ (exists x2', Step x2 x2')) as HX2.
@@ -82,20 +81,22 @@ Proof.
        SSSCase "x2 steps".
         dest x2'.
         exists (XApp (XLam bs n t0 x) x2').
-        eapply EsContext. eapply XcApp2. eapply DoneLam. trivial.
+        eapply EsAppRight.
+        assumption.
 
      * SSCase "x1 is an application".
        left.
        eapply DoneApp.
        split.
-        eapply DoneApp. trivial.
+        eapply DoneApp. assumption.
         auto.
 
    + SCase "x1 steps".
      dest x1'.
      right.
      exists (XApp x1' x2).
-     lets D: EsContext XcApp1. eapply D. trivial.
+     eapply EsAppLeft.
+     assumption.
 
  - Case "BBind".
    trivial.

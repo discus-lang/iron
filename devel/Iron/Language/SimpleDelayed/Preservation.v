@@ -15,29 +15,22 @@ Proof.
  intros te x x' t HT HS. gen t x'.
  induction x.
 
- - Case "XVar".
-   intros.
-   inverts HS. destruct H0. nope. nope.
+ - Case "XVar". 
+   nope.
 
  - Case "XLam".
-   intros.
-   inverts HS. destruct H0. nope. nope.
+   nope.
 
  - Case "XApp".
    intros.
    inverts HS.
-   + SCase "one component steps in context".
-     inverts H0.
+   + SCase "functional expression steps".
+     inverts HT.
+     lets D: IHx1 H3 H2. eauto.
 
-     * SSCase "functional expression steps".
-       inverts H.
-       inverts HT.
-       lets D: IHx1 H3 H1. eauto.
-
-     * SSCase "argument steps".
-       inverts H.
-       inverts HT.
-       lets D: IHx2 H6 H1. eauto.
+   + SCase "argument steps".
+     inverts HT.
+     lets D: IHx2 H5 H2. eauto.
 
    + SCase "perform a substitution".
      inverts HT.
@@ -58,7 +51,10 @@ Lemma preservation_steps
  -> TypeX  te x2 t1.
 Proof.
  intros te x1 t1 x2 HT HS.
- induction HS; burn using preservation.
+ induction HS.
+ - assumption.
+ - eapply preservation; eauto.
+ - eapply IHHS. eapply preservation; eauto.
 Qed.
 
 
@@ -72,7 +68,6 @@ Lemma preservation_stepsl
  -> TypeX  te x2 t1.
 Proof.
  intros te x1 t1 x2 HT HS.
- induction HS; burn using preservation.
+ induction HS; eauto using preservation.
 Qed.
-
 

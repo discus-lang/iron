@@ -1,6 +1,7 @@
 
 Require Export Iron.Language.SimpleDelayed.SubstXX.
 Require Import Iron.Language.SimpleDelayed.Preservation.
+Require Import Iron.Language.SimpleDelayed.Progress.
 Require Import Iron.Language.SimpleDelayed.TypeX.
 Require Export Iron.Language.SimpleDelayed.Step.
 Require Export Iron.Language.SimpleDelayed.Exp.
@@ -16,6 +17,12 @@ Inductive Eval : exp -> exp -> Prop :=
    :  forall x
    ,  Done   x
    -> Eval   x x
+
+ | EvDoneApp
+   :  forall x1 x1' x2
+   ,  Eval x1 x1' 
+   -> Done x1' -> not (isXLam x1')
+   -> Eval (XApp x1 x2) (XApp x1' x2)
 
  | EvLamApp
    :  forall bs n t11 x1 x12 x2 v2 v3
@@ -73,42 +80,53 @@ Proof.
 
  (* Induction over the form of (EVAL x1 x2) *)
  induction HE; intros.
- Case "EVDone".
-  apply EsNone.
+ - Case "EvDone".
+   apply EsNone.
 
- Case "EVLamApp".
-  inverts_type.
+ - Case "EvDoneApp".
+   inverts HT.
+   eapply steps_trans.
+   + apply steps_context_left.
+     eapply IHHE. eauto.
 
-  lets S1: IHHE1 H2. clear IHHE1.
-  lets T1: preservation_steps H2 S1.
+   + destruct x1'.
+     * nope.
+     * apply steps_context_right. nope.
+     * nope.
 
-  lets S2: IHHE2 H4. clear IHHE2.
-  lets T2: preservation_steps H4 S2.
+ - Case "EvLamApp".
+   inverts_type.
 
-  inverts keep T1.
-  simpl in H9.
-  have ( (te ><  map stripB bs) :> SSig n t0
-       =  te >< (map stripB bs  :> SSig n t0)) as D1.
-  rewrite D1 in H9. clear D1.
+   (* reduce the functional expression to a lambda. *)
+   lets S1: IHHE1 H2. clear IHHE1.
+   lets T1: preservation_steps H2 S1.
+   eapply steps_trans.
+   eapply steps_context_left.
+   eapply S1.
 
-  have ( map stripB bs :> SSig n t0
-       = map stripB (bs :> BBind n t0 v2)) as D2.
-  rewrite D2 in H9. clear D2.
+   (* reduce the argument to a trivial expression. *)
+   lets S2: IHHE2 H4. clear IHHE2.
+   lets T2: preservation_steps H4 S2.
+   eapply steps_trans.
+   eapply steps_context_right.
+   eapply S2.
 
-  eapply subst_exp_exp in H9; eauto.
-  lets S3: IHHE3 H9.
-  clear IHHE3.
-  lets T3: preservation_steps H9 S3.
+   (* perform the substitution. *)
+   eapply EsAppend.
+   eapply EsLamApp.
+   eapply eval_produces_done.
+   eauto.
 
-  lets P1: steps_context XcApp1 S1.
-  eapply steps_trans. eapply P1. clear P1.
+   inverts T1.
+   eapply IHHE3.
+   eapply subst_exp_exp.
 
-  have (Done (XLam bs n t0 x12)) as HH.
-  lets P2: steps_context XcApp2 S2. eapply HH.
-  eapply steps_trans. eapply P2. clear P2.
+   have ( (te ><  map stripB bs) :> SSig n t0
+        =  te >< (map stripB bs  :> SSig n t0)) as D1.
+   rewrite D1 in H9. clear D1.
+   simpl. eapply H9.
 
-  eapply EsAppend.
-  eapply EsLamApp. eauto. auto.
+   eapply Forall_cons. eauto. eauto.
 Qed.
 
 
@@ -132,17 +150,39 @@ Proof.
  intros te x1 t1 x2 v3 HT HS HE. gen te t1 v3.
  induction HS; intros.
 
- Case "context".
-  destruct H; inverts_type; inverts_eval; eauto.
+ - Case "functional expression steps.".
+   inverts_type.
+   lets E1: IHHS H2.
 
-  admit. admit.
+   inverts HE.
+   + inverts H. rip. 
+   + rip.
+   + eapply EvLamApp; eauto.
 
+ - Case "application".
+   inverts_type.
+   inverts HE.
+   + inverts H. inverts H1.
+     lets D: isXLam_true bs1 n1 t2 x1.
+     exfalso.
+     unfold not in H0. eapply H0. auto.
 
- Case "application".
-  inverts_type.
-  eapply EvLamApp; eauto.
-  admit.
-Admitted.
+   + inverts H1.
+     lets D: isXLam_true bs1 n1 t2 x1. 
+     exfalso.
+     unfold not in H6. eapply H6. auto.
+
+   + eapply EvLamApp.
+     eapply EvDone. 
+     eapply DoneLam.
+     lets D: IHHS H4 H2. eauto.
+     inverts H1. assumption.
+
+ - Case "application".
+   inverts_type.
+   eapply EvLamApp; eauto.
+   eapply EvDone. eapply DoneLam.
+Qed.
 
 
 (* Convert a list of small steps to a big-step evaluation. *)
