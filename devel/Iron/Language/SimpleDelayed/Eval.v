@@ -30,6 +30,7 @@ Inductive Eval : exp -> exp -> Prop :=
    -> Eval x2 v2 
    -> Eval (substXX (BBind n t11 v2 :: bs) x12) v3
    -> Eval (XApp x1 x2) v3.
+
 Hint Constructors Eval.
 
 
@@ -52,7 +53,6 @@ Proof.
  intros.
  induction H; eauto.
 Qed.
-Hint Resolve eval_produces_done.
 
 
 Lemma steps_trans
@@ -122,7 +122,7 @@ Proof.
    eapply eval_produces_done.
    eauto.
 
-   inverts T1.
+   inverts_type.
    eapply IHHE3.
    eapply subst_exp_exp.
 
@@ -159,14 +159,14 @@ Proof.
    inverts_type.
    lets E1: IHHS H2.
 
-   inverts HE.
+   inverts_eval.
    + inverts H. rip. 
    + rip.
    + eapply EvLamApp; eauto.
 
  - Case "application".
    inverts_type.
-   inverts HE.
+   inverts_eval.
    + inverts H. inverts H1.
      lets D: isXLam_true bs1 n1 t2 x1.
      exfalso.

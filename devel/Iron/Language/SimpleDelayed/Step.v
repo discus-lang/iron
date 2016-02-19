@@ -55,7 +55,6 @@ Proof.
      eapply D in H4.
      inverts H4. firstorder. congruence.
 Qed.
-Hint Resolve done_lam.
 
 
 (*******************************************************************)
