@@ -17,8 +17,6 @@ Inductive sig : Type :=
 Definition tyenv := list sig.
 
 
-
-
 (* Lookup the type of the given variable from the environment. *)
 Fixpoint lookupEnv (var: nat) (te: tyenv) : option ty :=
  match te with

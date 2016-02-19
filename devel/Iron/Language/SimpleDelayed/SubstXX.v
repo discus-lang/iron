@@ -38,52 +38,6 @@ Fixpoint substXX (ss: substx) (xx: exp) : exp :=
        end.
 
 
-Lemma Forall_impl
- :  forall A {B} (P: B -> Prop) xs
- ,  A
- -> Forall (fun x => A -> P x) xs
- -> Forall (fun x => P x) xs.
-Proof.
- intros.
- induction xs.
- - auto.
- - eapply Forall_cons.
-   + inverts H. auto.
-   + inverts H. auto.
-Qed. 
-
-
-Lemma Forall_insts
- :  forall {A B} a' xs (P: A -> B -> Prop)
- ,  Forall (fun x => forall a, P a x) xs
- -> Forall (fun x => P a' x) xs.
-Proof.
- intros.
- induction xs.
- - auto.
- - eapply Forall_cons.
-   + inverts H. eapply H2.
-   + inverts H. eapply IHxs. assumption.
-Qed.
-
-
-Lemma Forall_impls
- :  forall {A} (P Q: A -> Prop) xs
- ,  Forall (fun x => P x) xs
- -> Forall (fun x => P x -> Q x) xs
- -> Forall (fun x => Q x) xs.
-Proof.
- intros.
- induction xs.
- - auto.
- - eapply Forall_cons.
-   + inverts H. inverts H0.
-     auto.
-   + inverts H. inverts H0. 
-     eapply IHxs. auto. auto.
-Qed.
-
-
 Lemma map_stripB_substXB
  : forall bs1 bs2
  , map stripB (map (substXB bs1) bs2)
@@ -171,7 +125,7 @@ Proof.
       ,  TypeB (te >< map stripB bs) b
       -> Forall (TypeB te) bs
       -> TypeB te (substXB bs b))
-  ; norm; inverts_type.
+   ; intros; simpl; inverts_type.
 
  - Case "XVar".
    remember (lookupSubstX n bs) as X.
@@ -181,7 +135,7 @@ Proof.
      destruct b.
      symmetry in HeqX.
      eapply (lookup_env_subst_some n te bs e t t0) in H3; eauto.
-     lets D: lookupSubstX_name HeqX. inverts D. auto.
+     lets D: lookupSubstX_name HeqX. inverts D. assumption.
 
    + SCase "variable does not match.".
      eapply TxVar.
@@ -214,6 +168,7 @@ Proof.
 
  - Case "BBind".
    inverts H.
+   eapply TsSig.
    eapply IHx; auto.
 Qed.
 

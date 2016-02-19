@@ -49,7 +49,8 @@ Lemma eval_produces_done
  ,  Eval   x1 v1
  -> Done   v1.
 Proof.
- intros. induction H; eauto.
+ intros.
+ induction H; eauto.
 Qed.
 Hint Resolve eval_produces_done.
 
@@ -59,10 +60,11 @@ Lemma steps_trans
  ,  Steps x1 x2 -> Steps x2 x3
  -> Steps x1 x3.
 Proof.
- intros. induction H; intros.
- auto.
- eapply EsAppend. eapply H. auto.
- eapply EsAppend. eapply H. eapply IHSteps. trivial.
+ intros.
+ induction H; intros.
+ - assumption.
+ - eapply EsAppend. eapply H. assumption.
+ - eapply EsAppend. eapply H. eapply IHSteps. assumption.
 Qed.
 
 
@@ -121,12 +123,12 @@ Proof.
    eapply IHHE3.
    eapply subst_exp_exp.
 
-   have ( (te ><  map stripB bs) :> SSig n t0
-        =  te >< (map stripB bs  :> SSig n t0)) as D1.
+   assert ( (te ><  map stripB bs) :> SSig n t0
+          =  te >< (map stripB bs  :> SSig n t0)) as D1; auto.
    rewrite D1 in H9. clear D1.
    simpl. eapply H9.
 
-   eapply Forall_cons. eauto. eauto.
+   eapply Forall_cons; auto.
 Qed.
 
 
@@ -181,7 +183,6 @@ Proof.
  - Case "application".
    inverts_type.
    eapply EvLamApp; eauto.
-   eapply EvDone. eapply DoneLam.
 Qed.
 
 
@@ -193,7 +194,7 @@ Lemma eval_of_stepsl
  -> Eval   x1 v2.
 Proof.
  intros te x1 t1 v2 HT HS Hv.
- induction HS; try burn.
+ induction HS; eauto.
 
  eapply eval_expansion;
   eauto using preservation.

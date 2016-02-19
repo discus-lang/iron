@@ -37,14 +37,14 @@ Proof.
          with  IHB b : PB b := _ 
          for  IHX).
 
- (* expressions *)
- - case x; intros.
+ - Case "expressions".
+   case x; intros.
    + apply var.
    + apply lam. induction l; intuition. apply IHX.
    + apply app. apply IHX. apply IHX.
- 
- (* bindings *)
- - case b; intros.
+
+ - Case "bindings".
+   case b; intros.
    + apply bind. apply IHX.
 Qed.
 
@@ -62,6 +62,7 @@ Proof.
  trivial.
 Qed.
 Hint Resolve isXLam_true.
+
 
 Lemma isXLam_XVar
  : forall n

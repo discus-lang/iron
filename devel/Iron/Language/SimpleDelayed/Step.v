@@ -1,8 +1,10 @@
 
+Require Export Iron.Language.SimpleDelayed.TypeX.
 Require Export Iron.Language.SimpleDelayed.SubstXX.
 Require Export Iron.Language.SimpleDelayed.Exp.
 
 
+(*******************************************************************)
 Inductive Done : exp -> Prop :=
  | DoneVar 
    :  forall n
@@ -17,6 +19,41 @@ Inductive Done : exp -> Prop :=
    ,  Done x1 /\ ~isXLam x1
    -> Done (XApp x1 x2).
 
+Hint Constructors Done.
+
+
+Lemma done_lam 
+ :  forall x t1 t2
+ ,  TypeX nil x (TFun t1 t2)
+ -> Done x
+ -> isXLam x.
+Proof.
+ intros. gen t1 t2.
+ induction x.
+
+ - Case "XVar".
+   nope.
+
+ - Case "XLam". 
+   intros.
+   auto.
+
+ - Case "XApp".
+   inverts H0. inverts H1.
+   destruct x1.
+   + nope.
+
+   + assert (isXLam (XLam l n t x1)). eauto.
+     nope.
+
+   + intros.
+     exfalso.
+     clear H0.
+     lets D: IHx1 H.
+     inverts H1.
+     eapply D in H4. nope.
+Qed.
+Hint Resolve done_lam.
 
 
 (*******************************************************************)
