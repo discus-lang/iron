@@ -1,6 +1,5 @@
 
-Require Export Iron.Language.SimpleDelayed.Exp.
-Require Import Iron.Language.SimpleDelayed.TypeX.
+Require Export Iron.Language.SimpleDelayed.TypeX.
 
 
 (* Lookup the type of the given variable from a substitution. *)
@@ -25,8 +24,8 @@ Fixpoint substXX (ss: substx) (xx: exp) : exp :=
     | Some (BBind _ _ x)  => x
     end
 
- |  XLam ss2 n t x
- => XLam (ss >< map (substXB ss) ss2) n t x
+ |  XAbs ss2 n t x
+ => XAbs (ss >< map (substXB ss) ss2) n t x
 
  |  XApp x1 x2
  => XApp (substXX ss x1) (substXX ss x2)
@@ -156,7 +155,7 @@ Proof.
      * eapply (Forall_insts te)  in H.
        eapply (Forall_insts bs0) in H.
        eapply (Forall_impls (fun b => TypeB (te >< map stripB bs0) b)) in H.
-       eapply (Forall_impl (Forall (TypeB te) bs0)) in H. 
+       eapply (Forall_impl_inner (Forall (TypeB te) bs0)) in H. 
        eauto. eauto. eauto.
 
    + simpl. 

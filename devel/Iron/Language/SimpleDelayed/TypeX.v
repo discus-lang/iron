@@ -1,6 +1,5 @@
 
 Require Export Iron.Language.SimpleDelayed.Exp.
-Require Export Iron.Language.SimpleDelayed.Ty.
 
 
 Fixpoint stripB (b: bind): sig :=
@@ -10,8 +9,7 @@ Fixpoint stripB (b: bind): sig :=
 
 
 (* Typing judgement assigns a type to an expression. *)
-Inductive 
- TypeX : tyenv -> exp -> ty -> Prop :=
+Inductive TypeX : tyenv -> exp -> ty -> Prop :=
  | TxVar 
    :  forall te n t
    ,  lookupEnv n te = Some t
@@ -21,7 +19,7 @@ Inductive
    :  forall te bs n1 t1 x2 t2
    ,  Forall (TypeB te) bs
    -> TypeX (te >< map stripB bs :> SSig n1 t1) x2 t2
-   -> TypeX te (XLam bs n1 t1 x2) (TFun t1 t2)
+   -> TypeX te (XAbs bs n1 t1 x2) (TFun t1 t2)
 
  | TxApp
    :  forall te x1 x2 t1 t2
@@ -44,12 +42,49 @@ Ltac inverts_type :=
  repeat 
   (match goal with 
    | [ H: TypeX _ (XVar _) _       |- _ ] => inverts H
-   | [ H: TypeX _ (XLam _ _ _ _) _ |- _ ] => inverts H
+   | [ H: TypeX _ (XAbs _ _ _ _) _ |- _ ] => inverts H
    | [ H: TypeX _ (XApp _ _) _     |- _ ] => inverts H
    end).
 
 
+(* Closed expressions are well typed under an empty environment. *)
 Definition Closed (xx: exp) : Prop := 
  exists t, TypeX nil xx t.
+
+
+
+(*******************************************************************)
+(* Forms of terms lemma. *)
+Lemma done_lam 
+ :  forall x t1 t2
+ ,  TypeX nil x (TFun t1 t2)
+ -> Done x
+ -> isXAbs x.
+Proof.
+ intros. gen t1 t2.
+ induction x; intros.
+
+ - Case "XVar".
+   nope.
+
+ - Case "XLam".
+   nope.
+
+ - Case "XApp".
+   inverts H0.
+   + nope.
+
+   + destruct x1.
+     * nope.
+
+     * rip.
+       assert (Value (XAbs l n t x1)); auto.
+       nope.
+
+     * inverts_type.
+       rip.
+       assert (isXAbs (XApp x1_1 x1_2)).
+        eapply IHx1. eauto. nope.
+Qed.
 
 

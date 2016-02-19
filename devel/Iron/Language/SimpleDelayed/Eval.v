@@ -1,10 +1,6 @@
 
-Require Export Iron.Language.SimpleDelayed.SubstXX.
-Require Import Iron.Language.SimpleDelayed.Preservation.
-Require Import Iron.Language.SimpleDelayed.Progress.
-Require Import Iron.Language.SimpleDelayed.TypeX.
-Require Export Iron.Language.SimpleDelayed.Step.
-Require Export Iron.Language.SimpleDelayed.Exp.
+Require Export Iron.Language.SimpleDelayed.Progress.
+Require Export Iron.Language.SimpleDelayed.Preservation.
 
 
 (********************************************************************)
@@ -21,12 +17,12 @@ Inductive Eval : exp -> exp -> Prop :=
  | EvDoneApp
    :  forall x1 x1' x2
    ,  Eval x1 x1' 
-   -> Done x1' -> not (isXLam x1')
+   -> Done x1' -> not (Value x1')
    -> Eval (XApp x1 x2) (XApp x1' x2)
 
- | EvLamApp
+ | EvAbsApp
    :  forall bs n t11 x1 x12 x2 v2 v3
-   ,  Eval x1 (XLam bs n t11 x12) 
+   ,  Eval x1 (XAbs bs n t11 x12) 
    -> Eval x2 v2 
    -> Eval (substXX (BBind n t11 v2 :: bs) x12) v3
    -> Eval (XApp x1 x2) v3.
@@ -42,6 +38,21 @@ Ltac inverts_eval :=
    end).
 
 
+(* Evaluating a value produces a value. *)
+Lemma eval_value
+ :  forall v1 v2
+ ,  Value  v1
+ -> Eval   v1 v2 
+ -> Value  v2.
+Proof.
+ intros v1 v2 HV HE.
+ destruct HE.
+ - assumption.
+ - inverts HV.
+ - inverts HV.
+Qed.
+
+
 (* A terminating big-step evaluation always produces a whnf.
    The fact that the evaluation terminated is implied by the fact
    that we have a finite proof of EVAL to pass to this lemma. *)
@@ -50,8 +61,7 @@ Lemma eval_produces_done
  ,  Eval   x1 v1
  -> Done   v1.
 Proof.
- intros.
- induction H; eauto.
+ intros. induction H; eauto.
 Qed.
 
 
@@ -93,13 +103,11 @@ Proof.
 
    + destruct x1'.
      * nope.
-
      * apply steps_context_right.
-       firstorder.
-
+       nope.
      * nope.
 
- - Case "EvLamApp".
+ - Case "EvAbsApp".
    inverts_type.
 
    (* reduce the functional expression to a lambda. *)
@@ -118,7 +126,7 @@ Proof.
 
    (* perform the substitution. *)
    eapply EsAppend.
-   eapply EsLamApp.
+   eapply EsAbsApp.
    eapply eval_produces_done.
    eauto.
 
@@ -160,32 +168,31 @@ Proof.
    lets E1: IHHS H2.
 
    inverts_eval.
-   + inverts H. rip. 
+   + inverts H.
+     * nope.
+     * rip.
    + rip.
-   + eapply EvLamApp; eauto.
+   + eapply EvAbsApp; eauto.
 
  - Case "application".
    inverts_type.
    inverts_eval.
-   + inverts H. inverts H1.
-     lets D: isXLam_true bs1 n1 t2 x1.
-     exfalso.
-     unfold not in H0. eapply H0. auto.
 
-   + inverts H1.
-     lets D: isXLam_true bs1 n1 t2 x1. 
-     exfalso.
-     unfold not in H6. eapply H6. auto.
+   + inverts H.
+     inverts H0.
+     nope. rip.
+     assert (Value (XAbs bs v t x)).
+      auto. nope.
 
-   + eapply EvLamApp.
-     eapply EvDone. 
-     eapply DoneLam.
-     lets D: IHHS H4 H2. eauto.
-     inverts H1. assumption.
+   + assert (Value x1').
+      eapply eval_value; eauto.
+     nope.
+
+   + eapply EvAbsApp; eauto.
 
  - Case "application".
    inverts_type.
-   eapply EvLamApp; eauto.
+   eapply EvAbsApp; eauto.
 Qed.
 
 

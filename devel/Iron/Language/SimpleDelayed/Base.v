@@ -1,54 +1,61 @@
 
 Require Export Iron.Data.List.
 Require Export Iron.Tactics.Case.
-Require Export Iron.Tactics.Nope.
 Require Export Iron.Tactics.LibTactics.
-Require Export Coq.Arith.Compare_dec.
 
 
-Lemma Forall_impl
- :  forall A {B} (P: B -> Prop) xs
- ,  A
- -> Forall (fun x => A -> P x) xs
- -> Forall (fun x => P x) xs.
-Proof.
- intros.
- induction xs.
- - auto.
- - eapply Forall_cons.
-   + inverts H. auto.
-   + inverts H. auto.
-Qed. 
+(********************************************************************)
+(* Rip apart compound hypothesis and goals.
+   Then try auto to eliminate the easy stuff. *)
+Ltac rip1
+ := match goal with
+      |- forall _, _ 
+      => intros
+
+    | |- _ /\ _
+      => split
+
+    | [H: _ /\ _            |- _ ]
+      => inverts H
+
+    | [H1: ?a -> ?b, H2: ?a |-  _]
+      => specializes H1 H2
+   end; try split.
 
 
-Lemma Forall_insts
- :  forall {A B} a' xs (P: A -> B -> Prop)
- ,  Forall (fun x => forall a, P a x) xs
- -> Forall (fun x => P a' x) xs.
-Proof.
- intros.
- induction xs.
- - auto.
- - eapply Forall_cons.
-   + inverts H. eapply H2.
-   + inverts H. eapply IHxs. assumption.
-Qed.
+Ltac rip
+ := try (repeat rip1); auto.
 
 
-Lemma Forall_impls
- :  forall {A} (P Q: A -> Prop) xs
- ,  Forall (fun x => P x) xs
- -> Forall (fun x => P x -> Q x) xs
- -> Forall (fun x => Q x) xs.
-Proof.
- intros.
- induction xs.
- - auto.
- - eapply Forall_cons.
-   + inverts H. inverts H0.
-     auto.
-   + inverts H. inverts H0. 
-     eapply IHxs. auto. auto.
-Qed.
+(********************************************************************)
+(* A better 'false'. 
+   Try to eliminate the goal by finding a false hypothesis.
+   This can be expensive as we repeatedly invert hypothesis, 
+   which produces more of them.
+*)
+Ltac nope1
+ := match goal with
+    (* An equality might be false, so check it before
+       attemptiong to clear it in the next case. *)
+      [ H : _ = _ |- _] => solve [false]
 
+    (* Inverting an equality doesn't make progress, 
+       so just get rid of it. *)
+    | [ H : _ = _ |- _] => clear H
+
+    (* Keep inverting hypothesis provided we don't get anymore
+       goals. If we get more goals then we'll diverge, and we're
+       looking to eliminate this goal, not make more. *)
+    | [ H : _     |- _] 
+      => first [ solve [false]
+               | solve [inverts H]
+               | (inverts H ; [idtac]) ]
+    end.
+
+
+(* Nope solves the goal completely or does nothing *)
+Ltac nope 
+ := first [ solve [false; congruence]
+          | rip; solve [repeat nope1] 
+          | idtac ].
 

@@ -1,7 +1,5 @@
 
-Require Import Iron.Language.SimpleDelayed.Step.
-Require Import Iron.Language.SimpleDelayed.SubstXX.
-Require Import Iron.Language.SimpleDelayed.TypeX.
+Require Export Iron.Language.SimpleDelayed.Step.
 
 
 (* If a closed, well typed expression takes an evaluation step 
@@ -18,7 +16,7 @@ Proof.
  - Case "XVar". 
    intros. inverts HS.
 
- - Case "XLam".
+ - Case "XAbs".
    intros. inverts HS.
 
  - Case "XApp".
@@ -30,7 +28,7 @@ Proof.
 
    + SCase "argument steps".
      inverts HT.
-     lets D: IHx2 H5 H2. eauto.
+     lets D: IHx2 H6 H3. eauto.
 
    + SCase "perform a substitution".
      inverts HT.

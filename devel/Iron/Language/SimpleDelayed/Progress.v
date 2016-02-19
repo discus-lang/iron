@@ -1,7 +1,5 @@
 
-Require Import Iron.Language.SimpleDelayed.Step.
-Require Import Iron.Language.SimpleDelayed.TypeX.
-Require Import Iron.Language.SimpleDelayed.Exp.
+Require Export Iron.Language.SimpleDelayed.Step.
 
 
 (* A closed, well typed expression is either a value or can 
@@ -13,29 +11,28 @@ Theorem progress
 Proof.
  intros. gen t.
  induction x using exp_mutind with
-  (PB := fun b => b = b).
+  (PB := fun b => b = b); intros.
 
  - Case "XVar".
-   intros. 
-   left.
-   eapply DoneVar.
+   left. auto.
 
  - Case "XLam".
-   left. 
-   apply DoneLam.
+   left. auto.
 
  - Case "XApp".
-   intros.
-   inverts H.
+   inverts_type.
 
    assert (Done x1 \/ (exists x1', Step x1 x1')) as HX1; eauto.
    destruct HX1.
+
    + SCase "x1 is done.".
-     destruct H.
+     destruct x1.
+
      * SSCase "x1 is a variable".
-       left. eapply DoneApp. 
-       split. eapply DoneVar.
-       auto.
+       left.  eapply DoneApp. 
+       split. 
+        eapply DoneVar.
+        intuition. nope.
 
      * SSCase "x1 is a lambda".
        right.
@@ -43,18 +40,23 @@ Proof.
 
        destruct HX2.
        SSSCase "beta reduction".
-        exists (substXX (BBind n t0 x2 :: bs) x).
-        eapply EsLamApp.
+        exists (substXX (BBind n t0 x2 :: l) x1).
+        eapply EsAbsApp.
         assumption.
 
        SSSCase "x2 steps".
         dest x2'.
-        exists (XApp (XLam bs n t0 x) x2').
+        exists (XApp (XAbs l n t0 x1) x2').
         eapply EsAppRight.
-        assumption.
+         inverts H. assumption.
+         assumption.
 
      * SSCase "x1 is an application".
-       left. auto.
+       left.
+       eapply DoneApp.
+       split.
+        assumption.
+        intuition. nope.
 
    + SCase "x1 steps".
      dest x1'.
@@ -66,3 +68,4 @@ Proof.
  - Case "BBind".
    trivial.
 Qed.
+

@@ -1,60 +1,6 @@
 
 Require Export Iron.Language.SimpleDelayed.TypeX.
 Require Export Iron.Language.SimpleDelayed.SubstXX.
-Require Export Iron.Language.SimpleDelayed.Exp.
-
-
-(*******************************************************************)
-Inductive Done : exp -> Prop :=
- | DoneVar 
-   :  forall n
-   ,  Done (XVar n)
-
- | DoneLam 
-   :  forall bs n t x
-   ,  Done (XLam bs n t x)
-
- | DoneApp 
-   :  forall x1 x2
-   ,  Done x1 /\ ~isXLam x1
-   -> Done (XApp x1 x2).
-
-Hint Constructors Done.
-
-
-Lemma done_lam 
- :  forall x t1 t2
- ,  TypeX nil x (TFun t1 t2)
- -> Done x
- -> isXLam x.
-Proof.
- intros. gen t1 t2.
- induction x.
-
- - Case "XVar".
-   intuition. inverts_type.
-   simpl in *. congruence.
-
- - Case "XLam".
-   intuition.
-
- - Case "XApp".
-   inverts H0. inverts H1.
-   destruct x1.
-   + intuition. inverts_type.
-     simpl in *. congruence.
-
-   + assert (isXLam (XLam l n t x1)); auto.
-     congruence.
-
-   + intros.
-     exfalso.
-     clear H0.
-     lets D: IHx1 H.
-     inverts H1.
-     eapply D in H4.
-     inverts H4. firstorder. congruence.
-Qed.
 
 
 (*******************************************************************)
@@ -64,21 +10,20 @@ Inductive Step : exp -> exp -> Prop :=
  (* Evaluation in a context. *)
  | EsAppLeft 
    :  forall x1 x1' x2
-   ,  Step x1 x1'
-   -> Step (XApp x1  x2)
-           (XApp x1' x2)
+   ,  Step  x1 x1'
+   -> Step (XApp x1 x2) (XApp x1' x2)
 
  | EsAppRight
-   :  forall bs1 n1 t1 x1 x2 x2'
-   ,  Step x2 x2'
-   -> Step (XApp (XLam bs1 n1 t1 x1) x2)
-           (XApp (XLam bs1 n1 t1 x1) x2')
+   :  forall x1 x2 x2'
+   ,  Value x1
+   -> Step  x2 x2'
+   -> Step (XApp x1 x2) (XApp x1 x2')
 
  (* Function application. *)
- | EsLamApp 
+ | EsAbsApp 
    :  forall bs1 n1 t1 x1 v2
    ,  Done v2
-   -> Step (XApp (XLam bs1 n1 t1 x1) v2)
+   -> Step (XApp (XAbs bs1 n1 t1 x1) v2)
            (substXX (BBind n1 t1 v2 :: bs1) x1).
 
 Hint Constructors Step.
@@ -130,8 +75,8 @@ Qed.
 Lemma steps_context_right
  :  forall bs n t x1 x2 x2'
  ,  Steps x2 x2'
- -> Steps (XApp (XLam bs n t x1) x2)
-          (XApp (XLam bs n t x1) x2').
+ -> Steps (XApp (XAbs bs n t x1) x2)
+          (XApp (XAbs bs n t x1) x2').
 Proof.
  intros bs n t x1 x2 x2' HS.
  induction HS; eauto.
@@ -145,7 +90,6 @@ Qed.
    when converting a small-step evaluations to big-step, via the
    eval_expansion lemma.*)
 Inductive StepsL : exp -> exp -> Prop :=
-
  | EslNone 
    : forall x1
    , StepsL x1 x1
