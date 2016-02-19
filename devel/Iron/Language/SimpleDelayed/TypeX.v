@@ -44,6 +44,7 @@ Ltac inverts_type :=
    | [ H: TypeX _ (XVar _) _       |- _ ] => inverts H
    | [ H: TypeX _ (XAbs _ _ _ _) _ |- _ ] => inverts H
    | [ H: TypeX _ (XApp _ _) _     |- _ ] => inverts H
+   | [ H: TypeB _ (BBind _ _ _)    |- _ ] => inverts H
    end).
 
 

@@ -37,8 +37,8 @@ Proof.
      * SSCase "x1 is a lambda".
        right.
        assert (Done x2 \/ (exists x2', Step x2 x2')) as HX2; eauto.
-
        destruct HX2.
+
        SSSCase "beta reduction".
         exists (substXX (BBind n t0 x2 :: l) x1).
         eapply EsAbsApp.

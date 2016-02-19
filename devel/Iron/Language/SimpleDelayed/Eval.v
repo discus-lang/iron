@@ -206,8 +206,8 @@ Proof.
  intros te x1 t1 v2 HT HS Hv.
  induction HS; eauto.
 
- eapply eval_expansion;
-  eauto using preservation.
+ eapply eval_expansion; eauto.
+ eauto using preservation.
 Qed.
 
 
@@ -223,6 +223,6 @@ Lemma eval_of_steps
 Proof.
  intros.
  eapply eval_of_stepsl; eauto.
-  apply stepsl_of_steps; auto.
+ apply stepsl_of_steps; auto.
 Qed.
 
