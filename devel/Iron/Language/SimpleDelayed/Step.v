@@ -32,26 +32,28 @@ Proof.
  induction x.
 
  - Case "XVar".
-   nope.
+   intuition. inverts_type.
+   simpl in *. congruence.
 
- - Case "XLam". 
-   intros.
-   auto.
+ - Case "XLam".
+   intuition.
 
  - Case "XApp".
    inverts H0. inverts H1.
    destruct x1.
-   + nope.
+   + intuition. inverts_type.
+     simpl in *. congruence.
 
-   + assert (isXLam (XLam l n t x1)). eauto.
-     nope.
+   + assert (isXLam (XLam l n t x1)); auto.
+     congruence.
 
    + intros.
      exfalso.
      clear H0.
      lets D: IHx1 H.
      inverts H1.
-     eapply D in H4. nope.
+     eapply D in H4.
+     inverts H4. firstorder. congruence.
 Qed.
 Hint Resolve done_lam.
 

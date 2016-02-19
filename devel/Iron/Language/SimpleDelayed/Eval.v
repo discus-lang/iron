@@ -93,7 +93,10 @@ Proof.
 
    + destruct x1'.
      * nope.
-     * apply steps_context_right. nope.
+
+     * apply steps_context_right.
+       firstorder.
+
      * nope.
 
  - Case "EvLamApp".

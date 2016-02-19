@@ -68,7 +68,9 @@ Lemma isXLam_XVar
  : forall n
  , ~isXLam (XVar n).
 Proof. 
- intros. intuition. nope.
+ intuition.
+ firstorder.
+ congruence.
 Qed.
 Hint Resolve isXLam_XVar.
 
@@ -77,7 +79,9 @@ Lemma isXLam_XApp
  : forall x1 x2
  , ~isXLam (XApp x1 x2).
 Proof.
- intros. intuition. nope.
+ intuition.
+ firstorder.
+ congruence.
 Qed.
 Hint Resolve isXLam_XApp.
 

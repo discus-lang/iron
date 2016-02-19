@@ -58,7 +58,7 @@ Lemma lookupSubstX_name
 Proof.
  intros.
  induction bs.
- - nope.
+ - simpl in H. congruence.
  - simpl in H. destruct a.
    remember (n1 =? n) as X. destruct X.
    + inverts H. eapply beq_nat_true. firstorder.
@@ -74,14 +74,18 @@ Lemma lookup_env_subst_none
 Proof.
  intros.
  induction bs.
- - nope.
+ - simpl in H. congruence.
  - simpl in H. destruct a. simpl in H.
    remember (n =? n0) as X. destruct X.
    + inverts H.
      simpl in H0.
-     rewrite <- HeqX in H0. nope.
+     rewrite <- HeqX in H0.
+     congruence.
    + eapply IHbs. 
-     auto. simpl in H0. rewrite <- HeqX in H0. auto.
+     * auto. 
+     * simpl in H0.
+       rewrite <- HeqX in H0.
+       assumption.
 Qed.
 
 
@@ -94,7 +98,9 @@ Lemma lookup_env_subst_some
 Proof.
  intros. gen n te e t t0.
  induction bs; intros.
- - simpl in H0. nope.
+ - simpl in H1.
+   congruence.
+
  - simpl in H0. destruct a. simpl in H0.
    remember (n =? n0) as X. destruct X.
    + inverts H0.
@@ -102,7 +108,10 @@ Proof.
      inverts H. inverts H2. trivial.
    + simpl in H1. rewrite <- HeqX in H1.
      inverts H.
-     eapply IHbs. auto. eapply H0. eauto.
+     eapply IHbs. 
+     * assumption.
+     * eapply H0. 
+     * eauto.
 Qed.
 
 

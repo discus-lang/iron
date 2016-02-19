@@ -16,10 +16,10 @@ Proof.
  induction x.
 
  - Case "XVar". 
-   nope.
+   intros. inverts HS.
 
  - Case "XLam".
-   nope.
+   intros. inverts HS.
 
  - Case "XApp".
    intros.
@@ -38,7 +38,9 @@ Proof.
      eapply subst_exp_exp.
      * simpl. simpl in H10. trivial.
      * simpl in H10.
-       eapply Forall_cons. eauto. trivial.
+       eapply Forall_cons. 
+        eauto.
+        assumption.
 Qed.
 
 
