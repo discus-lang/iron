@@ -1,6 +1,7 @@
 
 Require Export Iron.Language.DelayedSystemF.TypeX.
 Require Export Iron.Language.DelayedSystemF.SubstXX.
+Require Export Iron.Language.DelayedSystemF.SubstTX.
 
 
 (*******************************************************************)
@@ -10,21 +11,32 @@ Inductive Step : exp -> exp -> Prop :=
  (* Evaluation in a context. *)
  | EsAppLeft 
    :  forall x1 x1' x2
-   ,  Step  x1 x1'
+   ,  Step   x1 x1'
    -> Step (XApp x1 x2) (XApp x1' x2)
 
  | EsAppRight
    :  forall x1 x2 x2'
-   ,  Value x1
-   -> Step  x2 x2'
+   ,  Value  x1
+   -> Step   x2 x2'
    -> Step (XApp x1 x2) (XApp x1 x2')
+
+ | EsAPPLeft
+   :  forall x1 x1' t2
+   ,  Step   x1 x1'
+   -> Step (XAPP x1 t2) (XAPP x1' t2)
 
  (* Function application. *)
  | EsAbsApp 
-   :  forall bs1 n1 t1 x1 v2
+   :  forall ss1 n1 t1 x1 v2
    ,  Done v2
-   -> Step (XApp (XAbs bs1 n1 t1 x1) v2)
-           (substXX (BBind n1 t1 v2 :: bs1) x1).
+   -> Step (XApp (XAbs ss1 n1 t1 x1) v2)
+           (substXX (ss1 :> BBind n1 t1 v2) x1)
+
+ (* Type instantiation. *)
+ | EsABSAPP 
+   :  forall st sx a1 k1 x1 t2
+   ,  Step (XAPP (XABS st sx a1 k1 x1) t2)
+           (substTX (st :> BBind a1 k1 t2) sx x1).
 
 Hint Constructors Step.
 

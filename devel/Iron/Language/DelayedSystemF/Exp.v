@@ -7,13 +7,21 @@ Require Export Iron.Language.DelayedSystemF.Ty.
 (* Value Expressions *)
 Inductive exp : Type :=
  (* Variables want to be named. *)
- | XVar    (v: name) : exp
+ | XVar  (v: name) : exp
 
  (* Function abstraction. *)
- | XAbs    (ss: @subst exp ty) (v: name) (t: ty) (x: exp) : exp
+ | XAbs  (sx: @subst exp ty) 
+         (v: name) (t: ty) (x: exp) : exp
 
  (* Function application. *)
- | XApp    (x1: exp) (x2: exp) : exp.
+ | XApp  (x1: exp) (x2: exp) : exp
+
+ (* Type abstraction. *)
+ | XABS  (st: @subst ty ki) (sx: @subst exp ty)
+         (a: name) (k: ki) (x: exp) : exp
+
+ (* Type application. *)
+ | XAPP  (x1: exp) (t2: ty) : exp.
 
 Hint Constructors exp.
 
@@ -36,77 +44,62 @@ Theorem exp_iind
  ,  (  forall n
     ,  PX (XVar n))
 
- -> (  forall ss n t x
-    ,  Forall (fun b => PX (expOfBind b)) ss
+ -> (  forall sx n t x
+    ,  Forall (fun b => PX (expOfBind b)) sx
     -> PX x
-    -> PX (XAbs ss n t x))
+    -> PX (XAbs sx n t x))
 
  -> (  forall x1 x2
     ,  PX x1  -> PX x2
     -> PX (XApp x1 x2))
 
+ -> (  forall st sx a k x
+    ,  PX x
+    -> PX (XABS st sx a k x))
+
+ -> (  forall x1 t2
+    ,  PX x1
+    -> PX (XAPP x1 t2))
+
  -> forall  x, PX x.
 Proof.
  intros PX.
- intros Hvar Habs Happ.
+ intros Hvar Habs Happ HABS HAPP.
  refine (fix IHX x: PX x := _).
 
  case x; intros.
  - apply Hvar.
+
  - eapply Habs.
-   induction ss as [| b].
+   induction sx as [| b].
    + apply Forall_nil.
    + apply Forall_cons.
      * destruct b. simpl. eapply IHX.
      * assumption.
    + apply IHX.
+
  - apply Happ.
    + apply IHX.
    + apply IHX.
+
+ - apply HABS.
+   + apply IHX.
+
+ - apply HAPP.
+   + apply IHX.
 Qed.
-
-
-(********************************************************************)
-(* Predicates. *)
-Definition isXAbs (x1: exp): Prop := 
- (exists bs n t x, x1 = XAbs bs n t x).
-
-
-Lemma isXAbs_true
- : forall bs n t x, isXAbs (XAbs bs n t x).
-Proof.
- intros.
- unfold isXAbs.
- exists bs. exists n. exists t. exists x.
- trivial.
-Qed.
-Hint Resolve isXAbs_true.
-
-
-Lemma isXAbs_XVar
- : forall n
- , ~isXAbs (XVar n).
-Proof.
- intuition. nope.
-Qed.
-Hint Resolve isXAbs_XVar.
-
-
-Lemma isXAbs_XApp
- : forall x1 x2
- , ~isXAbs (XApp x1 x2).
-Proof.
- intuition. nope.
-Qed.
-Hint Resolve isXAbs_XApp.
 
 
 (********************************************************************)
 (* Values *)
 Inductive Value : exp -> Prop :=
  | ValueAbs 
-   :  forall ss v t x
-   ,  Value (XAbs ss v t x).
+   :  forall sx v t x
+   ,  Value (XAbs sx v t x)
+
+ | ValueABS
+   :  forall st sx a k x
+   ,  Value (XABS st sx a k x).
 
 Hint Constructors Value.
 
@@ -129,6 +122,15 @@ Qed.
 Hint Resolve isValue_not_app.
 
 
+Lemma isValue_not_APP
+ : forall x1 t2
+ , ~Value (XAPP x1 t2).
+Proof.
+ intros. intuition. inverts H.
+Qed.
+Hint Resolve isValue_not_APP.
+
+
 (* Done expressions have finished evaluating. *)
 Inductive Done  : exp -> Prop :=
  | DoneVar 
@@ -143,7 +145,12 @@ Inductive Done  : exp -> Prop :=
  | DoneApp 
    :  forall x1 x2
    ,  Done x1 /\ ~Value x1
-   -> Done (XApp x1 x2).
+   -> Done (XApp x1 x2)
+
+ | DoneAPP 
+   :  forall x1 t2
+   ,  Done x1 /\ ~Value x1
+   -> Done (XAPP x1 t2).
 
 Hint Constructors Done.
 
@@ -153,5 +160,6 @@ Ltac inverts_done :=
  repeat 
   (match goal with 
    | [ H: Done (XApp _ _) |- _ ] => inverts H
+   | [ H: Done (XAPP _ _) |- _ ] => inverts H
    end).
 

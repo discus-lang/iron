@@ -5,12 +5,12 @@ Require Export Iron.Language.DelayedSystemF.Step.
 (* If a well typed expression takes an evaluation step 
    then the result has the same type as before. *)
 Theorem preservation
- :  forall te x x' t
- ,  TypeX  te x  t
+ :  forall ke te x x' t
+ ,  TypeX  ke te x  t
  -> Step   x  x'
- -> TypeX  te x' t.
+ -> TypeX  ke te x' t.
 Proof.
- intros te x x' t HT HS. gen t x'.
+ intros ke te x x' t HT HS. gen t x'.
  induction x.
 
  - Case "XVar". 
@@ -22,20 +22,35 @@ Proof.
  - Case "XApp".
    intros.
    inverts HS.
-   + SCase "functional expression steps".
+   + SCase "x1 steps".
      inverts_type.
      eapply TxApp; eauto.
 
-   + SCase "argument steps".
+   + SCase "x2 steps".
      inverts_type.
      eapply TxApp; eauto.
 
-   + SCase "perform a substitution".
+   + SCase "substitute x2".
      inverts_type.
      eapply subst_exp_exp.
      * simpl. assumption.
      * unfold ForallSubstXT. simpl.
        eapply Forall2_cons; auto.
+
+ - Case "XABS".
+   intros. inverts HS.
+
+ - Case "XAPP".
+   intros.
+   inverts HS.
+   + SCase "x1 steps".
+     inverts_type.
+     eapply TxAPP; eauto.
+
+   + SCase "substitute t2".
+     inverts_type.
+     (* need subst_type_exp lemma *)
+
 Qed.
 
 
