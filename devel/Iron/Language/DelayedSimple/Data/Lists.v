@@ -1,6 +1,6 @@
 
 Require Export Coq.Lists.List.
-Require Export Iron.Language.DelayedSimple.Lib.Tactics.
+Require Export Iron.Language.DelayedSimple.Tactics.Chargueraud.
 
 
 (********************************************************************)

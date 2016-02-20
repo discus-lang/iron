@@ -1,7 +1,7 @@
 
 Require Export Coq.Strings.String.
-Require Export Iron.Language.DelayedSimple.Lib.Tactics.
-Require Export Iron.Language.DelayedSimple.Lib.DataLists.
+Require Export Iron.Language.DelayedSimple.Tactics.Chargueraud.
+Require Export Iron.Language.DelayedSimple.Data.Lists.
 
 
 (********************************************************************)
