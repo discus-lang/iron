@@ -426,7 +426,7 @@ Proof.
      { lists.
        erewrite map_ext_in; eauto.
        intros.
-       rename x into t1.
+       rename a into t1.
        rrwrite (ix = ix + 0).
        rewrite liftTT_substTTs'.
        f_equal. 

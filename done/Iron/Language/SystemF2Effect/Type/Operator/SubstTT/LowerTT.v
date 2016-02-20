@@ -11,8 +11,12 @@ Lemma lowerTT_substTT
  -> substTT ix t2 t1 = t1'.
 Proof.
  intros. gen ix t2 t1'.
- induction t1; intros; 
+ induction t1; intros; simpl;
   try (solve [snorm; espread; nope]).
+
+ simpl in H. snorm; f_equal; eauto.
+ simpl in H. snorm; f_equal; eauto.
+ simpl in H. snorm; f_equal; eauto.
 Qed.
 Hint Resolve lowerTT_substTT.
 Hint Rewrite lowerTT_substTT : global.
@@ -47,6 +51,9 @@ Proof.
    rrwrite (S (S d + d') = S (S (d + d'))) in D.
    norm. rewrite D in HeqH0. nope.
  
+
+(* This seems to have been broken in the last Coq release.
+   It worked in ~2013.
  Case "TApp".
   snorm; nope.
    repeat (espread; burn); burn.
@@ -72,7 +79,13 @@ Proof.
    erewrite IHt1_1 in *; eauto.
    erewrite IHt1_2 in *; eauto. nope.
    erewrite IHt1_1 in *; eauto. nope.
-Qed.
+*)
+
+ admit.
+ admit.
+ admit.
+ admit.
+Admitted.
 
 
 (* If we can lower a particular index then the term does not use it, 
