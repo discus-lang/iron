@@ -139,22 +139,38 @@ Qed.
 Hint Resolve Forall_map.
 
 
-Lemma Forall_impl_inner
- :  forall A {B} (P: B -> Prop) xs
- ,  A
- -> Forall (fun x => A -> P x) xs
- -> Forall (fun x => P x) xs.
+Lemma Forall_mp
+ :  forall {A} (P Q: A -> Prop)  xs
+ ,  Forall (fun x => P x -> Q x) xs
+ -> Forall (fun x => P x)        xs
+ -> Forall (fun x => Q x)        xs.
 Proof.
  intros.
  induction xs.
  - auto.
  - eapply Forall_cons.
-   + inverts H. auto.
-   + inverts H. auto.
+   + inverts H. inverts H0. auto.
+   + inverts H. inverts H0. auto.
 Qed. 
 
 
-Lemma Forall_insts
+
+Lemma Forall_mp_const 
+ :  forall {A} P (Q: A -> Prop)  xs
+ ,  P
+ -> Forall (fun x => P -> Q x) xs
+ -> Forall (fun x => Q x)      xs.
+Proof.
+ intros.
+ induction H.
+ - auto.
+ - apply Forall_cons.
+   + auto.
+   + auto.
+Qed.
+
+
+Lemma Forall_inst
  :  forall {A B} a' xs (P: A -> B -> Prop)
  ,  Forall (fun x => forall a, P a x) xs
  -> Forall (fun x => P a' x) xs.
@@ -165,23 +181,6 @@ Proof.
  - eapply Forall_cons.
    + inverts H. eapply H2.
    + inverts H. eapply IHxs. assumption.
-Qed.
-
-
-Lemma Forall_impls
- :  forall {A} (P Q: A -> Prop) xs
- ,  Forall (fun x => P x) xs
- -> Forall (fun x => P x -> Q x) xs
- -> Forall (fun x => Q x) xs.
-Proof.
- intros.
- induction xs.
- - auto.
- - eapply Forall_cons.
-   + inverts H. inverts H0.
-     auto.
-   + inverts H. inverts H0. 
-     eapply IHxs. auto. auto.
 Qed.
 
 

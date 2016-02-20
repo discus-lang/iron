@@ -23,22 +23,19 @@ Proof.
    intros.
    inverts HS.
    + SCase "functional expression steps".
-     inverts HT.
-     lets D: IHx1 H3 H2. eauto.
+     inverts_type.
+     eapply TxApp; eauto.
 
    + SCase "argument steps".
-     inverts HT.
-     lets D: IHx2 H6 H3. eauto.
+     inverts_type.
+     eapply TxApp; eauto.
 
    + SCase "perform a substitution".
-     inverts HT.
-     inverts H3.
+     inverts_type.
      eapply subst_exp_exp.
-     * simpl. simpl in H10. trivial.
-     * simpl in H10.
-       eapply Forall_cons. 
-        eauto.
-        assumption.
+     * simpl. assumption.
+     * unfold ForallSubstXT. simpl.
+       eapply Forall2_cons; auto.
 Qed.
 
 

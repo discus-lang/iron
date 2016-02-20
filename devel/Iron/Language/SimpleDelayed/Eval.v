@@ -21,10 +21,10 @@ Inductive Eval : exp -> exp -> Prop :=
    -> Eval (XApp x1 x2) (XApp x1' x2)
 
  | EvAbsApp
-   :  forall bs n t11 x1 x12 x2 v2 v3
-   ,  Eval x1 (XAbs bs n t11 x12) 
+   :  forall ss v t11 x1 x12 x2 v2 v3
+   ,  Eval x1 (XAbs ss v t11 x12) 
    -> Eval x2 v2 
-   -> Eval (substXX (BBind n t11 v2 :: bs) x12) v3
+   -> Eval (substXX (BBind v t11 v2 :: ss) x12) v3
    -> Eval (XApp x1 x2) v3.
 
 Hint Constructors Eval.
@@ -96,7 +96,7 @@ Proof.
    apply EsNone.
 
  - Case "EvDoneApp".
-   inverts HT.
+   inverts_type.
    eapply steps_trans.
    + apply steps_context_left.
      eapply IHHE. eauto.
@@ -134,12 +134,14 @@ Proof.
    eapply IHHE3.
    eapply subst_exp_exp.
 
-   assert ( (te ><  map stripB bs) :> SSig n t0
-          =  te >< (map stripB bs  :> SSig n t0)) as D1; auto.
+   assert ( (te ><  map stripB ss) :> SSig v t0
+          =  te >< (map stripB ss  :> SSig v t0)) as D1; auto.
+   rewrite stripS_fold in D1.
    rewrite D1 in H9. clear D1.
-   simpl. eapply H9.
+   simpl. eauto.
 
-   eapply Forall_cons; auto.
+   unfold ForallSubstXT. simpl.
+   eapply Forall2_cons; auto.
 Qed.
 
 
@@ -155,12 +157,12 @@ Qed.
    that does an extra step before returning the original value.
  *)
 Lemma eval_expansion
- :  forall te x1 t1 x2 v3
+ :  forall te x1 t1 x2 x3
  ,  TypeX  te x1 t1
- -> Step   x1 x2 -> Eval x2 v3 
- -> Eval   x1 v3.
+ -> Step   x1 x2 -> Eval x2 x3 
+ -> Eval   x1 x3.
 Proof.
- intros te x1 t1 x2 v3 HT HS HE. gen te t1 v3.
+ intros te x1 t1 x2 x3 HT HS HE. gen te t1 x3.
  induction HS; intros.
 
  - Case "functional expression steps.".
@@ -179,9 +181,9 @@ Proof.
    inverts_eval.
 
    + inverts H.
-     inverts H0.
+     inverts_done.
      nope. rip.
-     assert (Value (XAbs bs v t x)).
+     assert (Value (XAbs ss v t x)).
       auto. nope.
 
    + assert (Value x1').

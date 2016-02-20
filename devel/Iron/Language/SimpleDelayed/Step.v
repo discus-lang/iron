@@ -127,4 +127,3 @@ Proof.
  induction HS; eauto using stepsl_trans.
 Qed.
 
-

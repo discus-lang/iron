@@ -492,3 +492,34 @@ Proof.
     spec IHForall2 i. auto.
 Qed.
 
+
+Lemma Forall_Forall2_right
+ :  forall  {A B C} (P: B -> C -> Prop) 
+            (f: A -> B) (g: A -> C) (aa: list A)
+ ,  Forall  (fun b => forall c, P b c) (map f aa)
+ -> Forall2 P (map f aa) (map g aa).
+Proof.
+ intros.
+ induction aa.
+ - simpl. auto.
+ - simpl in *.
+   inverts H.
+   apply Forall2_cons.
+   auto. auto.
+Qed.
+
+
+Lemma Forall2_mp
+ :  forall {A B} (P Q: A -> B -> Prop)  aa bb
+ ,  Forall2 (fun a b => P a b -> Q a b) aa bb
+ -> Forall2 (fun a b => P a b)          aa bb
+ -> Forall2 (fun a b => Q a b)          aa bb.
+Proof.
+ intros.
+ induction H0.
+ - auto.
+ - inverts H.
+   apply Forall2_cons; auto.
+Qed.
+
+

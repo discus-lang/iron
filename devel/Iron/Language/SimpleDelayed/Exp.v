@@ -1,59 +1,69 @@
 
 Require Export Iron.Language.SimpleDelayed.Base.
+Require Export Iron.Language.SimpleDelayed.Subst.
 Require Export Iron.Language.SimpleDelayed.Ty.
 
 
-
+(********************************************************************)
 (* Value Expressions *)
 Inductive exp : Type :=
- (* a named variable. *)
- | XVar    : nat       -> exp
+ (* Variables want to be named. *)
+ | XVar    (v: name) : exp
 
- (* function abstraction *)
- | XAbs    : list bind -> nat -> ty  -> exp -> exp   
+ (* Function abstraction. *)
+ | XAbs    (ss: @subst exp ty) (v: name) (t: ty) (x: exp) : exp
 
- (* function application *)
- | XApp    : exp       -> exp -> exp
-
-with bind  : Type := 
- (* binding in a substitution. *)
- | BBind   : nat -> ty -> exp -> bind.
+ (* Function application. *)
+ | XApp    (x1: exp) (x2: exp) : exp.
 
 Hint Constructors exp.
-Hint Constructors bind.
 
 
-(* Expression substitutions. *)
-Definition substx := list bind.
+(* Indirect induction principle for expressions.
 
+   In the definition of 'exp', abstractions contain a list of 
+   subexpressions, so 'exp' is indirectly defined via the list 
+   data type.
 
-(********************************************************************)
-(* Mutual induction principle for expressions. *)
-Theorem exp_mutind
+   In the following induction principle, when proving a property
+   of abstractions we know the property being proved applies to 
+   subexpressions contained in those lists. The automatically
+   generated induction principle 'exp_ind' doesn't give us this.
+*)
+Theorem exp_iind
  : forall
-    (PX  : exp        -> Prop)
-    (PB  : bind       -> Prop)
- ,  (forall n,                                  PX (XVar n))
- -> (forall bs n t x, Forall PB bs -> PX x   -> PX (XAbs bs n t x))
- -> (forall x1 x2,    PX x1  -> PX x2        -> PX (XApp x1 x2))
- -> (forall n t x,    PX x                   -> PB (BBind  n t x))
- -> forall x, PX x.
+    (PX : exp -> Prop)
+
+ ,  (  forall n
+    ,  PX (XVar n))
+
+ -> (  forall ss n t x
+    ,  Forall (fun b => PX (expOfBind b)) ss
+    -> PX x
+    -> PX (XAbs ss n t x))
+
+ -> (  forall x1 x2
+    ,  PX x1  -> PX x2
+    -> PX (XApp x1 x2))
+
+ -> forall  x, PX x.
 Proof.
- intros PX PB.
- intros var abs app bind.
- refine (fix   IHX x : PX x := _  
-         with  IHB b : PB b := _ 
-         for  IHX).
+ intros PX.
+ intros Hvar Habs Happ.
+ refine (fix IHX x: PX x := _).
 
- - Case "expressions".
-   case x; intros.
-   + apply var.
-   + apply abs. induction l; intuition. apply IHX.
-   + apply app. apply IHX. apply IHX.
-
- - Case "bindings".
-   case b; intros.
-   + apply bind. apply IHX.
+ case x; intros.
+ - apply Hvar.
+ - eapply Habs.
+   induction ss as [| b].
+   + apply Forall_nil.
+   + apply Forall_cons.
+     * destruct b. simpl. eapply IHX.
+     * assumption.
+   + apply IHX.
+ - apply Happ.
+   + apply IHX.
+   + apply IHX.
 Qed.
 
 
@@ -96,15 +106,15 @@ Hint Resolve isXAbs_XApp.
 (* Values *)
 Inductive Value : exp -> Prop :=
  | ValueAbs 
-   :  forall bs v t x
-   ,  Value (XAbs bs v t x).
+   :  forall ss v t x
+   ,  Value (XAbs ss v t x).
 
 Hint Constructors Value.
 
 
 Lemma isValue_not_var
- : forall n
- , ~Value (XVar n).
+ : forall v
+ , ~Value (XVar v).
 Proof.
  intros. intuition. inverts H.
 Qed.
@@ -123,8 +133,8 @@ Hint Resolve isValue_not_app.
 (* Done expressions have finished evaluating. *)
 Inductive Done  : exp -> Prop :=
  | DoneVar 
-   :  forall n
-   ,  Done (XVar n)
+   :  forall v
+   ,  Done (XVar v)
 
  | DoneValue
    :  forall x
@@ -137,4 +147,12 @@ Inductive Done  : exp -> Prop :=
    -> Done (XApp x1 x2).
 
 Hint Constructors Done.
+
+
+(* Invert all hypothesis that are compound done statements. *)
+Ltac inverts_done :=
+ repeat 
+  (match goal with 
+   | [ H: Done (XApp _ _) |- _ ] => inverts H
+   end).
 

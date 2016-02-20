@@ -1,33 +1,21 @@
 
 Require Export Iron.Language.SimpleDelayed.Base.
+Require Export Iron.Language.SimpleDelayed.Subst.
+
 
 (* Types *)
 Inductive ty  : Type :=
- | TCon  : nat -> ty           (* data type constructor *)
- | TFun  : ty  -> ty -> ty.    (* function type constructor *)
+ (* Data type constructor. *)
+ | TCon  (c: name) : ty
+
+ (* Function type constructor. *)
+ | TFun  (t1: ty) (t2: ty) : ty.
 Hint Constructors ty.
 
 
-(* Type signatures *)
-Inductive sig : Type :=
- | SSig  : nat -> ty -> sig.
-
-
 (* Type Environments *)
-Definition tyenv := list sig.
+Definition tyenv := @env ty.
 
-
-(* Lookup the type of the given variable from the environment. *)
-Fixpoint lookupEnv (var: nat) (te: tyenv) : option ty :=
- match te with
- | nil                
- => None
-
- | SSig v t :: rest
- => if beq_nat var v
-        then Some t
-        else lookupEnv var rest
- end.
 
 
 

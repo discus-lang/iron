@@ -10,8 +10,7 @@ Theorem progress
  -> Done x \/ (exists x', Step x x').
 Proof.
  intros. gen t.
- induction x using exp_mutind with
-  (PB := fun b => b = b); intros.
+ induction x using exp_iind; intros.
 
  - Case "XVar".
    left. auto.
@@ -40,13 +39,13 @@ Proof.
        destruct HX2.
 
        SSSCase "beta reduction".
-        exists (substXX (BBind n t0 x2 :: l) x1).
+        exists (substXX (BBind v t0 x2 :: ss) x1).
         eapply EsAbsApp.
         assumption.
 
        SSSCase "x2 steps".
-        dest x2'.
-        exists (XApp (XAbs l n t0 x1) x2').
+        destruct H0 as [x2'].
+        exists (XApp (XAbs ss v t0 x1) x2').
         eapply EsAppRight.
          inverts H. assumption.
          assumption.
@@ -59,13 +58,10 @@ Proof.
         intuition. nope.
 
    + SCase "x1 steps".
-     dest x1'.
+     destruct H as [x1'].
      right.
      exists (XApp x1' x2).
      eapply EsAppLeft.
      assumption.
-
- - Case "BBind".
-   trivial.
 Qed.
 
