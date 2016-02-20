@@ -1,6 +1,6 @@
 
 Require Export Coq.Lists.List.
-Require Export LocalLibTactics.
+Require Export Iron.Language.DelayedSimple.Lib.Tactics.
 
 
 (********************************************************************)
@@ -60,7 +60,6 @@ Proof.
   apply Forall_nil.
   inverts H. simpl. intuition.
 Qed.
-
 
 
 (********************************************************************)

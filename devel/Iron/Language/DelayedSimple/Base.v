@@ -1,7 +1,8 @@
 
-Require Export LocalLibTactics.
-Require Export LocalLibTacticsCase.
-Require Export LocalLibDataLists.
+Require Export Iron.Language.DelayedSimple.Lib.Tactics.
+Require Export Iron.Language.DelayedSimple.Lib.TacticsCase.
+Require Export Iron.Language.DelayedSimple.Lib.DataLists.
+Require Export Iron.Language.DelayedSimple.Lib.Subst.
 
 
 (********************************************************************)

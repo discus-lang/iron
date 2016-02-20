@@ -1,6 +1,6 @@
 
-Require Export Iron.Language.SimpleDelayed.TypeX.
-Require Export Iron.Language.SimpleDelayed.SubstXX.
+Require Export Iron.Language.DelayedSimple.TypeX.
+Require Export Iron.Language.DelayedSimple.SubstXX.
 
 
 (*******************************************************************)

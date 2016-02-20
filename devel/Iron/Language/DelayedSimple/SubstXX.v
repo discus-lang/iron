@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SimpleDelayed.TypeX.
+Require Export Iron.Language.DelayedSimple.TypeX.
 
 
 (* Apply an expression substitution to an expression. *)

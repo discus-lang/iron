@@ -1,12 +1,12 @@
 
-Require Export Iron.Language.SimpleDelayed.Step.
+Require Export Iron.Language.DelayedSimple.Step.
 
 
-(* A closed, well typed expression is either a value or can 
+(* A well typed expression is either a value or can 
    take a step in the evaluation. *)
 Theorem progress
  :  forall te x t
- ,  TypeX te x t
+ ,  TypeX  te x t
  -> Done x \/ (exists x', Step x x').
 Proof.
  intros. gen t.

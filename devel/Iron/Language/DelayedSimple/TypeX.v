@@ -1,5 +1,5 @@
 
-Require Export Iron.Language.SimpleDelayed.Exp.
+Require Export Iron.Language.DelayedSimple.Exp.
 
 
 (*******************************************************************)

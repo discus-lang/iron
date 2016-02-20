@@ -1,8 +1,8 @@
 
-Require Export Iron.Language.SimpleDelayed.Step.
+Require Export Iron.Language.DelayedSimple.Step.
 
 
-(* If a closed, well typed expression takes an evaluation step 
+(* If a well typed expression takes an evaluation step 
    then the result has the same type as before. *)
 Theorem preservation
  :  forall te x x' t

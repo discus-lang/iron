@@ -1,7 +1,6 @@
 
-Require Export Iron.Language.SimpleDelayed.Base.
-Require Export Iron.Language.SimpleDelayed.Subst.
-Require Export Iron.Language.SimpleDelayed.Ty.
+Require Export Iron.Language.DelayedSimple.Base.
+Require Export Iron.Language.DelayedSimple.Ty.
 
 
 (********************************************************************)

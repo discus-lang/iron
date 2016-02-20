@@ -1,6 +1,6 @@
 
-Require Export Iron.Language.SimpleDelayed.Progress.
-Require Export Iron.Language.SimpleDelayed.Preservation.
+Require Export Iron.Language.DelayedSimple.Progress.
+Require Export Iron.Language.DelayedSimple.Preservation.
 
 
 (********************************************************************)
@@ -55,7 +55,7 @@ Qed.
 
 (* A terminating big-step evaluation always produces a whnf.
    The fact that the evaluation terminated is implied by the fact
-   that we have a finite proof of EVAL to pass to this lemma. *)
+   that we have a finite proof of Eval to pass to this lemma. *)
 Lemma eval_produces_done
  :  forall x1 v1
  ,  Eval   x1 v1

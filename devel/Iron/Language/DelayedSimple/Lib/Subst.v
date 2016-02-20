@@ -1,7 +1,7 @@
 
 Require Export Coq.Strings.String.
-Require Export LocalLibTactics.
-Require Export LocalLibDataLists.
+Require Export Iron.Language.DelayedSimple.Lib.Tactics.
+Require Export Iron.Language.DelayedSimple.Lib.DataLists.
 
 
 (********************************************************************)
