@@ -24,10 +24,8 @@ root_done \
  	done/Iron/Language/DelayedSimple.vo
 
 root_devel \
- =	
+ =	devel/Iron/Language/DelayedSimpleUS.vo
 
-
-# 	devel/Iron/Language/SystemF2r.vo
 
 # -------------------------------------------------------------------
 .PHONY : all
