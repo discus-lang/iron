@@ -20,7 +20,8 @@ root_done \
  	done/Iron/Language/SystemF2.vo \
  	done/Iron/Language/SystemF2Data.vo \
  	done/Iron/Language/SystemF2Store.vo \
- 	done/Iron/Language/SystemF2Effect.vo
+ 	done/Iron/Language/SystemF2Effect.vo \
+ 	done/Iron/Language/DelayedSimple.vo
 
 root_devel \
  =	
