@@ -8,14 +8,15 @@ Require Export Iron.Language.DelayedSystemF.SubstTT.
 Fixpoint substTX (st: @subst ty ki) (sx: @subst exp ty)
                  (xx: exp) {struct xx} : exp  :=
  match xx with
- | XVar n
+ |  XVar n
  => match lookupSubst n sx with
     | None                => xx
     | Some (BBind _ _ x)  => x
     end
 
- |  XAbs ss n t x
- => XAbs (sx >< mapExpOfSubst (substTX st sx) ss) 
+ |  XAbs st2 sx2 n t x
+ => XAbs (st >< mapExpOfSubst (substTT st)    st2)
+         (sx >< mapExpOfSubst (substTX st sx) sx2) 
           n t x
 
  |  XApp x1 x2

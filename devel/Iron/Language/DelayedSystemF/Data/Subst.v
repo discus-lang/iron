@@ -34,6 +34,13 @@ Fixpoint lookupEnv {T: Type} (var: string) (ee: env T) : option T :=
  end.
 
 
+Definition mapTypeOfSig {T}
+  (f: T -> T) (s: @sig T): @sig T :=
+ match s with
+ | SSig n t  => SSig n (f t)
+ end.
+
+
 (********************************************************************)
 (* Typed bindings. *)
 Inductive bind {X: Type} {T: Type}: Type :=

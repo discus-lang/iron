@@ -10,15 +10,15 @@ Inductive exp : Type :=
  | XVar  (v: name) : exp
 
  (* Function abstraction. *)
- | XAbs  (sx: @subst exp ty) 
-         (v: name) (t: ty) (x: exp) : exp
+ | XAbs  (st: @subst ty ki) (sx: @subst exp ty) 
+         (v: name) (t: ty)  (x: exp) : exp
 
  (* Function application. *)
  | XApp  (x1: exp) (x2: exp) : exp
 
  (* Type abstraction. *)
  | XABS  (st: @subst ty ki) (sx: @subst exp ty)
-         (a: name) (k: ki) (x: exp) : exp
+         (a: name) (k: ki)  (x: exp) : exp
 
  (* Type application. *)
  | XAPP  (x1: exp) (t2: ty) : exp.
@@ -44,17 +44,18 @@ Theorem exp_iind
  ,  (  forall n
     ,  PX (XVar n))
 
- -> (  forall sx n t x
+ -> (  forall st sx n t x
     ,  Forall (fun b => PX (expOfBind b)) sx
     -> PX x
-    -> PX (XAbs sx n t x))
+    -> PX (XAbs st sx n t x))
 
  -> (  forall x1 x2
     ,  PX x1  -> PX x2
     -> PX (XApp x1 x2))
 
  -> (  forall st sx a k x
-    ,  PX x
+    ,  Forall (fun b => PX (expOfBind b)) sx
+    -> PX x
     -> PX (XABS st sx a k x))
 
  -> (  forall x1 t2
@@ -83,6 +84,11 @@ Proof.
    + apply IHX.
 
  - apply HABS.
+   induction sx as [|b].
+   + apply Forall_nil.
+   + apply Forall_cons.
+     * destruct b. simpl. eapply IHX.
+     * assumption.
    + apply IHX.
 
  - apply HAPP.
@@ -94,8 +100,8 @@ Qed.
 (* Values *)
 Inductive Value : exp -> Prop :=
  | ValueAbs 
-   :  forall sx v t x
-   ,  Value (XAbs sx v t x)
+   :  forall st sx v t x
+   ,  Value (XAbs st sx v t x)
 
  | ValueABS
    :  forall st sx a k x
