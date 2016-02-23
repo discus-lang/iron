@@ -10,237 +10,196 @@ Definition name := string.
 
 
 (********************************************************************)
-(* Type signatures *)
-Inductive  sig {A: Type}: Type :=
- | SSig  : name -> A -> @sig A.
+(* Bindings. *)
+Inductive bind {A: Type}: Type :=
+ | Bind   : name -> A -> @bind A.
+Hint Constructors bind.
 
 
-(* An environment is a list of signatures. *)
+(* Get the name of a binding. *)
+Definition nameOfBind {X}
+  (b: @bind X): name :=
+ match b with
+ | Bind n _ => n
+ end.
+
+
+(* Get the expression of a binding. *)
+Definition expOfBind {X}
+  (b: @bind X): X :=
+ match b with
+ | Bind _ x => x
+ end.
+
+
+(* Apply a function to the expression component of a binding. *)
+Definition mapExpOfBind {X} 
+  (f: X -> X) (b: @bind X): @bind X :=
+ match b with
+ | Bind n x => Bind n (f x)
+ end.
+
+
+(********************************************************************)
+(* An environment is a list of bindings. *)
 Definition env (A: Type) 
- := list (@sig A).
+ := list (@bind A).
 
 
-(* Lookup the type of the given variable from an environment. *)
-Fixpoint lookupEnv {T: Type} (var: string) (ee: env T) : option T :=
+(* Lookup expression bound to the given variable in an environment. *)
+Fixpoint lookupEnv {A: Type} (var: string) (ee: env A) : option A :=
  match ee with
- | nil                
+ |  nil                
  => None
 
- | SSig v t :: rest
+ |  Bind v x :: rest
  => match string_dec var v with
-    | left  _ => Some t
+    | left  _ => Some x
     | right _ => lookupEnv var rest
     end
  end.
 
 
-(********************************************************************)
-(* Typed bindings. *)
-Inductive bind {X: Type} {T: Type}: Type :=
- | BBind   : name -> T -> X -> @bind X T.
-Hint Constructors bind.
-
-
-(* Get the type component of a binding. *)
-Definition typeOfBind {X T} (b: @bind X T): T :=
- match b with
- | BBind _ t x => t
- end.
-
-
-(* Get the expression component of a binding. *)
-Definition expOfBind  {X T} (b: @bind X T): X :=
- match b with
- | BBind _ _ x => x
- end.
-
-
-(* Apply a function to the expression component of a binding. *)
-Definition mapExpOfBind {T X} 
-  (f: X -> X) (b: @bind X T): @bind X T :=
- match b with
- | BBind n t x => BBind n t (f x)
- end.
-
-
-(********************************************************************)
-(* A substitution is a list of bindings. *)
-Definition subst {X T} := list (@bind X T).
-
-
-(* Apply a function to all the expression components of a list
-   of bindings. *)
-Definition mapExpOfSubst {X T}
-  (f: X -> X) (bs: @subst X T): @subst X T := 
- map (mapExpOfBind f) bs.
-
-
-(* Lookup the binding with the given name from a substitution. *)
-Fixpoint lookupSubst {X T} 
-   (var: string) (ss: @subst X T): option (@bind X T) :=
- match ss with
- |  nil                
- => None
-
- |  BBind v t x :: rest
- => match string_dec var v with 
-    | left _  => Some (BBind v t x)
-    | right _ => lookupSubst var rest
-    end
- end.
-
-
-(* When we lookup a binding with a particular name from a substitution, 
-   then the returned binding has that name. *)
-Lemma lookupSubst_name 
- :  forall {X T} n1 n2 t e bs
- ,  @lookupSubst X T n1 bs = Some (BBind n2 t e)
- -> n1 = n2.
+Lemma lookupEnv_some_app
+ :  forall {A} env1 env2 n x
+ ,  @lookupEnv A n (env1 ++ env2) = Some x
+ -> @lookupEnv A n env1 = Some x
+ \/ @lookupEnv A n env2 = Some x.
 Proof.
- intros.
- induction bs as [|b].
+ intros. gen x.
+ induction env1; intros.
+ - simpl in *. firstorder.
+ - simpl in *.
+   destruct a.
+   remember (string_dec n n0) as b.
+   destruct b.
+   + firstorder.
+   + firstorder.
+Qed.
+
+
+Lemma lookupEnv_app_infront
+ :  forall A n env1 env2 x1 x2
+ ,  @lookupEnv A n  env1          = Some x2
+ -> @lookupEnv A n (env1 ++ env2) = Some x1
+ -> x1 = x2.
+Proof.
+ intros A n env1 env2 x1 x2 HL1 HL2.
+ induction env1.
  - simpl in *. congruence.
- - simpl in *. destruct b.
-   remember (string_dec n1 n) as d. destruct d.
-   + inverts H. assumption.
+ - simpl in *. destruct a.
+   remember (string_dec n n0) as X.
+   destruct X.
+   + inverts HL1. congruence.
+   + firstorder. 
+Qed.
+
+
+Lemma lookupEnv_app_inback
+ :  forall A n env1 env2 x1
+ ,  @lookupEnv A n  env1          = None
+ -> @lookupEnv A n (env1 ++ env2) = Some x1
+ -> @lookupEnv A n  env2          = Some x1.
+Proof.
+ intros A n env1 env2 x1 HL1 HL12.
+ induction env1.
+ - simpl in *. assumption.
+ - simpl in *. destruct a.
+   remember (string_dec n n0) as X.
+   destruct X.
+   + congruence.
    + firstorder.
 Qed.
 
 
 (********************************************************************)
-(* Property is true of all pairs of expressions and types in a
-   substitution. *)
-Definition ForallSubstXT {X T} 
-  (P: X -> T -> Prop) (ss: @subst X T): Prop :=
- Forall2 P (map expOfBind ss) (map typeOfBind ss).
+Inductive EnvZip {A B} : env A -> env B -> env (A * B) -> Prop :=
+ | EnvZipNil 
+   : EnvZip nil nil nil
+
+ | EnvZipCons
+   :  forall n a (aa : env A) b (bb : env B) ab
+   ,  EnvZip aa bb ab
+   -> EnvZip (Bind n a :: aa) (Bind n b :: bb) (Bind n (a, b) :: ab).
+Hint Constructors EnvZip.
 
 
-(* Fold up a ForallSubstXT *)
-Lemma ForallSubstXT_fold
- :  forall {X T} (P: X -> T -> Prop) (ss: @subst X T)
- ,  Forall2 P (map expOfBind ss) (map typeOfBind ss)
- -> ForallSubstXT P ss.
+Lemma EnvZip_some_1of2
+ :  forall {A B} e1 e2 e12 n x2
+ ,  EnvZip e1 e2 e12
+ -> @lookupEnv A n e2 = Some x2
+ -> exists x1, 
+    @lookupEnv B n e1 = Some x1.
 Proof.
  intros.
- eauto.
+ induction H.
+ - simpl in H0.
+   congruence.
+ - simpl in *.
+   remember (string_dec n n0) as X.
+   destruct X.
+   + inverts e.
+     inverts H0.
+     exists a. trivial.
+   + specializes IHEnvZip H0.
+     trivial.
 Qed.
 
 
-(* ForallSubstXT append. *)
-Lemma ForallSubstXT_app 
- :  forall {X T} (P: X -> T -> Prop) ss1 ss2
- ,  ForallSubstXT P ss1
- -> ForallSubstXT P ss2
- -> ForallSubstXT P (ss1 ++ ss2).
+Lemma EnvZip_some_2of1
+ :  forall {A B} e1 e2 e12 n x1
+ ,  EnvZip e1 e2 e12
+ -> @lookupEnv A n e1 = Some x1
+ -> exists x2, 
+    @lookupEnv B n e2 = Some x2.
 Proof.
  intros.
- unfold ForallSubstXT.
- eapply Forall2_map.
- eapply Forall2_app.
- - eapply Forall2_map'; auto.
- - eapply Forall2_map'; auto.
+ induction H.
+ - simpl in H0.
+   congruence.
+ - simpl in *.
+   remember (string_dec n n0) as X.
+   destruct X.
+   + inverts e.
+     inverts H0.
+     exists b. trivial.
+   + specializes IHEnvZip H0.
+     trivial.
 Qed.
 
 
-(* Same as Forall2_mp, but keep the definition of
-   ForallSubstXT folded. *)
-Lemma ForallSubstXT_mp
- :  forall {X T} (P Q: X -> T -> Prop)        ss
- ,  ForallSubstXT (fun x t => P x t -> Q x t) ss
- -> ForallSubstXT (fun x t => P x t)          ss
- -> ForallSubstXT (fun x t => Q x t)          ss.
+Lemma EnvZip_none_1of2
+ :  forall {A B} e1 e2 e12 n
+ ,  EnvZip e1 e2 e12
+ -> @lookupEnv A n e1 = None
+ -> @lookupEnv B n e2 = None.
 Proof.
- intros.
- eapply Forall2_mp; eauto.
+ intros A B e1 e2 e12 n HZ HL1.
+ induction HZ.
+ - simpl in *.
+   congruence.
+ - simpl in *.
+   remember (string_dec n n0) as X.
+   destruct X.
+   + congruence.
+   + firstorder.
 Qed.
 
 
-Lemma ForallSubstXT_mapExpOfSubst
- :  forall {X T} (f: X -> X) (P: X -> T -> Prop) (ss: @subst X T)
- ,  ForallSubstXT (fun x t => P (f x) t) ss
- -> ForallSubstXT (fun x t => P x t) (mapExpOfSubst f ss).
+Lemma EnvZip_none_2of1
+ :  forall {A B} e1 e2 e12 n
+ ,  EnvZip e1 e2 e12
+ -> @lookupEnv A n e2 = None
+ -> @lookupEnv B n e1 = None.
 Proof.
- intros.
- unfold ForallSubstXT in *.
- induction ss as [|b].
- - simpl. auto.
- - simpl. inverts H.
-   eapply Forall2_cons.
-   + lets D: IHss H5.
-     destruct b.
-     simpl in *. assumption.
-   + eauto. 
-Qed.
-
-
-(********************************************************************)
-(* Strip the expression from a binding, producing a signature. *)
-Fixpoint stripB {X T} (b: @bind X T): @sig T :=
- match b with
- | BBind n t _ => SSig n t
- end.
-
-
-(* Strip a substitution to an environment. *)
-Definition stripS {X T} (ss: @subst X T): @env T :=
- map stripB ss.
-Hint Transparent stripS.
-
-
-Lemma stripS_fold
- : forall {X T} ss
- , map (@stripB X T) ss = stripS ss.
-Proof.
- eauto.
-Qed.
-
-
-(* Applying a function to the expressions of a substitution,
-   then stripping it yields the same result as just stripping it. *)
-Lemma stripS_mapExpOfSubst
- : forall {X T} f ss
- , @stripS X T (mapExpOfSubst f ss) = @stripS X T ss.
-Proof.
- intros.
- induction ss as [|b].
- - simpl. auto.
- - simpl. rewrite IHss.
-   destruct b. simpl. trivial.
-Qed.
-
-
-Lemma lookup_env_subst_none
- :  forall {X T} n te ss t
- ,  @lookupEnv     T n (stripS ss ++ te) = Some t
- -> @lookupSubst X T n ss                = None
- -> @lookupEnv     T n te                = Some t.
-Proof.
- intros.
- induction ss as [|b].
- - simpl in *. assumption.
- - simpl in *. destruct b. simpl in H.
-   remember (string_dec n n0) as d. destruct d.
-   + inverts H. congruence.
-   + eapply IHss. 
-     * auto. 
-     * assumption.
-Qed.
-
-
-Lemma lookup_env_subst_some
- :  forall {X T} n te ss e t1 t2 P
- ,  ForallSubstXT  P ss
- -> @lookupEnv     T n (stripS ss ++ te) = Some t1
- -> @lookupSubst X T n ss                = Some (BBind n t2 e)
- -> P e t1.
-Proof.
- intros. gen n te e t1 t2.
- induction ss as [|b]; intros.
- - simpl in *. congruence.
- - simpl in *. destruct b. simpl in *.
-   remember (string_dec n n0) as d. destruct d.
-   + inverts H0. inverts H1.
-     inverts H. assumption.
-   + inverts H; eauto.
+ intros A B e1 e2 e12 n HZ HL2.
+ induction HZ.
+ - simpl in *.
+   congruence.
+ - simpl in *.
+   remember (string_dec n n0) as X.
+   destruct X.
+   + congruence.
+   + firstorder.
 Qed.
 

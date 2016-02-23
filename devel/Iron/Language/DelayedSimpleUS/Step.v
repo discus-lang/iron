@@ -10,21 +10,21 @@ Inductive Step : exp -> exp -> Prop :=
  (* Evaluation in a context. *)
  | EsAppLeft 
    :  forall x1 x1' x2
-   ,  Step  x1 x1'
-   -> Step (XApp x1 x2) (XApp x1' x2)
+   ,  Step   x1 x1'
+   -> Step  (XApp x1 x2) (XApp x1' x2)
 
  | EsAppRight
    :  forall x1 x2 x2'
-   ,  Value x1
-   -> Step  x2 x2'
-   -> Step (XApp x1 x2) (XApp x1 x2')
+   ,  Value  x1
+   -> Step   x2 x2'
+   -> Step  (XApp x1 x2) (XApp x1 x2')
 
  (* Function application. *)
  | EsAbsApp 
-   :  forall bs1 n1 t1 x1 v2
-   ,  Done v2
-   -> Step (XApp (XAbs bs1 n1 t1 x1) v2)
-           (substXX (BBind n1 t1 v2 :: bs1) x1).
+   :  forall sx n1 t1 x1 x2
+   ,  Done  x2
+   -> Step  (XApp (XAbs sx n1 t1 x1) x2)
+            (substXX (Bind n1 x2 :: sx) x1).
 
 Hint Constructors Step.
 
@@ -43,19 +43,19 @@ Inductive Steps : exp -> exp -> Prop :=
     and multi-step evaluations. *)
  | EsNone
    :  forall x1
-   ,  Steps x1 x1
+   ,  Steps  x1 x1
 
  (* Take a single step. *)
  | EsStep
    :  forall x1 x2
-   ,  Step  x1 x2
-   -> Steps x1 x2
+   ,  Step   x1 x2
+   -> Steps  x1 x2
 
  (* Combine two evaluations into a third. *)
  | EsAppend
    :  forall x1 x2 x3
-   ,  Step  x1 x2 -> Steps x2 x3
-   -> Steps x1 x3.
+   ,  Step   x1 x2 -> Steps x2 x3
+   -> Steps  x1 x3.
 
 Hint Constructors Steps.
 
@@ -63,7 +63,7 @@ Hint Constructors Steps.
 (* Multi-step evaluation on the left of an application. *)
 Lemma steps_context_left
  :  forall x1 x1' x2
- ,  Steps x1  x1'
+ ,  Steps  x1 x1'
  -> Steps (XApp x1 x2) (XApp x1' x2).
 Proof.
  intros x1 x1' x2 HS.
@@ -73,12 +73,12 @@ Qed.
 
 (* Multi-step evaluation on the right of an application. *)
 Lemma steps_context_right
- :  forall bs n t x1 x2 x2'
- ,  Steps x2 x2'
- -> Steps (XApp (XAbs bs n t x1) x2)
-          (XApp (XAbs bs n t x1) x2').
+ :  forall sx n t x1 x2 x2'
+ ,  Steps  x2 x2'
+ -> Steps  (XApp (XAbs sx n t x1) x2)
+           (XApp (XAbs sx n t x1) x2').
 Proof.
- intros bs n t x1 x2 x2' HS.
+ intros sx n t x1 x2 x2' HS.
  induction HS; eauto.
 Qed.
 
@@ -91,8 +91,8 @@ Qed.
    eval_expansion lemma.*)
 Inductive StepsL : exp -> exp -> Prop :=
  | EslNone 
-   : forall x1
-   , StepsL x1 x1
+   :  forall x1
+   ,  StepsL x1 x1
 
  | EslCons
    :  forall x1 x2 x3

@@ -33,9 +33,8 @@ Proof.
    + SCase "perform a substitution".
      inverts_type.
      eapply subst_exp_exp.
-     * simpl. assumption.
-     * unfold ForallSubstXT. simpl.
-       eapply Forall2_cons; auto.
+     * eapply TsCons; eauto.
+     * eauto.
 Qed.
 
 

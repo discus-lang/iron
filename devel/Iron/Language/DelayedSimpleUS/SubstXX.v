@@ -3,19 +3,19 @@ Require Export Iron.Language.DelayedSimpleUS.TypeX.
 
 
 (* Apply an expression substitution to an expression. *)
-Fixpoint substXX (ss: @subst exp ty) (xx: exp) {struct xx} : exp  :=
+Fixpoint substXX (sx: @env exp) (xx: exp) {struct xx} : exp  :=
  match xx with
  | XVar n
- => match lookupSubst n ss with
-    | None                => xx
-    | Some (BBind _ _ x)  => x
+ => match lookupEnv n sx with
+    | None   => xx
+    | Some x => x
     end
 
- |  XAbs ss2 n t x
- => XAbs (ss >< mapExpOfSubst (substXX ss) ss2) n t x
+ |  XAbs sx2 n t x
+ => XAbs (sx >< map (mapExpOfBind (substXX sx)) sx2) n t x
 
  |  XApp x1 x2
- => XApp (substXX ss x1) (substXX ss x2)
+ => XApp (substXX sx x1) (substXX sx x2)
  end.
 
 
@@ -27,57 +27,61 @@ Fixpoint substXX (ss: @subst exp ty) (xx: exp) {struct xx} : exp  :=
    place at top level. 
 *)
 Lemma subst_exp_exp
- :  forall te ss x t
- ,  TypeX  (te >< stripS ss) x t
- -> ForallSubstXT (TypeX te) ss
- -> TypeX  te (substXX ss x) t.
+ :  forall te sx st x t
+ ,  TypeS  te sx st
+ -> TypeX  (te >< st) x      t
+ -> TypeX  te (substXX sx x) t.
 Proof.
- intros. gen te ss t.
+ intros. gen te sx st t.
  induction x using exp_iind;
-  intros; simpl in *; inverts_type.
+  intros; inverts_type.
 
  - Case "XVar".
-   remember (lookupSubst n ss) as o.
+   assert (exists sxt, EnvZip sx st sxt) as HZ.
+    eapply TypeS_EnvZip; eauto.
+   destruct HZ as [sxt].
+
+   simpl in *.
+   remember (lookupEnv n sx) as o.
    symmetry in Heqo.
    destruct o.
 
    + SCase "variable matches".
-     destruct b.
-     eapply lookup_env_subst_some; eauto.
+     assert (exists t2,  lookupEnv n st = Some t2) as HL2.
+      eapply EnvZip_some_2of1; eauto.
+     destruct HL2 as [t2].
 
-     assert (n = n0) as HN.
-     eapply (@lookupSubst_name exp ty); eauto.
-     rewrite HN in *.
-     eauto.
+     assert (t = t2).
+      eapply lookupEnv_app_infront; eauto. 
+     subst.
+
+     eapply TypeS_lookup_TypeX; eauto.
 
    + SCase "variable does not match.".
      eapply TxVar.
-     eapply lookup_env_subst_none; eauto.
+     assert (@lookupEnv ty n st = None) as HL1.
+      eapply EnvZip_none_1of2; eauto.
+
+     assert (@lookupEnv ty n te = Some t) as HL2.
+      eapply lookupEnv_app_inback; eauto.
+     assumption.
 
  - Case "XLam".
    eapply TxLam.
-   + eapply ForallSubstXT_app; auto.
-
-     eapply (Forall_inst te)  in H.
-     eapply (Forall_inst ss0) in H.
-     eapply (Forall_mp_const) in H; auto.
+   + eapply (Forall_inst te)  in H.
+     eapply (Forall_inst sx)  in H.
+     eapply (Forall_inst st)  in H.
+     eapply (Forall_mp_const) in H; eauto.
 
      eapply (Forall_map 
-              (  fun xx => forall t
-              ,  TypeX (te >< stripS ss0) xx t
-              -> TypeX te (substXX ss0 xx) t)) in H.
+              (  fun x => forall t
+              ,  TypeX (te >< st) x t
+              -> TypeX te (substXX sx x) t)) in H.
 
-     eapply Forall_Forall2_right  in H.
-     eapply ForallSubstXT_fold    in H.
+     eapply TypeS_app; eauto.
+     eapply TypeS_Forall. eauto. eauto.
 
-     eapply ForallSubstXT_mapExpOfSubst.
-     eapply ForallSubstXT_mp; eauto.
-
-   + unfold stripS.
-     rewrite map_app.
-     rewrite stripS_fold.
-     rewrite stripS_mapExpOfSubst.
-     rewrite <- app_assoc.
+   + rewrite <- app_assoc.
      assumption.
 
  - Case "XApp".

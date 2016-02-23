@@ -10,12 +10,16 @@ Inductive exp : Type :=
  | XVar    (v: name) : exp
 
  (* Function abstraction. *)
- | XAbs    (ss: @subst exp ty) (v: name) (t: ty) (x: exp) : exp
+ | XAbs    (ss: @env exp) (v: name) (t: ty) (x: exp) : exp
 
  (* Function application. *)
  | XApp    (x1: exp) (x2: exp) : exp.
 
 Hint Constructors exp.
+
+
+(* A substitution is an environment of expression bindings. *)
+Definition substx := @env exp.
 
 
 (* Indirect induction principle for expressions.
@@ -64,41 +68,6 @@ Proof.
    + apply IHX.
    + apply IHX.
 Qed.
-
-
-(********************************************************************)
-(* Predicates. *)
-Definition isXAbs (x1: exp): Prop := 
- (exists bs n t x, x1 = XAbs bs n t x).
-
-
-Lemma isXAbs_true
- : forall bs n t x, isXAbs (XAbs bs n t x).
-Proof.
- intros.
- unfold isXAbs.
- exists bs. exists n. exists t. exists x.
- trivial.
-Qed.
-Hint Resolve isXAbs_true.
-
-
-Lemma isXAbs_XVar
- : forall n
- , ~isXAbs (XVar n).
-Proof.
- intuition. nope.
-Qed.
-Hint Resolve isXAbs_XVar.
-
-
-Lemma isXAbs_XApp
- : forall x1 x2
- , ~isXAbs (XApp x1 x2).
-Proof.
- intuition. nope.
-Qed.
-Hint Resolve isXAbs_XApp.
 
 
 (********************************************************************)

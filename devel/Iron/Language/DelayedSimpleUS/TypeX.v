@@ -11,18 +11,30 @@ Inductive TypeX : tyenv -> exp -> ty -> Prop :=
    -> TypeX te (XVar v) t
 
  | TxLam
-   :  forall te ss v1 t1 x2 t2
-   ,  ForallSubstXT (TypeX te) ss
-   -> TypeX (te >< stripS ss :> SSig v1 t1) x2 t2
-   -> TypeX te (XAbs ss v1 t1 x2) (TFun t1 t2)
+   :  forall te sx st v1 t1 x2 t2
+   ,  TypeS te  sx st
+   -> TypeX (te >< st :> Bind v1 t1) x2 t2
+   -> TypeX te (XAbs sx v1 t1 x2) (TFun t1 t2)
 
  | TxApp
    :  forall te x1 x2 t1 t2
    ,  TypeX te x1 (TFun t1 t2)
    -> TypeX te x2 t1
-   -> TypeX te (XApp x1 x2) t2.
+   -> TypeX te (XApp x1 x2) t2
+
+with     TypeS : tyenv -> @env exp -> @env ty -> Prop :=
+ | TsNil 
+   :  forall te
+   ,  TypeS  te nil nil
+
+ | TsCons
+   :  forall n x t te sx st
+   ,  TypeS  te sx st
+   -> TypeX  te x  t
+   -> TypeS  te (sx :> Bind n x) (st :> Bind n t).
 
 Hint Constructors TypeX.
+Hint Constructors TypeS.
 
 
 (* Invert all hypothesis that are compound typing statements. *)
@@ -40,37 +52,66 @@ Definition Closed (xx: exp) : Prop :=
  exists t, TypeX nil xx t.
 
 
-(*******************************************************************)
-(* Forms of terms lemma. *)
-Lemma done_lam 
- :  forall x t1 t2
- ,  TypeX nil x (TFun t1 t2)
- -> Done   x
- -> isXAbs x.
+Lemma TypeS_EnvZip
+ :  forall te sx st
+ ,  TypeS  te sx st
+ -> exists sxt, EnvZip sx st sxt.
 Proof.
- intros. gen t1 t2.
- induction x; intros.
+ intros te sx st HTS.
+ induction HTS.
+ - exists (@nil (@bind (exp * ty))).
+   auto.
+ - destruct IHHTS as [sxt].
+   exists (sxt :> Bind n (x, t)).
+   auto.
+Qed.
 
- - Case "XVar".
-   nope.
 
- - Case "XAbs".
-   nope.
+Lemma TypeS_app
+ :  forall te sx1 sx2 st1 st2
+ ,  TypeS te sx1 st1
+ -> TypeS te sx2 st2
+ -> TypeS te (sx1 >< sx2) (st1 >< st2).
+Proof.
+ intros te sx1 sx2 st1 st2 HT1 HT2.
+ induction HT2; simpl; rip.
+Qed.
 
- - Case "XApp".
-   inverts H0.
-   + nope.
 
-   + destruct x1.
-     * nope.
+Lemma TypeS_lookup_TypeX
+ :  forall te sx st n x t
+ ,  TypeS  te sx st
+ -> lookupEnv n sx  = Some x
+ -> lookupEnv n st  = Some t
+ -> TypeX  te x t.
+Proof.
+ intros te sx st n x t HTS HLX HLT.
+ induction HTS; intros.
+ - nope.
+ - simpl in *.
+   remember (string_dec n n0) as b.
+   destruct b.
+   + subst. inverts HLX. inverts HLT.
+     assumption.
+   + firstorder.
+Qed.
 
-     * rip.
-       assert (Value (XAbs ss v t x1)); auto.
-       nope.
 
-     * inverts_type.
-       rip.
-       assert (isXAbs (XApp x1_1 x1_2)).
-        eapply IHx1. eauto. nope.
+Lemma TypeS_Forall 
+ :  forall te1 te2 sx st f
+ ,  Forall (  fun x => forall t
+           ,  TypeX te1  x    t
+           -> TypeX te2 (f x) t)
+           (map expOfBind sx)
+ -> TypeS te1 sx st
+ -> TypeS te2 (map (mapExpOfBind f) sx) st.
+Proof.
+ intros.
+ induction H0.
+ - eapply TsNil.
+ - simpl. eapply TsCons.
+   + eapply IHTypeS.
+     inverts H. auto.
+   + inverts H. auto.
 Qed.
 

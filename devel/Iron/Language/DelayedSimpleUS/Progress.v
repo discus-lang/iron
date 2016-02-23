@@ -33,13 +33,13 @@ Proof.
         eapply DoneVar.
         intuition. nope.
 
-     * SSCase "x1 is a lambda".
+     * SSCase "x1 is an abstraction".
        right.
        assert (Done x2 \/ (exists x2', Step x2 x2')) as HX2; eauto.
        destruct HX2.
 
        SSSCase "beta reduction".
-        exists (substXX (BBind v t0 x2 :: ss) x1).
+        exists (substXX (Bind v x2 :: ss) x1).
         eapply EsAbsApp.
         assumption.
 

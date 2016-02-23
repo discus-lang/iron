@@ -19,6 +19,3 @@ Require Export Iron.Language.DelayedSimpleUS.Progress.
 
 (* When an expression takes a step then the result has the same type. *)
 Require Export Iron.Language.DelayedSimpleUS.Preservation.
-
-(* Big step evaluation, and conversion between small step evaluation. *)
-Require Export Iron.Language.DelayedSimpleUS.Eval.
