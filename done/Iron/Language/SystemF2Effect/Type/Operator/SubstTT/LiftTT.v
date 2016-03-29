@@ -38,11 +38,6 @@ Proof.
    rewrite (IHt1 (S n) n').
    rewrite (liftTT_liftTT_11 0 n).
    f_equal.
-
- - simpl. rewritess. auto.
- - simpl. rewritess. auto.
- - simpl. rewritess. auto.
- - simpl. rewritess. auto.
 Qed.
 
 

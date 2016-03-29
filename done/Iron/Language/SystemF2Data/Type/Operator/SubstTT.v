@@ -158,12 +158,6 @@ Proof.
    rewrite (IHt1 (S n) n').
    rewrite (liftTT_liftTT_11 0 n).
    burn.
-
- - Case "TApp".
-   snorm.
-   rewrite IHt1_1.
-   rewrite IHt1_2.
-   auto.
 Qed.
 
 
