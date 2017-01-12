@@ -3,7 +3,7 @@
 # Coq binaries to use when building
 COQDEP		= coqdep
 COQC		= coqc
-THREADS		= 4
+THREADS		= 1
 
 
 # -- Roots ----------------------------------------------------------
@@ -50,9 +50,9 @@ proof: $(root_devel)
 # Start the Coq ide
 .PHONY: start
 start: 
-	coqide -R done/Iron   -as Iron \
-	       -R  devel/Iron -as Iron \
-	       -R  lib/Base   -as Base &
+	coqide -R done/Iron   Iron \
+	       -R  devel/Iron Iron \
+	       -R  lib/Base   Base &
 
 # Build dependencies for Coq proof scripts.
 .PHONY: deps
@@ -69,9 +69,9 @@ src_coq_vo	= $(patsubst %.v,%.vo,$(src_coq_v))
 	
 make/proof.deps : $(src_coq_v)
 	@echo "* Building proof dependencies"
-	@$(COQDEP) -R done/Iron  -as Iron \
-	           -R devel/Iron -as Iron \
-	           -R lib/Base   -as Base \
+	@$(COQDEP) -R done/Iron  Iron \
+	           -R devel/Iron Iron \
+	           -R lib/Base   Base \
  	           $(src_coq_v) > make/proof.deps
 	@cp make/proof.deps make/proof.deps.inc
 

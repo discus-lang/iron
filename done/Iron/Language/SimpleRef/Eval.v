@@ -172,14 +172,14 @@ Proof.
   destruct Rx2' as [se3]. rip.
 
   eapply EsAppend.
-   lets D: steps_context XcApp1.
-   eapply D. eauto.
+   lets D1: steps_context XcApp1.
+   eapply D1. eapply Sx1.
   eapply EsAppend.
-   lets D: steps_context XcApp2.
-    have WL: (wnfX (XLam t0 x12)).
-     eauto. eapply D. eauto.
-  eapply EsAppend; eauto.
-
+   lets D2: steps_context XcApp2.
+   have WL: (wnfX  (XLam t0 x12)).
+   have VL: (value (XLam t0 x12)). eapply VL.
+   eapply D2. eapply Sx2.
+   eapply EsAppend. eauto. eauto.
 
  (* Create a new Reference *******)
  Case "EvNewRef".

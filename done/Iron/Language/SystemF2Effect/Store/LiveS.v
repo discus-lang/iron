@@ -447,19 +447,20 @@ Lemma liveS_liveE_value
  -> regionOfStBind b = p
  -> exists v, b = StValue p v.
 Proof.
- intros ss fs e l b p HLS HLE. intros.
+ intros ss fs e l b p HLS HLE.
+ intros HE HG HR.
 
  destruct b.
  - snorm. subst. exists v. eauto.
- - simpl in H1. inverts H1. clear H2.
-   have (In (StDead p) ss). clear H0.
+ - simpl in HR. subst.
 
-   have (NoPrivFs p fs).
+   have (In (StDead p) ss) as HID.
+   have (NoPrivFs p fs)    as HNP.
 
-   lets D1: liveE_fpriv_in HLE H.
+   lets D1: liveE_fpriv_in HLE HE.
    destruct D1 as [m].
 
-   lets D2: (@Forall_in frame) H0 H2. 
+   lets D2: (@Forall_in frame) HNP H.
    simpl in D2.
    destruct m; firstorder.
 Qed.

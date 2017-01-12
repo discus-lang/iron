@@ -281,7 +281,7 @@ Proof.
         apply isTVar_form in HV.
         destruct t1; snorm; try congruence.
          subst. snorm. nope.
-         inverts H1. omega.
+         subst. omega.
 
      * repeat f_equal.
        lets D: maskOnVarT_freeT_id. 

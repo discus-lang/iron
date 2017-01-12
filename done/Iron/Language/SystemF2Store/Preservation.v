@@ -119,7 +119,7 @@ Proof.
   have (In (AAlt dc x) alts).
 
   have (TYPEA ds nil nil se (AAlt dc x) (makeTApps (TCon tc) tsParam') t) as HA
-   by  (nforall; auto).
+   by  (repeat nforall; auto).
 
   have (vs = map expOfSValue svs).
    subst.

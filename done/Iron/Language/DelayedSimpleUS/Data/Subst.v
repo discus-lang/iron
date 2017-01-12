@@ -138,7 +138,7 @@ Proof.
  - simpl in *.
    remember (string_dec n n0) as X.
    destruct X.
-   + inverts e.
+   + subst.
      inverts H0.
      exists a. trivial.
    + specializes IHEnvZip H0.
@@ -160,7 +160,7 @@ Proof.
  - simpl in *.
    remember (string_dec n n0) as X.
    destruct X.
-   + inverts e.
+   + subst.
      inverts H0.
      exists b. trivial.
    + specializes IHEnvZip H0.

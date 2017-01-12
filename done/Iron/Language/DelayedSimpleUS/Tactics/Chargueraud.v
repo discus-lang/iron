@@ -2295,6 +2295,7 @@ Tactic Notation "destructs" constr(N) constr(T) :=
 
 (** Underlying implementation of [branch]. *)
 
+(*
 Ltac branch_tactic K N := 
   match constr:(K,N) with
   | (_,0) => fail 1
@@ -2303,6 +2304,7 @@ Ltac branch_tactic K N :=
   | (1,_) => left
   | (S ?K', S ?N') => right; branch_tactic K' N'
   end.
+*)
 
 Ltac unfold_goal_until_disjunction :=
   match goal with
@@ -2337,10 +2339,12 @@ Ltac get_goal_disjunction_arity :=
     but for more complex unfolding one should use the tactic
     [branch K of N]. *)
 
+(*
 Tactic Notation "branch" constr(K) :=
   unfold_goal_until_disjunction; 
   let N := get_goal_disjunction_arity in
   branch_tactic K N.
+*)
 
 (** [branch K of N] is similar to [branch K] except that the
     arity of the disjunction [N] is given manually, and so this
@@ -2348,9 +2352,10 @@ Tactic Notation "branch" constr(K) :=
     In other words, applies to a goal of the form 
     [P1 \/ ... \/ PK \/ ... \/ PN] and leaves the goal [PK]. *)
 
+(*
 Tactic Notation "branch" constr(K) "of" constr(N) :=
   branch_tactic K N.
-
+*)
 
 (* ---------------------------------------------------------------------- *)
 (** N-ary Disjunction Deconstruction *)
@@ -2685,6 +2690,7 @@ Tactic Notation "destructs" "~" constr(T) :=
 Tactic Notation "destructs" "~" constr(N) constr(T) :=
   destructs N T; auto_tilde.
 
+(*
 Tactic Notation "branch" "~" constr(N) :=
   branch N; auto_tilde.
 Tactic Notation "branch" "~" constr(K) "of" constr(N) :=
@@ -2694,6 +2700,7 @@ Tactic Notation "branches" "~" constr(T) :=
   branches T; auto_tilde.
 Tactic Notation "branches" "~" constr(N) constr(T) :=
   branches N T; auto_tilde.
+*)
 
 Tactic Notation "exists_" "~" :=
   exists_; auto_tilde.
@@ -2892,6 +2899,7 @@ Tactic Notation "destructs" "*" constr(T) :=
 Tactic Notation "destructs" "*" constr(N) constr(T) :=
   destructs N T; auto_star.
 
+(*
 Tactic Notation "branch" "*" constr(N) :=
   branch N; auto_star.
 Tactic Notation "branch" "*" constr(K) "of" constr(N) :=
@@ -2901,6 +2909,7 @@ Tactic Notation "branches" "*" constr(T) :=
   branches T; auto_star.
 Tactic Notation "branches" "*" constr(N) constr(T) :=
   branches N T; auto_star.
+*)
 
 Tactic Notation "exists_" "*" :=
   exists_; auto_star.
