@@ -12,7 +12,8 @@ root_lib \
  	lib/Base/Class/Monoid.vo
 
 root_done \
- =	done/Iron/Language/Simple.vo \
+ =	done/Iron/Language/Calc.vo \
+ 	done/Iron/Language/Simple.vo \
  	done/Iron/Language/SimplePCF.vo \
  	done/Iron/Language/SimpleRef.vo \
  	done/Iron/Language/SimpleData.vo \
