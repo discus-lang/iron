@@ -24,7 +24,7 @@ Fixpoint bge_nat (n m : nat): bool :=
  | S m' => 
     match n with
     | O => false
-    | S n' => ble_nat n' m'
+    | S n' => bge_nat n' m'
     end
  end.
 
