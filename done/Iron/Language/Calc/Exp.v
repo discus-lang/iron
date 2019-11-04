@@ -2,7 +2,7 @@
 Require Export Iron.Language.Calc.Base.
 
 
-(* Type expression *)
+(* Type expressions *)
 Inductive ty  : Type :=
  | TNat     : ty                        (* number   type constructor *)
  | TBool    : ty                        (* boolean  type constructor *)
@@ -11,7 +11,7 @@ Inductive ty  : Type :=
 Hint Constructors ty : calc.
 
 
-(* Term expression *)
+(* Term expressions *)
 Inductive va : Type :=
  | VNat     : nat    -> va              (* natural number value *)
  | VBool    : bool   -> va              (* boolean value *)

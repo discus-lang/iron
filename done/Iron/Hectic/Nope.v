@@ -1,4 +1,5 @@
 
+
 (* Look for false hypothesis by inversion. *)
 Ltac nope_1
  := match goal with
