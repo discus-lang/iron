@@ -59,10 +59,9 @@ Proof.
 
  (* Induction over the form of (EVAL x1 x2) *)
  induction HE; intros.
- Case "EVDone".
+
   apply EsNone.
 
- Case "EVLamApp".
   inverts_type.
   spec IHHE1 H1.
   spec IHHE2 H3.
@@ -105,10 +104,8 @@ Proof.
  intros te x1 t1 x2 v3 HT HS HE. gen te t1 v3.
  induction HS; intros.
 
- Case "context".
   destruct H; inverts_type; inverts_eval; eauto; nope.
 
- Case "application".
   inverts_type.
   eapply EVLamApp; eauto.
   destruct v2; nope.
@@ -125,11 +122,9 @@ Proof.
  intros x1 t1 v2 HT HS Hv.
  induction HS; try burn.
 
- Case "ESLStep".
   unfold value in *. 
   rip.
 
- Case "ESLCons".
   eapply eval_expansion;
    eauto using preservation.
 Qed.

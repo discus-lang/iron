@@ -24,8 +24,8 @@ Ltac fbreak_le_gt_dec
 
 Ltac lift_cases := 
  repeat (intros;
-  first [ fbreak_nat_compare
-        | fbreak_le_gt_dec
+  first [ (* fbreak_nat_compare *)
+          fbreak_le_gt_dec
         | fbreak_get]); intros.
 
 
@@ -66,44 +66,44 @@ Ltac norm_beq_nat
 Ltac norm_nat_compare :=
   match goal with 
   (* Equality *)
-  | [ H: nat_compare _ _ = Eq           |- _ ]
+  | [ H: Nat.compare _ _ = Eq           |- _ ]
     => apply nat_compare_eq in H
 
-  | [ H: Eq = nat_compare _ _           |- _ ]
+  | [ H: Eq = Nat.compare _ _           |- _ ]
     => symmetry in H; apply nat_compare_eq in H
 
-  | [ H: context [nat_compare _ _ = Eq] |- _ ]
+  | [ H: context [Nat.compare _ _ = Eq] |- _ ]
     => rewrite <- nat_compare_eq in H
 
-  | [ H: context [Eq = nat_compare _ _] |- _ ]
+  | [ H: context [Eq = Nat.compare _ _] |- _ ]
     => symmetry in H; rewrite <- nat_compare_eq in H
 
 
   (* Less Than *)
-  | [ H: nat_compare _ _ = Lt           |- _ ]
+  | [ H: Nat.compare _ _ = Lt           |- _ ]
     => apply nat_compare_lt in H
 
-  | [ H: Lt = nat_compare _ _           |- _ ]
+  | [ H: Lt = Nat.compare _ _           |- _ ]
     => symmetry in H; apply nat_compare_lt in H
 
-  | [ H: context [Lt = nat_compare _ _] |- _ ]
+  | [ H: context [Lt = Nat.compare _ _] |- _ ]
     => symmetry in H; rewrite <- nat_compare_lt in H
 
-  | [ H: context [nat_compare _ _ = Lt] |- _ ]
+  | [ H: context [Nat.compare _ _ = Lt] |- _ ]
     => rewrite <- nat_compare_lt in H
 
 
   (* Greather Than *)
-  | [ H: nat_compare _ _ = Gt           |- _ ]
+  | [ H: Nat.compare _ _ = Gt           |- _ ]
     => apply nat_compare_gt in H
 
-  | [ H: Gt = nat_compare _ _           |- _ ]
+  | [ H: Gt = Nat.compare _ _           |- _ ]
     => symmetry in H; apply nat_compare_gt in H
 
-  | [ H: context [Gt = nat_compare _ _] |- _ ]
+  | [ H: context [Gt = Nat.compare _ _] |- _ ]
     => symmetry in H; rewrite <- nat_compare_gt in H
 
-  | [ H: context [nat_compare _ _ = Gt] |- _ ]
+  | [ H: context [Nat.compare _ _ = Gt] |- _ ]
     => rewrite <- nat_compare_gt in H
   end.
 

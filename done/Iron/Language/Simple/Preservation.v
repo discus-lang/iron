@@ -15,10 +15,8 @@ Proof.
  intros x x' t HT HS. gen t.
  induction HS; rip.
 
- Case "EsContext".
   destruct H; inverts_type; burn.
 
- Case "EsLamApp".
   inverts_type.
   burn using subst_exp_exp.
 Qed.
