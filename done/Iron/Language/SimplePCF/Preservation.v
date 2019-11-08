@@ -15,16 +15,13 @@ Proof.
  intros x x' t HT HS. gen t.
  induction HS; rip; try (inverts HT; progress burn).
 
- Case "EsContext".
-  destruct H; inverts HT; burn.
+ - destruct H; inverts HT; burn.
 
- Case "EsLamApp".
-  inverts HT. inverts H3.
-  burn using subst_exp_exp.
+ - inverts HT. inverts H3.
+   burn using subst_exp_exp.
 
- Case "EsFix".
-  inverts HT.
-  burn using subst_exp_exp.
+ - inverts HT.
+   burn using subst_exp_exp.
 Qed.
 
 
@@ -53,4 +50,6 @@ Proof.
  intros x1 t1 x2 HT HS.
  induction HS; burn using preservation.
 Qed.
+
+
 

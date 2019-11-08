@@ -180,7 +180,7 @@ Fixpoint
  := match xx with
     (* Functions **********************)
     | XVar ix 
-    => match nat_compare ix d with
+    => match Nat.compare ix d with
        (* Index matches the one we are substituting for. *)
        | Eq  => u
        

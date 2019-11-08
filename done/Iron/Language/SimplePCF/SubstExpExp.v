@@ -18,22 +18,18 @@ Proof.
  intros. gen ix te x2 t1.
  induction x1; rip; simpl; inverts H0; eauto.
 
- Case "XVar".
-  fbreak_nat_compare; burn.
-  SCase "n > ix".
+ - fbreak_nat_compare; burn.
    eapply TyVar.
    destruct n; burn.
     norm. nnat. down. apply get_delete_below. omega.
 
- Case "XLam".
-  apply TyLam.
-  rewrite delete_rewind.
-  apply IHx1; burn using type_tyenv_weaken.
+ - apply TyLam.
+   rewrite delete_rewind.
+   apply IHx1; burn using type_tyenv_weaken.
 
- Case "XFix".
-  apply TyFix.
-  rewrite delete_rewind.
-  apply IHx1; burn using type_tyenv_weaken.
+ - apply TyFix.
+   rewrite delete_rewind.
+   apply IHx1; burn using type_tyenv_weaken.
 Qed.
 
 
