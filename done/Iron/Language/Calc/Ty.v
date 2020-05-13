@@ -1,77 +1,67 @@
 
 Require Export Iron.Language.Calc.Exp.
+Require Export Iron.Hectic.Nope.
 
-Inductive TYPE : exp -> ty -> Prop :=
- | TyNum    :  forall n
-            ,  TYPE (XNum n)    TNum
+Inductive TYPE : tm -> ty -> Prop :=
+ | TyNat    :  forall n
+            ,  TYPE (MNat n)    TNat
 
  | TyBool   :  forall b
-            ,  TYPE (XBool b)   TBool
+            ,  TYPE (MBool b)   TBool
 
- | TyString :  forall s
-            ,  TYPE (XString s) TString
+ | TyText   :  forall s
+            ,  TYPE (MText s)   TText
 
  | TyAdd    :  forall e1 e2
-            ,  TYPE e1 TNum -> TYPE e2 TNum
-            -> TYPE (XAdd e1 e2) TNum
-
- | TyMul    :  forall e1 e2
-            ,  TYPE e1 TNum -> TYPE e2 TNum
-            -> TYPE (XMul e1 e2) TNum
+            ,  TYPE e1 TNat -> TYPE e2 TNat
+            -> TYPE (MAdd e1 e2) TNat
 
  | TyLess   :  forall e1 e2
-            ,  TYPE e1 TNum -> TYPE e2 TNum
-            -> TYPE (XLess e1 e2) TBool
-
- | TyMore   :  forall e1 e2
-            ,  TYPE e1 TNum -> TYPE e2 TNum
-            -> TYPE (XMore e1 e2) TBool
+            ,  TYPE e1 TNat -> TYPE e2 TNat
+            -> TYPE (MLess e1 e2) TBool
 
  | TyAnd    :  forall e1 e2
             ,  TYPE e1 TBool -> TYPE e2 TBool
-            -> TYPE (XAnd e1 e2) TBool
-
- | TyOr     :  forall e1 e2
-            ,  TYPE e1 TBool -> TYPE e2 TBool
-            -> TYPE (XOr e1 e2) TBool
+            -> TYPE (MAnd e1 e2) TBool
 
  | TyIf     :  forall e1 e2 e3 t
             ,  TYPE e1 TBool -> TYPE e2 t -> TYPE e3 t
-            -> TYPE (XIf e1 e2 e3) t.
+            -> TYPE (MIf e1 e2 e3) t.
+Hint Constructors TYPE : calc.
 
-Hint Constructors TYPE.
 
-
-Lemma ValueNum 
- : forall e
- , TYPE e TNum -> VALUE e -> exists n, e = XNum n.
+Lemma canonical_value_nat
+ :  forall v
+ ,  TYPE (MVal v) TNat
+ -> exists n, v = VNat n.
 Proof.
  intros.
- destruct e; nope.
- exists n. auto.
+ destruct v; try nope.
+ - exists n; auto.
 Qed.
-Hint Resolve ValueNum.
+Hint Resolve canonical_value_nat : calc.
 
 
-Lemma ValueBool 
- : forall e
- , TYPE e TBool -> VALUE e -> exists b, e = XBool b.
+Lemma canonical_value_bool
+ :  forall v
+ ,  TYPE (MVal v) TBool
+ -> exists b, v = VBool b.
 Proof.
  intros.
- destruct e; nope.
- exists b. auto.
+ destruct v; try nope.
+ - exists b; auto.
 Qed.
-Hint Resolve ValueBool.
+Hint Resolve canonical_value_bool : calc.
 
 
-Lemma ValueString 
- : forall e
- , TYPE e TString -> VALUE e -> exists s, e = XString s.
+Lemma canonical_value_text
+ :  forall v
+ ,  TYPE (MVal v) TText
+ -> exists t, v = VText t.
 Proof.
  intros.
- destruct e; nope.
- exists s. auto.
+ destruct v; try nope.
+ - exists s; auto.
 Qed.
-Hint Resolve ValueString.
-
+Hint Resolve canonical_value_text : calc.
 

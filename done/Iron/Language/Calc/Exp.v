@@ -2,33 +2,30 @@
 Require Export Iron.Language.Calc.Base.
 
 
-(* Types *)
+(* Type expressions *)
 Inductive ty  : Type :=
- | TNum    : ty                         (* number   type constructor *)
- | TBool   : ty                         (* boolean  type constructor *)
- | TString : ty                         (* string   type constructor *)
- | TFun    : ty  -> ty -> ty.           (* function type constructor *)
-Hint Constructors ty.
+ | TNat     : ty                        (* number   type constructor *)
+ | TBool    : ty                        (* boolean  type constructor *)
+ | TText    : ty                        (* test     type constructor *)
+ | TFun     : ty  -> ty -> ty.          (* function type constructor *)
+Hint Constructors ty : calc.
 
 
-(* Term Expressions *)
-Inductive exp : Type :=
- | XNum    : nat    -> exp              (* number  value  *)
- | XBool   : bool   -> exp              (* boolean value  *)
- | XString : string -> exp              (* string  value  *)
- | XAdd    : exp -> exp -> exp          (* addition       *)
- | XMul    : exp -> exp -> exp          (* multiplication *)
- | XLess   : exp -> exp -> exp          (* less-than      *)
- | XMore   : exp -> exp -> exp          (* more-than      *)
- | XAnd    : exp -> exp -> exp          (* boolean and    *)
- | XOr     : exp -> exp -> exp          (* boolean or     *)
- | XIf     : exp -> exp -> exp -> exp.  (* if-then-else   *)
-Hint Constructors exp.
+(* Term expressions *)
+Inductive va : Type :=
+ | VNat     : nat    -> va              (* natural number value *)
+ | VBool    : bool   -> va              (* boolean value *)
+ | VText    : string -> va.             (* text value *)
+Hint Constructors va : calc.
 
+Inductive tm : Type :=
+ | MVal     : va -> tm                  (* value *)
+ | MAdd     : tm -> tm -> tm            (* addition       *)
+ | MLess    : tm -> tm -> tm            (* less-than      *)
+ | MAnd     : tm -> tm -> tm            (* boolean and    *)
+ | MIf      : tm -> tm -> tm -> tm.     (* if-then-else   *)
+Hint Constructors tm : calc.
 
-(* Values *)
-Inductive VALUE : exp -> Prop
- := VaNum    : forall n, VALUE (XNum    n)
- |  VaBool   : forall b, VALUE (XBool   b)
- |  VaString : forall s, VALUE (XString s).
-Hint Constructors VALUE.
+Definition MNat  (n: nat)    := MVal (VNat  n).
+Definition MBool (b: bool)   := MVal (VBool b).
+Definition MText (t: string) := MVal (VText t).

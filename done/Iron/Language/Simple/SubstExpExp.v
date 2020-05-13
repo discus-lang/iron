@@ -19,18 +19,15 @@ Proof.
  rip. gen ix te x2 t1.
  induction_type x1.
 
- Case "XVar".
-  fbreak_nat_compare; burn.
+ fbreak_nat_compare; burn.
 
-  SCase "n > ix".
-   eapply TYVar.
+ - eapply TYVar.
     destruct n; burn.
      simpl. nnat. down. apply get_delete_below. omega.
    
- Case "XLam". 
-  apply TYLam.
-  rewrite delete_rewind.
-  apply IHx1; burn.
+ - apply TYLam.
+   rewrite delete_rewind.
+   apply IHx1; burn.
 Qed.
 
 

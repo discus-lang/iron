@@ -3,126 +3,89 @@ Require Export Iron.Language.Calc.Ty.
 Require Export Iron.Language.Calc.Eval.
 
 
-(* If some expression e has type t,
+(* If some term m has type t,
    then when we evaluate it the result also has type t *)
-Lemma Soundness
-  : forall e t
-  , TYPE e t -> (exists v, EVAL e v /\ TYPE v t).
+Lemma soundness
+  : forall m t
+  , TYPE m t -> (exists v, EVAL m v /\ TYPE (MVal v) t).
 Proof.
- intros. gen t. induction e; intros.
+ intro m.
+ induction m; intros.
 
- - exists (XNum  n);   auto.
- - exists (XBool b);   auto.
- - exists (XString s); auto.
+ (* value *)
+ - exists v;   auto.
+
 
  (* add *)
- - inverts H. rip.
+ - inversion H; subst.
 
-   eapply IHe1 in H2. destruct H2 as [e1']. rip.
-   assert (VALUE  e1'). eauto. 
-   assert (exists n1', e1' = XNum n1') as N1. auto.
+   eapply IHm1 in H2; destruct H2 as [v1']; rip.
+   assert (exists n1', v1' = VNat n1') as N1.
+    apply canonical_value_nat; auto.
    destruct N1 as [n1']. subst.
 
-   eapply IHe2 in H4. destruct H4 as [e2']. rip.
-   assert (VALUE  e2'). eauto.
-   assert (exists n2', e2' = XNum n2') as N2. auto.
+   eapply IHm2 in H4; destruct H4 as [v2']; rip.
+   assert (exists n2', v2' = VNat n2') as N2.
+    apply canonical_value_nat; auto.
    destruct N2 as [n2']. subst.
 
-   exists (XNum (n1' + n2')). rip.
+   exists (VNat (n1' + n2')); rip.
+   + eapply EvAdd; auto.
+   + eapply TyNat.
 
- (* mul *)
- - inverts H. rip.
-
-   eapply IHe1 in H2. destruct H2 as [e1']. rip.
-   assert (VALUE  e1'). eauto. 
-   assert (exists n1', e1' = XNum n1') as N1. auto.
-   destruct N1 as [n1']. subst.
-
-   eapply IHe2 in H4. destruct H4 as [e2']. rip.
-   assert (VALUE  e2'). eauto.
-   assert (exists n2', e2' = XNum n2') as N2. auto.
-   destruct N2 as [n2']. subst.
-
-   exists (XNum (n1' * n2')). rip.
 
  (* less *)
- - inverts H. rip.
+ - inversion H; subst.
 
-   eapply IHe1 in H2. destruct H2 as [e1']. rip.
-   assert (VALUE  e1'). eauto. 
-   assert (exists n1', e1' = XNum n1') as N1. auto.
+   eapply IHm1 in H2; destruct H2 as [v1']; rip.
+   assert (exists n1', v1' = VNat n1') as N1.
+    apply canonical_value_nat; auto.
    destruct N1 as [n1']. subst.
 
-   eapply IHe2 in H4. destruct H4 as [e2']. rip.
-   assert (VALUE  e2'). eauto.
-   assert (exists n2', e2' = XNum n2') as N2. auto.
+   eapply IHm2 in H4; destruct H4 as [v2']; rip.
+   assert (exists n2', v2' = VNat n2') as N2.
+    apply canonical_value_nat; auto.
    destruct N2 as [n2']. subst.
 
-   exists (XBool (blt_nat n1' n2')). rip.
+   exists (VBool (blt_nat n1' n2')); rip.
+   + eapply EvLess; auto.
+   + eapply TyBool.
 
- (* more *)
- - inverts H. rip.
-
-   eapply IHe1 in H2. destruct H2 as [e1']. rip.
-   assert (VALUE  e1'). eauto. 
-   assert (exists n1', e1' = XNum n1') as N1. auto.
-   destruct N1 as [n1']. subst.
-
-   eapply IHe2 in H4. destruct H4 as [e2']. rip.
-   assert (VALUE  e2'). eauto.
-   assert (exists n2', e2' = XNum n2') as N2. auto.
-   destruct N2 as [n2']. subst.
-
-   exists (XBool (bgt_nat n1' n2')). rip.
 
  (* and *)
- - inverts H. rip.
+ - inversion H; subst.
 
-   eapply IHe1 in H2. destruct H2 as [e1']. rip.
-   assert (VALUE  e1'). eauto. 
-   assert (exists b1', e1' = XBool b1') as N1. auto.
-   destruct N1 as [b1']. subst.
+   eapply IHm1 in H2; destruct H2 as [v1']; rip.
+   assert (exists b1', v1' = VBool b1') as B1.
+    apply canonical_value_bool; auto.
+   destruct B1 as [b1']. subst.
 
-   eapply IHe2 in H4. destruct H4 as [e2']. rip.
-   assert (VALUE  e2'). eauto.
-   assert (exists b2', e2' = XBool b2') as N2. auto.
-   destruct N2 as [b2']. subst.
+   eapply IHm2 in H4; destruct H4 as [v2']; rip.
+   assert (exists b2', v2' = VBool b2') as B2.
+    apply canonical_value_bool; auto.
+   destruct B2 as [b2']. subst.
 
-   exists (XBool (andb b1' b2')). rip.
+   exists (VBool (andb b1' b2')); rip.
+   + eapply EvAnd; auto.
+   + eapply TyBool.
 
- (* or *)
- - inverts H. rip.
-
-   eapply IHe1 in H2. destruct H2 as [e1']. rip.
-   assert (VALUE  e1'). eauto. 
-   assert (exists b1', e1' = XBool b1') as N1. auto.
-   destruct N1 as [b1']. subst.
-
-   eapply IHe2 in H4. destruct H4 as [e2']. rip.
-   assert (VALUE  e2'). eauto.
-   assert (exists b2', e2' = XBool b2') as N2. auto.
-   destruct N2 as [b2']. subst.
-
-   exists (XBool (orb b1' b2')). rip.
 
  (* if *)
- - inverts H. rip.
+ - inversion H; subst.
 
    (* eval the scrutinee *)
-   eapply IHe1 in H3. destruct H3 as [e1']. rip.
-   assert (VALUE e1'). eauto.
-   assert (exists b1', e1' = XBool b1') as B1. auto.
+   eapply IHm1 in H3. destruct H3 as [v1']; rip.
+   assert (exists b1', v1' = VBool b1') as B1.  
+    apply canonical_value_bool; auto.
    destruct B1 as [b1']. subst.
    destruct b1'.
 
    (* scrutinee is true *)
-   eapply IHe2 in H5. destruct H5 as [e2']. rip.
-   assert (VALUE e2'). eauto.
-   exists e2'. rip.
+   + eapply IHm2 in H5. destruct H5 as [v2']; rip.
+     exists v2'; auto.
 
    (* scrutinee is false *)
-   eapply IHe3 in H6. destruct H6 as [e3']. rip.
-   assert (VALUE e3'). eauto.
-   exists e3'. rip.
+   + eapply IHm3 in H6. destruct H6 as [v3']; rip.
+     exists v3'; auto.
 Qed.
 

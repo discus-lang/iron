@@ -374,7 +374,7 @@ Proof.
   inverts H1. inverts H3.
   apply Forall2_app.
    auto.
-  destruct ys2 as [ys2 | y'].
+  destruct ys2.
    inverts H1.
    inverts H1. eauto.
 Qed.

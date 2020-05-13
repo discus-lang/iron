@@ -80,12 +80,9 @@ Proof.
  intros. gen ix te t1.
  induction_type x.
 
- Case "XVar".
-  lift_cases; burn.
-
- Case "XLam".
-  apply TYLam.
-  rewrite insert_rewind; auto.
+ - lift_cases; burn.
+ - apply TYLam.
+   rewrite insert_rewind; auto.
 Qed.
 Hint Resolve type_tyenv_insert.
 

@@ -105,41 +105,37 @@ Proof.
        [ eapply steps_context ; [ eauto | eapply IHHE ; eauto ]
        | eauto ]).
 
- Case "EvLamApp".
-  lets E1: IHHE1 H2. 
-  lets E2: IHHE2 H4.
-  lets T1: preservation_steps H2 E1. inverts keep T1.
-  lets T2: preservation_steps H4 E2.
-  lets T3: subst_exp_exp H1 T2.
-  lets E3: IHHE3 T3.
-  eapply EsAppend.
-   lets D: steps_context XcApp1. eapply D. eauto.
-  eapply EsAppend.
-   eapply steps_context; eauto. 
-  eapply EsAppend.
-   eapply EsStep.
-     eapply EsLamApp. eauto. eauto.
+ - lets E1: IHHE1 H2. 
+   lets E2: IHHE2 H4.
+   lets T1: preservation_steps H2 E1. inverts keep T1.
+   lets T2: preservation_steps H4 E2.
+   lets T3: subst_exp_exp H1 T2.
+   lets E3: IHHE3 T3.
+   eapply EsAppend.
+    lets D: steps_context XcApp1. eapply D. eauto.
+   eapply EsAppend.
+    eapply steps_context; eauto. 
+   eapply EsAppend.
+    eapply EsStep.
+      eapply EsLamApp. eauto. eauto.
 
- Case "EvFix".
-  lets T1: subst_exp_exp H3 HT.
-  lets E1: IHHE T1.
-  eapply EsAppend.
-   eapply EsStep.
-    eapply EsFix. eauto.
+ - lets T1: subst_exp_exp H3 HT.
+   lets E1: IHHE T1.
+   eapply EsAppend.
+    eapply EsStep.
+     eapply EsFix. eauto.
 
- Case "EVIfTrue".
-  lets S1: IHHE1 H3.
-  lets S2: IHHE2 H5.
-  eapply EsAppend.
-   eapply (steps_context (fun xx => XIf xx x2 x3)); eauto.
-   eauto.
+ - lets S1: IHHE1 H3.
+   lets S2: IHHE2 H5.
+   eapply EsAppend.
+    eapply (steps_context (fun xx => XIf xx x2 x3)); eauto.
+    eauto.
 
- Case "EVIfFalse".
-  lets S1: IHHE1 H3.
-  lets S2: IHHE2 H6.
-  eapply EsAppend.
-   eapply (steps_context (fun xx => XIf xx x2 x3)); eauto.
-   eauto.
+ - lets S1: IHHE1 H3.
+   lets S2: IHHE2 H6.
+   eapply EsAppend.
+    eapply (steps_context (fun xx => XIf xx x2 x3)); eauto.
+    eauto.
 Qed.
 
 
@@ -164,15 +160,14 @@ Proof.
  induction HS; intros;
   try (solve [inverts H; eauto]); eauto.
 
- Case "Context".
-  destruct H.
-   eauto.
-   inverts HT; inverts H0; try (inverts H); eauto.
-   inverts HT; inverts H0; try (inverts H1); eauto.
-   inverts HT; inverts H0; try (inverts H); eauto.
-   inverts HT; inverts H0; try (inverts H); eauto.
-   inverts HT; inverts H0; try (inverts H); eauto.
-   inverts HT; inverts H0; try (inverts H); eauto.
+ - destruct H.
+    eauto.
+    inverts HT; inverts H0; try (inverts H); eauto.
+    inverts HT; inverts H0; try (inverts H1); eauto.
+    inverts HT; inverts H0; try (inverts H); eauto.
+    inverts HT; inverts H0; try (inverts H); eauto.
+    inverts HT; inverts H0; try (inverts H); eauto.
+    inverts HT; inverts H0; try (inverts H); eauto.
 Qed.
 
 
@@ -186,9 +181,8 @@ Proof.
  intros x1 t1 v2 HT HS HV.
  induction HS; burn.
 
- Case "ESLCons".
-  eapply eval_expansion;
-   burn using preservation.
+ - eapply eval_expansion;
+    burn using preservation.
 Qed.
 
 

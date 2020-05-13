@@ -15,7 +15,6 @@ Proof.
  intros. gen te t1.
  induction_type x.
 
- Case "XLam".
   eapply TYLam. rewrite snoc_cons. auto.
 Qed.
 
@@ -45,10 +44,8 @@ Proof.
  intros. gen te te' n t.
  induction_type x; subst. 
 
- Case "XVar".
   destruct H; burn.
 
- Case "XLam".
   eapply TYLam.
   eapply IHx with (n := S n) (te := te :> t); burn.
 Qed.
@@ -95,16 +92,13 @@ Proof.
  intros. gen e d.
  induction x; intros; norm.
  
- Case "XVar".
   lift_cases; intros; eauto.
   false. subst. destruct H0.
    eapply get_above_false in H; auto. 
 
- Case "XLam".
   eapply IHx in H0; eauto.
   simpl in H0. symmetry. rewrite H. rewrite H0. auto.
 
- Case "XApp".
   spec IHx1 H1. rewrite IHx1; burn.
   spec IHx2 H2. rewrite IHx2; burn.
 Qed.

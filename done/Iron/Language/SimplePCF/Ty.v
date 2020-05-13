@@ -124,20 +124,17 @@ Proof.
  intros te ix x t1 t2 HT. gen ix te t1.
  induction x; rip; inverts HT; burn.
 
- Case "XVar".
-  simpl; lift_cases; burn.
+ - simpl; lift_cases; burn.
 
- Case "XLam".
-  simpl.
-  apply TyLam.
-  rewrite insert_rewind. 
-  apply IHx; burn.
+ - simpl.
+   apply TyLam.
+   rewrite insert_rewind. 
+   apply IHx; burn.
 
- Case "XFix".
-  simpl.
-  apply TyFix.
-  rewrite insert_rewind.
-  apply IHx; burn.
+ - simpl.
+   apply TyFix.
+   rewrite insert_rewind.
+   apply IHx; burn.
 Qed.
 
 
