@@ -25,7 +25,7 @@ Fixpoint bge_nat (n m : nat): bool :=
  | S m' =>
     match n with
     | O => false
-    | S n' => ble_nat n' m'
+    | S n' => bge_nat n' m'
     end
  end.
 
@@ -38,4 +38,3 @@ Definition blt_nat (n m: nat): bool :=
 (* Greater-than for nats. *)
 Definition bgt_nat (n m: nat): bool :=
  (andb (negb (beq_nat n m)) (bge_nat n m)).
-
